@@ -5,7 +5,8 @@ import localFont from "next/font/local";
 export const montreal = localFont({
   src: [
     { path: "../fonts/PPNeueMontreal-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/PPNeueMontreal-Medium.woff2", weight: "500", style: "normal" },
+    // No Medium on the page: weight 500 (headings, labels, buttons) is drawn with the Regular cut too.
+    { path: "../fonts/PPNeueMontreal-Regular.woff2", weight: "500", style: "normal" },
   ],
   variable: "--font-montreal",
   display: "swap",
