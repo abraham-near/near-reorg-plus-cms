@@ -1,0 +1,148 @@
+/*
+ * Design tokens: ONE set for the whole page. The colours are Abraham's palette (near-reorg r17); Lawrence's token NAMES are kept and point at it, so his
+ * sections (hero -> Stack) compile unchanged. Only what something on the page uses is here. Colours, fonts and radii go in @theme so Tailwind generates
+ * utilities (bg-surface, text-ink, font-sans, rounded-md …); everything else lives on :root.
+ * Pending clean-up (later): Lawrence's sections set text in --color-ink (#262626, the dark) where ours use --ink (#1C1917); his radii vs our square corners;
+ * his global type roles (.t-h1, .btn …) vs our per-section type.
+ */
+
+@theme {
+  /* §1 Colour: Abraham's palette under Lawrence's names */
+  --color-surface: #f5f5f5;                 /* paper */
+  --color-surface-2: #ececec;               /* the light panel */
+  --color-ink: #262626;                     /* the dark (his bands and his text) */
+  --color-muted: #6c675f;                   /* warm grey */
+  --color-line: rgb(28 25 23 / 0.2);
+  --color-line-strong: rgb(28 25 23 / 0.5);
+  --color-line-on-dark: rgb(245 244 241 / 0.18);
+  --color-green: #00dc8d;
+  --color-green-text: #1f6b45;              /* green as text, on paper */
+  --color-on-dark: #f5f4f1;
+  --color-on-dark-muted: rgb(245 244 241 / 0.65);
+  --color-white: #ffffff;
+
+  /* §2 Families (variables come from next/font in app/layout.tsx) */
+  --font-sans: var(--font-montreal), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-montreal-mono), ui-monospace, monospace;
+  --font-accent: var(--font-kepler), Georgia, serif;
+  --font-accent-display: var(--font-kepler-display), var(--font-kepler), Georgia, serif;
+
+  /* §3 Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  /* §3 Breakpoints */
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1280px;
+  --breakpoint-xl: 1440px;
+  --breakpoint-2xl: 1920px;
+}
+
+:root {
+  /* §2 Fluid type scale: mobile 390 → tablet 768 → desktop 1440 */
+  --text-display: clamp(3rem, 1.514rem + 6.095vw, 7rem);
+  --text-h1: clamp(2.75rem, 1.914rem + 3.429vw, 5rem);
+  --text-h2: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); /* 36 on phones (D15) */
+  --text-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); /* 24 on phones (D15) */
+  --text-h4: clamp(1.125rem, 0.996rem + 0.529vw, 1.25rem);
+  --text-title-editorial: clamp(1.5rem, 1.221rem + 1.143vw, 2.25rem);
+  --text-lede: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem);
+  --text-body: clamp(1rem, 0.929rem + 0.149vw, 1.0625rem);
+  --text-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);
+  --text-button: 0.9375rem;
+  --text-label: 0.8125rem;
+  /* caption: small sentence-case detail (feature details, stat pairs); 13 px, the DESIGN §2 floor */
+  --text-caption: 0.8125rem;
+  --text-mono: clamp(0.8125rem, 0.76rem + 0.19vw, 0.9375rem);
+
+  --tracking-display: -0.0185em;
+  --tracking-h1: -0.015em;
+  --tracking-h2: -0.01em;
+  --tracking-h3: -0.005em;
+  --tracking-accent: -0.02em;
+  --tracking-label: 0.2em;
+  --accent-scale: 1.18em;
+  --measure: 40ch; /* ~60 characters: Montreal's "0" (what ch measures) is about 1.5 average characters wide */
+
+  /* §1 Stack illustration colours (D7). Used only by the home Stack drawing; never for UI or text. */
+  /* D18: flat faces per layer, after Lawrence's reference (inner frame lightest, outer darkest), on the brand hue.
+     t = top, l = the left-facing side, r = the right-facing side. */
+  --stack-protocol-t: #5fe0ae;
+  --stack-protocol-l: #3cc994;
+  --stack-protocol-r: #22a374;
+  --stack-intents-t: #d4f8e7;
+  --stack-intents-l: #9debc8;
+  --stack-intents-r: #6dd9aa;
+  --stack-ai-t: #4fd09c;
+  --stack-ai-l: #33b482;
+  --stack-ai-r: #208e64;
+  --stack-com-t: #2a9a6d;
+  --stack-com-l: #1e7a55;
+  --stack-com-r: #145b3f;
+  /* Hovering or focusing a layer drops the others to charcoal */
+  --stack-dim-top: #4a4d4b;
+  --stack-dim-l: #3a3c3b;
+  --stack-dim-r: #313332;
+
+  /* §3 Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-11: 192px;
+  /* Stepped on the spacing scale, as DESIGN §3 specifies (audit 2026-11-02: the fluid clamps landed off-scale) */
+  --section-pad-y: var(--space-8);
+  --page-margin: var(--space-4);
+  --content-max: 1440px;
+
+  /* §4 Motion */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 600ms;
+  --dur-5: 1200ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); /* a long ease to a stop: the Stack rings settling (D21) */
+}
+
+/* Abraham's sections (header, proof, Go deeper, Origin, Testimonials, Get into NEAR, Close, footer) read these names */
+:root {
+  --paper: var(--color-surface);
+  --ink: #1c1917;                           /* text on paper */
+  --ink-2: var(--color-muted);
+  --line: var(--color-line);
+  --rule: var(--color-line-strong);
+  --dark: var(--color-ink);
+  --on-dark: var(--color-on-dark);
+  --on-dark-2: var(--color-on-dark-muted);
+  --green: var(--color-green);
+  --green-text: var(--color-green-text);
+  --panel: var(--color-surface-2);
+  --font-text: var(--font-sans);
+  --font-acc: var(--font-accent-display);   /* the Kepler italic accent (display cut) */
+  --ease: var(--ease-settle);
+  --u: min(1vw, 19.4px);                    /* fluid unit: 1 % of the viewport up to a 1940 px outer width */
+  --m: clamp(20px, 5.3vw, 100px);           /* the side margin of the content: 100 px at 1885 */
+  --nav-h: 78px;
+}
+
+@media (min-width: 768px) { :root { --section-pad-y: var(--space-9); --page-margin: var(--space-6); } }
+@media (min-width: 1280px) { :root { --section-pad-y: var(--space-10); --page-margin: var(--space-8); } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+    --dur-4: 0ms;
+    --dur-5: 0ms;
+  }
+}

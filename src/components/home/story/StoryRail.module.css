@@ -1,0 +1,72 @@
+/* Story option C, "The rail" (D29). Tokens only. Motion mode only (the static reading is Story.module.css).
+   The world is a track several screens wide that slides left; everything on it is placed at --x (vw) on one line. */
+
+.stage { --rail-y: 64%; }
+/* D97: one size for the rail's three statements (the opening lines, the problem, the answer): 0.8 of h1 (64 px at
+   desktop widths), less on short screens so the problem's three lines still end above the drawing on the line */
+.stage { --say: min(calc(var(--text-h1) * 0.8), 7.2vh); }
+.world { position: absolute; top: 0; left: 0; height: 100%; width: var(--end); will-change: transform; }
+/* The hand-over to the Stack (StoryRailMotion): the line is the nearest layer. The world sits over the words fixed on the
+   stage (so the dark covers the answer as the line passes it); in the world, the dark (.curtain) covers the drawings,
+   words and hairlines, and the line, its green and the tiles ride above it. The stage isolates all this from the page,
+   so the Stack's band, which overlaps the end of the track (Stack.module.css), still comes up over it. */
+.stage { isolation: isolate; }
+.world { z-index: 1; }
+.rail, .green, .hub, .dot { z-index: 2; }
+/* The Stack's ink, 100vw wide under the last station (centred there at the end), hung from the line: it drops from the
+   line (scaleY, from its top) and then rises with it; tall enough to reach the foot of the screen with the line at the top */
+.curtain { position: absolute; left: calc(var(--x) - 50vw); top: var(--rail-y); width: 100vw; height: calc(100% + var(--space-8)); background: var(--color-ink); transform-origin: 50% 0; transform: scaleY(0); z-index: 1; }
+
+.rail { position: absolute; left: 0; right: 0; top: var(--rail-y); height: 1px; background: var(--color-line-strong); }
+.green { position: absolute; top: calc(var(--rail-y) - 1px); height: 2px; background: var(--color-green); }
+/* D100: the green is the reader's progress: from the left edge to the middle of the screen (the playhead's box), never
+   past it. greenL draws in from AI and then rides with the box (StoryRailMotion cancels the world's travel on it) */
+.greenL { left: 0; width: 50vw; }
+.greenR { left: 50vw; width: 50vw; }
+/* The two sides, at h3 so they read as the story's two ends (D38) */
+.end { position: absolute; left: var(--x); top: calc(var(--rail-y) + var(--space-5)); font-size: var(--text-h3); font-weight: 500; line-height: 1.1; letter-spacing: var(--tracking-h3); white-space: nowrap; }
+.end em { font-style: normal; font-weight: 400; color: var(--color-muted); margin-left: var(--space-3); }
+.endR { transform: translateX(-100%); }
+/* Where they meet: a green tile (the app-tile's proportions, D22) carrying the official black N. D69: 48 px (was 64),
+   its corner a quarter of its side like the station tiles below */
+.hub { position: absolute; left: var(--x); top: var(--rail-y); width: var(--space-7); height: var(--space-7); margin: calc(var(--space-7) / -2) 0 0 calc(var(--space-7) / -2); display: grid; place-items: center; border-radius: calc(var(--radius-md) + var(--space-1)); background: var(--color-green); }
+.hubMark { display: block; width: 92%; height: auto; } /* D70: the N about half the tile (icon.svg has its own padding) */
+
+/* The problem, then the answer in the same place, centred over the drawing on the line and the stations after it (D38);
+   D97: each rises on line by line and lifts off the same way, like the opening lines */
+.problem, .answer { position: absolute; left: 0; right: 0; top: 10%; margin: 0 auto; text-align: center; font-weight: 500; }
+/* D97: the shared size (--say); the problem's column wide enough for three balanced lines at it */
+.problem { width: min(1240px, 86vw); font-size: var(--say); line-height: 1.06; letter-spacing: var(--tracking-h1); text-wrap-style: balance; }
+.answer { font-size: var(--say); line-height: 1.05; letter-spacing: var(--tracking-h1); white-space: nowrap; }
+.owned { color: var(--color-green-text); }
+.pw { display: inline-block; white-space: pre; }
+
+/* Stations: centred on their --x, the drawing above the line, the words below */
+.station { position: absolute; left: var(--x); top: 0; bottom: 0; width: 0; }
+/* 320 wide, so the drawings' 10-unit tags render at the 13 px floor (DESIGN §2; OwnArt.module.css) */
+.artSlot { position: absolute; left: 0; bottom: calc(100% - var(--rail-y) + var(--space-6)); width: calc(var(--space-11) + var(--space-10)); transform: translateX(-50%); }
+/* The layer drawing sits on the line itself (its slab is the layer) */
+/* Orbit's rendered drawings (D56): 420 × 315, smaller on short screens so they stay clear of the answer above */
+.artSlot[data-large] { width: min(420px, calc((54vh - 126px) * 4 / 3)); }
+.gateSlot { left: var(--x); bottom: calc(100% - var(--rail-y) + var(--space-3)); }
+.art { width: 100%; }
+/* The station marker (D57, D69): a green tile matching the hub (D95: now its size, 48 px) carrying the
+   official black N (icon.svg, unaltered) at the hub's size (D70: 92%); the playhead's square outline lands around it */
+/* D95: the same size as NEAR's tile (48 px, was 32), so every tile in the playhead's box is the same; the words below
+   move down by the 8 px the tile grew under the line, keeping their gap */
+.dot { position: absolute; left: 0; top: var(--rail-y); width: var(--space-7); height: var(--space-7); margin: calc(var(--space-7) / -2) 0 0 calc(var(--space-7) / -2); display: grid; place-items: center; border-radius: calc(var(--radius-md) + var(--space-1)); background: var(--color-green); }
+
+.dotMark { display: block; width: 92%; height: auto; }
+.title { position: absolute; left: 0; top: calc(var(--rail-y) + var(--space-6) + var(--space-2)); width: 40rem; margin: 0; transform: translateX(-50%); text-align: center; font-size: var(--text-h2); font-weight: 500; line-height: 1.1; letter-spacing: var(--tracking-h2); }
+.line { position: absolute; left: 0; top: calc(var(--rail-y) + var(--space-6) + var(--space-2) + 1.5 * var(--text-h2)); width: 34ch; margin: 0; transform: translateX(-50%); text-align: center; }
+
+/* Fixed on the stage */
+.connect { position: absolute; left: var(--inset); top: 14%; font-size: var(--say); font-weight: 500; line-height: 1.05; letter-spacing: var(--tracking-h1); }
+.cline { margin: 0; white-space: nowrap; }
+.clineIn { display: inline-block; }
+
+/* Looks (D32) */
+/* Drafting: each drawing sits in a dashed frame on a dotted leader down to its dot; both belong to the drawing, so they
+   show and hide with it (a half-frame cut by the screen's edge would read as a bug) */
+.stage[data-look="drafting"] .art { position: relative; outline: 1px dashed var(--color-line-strong); outline-offset: var(--space-4); }
+.stage[data-look="drafting"] .art::after { content: ""; position: absolute; left: 50%; top: calc(100% + var(--space-4)); height: calc(var(--space-6) - var(--space-4)); border-left: 1px dotted var(--color-ink); }

@@ -1,0 +1,3 @@
+/* The layer moments on the rail (D86): the still (the problem at rest) hands over to the live canvas in one frame, with
+   no cross-fade, so the still at rest and the live arrival turn never show doubled as the layer slides in. */
+.instant canvas, .instant img { transition: none; }
