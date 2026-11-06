@@ -38,4 +38,22 @@ export const kepler = localFont({
   preload: false,
 });
 
-export const fontVariables = [montreal.variable, montrealMono.variable, keplerDisplay.variable, kepler.variable].join(" ");
+// Abraham's text face (the header, the sections after the Stack, the footer): PP Neue Montreal Book, the 400 r17 uses (--font-text in tokens.css).
+export const montrealBook = localFont({
+  src: "../fonts/PPNeueMontreal-Book.woff2",
+  weight: "400",
+  style: "normal",
+  variable: "--font-montreal-book",
+  display: "swap",
+});
+
+// Abraham's accent (the sections after the Stack): Kepler Medium Condensed Italic Display, the cut r17 uses (--font-acc in tokens.css).
+export const keplerCondensed = localFont({
+  src: "../fonts/KeplerStd-MediumCnItDisp.woff2",
+  weight: "500",
+  style: "italic",
+  variable: "--font-kepler-cn",
+  display: "swap",
+});
+
+export const fontVariables = [montreal.variable, montrealMono.variable, keplerDisplay.variable, kepler.variable, montrealBook.variable, keplerCondensed.variable].join(" ");

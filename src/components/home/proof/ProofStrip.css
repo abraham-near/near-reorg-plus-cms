@@ -1,0 +1,36 @@
+/* The proof strip (r17 v1): five figures, each with its unit beside it, standing on our hairline rule + tick, the caption under. Left-aligned, compact, unpinned.
+   The same air above and below (120 px desktop): the Stack's dark runs on into the air above as a dot field (motion.ts, the .pf-band canvas).
+   Motion state (.pf[data-pf], motion.ts): each figure fades in, its rule draws. */
+.pf { position: relative; padding: 120px var(--m) 80px; background: var(--paper); color: var(--ink); }
+/* + Go deeper's own ~98 px top padding (its pinned header room) = 120 px to its heading */
+@media (min-width: 1100px) { .pf { padding-bottom: 22px; } }
+.pf-band { position: absolute; left: 0; top: 0; z-index: 2; width: 100%; pointer-events: none; }
+.pf-inner { max-width: 1820px; margin-inline: auto; }
+.pf-figs { container-type: inline-size; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: calc(2 * var(--u)); }
+.pf-cell { position: relative; min-width: 0; }
+/* the figure stands on the rule (its bottom edge) */
+.pf-value { position: relative; display: flex; align-items: baseline; gap: .28em; margin: 0; padding: 0 0 14px; font-size: 36px; font-weight: 400; line-height: 1; letter-spacing: -.035em; white-space: nowrap; }
+.pf-num { display: block; font-variant-numeric: tabular-nums; }
+.pf-unit { display: block; font-family: var(--font-text); font-size: .5em; font-weight: 400; line-height: 1; letter-spacing: -.005em; color: var(--ink-2); }
+.pf-value::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--rule); transform-origin: 0 50%; transform: scaleX(var(--rl, 1)); }
+/* a tick at the start of every figure, across the rule */
+.pf-value::before { content: ""; position: absolute; left: 0; bottom: -5px; width: 1px; height: 11px; background: var(--ink); opacity: var(--tk, 1); }
+.pf-cap { margin: 0; padding-top: 12px; max-width: 26ch; font-size: 14.5px; line-height: 1.38; letter-spacing: -.005em; color: var(--ink-2); text-wrap: balance; }
+.pf[data-pf] .pf-cell { opacity: var(--a, 1); transform: translateY(calc(var(--y, 0) * 10px)); }
+
+/* tablet: 2 + 3, each row on its own hairline */
+@media (max-width: 1099px) {
+  .pf-figs { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 32px; }
+  .pf-cell:nth-child(-n + 2) { grid-column: span 3; }
+  .pf-cell:nth-child(n + 3) { grid-column: span 2; }
+  .pf-value { font-size: 34px; }
+}
+/* phones: 2 columns, the Intents figure leads across both */
+@media (max-width: 760px) {
+  .pf { padding-block: 72px 32px; }
+  .pf-figs { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; column-gap: 20px; }
+  .pf-cell:nth-child(n) { grid-column: span 1; padding-right: 14px; }
+  .pf-cell:first-child { grid-column: 1 / -1; }
+  .pf-value { font-size: 30px; padding-bottom: 12px; }
+  .pf-cap { padding-top: 11px; font-size: 13.5px; }
+}

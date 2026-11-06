@@ -103,6 +103,11 @@
   .section { padding-block: var(--section-pad-y); }
 }
 
+/* Abraham's pieces set in his text face (r17's Montreal Book at 400) */
+@layer base {
+  .hd, #proof, .gd, .og, [data-voices], #paths, #close, .ft { font-family: var(--font-text); }
+}
+
 /* Abraham's sections: the staircase's word windows (lib/motion/staircase.ts), shared by every heading that climbs */
 @layer components {
   .gx-w { display: inline-block; vertical-align: baseline; overflow: clip; padding: 0.1em 0.12em 0.14em; margin: -0.1em -0.12em -0.14em; }
