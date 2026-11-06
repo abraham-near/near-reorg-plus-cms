@@ -30,7 +30,7 @@
 .beat::before { content: ""; position: absolute; left: -5px; top: calc(var(--space-8) + 10px); width: 12px; height: 12px; border-radius: 50%; background: var(--color-green); }
 .copy { max-width: 640px; }
 .lede { margin-top: var(--space-5); }
-.cta { margin-top: var(--space-6); }
+.cta { margin-top: var(--space-6); border-radius: 12px; }   /* the hero's Get started: 12 px (the other .btn keep --radius-md) */
 
 /* The anthem (D29): larger, the N tile floated two lines deep beside "NEAR" (its top on the first line's cap height, its
    foot on the second line's baseline), the text wrapping naturally around it */
