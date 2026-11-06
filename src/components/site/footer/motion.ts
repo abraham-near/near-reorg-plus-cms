@@ -1,10 +1,10 @@
 /* The footer takeover (desktop >= 1024 px with motion; phones and reduced motion keep the static dark block).
- *   - a trigger PULL px from the bottom of the document: on enter the dark wipe grows to one screen (.5 s power3.out), the panel (headline + columns) arrives a beat later,
+ *   - a trigger PULL px (280) from the bottom of the document: on enter the dark wipe grows to one screen (.5 s power3.out), the panel (headline + columns) arrives a beat later,
  *     the wordmark hops and lands with a bounce, and the scroll is pulled to the very bottom. Scrolling up by one pixel undoes it (the wipe drops in .25 s, linear).
  *   - only when the page has at least a screen of scroll and the footer is the last thing of the document (else the static footer stays). */
 import type { Mount } from "@/lib/motion/scroll";
 
-const PULL = 100;
+const PULL = 280;   /* px from the bottom of the document where the takeover starts (the CMS: 100) */
 
 export const mount: Mount = (root, { gsap, ScrollTrigger: ST, reduced }) => {
   if (reduced) return;
