@@ -158,3 +158,8 @@ html[data-hd-locked], html[data-hd-locked] body { overflow: hidden; }
   .hd-panel, .hd-map, .hd-surface, .hd-word, .hd-mark { transition-property: opacity, visibility !important; transition-duration: 200ms, 0s !important; }
   .hd-map { transform: none; }
 }
+
+/* Corners: the bar and the panel at 16 px; the controls inside (the N tile, Get started, Menu) and the panel's highlighted
+   links at 12 px. The phone map's blocks stay square. */
+.hd-surface, .hd-panel { border-radius: 16px; }
+.hd-mark, .hd-cta, .hd-menu, .hd-item { border-radius: 12px; }
