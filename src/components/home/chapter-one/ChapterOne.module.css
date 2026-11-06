@@ -39,7 +39,13 @@
 .wd { display: inline-block; white-space: nowrap; }
 .ch { display: inline-block; }
 .lb { display: none; }
-.hl { color: var(--color-green-text); }
+.ind { display: none; }
+.hl .ch, .hl.wd { color: var(--color-ink); }
+/* "own your intelligence.": Abraham's marker (r17): a flat green block behind ink type, from a little under the cap to the baseline;
+   each letter carries its own piece (it fills as the letter goes solid in motion: --g), the last letter of a word reaches over the space after it */
+.hl .ch { background: linear-gradient(color-mix(in srgb, var(--color-green) calc(var(--g, 1) * 100%), transparent), color-mix(in srgb, var(--color-green) calc(var(--g, 1) * 100%), transparent)) 0 0.13em / 100% calc(100% - 0.15em) no-repeat; }
+.hl .ch:last-child { padding-right: 0.28em; margin-right: -0.28em; }
+.hl.wd:last-child .ch:last-child { padding-right: 0.1em; margin-right: -0.1em; }   /* the phrase's end: a hair past the full stop, as r17's marker */
 
 /* ── Motion mode ─────────────────────────────────────────────── */
 @media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
@@ -69,8 +75,17 @@
   :global(html[data-js]) .statement { font-size: min(var(--text-h1), 5.6vw); line-height: 1.05; letter-spacing: var(--tracking-h1); max-width: none; }
   :global(html[data-js]) .lb { display: inline; }
   :global(html[data-js]) .anthemMark { width: 1.78em; height: 1.78em; margin-top: 0.15em; }
+  /* Abraham's layout (r17): r17's set (a touch smaller than its 5.25 u, so the longest line keeps the thread's 48 px step), five lines that never wrap, each from its own indent (r17's --in2 .. --in5, in
+     its fluid unit); the N tile, kept, sits above the lines (where r17's N stood) so every line steps from the same edge */
+  :global(html[data-js]) .statement { font-size: calc(5 * var(--u)); line-height: 1.04; letter-spacing: -0.036em; white-space: nowrap; }
+  :global(html[data-js]) .anthemMark { float: none; display: block; width: 1.3em; height: 1.3em; margin: 0 0 calc(2.6 * var(--u)); }
+  :global(html[data-js]) .ind { display: inline-block; vertical-align: top; height: 1px; }
+  :global(html[data-js]) .ind[data-l="1"] { width: calc(9.5 * var(--u)); }
+  :global(html[data-js]) .ind[data-l="2"] { width: calc(3 * var(--u)); }
+  :global(html[data-js]) .ind[data-l="3"] { width: calc(15.5 * var(--u)); }
+  :global(html[data-js]) .ind[data-l="4"] { width: calc(31 * var(--u)); }
   /* "own your intelligence." wipes on in ink and only turns green as each letter goes solid (--g, ChapterOneMotion) */
-  :global(html[data-js]) .hl .ch { color: color-mix(in srgb, var(--color-green-text) calc(var(--g, 0) * 100%), var(--color-ink)); }
+  :global(html[data-js]) .hl .ch { color: var(--color-ink); }
 }
 
 /* Thread drawing (SVG built by ChapterOneMotion) */

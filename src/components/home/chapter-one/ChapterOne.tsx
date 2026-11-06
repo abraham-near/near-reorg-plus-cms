@@ -66,9 +66,10 @@ export function ChapterOne({ hero = {} }: { hero?: HeroOptions | "random" }) {
                 wordClass={styles.wd}
                 charClass={styles.ch}
                 breakClass={styles.lb}
+                indentClass={styles.ind}
                 parts={[
-                  // Desktop line breaks ("\n"): two lines beside the tile, and the green phrase on a line of its own
-                  { text: "NEAR is open infrastructure\npowering the agent economy.\nConfidential by design and secured\nfor the quantum era, it lets you\ntrade anything, anywhere, and\n" },
+                  // Desktop line breaks ("\n"): Abraham's five staggered lines (r17), the green phrase closing the last one
+                  { text: "NEAR is open infrastructure powering\nthe agent economy. Confidential by\ndesign and secured for the quantum era,\nit lets you trade anything, anywhere,\nand " },
                   { text: "own your intelligence.", className: styles.hl },
                 ]}
               />
