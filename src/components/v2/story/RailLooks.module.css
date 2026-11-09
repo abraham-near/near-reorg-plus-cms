@@ -1,0 +1,87 @@
+/* The rail's cinematic looks (D32). Tokens only; every layer is decorative, moves only with the scroll, and animates
+   transform and opacity (no clip-path or filter animation, DESIGN §4). --rail-y comes from the rail's stage
+   (StoryRail.module.css). Masks are opacity masks (the ink token as "opaque"), never colour washes. */
+
+/* Back layers: behind the track, faded out at the screen's edges */
+.back { position: absolute; inset: 0; overflow: hidden; pointer-events: none; mask-image: linear-gradient(to right, transparent, var(--color-ink) 9%, var(--color-ink) 91%, transparent); }
+.back > [data-depth] { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
+
+/* One wide ridges panorama (no repeat, no mirroring): 205vw wide covers the screen plus the 0.3× travel; its foot sits on
+   the line, so the line reads as its horizon */
+.plate, .horizonPlate { position: absolute; inset: 0; background: url("/images/home/rail/home-rail-ridges-wide-v1.webp") no-repeat left bottom / 205vw auto; }
+
+/* Horizon: the panorama at low strength, its sky fading into the paper; a faint mist band nearer the viewer */
+.back > .horizon { width: 205vw; height: var(--rail-y); }
+.horizonPlate { opacity: 0.38; transform-origin: 50% 100%; mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 60%); }
+.mistLayer { width: 440vw; }
+.mist { position: absolute; left: var(--x); top: calc(var(--rail-y) - 20vh); width: 90vw; height: 24vh; background: url("/images/home/rail/home-rail-mist-v1.webp") no-repeat center / 100% 100%; opacity: 0.45; }
+
+/* Surveyor's layer on the track: a tick scale under the line; hairlines above it, each with a node on the line */
+.ticks { position: absolute; left: 0; right: 0; top: calc(var(--rail-y) + 4px); height: 6px; background: repeating-linear-gradient(90deg, var(--color-line-strong) 0 1px, transparent 1px 12px); opacity: 0.6; z-index: 2; }
+/* The hand-over: the scale in the light on the Stack's dark (shown by StoryRailMotion) */
+.ticksDark { background: repeating-linear-gradient(90deg, var(--color-on-dark-muted) 0 1px, transparent 1px 12px); opacity: 0; visibility: hidden; }
+.survey { position: absolute; left: var(--x); top: calc(var(--rail-y) - 26vh); height: 26vh; width: 1px; background: var(--color-line-strong); mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 60%); }
+.node { position: absolute; left: -3px; bottom: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-ink); }
+/* Fixed on the stage: the reader's place on the line, and corners that lock onto the station being read */
+/* Both centred on 50vw, not 50%: the track brings each station to the middle of the window (vw, scrollbar included), and
+   with a visible scrollbar 50% sits half its width to the left (D57). The playhead is a square outline 8 px wider than
+   the station tile (StoryRail.module.css), its corner concentric with the tile's, so it lands around it with an even
+   4 px gap (D69). D95: every tile on the rail is NEAR's tile's size (48 px), so the box is 56 px throughout. */
+.playhead {
+  --ph: calc(var(--space-7) + var(--space-2));
+  position: absolute; left: 50vw; top: var(--rail-y); width: var(--ph); height: var(--ph); margin: calc(var(--ph) / -2) 0 0 calc(var(--ph) / -2);
+  border: 1px solid var(--color-ink); border-radius: calc(var(--radius-md) + var(--space-2)); opacity: 0;
+  z-index: 2; /* over the world (StoryRail.module.css), so over the Stack's dark in the hand-over */
+}
+/* The hand-over: the box straddles the line, so its lower half sits on the Stack's dark: a light stroke there (the same
+   box, cut at the line by a fixed clip), shown by StoryRailMotion as the dark arrives */
+.playheadDark { position: absolute; inset: -1px; border: 1px solid var(--color-on-dark); border-radius: inherit; clip-path: inset(50% 0 0 0); opacity: 0; visibility: hidden; }
+.finder { position: absolute; left: 50vw; top: calc(var(--rail-y) - var(--space-6) - 240px - 20px); width: 360px; height: 280px; margin-left: -180px; opacity: 0; }
+/* With Orbit's larger drawings (D56) the corners frame the 420 × 315 slot (StoryRail.module.css), 20 px outside it */
+:global([data-art-kind^="orbit"]) > .finder {
+  --w: min(420px, calc((54vh - 126px) * 4 / 3));
+  top: calc(var(--rail-y) - var(--space-6) - var(--w) * 0.75 - 20px); width: calc(var(--w) + 40px); height: calc(var(--w) * 0.75 + 40px);
+  margin-left: calc((var(--w) + 40px) / -2);
+}
+
+.corner { position: absolute; width: 16px; height: 16px; border: 0 solid var(--color-ink); }
+.tl { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; }
+.tr { right: 0; top: 0; border-right-width: 1px; border-top-width: 1px; }
+.bl { left: 0; bottom: 0; border-left-width: 1px; border-bottom-width: 1px; }
+.br { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+
+/* Window: the sky band above the line (full width, down to the line), scaled about (75.71%, bottom) so it starts as the
+   window at 53–83vw × 24–64% of the screen; lookMotion counter-scales the plate and places the corners. */
+.windowFrame { position: absolute; left: 0; top: 0; width: 100%; height: var(--rail-y); overflow: hidden; transform-origin: 75.71% 100%; will-change: transform; }
+.windowInner { position: absolute; left: 0; top: 0; width: 205vw; height: 100%; transform-origin: 75.71vw 100%; will-change: transform; }
+.plateDark { filter: grayscale(1) brightness(0.68); opacity: 0; } /* a fixed grade; only its opacity moves */
+/* The corners sit 10 px outside the band's corners; lookMotion moves them with the frame's edges */
+.wc { width: 20px; height: 20px; }
+.back > .wc.tl { left: -10px; top: -10px; }
+.back > .wc.tr { left: calc(100% - 10px); right: auto; top: -10px; }
+.back > .wc.bl { left: -10px; top: calc(var(--rail-y) - 10px); bottom: auto; }
+.back > .wc.br { left: calc(100% - 10px); right: auto; top: calc(var(--rail-y) - 10px); bottom: auto; }
+
+/* Drafting: a sparse dot grid */
+.dots { width: 200vw; background-image: radial-gradient(circle, var(--color-line-strong) 1px, transparent 1.6px); background-size: 48px 48px; opacity: 0.5; mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 30%, var(--color-ink) 85%, transparent); }
+/* Stroke in the SVG's own units (100 across the screen): about 1 px, and dashes measured along each path */
+.fan { position: absolute; left: 0; top: 0; width: 100vw; height: 100%; overflow: visible; }
+.fan path { fill: none; stroke: var(--color-line-strong); stroke-width: 0.1; }
+/* Orbit rings (Tempo): three faint rings around the point and each station; the dashed one turns with the track */
+.orbits { position: absolute; left: var(--x); top: var(--rail-y); width: 0; height: 0; }
+.orbits span { position: absolute; left: 0; top: 0; border: 1px solid var(--color-line); border-radius: 50%; transform: translate(-50%, -50%); }
+.orbits span:nth-child(1) { width: 380px; height: 380px; }
+.orbits span:nth-child(2) { width: 620px; height: 620px; border-style: dashed; }
+.orbits span:nth-child(3) { width: 900px; height: 900px; }
+/* The selection frame: dashed, crosshair corners, a ruler along its top; it locks onto the layer drawing (D38: 320 × 240,
+   sitting 12 px above the line) */
+.select { position: absolute; left: var(--x); top: calc(var(--rail-y) - var(--space-3) - 120px); width: 360px; height: 280px; margin: -140px 0 0 -180px; border: 1px dashed var(--color-line-strong); opacity: 0; }
+.ruler { position: absolute; left: 0; right: 0; top: -14px; height: 6px; background: repeating-linear-gradient(90deg, var(--color-ink) 0 1px, transparent 1px 10px); opacity: 0.5; }
+.cross { position: absolute; width: 15px; height: 15px; }
+.cross::before, .cross::after { content: ""; position: absolute; background: var(--color-ink); }
+.cross::before { left: 7px; top: 0; width: 1px; height: 15px; }
+.cross::after { left: 0; top: 7px; width: 15px; height: 1px; }
+.select .tl { left: -8px; top: -8px; }
+.select .tr { right: -8px; left: auto; top: -8px; }
+.select .bl { left: -8px; bottom: -8px; top: auto; }
+.select .br { right: -8px; left: auto; bottom: -8px; top: auto; }

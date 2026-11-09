@@ -1,0 +1,116 @@
+/* Orbit (D54, D56): a celestial atlas threaded through rendered chrome and frosted glass. Hairline orbits in ink at
+   reduced strength, dotted where the orbit has passed the glass, dashed for the return and the ghost; green only for
+   the swap, the signed trace and the new ring. Drawn at 420 × 315, so 13-unit type lands at 13 px (a zoomed station
+   divides type and strokes by --k). Tokens only.
+
+   Default = the end state. [data-play] runs one sequence (≈ 1.9 s, then still): draw-on (stroke-dashoffset), pop and
+   rise (opacity, transform), the green part's move (transform, opacity). [data-hover] moves the joined drawing as one
+   rigid piece and the free tag a little further by --px / --py, firms the lines and lifts the green part; a replay on
+   hover redraws only lines and markers (the render, the green part and the tag hold). Timings are steps of --dur-1,
+   which reduced motion sets to 0. Type stays ≥ 13 px at any width: the root is a size container and --fit is the
+   drawing's scale (its width over 420). */
+
+.art { --k: 1; position: relative; width: 100%; aspect-ratio: 4 / 3; container-type: inline-size; }
+.layer { position: absolute; inset: 0; --fit: tan(atan2(100cqw, 420px)); }
+.svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.img { object-fit: fill; }
+
+/* Lines sit a step back at rest and firm up clearly on hover (their inks are set so the rest state reads as designed) */
+.lines { opacity: 0.7; transition: opacity var(--dur-3) var(--ease-out); }
+.art[data-hover] .lines { opacity: 1; }
+
+.orbit, .hair, .fine, .faint, .dash, .ghost, .dots, .marker, .gLine, .gHair, .travel { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.orbit { stroke: color-mix(in srgb, var(--color-ink) 82%, transparent); stroke-width: calc(0.6px / var(--k)); }
+.hair { stroke: color-mix(in srgb, var(--color-ink) 86%, transparent); stroke-width: calc(0.6px / var(--k)); }
+.fine { stroke: color-mix(in srgb, var(--color-ink) 60%, transparent); stroke-width: calc(0.5px / var(--k)); }
+.faint { stroke: color-mix(in srgb, var(--color-ink) 34%, transparent); stroke-width: calc(0.5px / var(--k)); }
+.dash { stroke: color-mix(in srgb, var(--color-ink) 52%, transparent); stroke-width: calc(0.5px / var(--k)); stroke-dasharray: 2.5 2.5; }
+.ghost { stroke: color-mix(in srgb, var(--color-ink) 68%, transparent); stroke-width: calc(0.6px / var(--k)); stroke-dasharray: 1.6 1.8; }
+.dots { stroke: color-mix(in srgb, var(--color-ink) 96%, transparent); stroke-width: calc(1.3px / var(--k)); stroke-dasharray: 0 3.6; }
+.marker { stroke: color-mix(in srgb, var(--color-ink) 86%, transparent); stroke-width: calc(0.6px / var(--k)); }
+.inkFill { fill: var(--color-ink); }
+
+/* green: the swap's landing, the signed trace, the new ring's marks */
+.gLine { stroke: var(--color-green-text); stroke-width: calc(0.75px / var(--k)); }
+.gHair { stroke: var(--color-green-text); stroke-width: calc(0.5px / var(--k)); }
+.gFill { fill: var(--color-green); }
+
+/* labels: small, level, no knockout; 13 px at any zoom */
+.label, .muted, .gLabel, .name { font-family: var(--font-sans); font-size: calc(13px / var(--fit, 1) / var(--k)); letter-spacing: 0.01em; }
+.label { fill: var(--color-ink); }
+.muted { fill: var(--color-muted); }
+.gLabel { fill: var(--color-green-text); }
+/* the name, engraved in the frosted disc: lighter than the labels */
+.name { fill: color-mix(in srgb, var(--color-ink) 66%, transparent); font-weight: 500; letter-spacing: 0.04em; }
+.near { fill: var(--color-green-text); font-weight: 400; }
+
+/* The traveller (assets): one dash of zero length on a pattern twice the path, so a single round dot; its offset moves
+   it along the swap orbit. A 9 px ink dot with a ground-coloured centre reads as a ring; a green one fades in under it
+   as it lands. Hidden at rest */
+.travel { opacity: 0; stroke-dasharray: 0 2; }
+.travelInk { stroke: var(--color-ink); stroke-width: calc(9px / var(--k)); }
+.travelGreen { stroke: var(--color-green-text); stroke-width: calc(9px / var(--k)); }
+.travelHole { stroke: var(--color-surface); stroke-width: calc(6px / var(--k)); }
+
+/* ── The sequence */
+.pop, .rise { transform-box: fill-box; transform-origin: center; }
+.art[data-play] .draw, .art[data-play] .drawRev { stroke-dasharray: 1 1; }
+.art[data-play] .draw { animation: draw calc(var(--dur-1) * var(--t, 4)) calc(var(--dur-1) * var(--d, 0)) var(--ease-in-out) both; }
+.art[data-play] .drawRev { animation: drawRev calc(var(--dur-1) * var(--t, 4)) calc(var(--dur-1) * var(--d, 0)) var(--ease-in-out) both; }
+.art[data-play] .fade { animation: fade calc(var(--dur-1) * var(--t, 3)) calc(var(--dur-1) * var(--d, 0)) var(--ease-out) both; }
+.art[data-play] .pop { animation: pop var(--dur-3) calc(var(--dur-1) * var(--d, 0)) var(--ease-settle) both; }
+.art[data-play] .rise { animation: rise var(--dur-4) calc(var(--dur-1) * var(--d, 0)) var(--ease-out) both; }
+.art[data-play] .travel { animation: travel calc(var(--dur-1) * var(--t, 6)) calc(var(--dur-1) * var(--d, 0)) var(--ease-in-out) both; }
+.art[data-play] .travelInk { animation-name: travelInk; }
+.art[data-play] .travelGreen { animation-name: travelGreen; }
+
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes drawRev { from { stroke-dashoffset: -1; } to { stroke-dashoffset: 0; } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: scale(0.4); } }
+@keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+@keyframes travel {
+  0% { opacity: 0; stroke-dashoffset: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; stroke-dashoffset: -1; }
+}
+@keyframes travelInk {
+  0% { opacity: 0; stroke-dashoffset: 0; }
+  10% { opacity: 1; }
+  72% { opacity: 1; }
+  86% { opacity: 0; }
+  100% { opacity: 0; stroke-dashoffset: -1; }
+}
+@keyframes travelGreen {
+  0% { opacity: 0; stroke-dashoffset: 0; }
+  70% { opacity: 0; }
+  86% { opacity: 1; }
+  100% { opacity: 0; stroke-dashoffset: -1; }
+}
+
+/* The green part's story moves (on the green layer of the still) */
+.art[data-play] .drift { animation: drift calc(var(--dur-1) * 8) calc(var(--dur-1) * 4) var(--ease-settle) both; }
+.art[data-play] .settle { animation: settle calc(var(--dur-1) * 4) calc(var(--dur-1) * 11) var(--ease-settle) both; }
+.art[data-play] .arrive { animation: arrive calc(var(--dur-1) * 4) calc(var(--dur-1) * 11) var(--ease-settle) both; }
+.art[data-play] .settleRing { animation: settleRing calc(var(--dur-1) * 6) calc(var(--dur-1) * 8) var(--ease-settle) both; }
+@keyframes drift { from { opacity: 0; transform: translateX(4%); } }
+@keyframes settle { from { transform: translateY(-2%); } 60% { transform: translateY(0.4%); } }
+@keyframes arrive { from { opacity: 0.4; transform: translate(-1%, -1.5%); } }
+@keyframes settleRing { from { transform: translateY(-3%); } 70% { transform: translateY(0.3%); } }
+
+/* A replay on hover (OwnReplay sets data-hover before it restarts data-play) redraws only the lines and markers: the
+   green part and the tags start already finished, so the drawing being pointed at never empties */
+.art[data-hover] .move, .art[data-hover] .rise { animation-delay: -60s; }
+
+/* ── Hover: the joined drawing moves as one rigid piece (so no orbit parts at its seams), the free tag a step further,
+   the green part lifts; all of it eases back on leave */
+.rig, .free, .lift { transition: transform var(--dur-4) var(--ease-out); }
+.art[data-hover] .rig { transform: translate(calc(var(--px, 0) * 5px), calc(var(--py, 0) * 5px)); }
+.art[data-hover] .free { transform: translate(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 8px)); }
+.art[data-hover] .lift { transform: translateY(-3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .art[data-play] * { animation: none !important; }
+  .art[data-hover] .rig, .art[data-hover] .free, .art[data-hover] .lift { transform: none; }
+}

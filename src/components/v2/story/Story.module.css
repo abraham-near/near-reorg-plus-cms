@@ -1,0 +1,46 @@
+/* The story after the anthem (D29), shared by the three options. Tokens only. Two modes, like Chapter 1:
+   - Static (phones, tablets, reduced motion, no JS): the plain reading, left on the page container under the green rule.
+   - Motion (html[data-js], ≥ 1280 px, motion allowed): the reading becomes screen-reader only and each option's pinned,
+     aria-hidden stage takes over (its own module sets the height and the layout). */
+
+.story { --inset: max(var(--page-margin), calc((100% - var(--content-max)) / 2 + var(--page-margin))); position: relative; }
+
+/* ── Static ─────────────────────────────────────────────────── */
+.static { position: relative; margin-left: var(--space-2); padding: var(--space-8) var(--page-margin) var(--section-pad-y) var(--space-2); }
+@media (min-width: 768px) { .static { margin-left: calc(var(--inset) - var(--space-5)); padding-left: var(--space-5); } }
+.static::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--color-green); }
+.connect { margin: 0; max-width: 20ch; }
+.sentence { display: block; }
+.problem { margin: var(--space-7) 0 0; }
+.answer { margin: var(--space-5) 0 0; max-width: 24ch; }
+/* The layer drawing (D38) between the problem and the answer, at the "Own your" drawings' size */
+.nearArt { margin: var(--space-7) 0 0; }
+.owned { color: var(--color-green-text); }
+.ownList { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: grid; gap: var(--space-7); max-width: 640px; }
+.ownH { margin: 0; }
+.ownLine { margin: var(--space-3) 0 0; }
+.ownArt { margin: 0 0 var(--space-4); }
+/* Orbit's rendered drawings (D56) are drawn at 420 × 315 */
+.ownArtLarge { width: min(420px, 100%); }
+@media (min-width: 1024px) {
+  .ownList { max-width: none; gap: var(--space-8); }
+  .ownItem { display: grid; grid-template-columns: minmax(0, 28rem) auto; column-gap: var(--space-8); align-items: center; }
+  .ownArt { grid-column: 2; grid-row: 1 / span 2; margin: 0; }
+  .ownH { align-self: end; }
+  .ownLine { align-self: start; }
+}
+
+.track { display: none; }
+
+/* The meet line and the answer in one cell (morph.ts slides NEAR between them) */
+.morph { position: relative; display: grid; font-weight: 500; }
+.mLine { grid-area: 1 / 1; white-space: pre-wrap; }
+.mw { display: inline-block; }
+
+/* ── Motion ─────────────────────────────────────────────────── */
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  /* The reading stays for screen readers only */
+  :global(html[data-js]) .static { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  :global(html[data-js]) .track { display: block; position: relative; height: var(--story-h, 500vh); }
+  :global(html[data-js]) .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+}

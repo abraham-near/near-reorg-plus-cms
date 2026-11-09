@@ -1,0 +1,37 @@
+/* Option 2, "Rendered film" (D72). The drawing is 420 × 315 units; positions set from script are in cqw of the root
+   (1 unit = 100 / 420 cqw), so the layers stay locked together at any width. Tokens only; render pixels are exempt. */
+
+.art { position: relative; width: 100%; aspect-ratio: 4 / 3; container-type: inline-size; }
+.layer { position: absolute; inset: 0; --fit: tan(atan2(100cqw, 420px)); }
+.svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.fill { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* The film: the rest frame as a still (cut from white the same way), the live frames on a canvas over it once they
+   come; the video itself is only the canvas's source */
+.poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+.art[data-live] .canvas { opacity: 1; }
+.art[data-live] .poster { visibility: hidden; }
+.source { position: absolute; left: 0; top: 0; width: 2px; height: 2px; opacity: 0; pointer-events: none; }
+
+/* Data: the green ball behind the glass. The sharp sprite is masked out where the tracked disc stands; under the disc
+   the frost layer holds a heavily blurred copy and a milky wash, so the ball goes soft as it passes behind */
+.ball { position: absolute; left: 0; top: 0; width: calc(100cqw * 46 / 420); aspect-ratio: 1; will-change: transform; }
+.ball > img { width: 100%; height: 100%; display: block; }
+.soft > img { filter: blur(calc(9px * var(--fit))); opacity: 0.8; }
+.frost { position: absolute; inset: 0; background: color-mix(in srgb, var(--color-surface) 55%, transparent); }
+
+/* Lines: Orbit's vocabulary at its strengths (orbit.module.css) */
+.lines { opacity: 0.7; }
+.orbit, .hair, .fine, .faint, .dash, .dots, .marker, .gLine { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.orbit { stroke: color-mix(in srgb, var(--color-ink) 82%, transparent); stroke-width: 0.6px; }
+.hair { stroke: color-mix(in srgb, var(--color-ink) 86%, transparent); stroke-width: 0.6px; }
+.fine { stroke: color-mix(in srgb, var(--color-ink) 60%, transparent); stroke-width: 0.5px; }
+.faint { stroke: color-mix(in srgb, var(--color-ink) 34%, transparent); stroke-width: 0.5px; }
+.dash { stroke: color-mix(in srgb, var(--color-ink) 52%, transparent); stroke-width: 0.5px; stroke-dasharray: 2.5 2.5; }
+.dots { stroke: color-mix(in srgb, var(--color-ink) 96%, transparent); stroke-width: 1.3px; stroke-dasharray: 0 3.6; }
+.marker { stroke: color-mix(in srgb, var(--color-ink) 86%, transparent); stroke-width: 0.6px; }
+.gLine { stroke: var(--color-green-text); stroke-width: 0.75px; }
+.inkFill { fill: var(--color-ink); }
+.gFill { fill: var(--color-green); }
+.label { font-family: var(--font-sans); font-size: calc(13px / var(--fit, 1)); letter-spacing: 0.01em; fill: var(--color-ink); }

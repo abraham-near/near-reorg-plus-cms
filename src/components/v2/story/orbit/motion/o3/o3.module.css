@@ -1,0 +1,7 @@
+/* Option 3, real-time 3D (D72). The still (the scene rendered at rest) shows until the live canvas has drawn its first
+   frame, then the two cross over. Tokens only. */
+.root { isolation: isolate; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity var(--dur-3) var(--ease-out); }
+.still { transition: opacity var(--dur-3) var(--ease-out); }
+.root[data-live] .canvas { opacity: 1; }
+.root[data-live] .still { opacity: 0; }

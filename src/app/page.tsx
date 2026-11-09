@@ -1,9 +1,23 @@
 import styles from "./Selector.module.css";
 
-// The index: only a choice between the two homepages. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
+// The index: a choice between the two homepage directions. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
 const VERSIONS = [
-  { href: "/home-v1", n: "v1", name: "Carril vivo", note: "The globe intro, the living rail with the isometrics, the Stack, then Abraham’s sections." },
-  { href: "/home-v2", n: "v2", name: "Lawrence + Abraham", note: "Lawrence’s hero, rail and Stack, then Abraham’s header, sections and footer." },
+  {
+    href: "/home-v1",
+    n: "01",
+    name: "Flat design",
+    note: "Drawn in dots and lines: a dot-matrix globe, a rail that draws itself as you scroll, and flat isometric illustrations.",
+    tags: ["Dot globe", "Vector rail", "Isometrics"],
+    img: "/selector-v1.webp",
+  },
+  {
+    href: "/home-v2",
+    n: "02",
+    name: "3D render",
+    note: "Rendered in 3D: filmed landscapes scrubbed by the scroll, glass and chrome objects, and a rendered Stack.",
+    tags: ["Rendered film", "3D scenes", "Scroll-scrubbed"],
+    img: "/selector-v2.webp",
+  },
 ];
 
 export default function Selector() {
@@ -11,22 +25,34 @@ export default function Selector() {
     <main className={styles.page}>
       <header className={styles.top}>
         <img className={styles.logo} src="/brand/logo.svg" alt="NEAR" width={88} height={23} />
-        <p className={styles.label}>Homepage prototypes</p>
+        <p className={styles.label}>Homepage directions</p>
       </header>
-      <h1 className={styles.h}>
-        Choose a <span className={styles.acc}>version.</span>
-      </h1>
-      <ul className={styles.list}>
+
+      <div className={styles.intro}>
+        <h1 className={styles.h}>Two directions for the homepage<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>Same story, same copy. One is drawn in dots and lines; the other is rendered in 3D.</p>
+      </div>
+
+      <ul className={styles.grid}>
         {VERSIONS.map((v) => (
           <li key={v.n}>
-            <a className={styles.row} href={v.href}>
-              <span className={styles.n}>{v.n}</span>
-              <span className={styles.body}>
-                <span className={styles.name}>{v.name}</span>
-                <span className={styles.note}>{v.note}</span>
+            <a className={styles.card} href={v.href}>
+              <span className={styles.frame}>
+                <img className={styles.img} src={v.img} alt="" width={1200} height={750} />
               </span>
-              <span className={styles.go} aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
+              <span className={styles.meta}>
+                <span className={styles.n}>{v.n}</span>
+                <span className={styles.path}>{v.href}</span>
+              </span>
+              <span className={styles.row}>
+                <span className={styles.name}>{v.name}</span>
+                <span className={styles.go} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
+                </span>
+              </span>
+              <span className={styles.note}>{v.note}</span>
+              <span className={styles.tags}>
+                {v.tags.map((t) => <span key={t} className={styles.tag}>{t}</span>)}
               </span>
             </a>
           </li>

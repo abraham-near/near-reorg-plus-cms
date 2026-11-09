@@ -1,0 +1,78 @@
+/* Section 1: Chapter 1, the claim and the anthem (the story after it is components/home/story, D29). Tokens only. Two modes:
+   - Static (default: phones, tablets, reduced motion, no JS): stacked beats, a static green rule, photo band first.
+   - Motion (html[data-js], ≥ 1280px = --breakpoint-lg, motion allowed): pinned stage, beats scroll over it. */
+
+.chapter { position: relative; }
+
+/* ── Static mode ─────────────────────────────────────────────── */
+/* The crop (D90): --hero-fx/--hero-fy, fractions of the picture, from the version's focal point (--focal-x/-y, set on the
+   stage by ChapterOne; heroes/framing.ts) or 78% 50%. Every picture uses it, and the versions' layers read it too, so
+   their stills stay registered with the photo. --focal-clear starts the photo below the floating nav bar. */
+.stage { --hero-fx: var(--focal-x, 0.78); --hero-fy: var(--focal-y, 0.5); position: relative; height: 42vh; height: 42svh; overflow: hidden; }
+.photo { position: absolute; inset: var(--focal-clear, 0px) 0 0; overflow: hidden; }
+.media { position: absolute; inset: 0; will-change: transform; }
+.photoImg { object-fit: cover; object-position: calc(var(--hero-fx) * 100%) calc(var(--hero-fy) * 100%); }
+.video { display: none; }
+.curtain { display: none; }
+.lines { display: none; }
+
+/* Content sits in the page container (1440 max), so at wide screens it aligns with the header. */
+.beats { --inset: max(var(--page-margin), calc((100% - var(--content-max)) / 2 + var(--page-margin))); position: relative; margin-left: var(--space-2); }
+/* The text sits on the page container's edge and the green rule hangs in the margin beside it (like the quote marks) */
+@media (min-width: 768px) { .beats { margin-left: calc(var(--inset) - var(--space-5)); } }
+/* The thread, as a line down the left edge, with a dot at each beat; the story's own rule carries on below (D29) */
+.beats::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--color-green); transform: scaleY(var(--rule, 1)); transform-origin: top; }
+/* Phones/tablets with motion (D15): dots scale in as their beat arrives (ChapterOneMotion sets data-dots/data-dot) */
+.beats[data-dots] .beat::before { transform: scale(0); transition: transform var(--dur-3) var(--ease-out); }
+.beats[data-dots] .beat[data-dot]::before { transform: scale(1); }
+.beat { position: relative; padding: var(--space-8) var(--page-margin) var(--space-7) var(--space-2); }
+@media (min-width: 768px) { .beat { padding-left: var(--space-5); } }
+.beat::before { content: ""; position: absolute; left: -5px; top: calc(var(--space-8) + 10px); width: 12px; height: 12px; border-radius: 50%; background: var(--color-green); }
+.copy { max-width: 640px; }
+.lede { margin-top: var(--space-5); }
+.cta { margin-top: var(--space-6); border-radius: 12px; }   /* the hero's Get started: 12 px (the other .btn keep --radius-md) */
+
+/* The anthem (D29): larger, the N tile floated two lines deep beside "NEAR" (its top on the first line's cap height, its
+   foot on the second line's baseline), the text wrapping naturally around it */
+.statement { margin: 0; font-size: var(--text-h2); font-weight: 500; line-height: 1.1; letter-spacing: var(--tracking-h2); max-width: 20em; text-wrap-style: pretty; }
+.anthemMark { float: left; width: 1.84em; height: 1.84em; margin: 0.17em 0.3em 0.1em 0; }
+.wd { display: inline-block; white-space: nowrap; }
+.ch { display: inline-block; }
+.lb { display: none; }
+.hl { color: var(--color-green-text); }
+
+/* ── Motion mode ─────────────────────────────────────────────── */
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  /* The camera move's crop: 30% 50%, or the version's own (--focal-dx/-dy); the layers read it from the picture */
+  :global(html[data-js]) .stage { --hero-fx: var(--focal-dx, 0.3); --hero-fy: var(--focal-dy, 0.5); position: sticky; top: 0; height: 100vh; height: 100svh; }
+  :global(html[data-js]) .photo { inset: 0; overflow: visible; }
+  :global(html[data-js]) .curtain { display: block; position: absolute; top: 0; bottom: 0; background: var(--color-surface); transform: scaleX(0); will-change: transform; }
+  :global(html[data-js]) .curtainL { left: 0; transform-origin: left center; }
+  :global(html[data-js]) .curtainR { right: 0; transform-origin: right center; }
+  /* The scrubbed camera move (D29) fades in over its own first frame once it can seek */
+  :global(html[data-js]) .video { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: calc(var(--hero-fx) * 100%) calc(var(--hero-fy) * 100%); opacity: 0; transition: opacity var(--dur-4) var(--ease-out); }
+  :global(html[data-js]) .video[data-ready] { opacity: 1; }
+  :global(html[data-js]) .lines { display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  :global(html[data-js]) .beats { margin: -100vh 0 0; margin-top: -100svh; padding: 0; }
+  :global(html[data-js]) .lede { max-width: 34ch; } /* keeps the lede on the pale side of the photo */
+  :global(html[data-js]) .beats::before { display: none; }
+  :global(html[data-js]) .beat { display: flex; align-items: center; padding: 0 var(--inset); }
+  :global(html[data-js]) .beat::before { display: none; }
+  /* The camera moves down the ridges over the claim and the room after it, then the photo closes (D29: 90 vh of room) */
+  :global(html[data-js]) .beatClaim { min-height: 100vh; min-height: 100svh; margin-bottom: 90vh; }
+  :global(html[data-js]) .beatAnthem { min-height: 200vh; align-items: flex-start; }
+
+  /* Anthem: pinned while its colour wipes on; set at h1 size across the page container, from its left edge */
+  :global(html[data-js]) .anthem { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; align-items: center; width: 100%; }
+  /* h1, a touch smaller near 1280 so the line keeps a clear step to the right of the longest line (D35) */
+  :global(html[data-js]) .statement { font-size: min(var(--text-h1), 5.6vw); line-height: 1.05; letter-spacing: var(--tracking-h1); max-width: none; }
+  :global(html[data-js]) .lb { display: inline; }
+  :global(html[data-js]) .anthemMark { width: 1.78em; height: 1.78em; margin-top: 0.15em; }
+  /* "own your intelligence." wipes on in ink and only turns green as each letter goes solid (--g, ChapterOneMotion) */
+  :global(html[data-js]) .hl .ch { color: color-mix(in srgb, var(--color-green-text) calc(var(--g, 0) * 100%), var(--color-ink)); }
+}
+
+/* Thread drawing (SVG built by ChapterOneMotion) */
+.lines :global(.thread) { fill: none; stroke-linecap: round; stroke: var(--color-green); stroke-width: 2; }
+.lines :global(.dot) { fill: var(--color-green); }

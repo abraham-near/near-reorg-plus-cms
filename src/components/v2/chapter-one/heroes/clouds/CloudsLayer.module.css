@@ -1,0 +1,24 @@
+/* The "Above the clouds" hero's layer (D90), over the photo and its camera move, under the close-in curtains.
+   The still's SVG sits in a box with the video's 16:9 shape, covering the stage from the photo's own object-position
+   (ChapterOne: 78% across on the photo band, 30% on desktop with motion), so every line stays on its ridge at any
+   width. On desktop with motion the canvas draws every frame instead. Tokens only (in the drawing).
+   D90 integrator: the crop comes from ChapterOne's --hero-fx/--hero-fy (each version's focal point), so this still
+   stays registered with the photo whatever the version's framing. */
+.layer { position: absolute; inset: 0; pointer-events: none; container-type: size; }
+.svg {
+  --fx: var(--hero-fx, 0.78);
+  --bw: max(100cqw, calc(100cqh * 16 / 9));
+  --bh: calc(var(--bw) * 9 / 16);
+  position: absolute;
+  width: var(--bw);
+  height: var(--bh);
+  left: calc((100cqw - var(--bw)) * var(--fx));
+  top: calc((100cqh - var(--bh)) * var(--hero-fy, 0.5));
+  overflow: visible;
+}
+.canvas { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  :global(html[data-js]) .svg { display: none; }
+  :global(html[data-js]) .canvas { display: block; }
+}
+/* No JS on a wide screen: ChapterOne keeps its static layout (photo band, copy below) at 78% */
