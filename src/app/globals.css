@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
+@import "../styles/versions.css";
+
+/* Shared by every route: Tailwind, the brand tokens, the per-version variables (styles/versions.css), the page base, and the helpers the shared
+   sections use. Anything only one version uses lives with it (components/v1/*, components/v2/v2.css). */
 
 /* Base: light mode first (D1). No automatic dark theme. */
 @layer base {
@@ -34,81 +38,12 @@
   }
 }
 
-/* Type roles (spec/DESIGN.md §2). Use these classes rather than ad-hoc sizes. */
-@layer components {
-  .t-display { font-size: var(--text-display); font-weight: 500; line-height: 1; letter-spacing: var(--tracking-display); }
-  .t-h1 { font-size: var(--text-h1); font-weight: 500; line-height: 1.05; letter-spacing: var(--tracking-h1); }
-  .t-h2 { font-size: var(--text-h2); font-weight: 500; line-height: 1.1; letter-spacing: var(--tracking-h2); }
-  .t-h3 { font-size: var(--text-h3); font-weight: 500; line-height: 1.15; letter-spacing: var(--tracking-h3); }
-  .t-h4 { font-size: var(--text-h4); font-weight: 500; line-height: 1.2; }
-  .t-title-editorial { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-size: var(--text-title-editorial); line-height: 1.15; letter-spacing: var(--tracking-accent); }
-  /* text-wrap-style: pretty avoids one-word last lines (the shorthand is stripped by the Tailwind pipeline) */
-  /* Ledes run 2–3 lines, where balance gives even lines instead of a short last one */
-  .t-lede { font-size: var(--text-lede); line-height: 1.5; max-width: var(--measure); text-wrap-style: balance; }
-  .t-body { font-size: var(--text-body); line-height: 1.6; max-width: var(--measure); text-wrap-style: pretty; }
-  .t-small { font-size: var(--text-small); line-height: 1.5; letter-spacing: 0.005em; }
-  .t-label { font-size: var(--text-label); font-weight: 500; line-height: 1.2; letter-spacing: var(--tracking-label); text-transform: uppercase; }
-  .t-mono { font-family: var(--font-mono); font-size: var(--text-mono); line-height: 1.6; }
-
-  /* The signature pairing: one closing Kepler italic phrase per heading, 1.18x, same ink. */
-  .accent {
-    font-family: var(--font-accent-display);
-    font-style: italic;
-    font-weight: 400;
-    font-size: var(--accent-scale);
-    letter-spacing: var(--tracking-accent);
-    /* The parent sets the line box, so a heading ending in the accent isn't taller than one that doesn't */
-    line-height: 0;
-  }
-  /* Kepler's Display cut is drawn for 48 px and up (DESIGN §2); smaller accents use the text cut */
-  .t-h3 .accent, .t-h4 .accent { font-family: var(--font-accent); }
-  @media (max-width: 767px) { .t-h2 .accent { font-family: var(--font-accent); } }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: 44px;
-    padding: 0 var(--space-5);
-    border-radius: var(--radius-md);
-    font-size: var(--text-button);
-    font-weight: 500;
-    letter-spacing: 0.005em;
-    white-space: nowrap;
-    transition: background-color var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out);
-  }
-  /* Press feedback: a quick, small give (0 ms with reduced motion) */
-  .btn:active { transform: scale(0.98); }
-  .btn-primary { background: var(--color-green); color: var(--color-ink); }
-  .btn-primary:hover { background: color-mix(in srgb, var(--color-green) 85%, var(--color-ink)); }
-  .btn-secondary { border: 1px solid var(--color-ink); color: var(--color-ink); }
-  .btn-secondary:hover { background: var(--color-ink); color: var(--color-on-dark); }
-  /* The two "Get started" buttons' glyph (D28, components/GoArrow): › at rest, → on hover (300 ms, transform/opacity) */
-  .btn-go { flex: none; margin-right: calc(var(--space-1) * -1); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .btn-go-head { transition: transform var(--dur-3) var(--ease-settle); }
-  .btn-go-shaft { opacity: 0; transition: opacity var(--dur-3) var(--ease-settle); }
-  @media (hover: hover) and (pointer: fine) {
-    .btn:hover .btn-go-head { transform: translateX(2px); }
-    .btn:hover .btn-go-shaft { opacity: 1; }
-  }
-  .btn:focus-visible .btn-go-head { transform: translateX(2px); }
-  .btn:focus-visible .btn-go-shaft { opacity: 1; }
-
-  /* Visible placeholder for anything not yet confirmed (CLAUDE.md: never fabricate). */
-  .tbd { font-size: var(--text-small); font-weight: 500; color: var(--color-ink); background: var(--color-surface-2); padding: 0 var(--space-1); border-radius: var(--radius-sm); -webkit-box-decoration-break: clone; box-decoration-break: clone; } /* may wrap: a long marker must never push the page wider than a phone */
-  /* On ink and forest bands a light chip outshines the content; an outlined chip stays visibly unfinished but quiet */
-  [data-tone="dark"] .tbd { color: var(--color-on-dark); background: transparent; outline: 1px solid var(--color-on-dark-muted); outline-offset: -1px; }
-
-  .container-page { width: 100%; max-width: var(--content-max); margin-inline: auto; padding-inline: var(--page-margin); }
-  .section { padding-block: var(--section-pad-y); }
-}
-
-/* Abraham's pieces set in his text face (r17's Montreal Book at 400) */
+/* The shared pieces set in the text face (--font-text, styles/versions.css) */
 @layer base {
   .hd, #proof, .gd, .og, [data-voices], #paths, #close, .ft { font-family: var(--font-text); }
 }
 
-/* Abraham's sections: the staircase's word windows (lib/motion/staircase.ts), shared by every heading that climbs */
+/* The shared sections: the staircase's word windows (lib/motion/staircase.ts), shared by every heading that climbs */
 @layer components {
   .gx-w { display: inline-block; vertical-align: baseline; overflow: clip; padding: 0.1em 0.12em 0.14em; margin: -0.1em -0.12em -0.14em; }
   .gx-wi { display: inline-block; }

@@ -1,9 +1,8 @@
 /*
- * Design tokens: ONE set for the whole page. The colours are Abraham's palette (near-reorg r17); Lawrence's token NAMES are kept and point at it, so his
- * sections (hero -> Stack) compile unchanged. Only what something on the page uses is here. Colours, fonts and radii go in @theme so Tailwind generates
- * utilities (bg-surface, text-ink, font-sans, rounded-md …); everything else lives on :root.
- * Pending clean-up (later): Lawrence's sections set text in --color-ink (#262626, the dark) where ours use --ink (#1C1917); his radii vs our square corners;
- * his global type roles (.t-h1, .btn …) vs our per-section type.
+ * Brand tokens, shared by both versions and every page. The colours are Abraham's palette (near-reorg r17); Lawrence's token NAMES are kept and point at
+ * it, so his pieces (components/v2) compile unchanged. Colours, fonts and radii go in @theme so Tailwind generates utilities (bg-surface, text-ink,
+ * font-sans, rounded-md …); everything else lives on :root. What may differ between the versions is in versions.css, not here.
+ * Pending decision: Lawrence's pieces set text in --color-ink (#262626, the dark) where the shared ones use --ink (#1C1917).
  */
 
 @theme {
@@ -113,10 +112,10 @@
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); /* a long ease to a stop: the Stack rings settling (D21) */
 }
 
-/* Abraham's sections (header, proof, Go deeper, Origin, Testimonials, Get into NEAR, Close, footer) read these names */
+/* The shared pieces (header, proof, Go deeper, Origin, voices, Get into NEAR, Close, footer) read these names. --ink, --font-text and --font-acc
+   are in versions.css: they may differ per version. */
 :root {
   --paper: var(--color-surface);
-  --ink: #1c1917;                           /* text on paper */
   --ink-2: var(--color-muted);
   --line: var(--color-line);
   --rule: var(--color-line-strong);
@@ -126,8 +125,6 @@
   --green: var(--color-green);
   --green-text: var(--color-green-text);
   --panel: var(--color-surface-2);
-  --font-text: var(--font-montreal-book), var(--font-sans);   /* Montreal Book for 400 (r17); 500 falls back to Lawrence's Medium through --font-sans */
-  --font-acc: var(--font-kepler-cn), var(--font-accent-display);   /* the Kepler accent of Abraham's sections: Medium Condensed Italic Display, weight 500 */
   --ease: var(--ease-settle);
   --u: min(1vw, 19.4px);                    /* fluid unit: 1 % of the viewport up to a 1940 px outer width */
   --m: clamp(20px, 5.3vw, 100px);           /* the side margin of the content: 100 px at 1885 */

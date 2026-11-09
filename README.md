@@ -1,32 +1,63 @@
 # near-reorg-plus-cms
 
-Two versions of the NEAR homepage in one Next.js app:
+Two directions for the NEAR homepage in one Next.js app, while we choose one, and a base for the pages that come after.
 
 | Route | What |
 |---|---|
-| `/` | A selector: v1 or v2. |
-| `/home-v1` | **v1 = near-reorg r17 v1 "Carril vivo"**, whole. |
-| `/home-v2` | **v2 = Lawrence's hero → Stack + Abraham's sections.** |
+| `/` | A selector: v1 (Flat design) or v2 (3D render). |
+| `/home-v1` | **v1 = near-reorg r17 v1 "Carril vivo"**: dot globe, vector rail, flat isometrics. |
+| `/home-v2` | **v2 = Lawrence's hero → Stack**: rendered film, 3D scenes. |
+| `/template` | The starting point for new pages: shared pieces only, viewable as v1 or v2. |
 
-The versions don't share components: each can change without touching the other. Links into and out of v1 are plain `<a>` (full page loads), so v1's global CSS and its boot never meet v2's. In production each route ships its own CSS.
+## How it is split
+
+Three layers, so nothing has to wait for the decision:
+
+1. **Shared** (both versions, every page), `src/components/shared/`:
+   - the header and the footer;
+   - the sections after the Stack: proof, Go deeper, Origin, voices, Get into NEAR, Close;
+   - the version switch (`VersionSwitch`) and `version.tsx`.
+
+   They also rely on:
+   - `src/lib/motion` (scroll motion);
+   - `src/styles/tokens.css` (brand tokens);
+   - `src/app/globals.css` (Tailwind and the page base).
+2. **Per version**, `src/styles/versions.css`: the values that differ, under `<html data-version="v1|v2">`. Today these are the header's corners and its paint over dark bands. Shared components read only these variables, never a value of their own.
+3. **One version only**:
+   - `src/components/v1/`: r17's world (globe, intro, hero, statement), rail and Stack, and its boot;
+   - `src/components/v2/`: Lawrence's heroes, StoryRail and Stack, plus `v2.css`, his type roles and buttons (`.t-h1`, `.btn` …), which load on `/home-v2` only.
+
+### Which version a page renders in
+- `/home-v1` and `/home-v2` fix their own (`<FixVersion>`).
+- Any other page follows `?v=1` / `?v=2`, remembered in localStorage, else v1 (the root layout's head script).
+- `/template` shows the switch (bottom left).
+
+### New pages
+Copy `src/app/template`. Build the page from shared pieces (new ones go in `components/shared`). Anything that should look different per version goes in a variable in `versions.css`, never in a version-specific copy.
+
+### The day one version wins
+1. Move its values in `versions.css` to `:root` and delete the other block.
+2. Delete the other version's folder (`components/v1` or `components/v2`) and its home route.
+3. If v2 loses, delete `v2.css` too. If v1 loses, delete `V1Gate` and the gate in `lib/motion/scroll.ts`.
+
+Shared pages don't change.
 
 ## v1: `/home-v1`
 
-r17 v1 (`near-reorg/sites/r17/v1`), ported 1:1. Same DOM, classes and CSS; the behaviour modules ported to TypeScript nearly line for line. Code in `src/components/v1/`:
+r17 v1 (`near-reorg/sites/r17/v1`), ported 1:1: same DOM, classes and CSS, with the behaviour modules ported to TypeScript nearly line for line.
 
 - `V1Page.tsx`: the page.
 - `V1Boot.tsx`: the boot, in r17's order:
   1. the world;
   2. the rail;
   3. the Stack;
-  4. then the sections after it (`ctx.ts` `whenReady`).
+  4. then the shared sections, which wait on `V1Gate` (`ctx.ts` `whenReady`).
 - `world/`: the globe (three.js), the intro, the hero, the statement and the transition between them, Lenis, and the `<head>` flags (`head.ts`).
 - `rail/`:
   - the story rail (`layer.ts`, one pinned stage of 9 screens);
   - the faint background globe (`railglobe.ts`);
   - the Figma isometrics (`vig2/`).
 - `stack/`: r17's Stack.
-- `header/`, `footer/`, `proof/`, `go-deeper/`, `origin/`, `voices/`, `get-into/`, `close/`: v1's own copies of these sections (r17 values: square header, footer takeover 100 px from the end).
 
 URL flags:
 - `?intro=0` skips the intro.
@@ -35,25 +66,12 @@ URL flags:
 
 ## v2: `/home-v2`
 
-- **Hero → Stack:** Lawrence's (near-org-site, `direction-b` @ a4d088b):
-  - one of his five heroes at random;
-  - the rail in its Horizon look with the live Orbit stations;
-  - the Stack.
+Lawrence's hero → Stack (near-org-site, `direction-b` @ a4d088b), code in `src/components/v2/{chapter-one,story,stack}`:
+- one of his five heroes at random;
+- the rail in its Horizon look with the live Orbit stations;
+- the Stack.
 
-  Code in `src/components/home/{chapter-one,story,stack}`.
-- **Header, everything after the Stack, footer:** Abraham's (near-reorg r17 v1):
-  - the header (b8's nav);
-  - the proof strip;
-  - Go deeper;
-  - Origin;
-  - the voices;
-  - Get into NEAR;
-  - Close;
-  - the footer (near-org-cms's takeover).
-
-  Code in `src/components/site/*` and `src/components/home/{proof,go-deeper,origin,voices,get-into,close}`, with the shared scroll helpers in `src/lib/motion`.
-
-One token set (`src/styles/tokens.css`): Abraham's palette, under Lawrence's token names.
+The header, the sections after the Stack and the footer are the shared ones.
 
 ```bash
 npm install
@@ -63,8 +81,12 @@ npm run build && npm start
 
 Deploy: Railway (Next.js detected; build `npm run build`, start `npm start`, which listens on `$PORT`).
 
-## Pending clean-up
-- Lawrence's sections set text in `--color-ink` (#262626); Abraham's use `--ink` (#1C1917).
-- His radii vs our square corners.
-- His global type roles (`.t-h1`, `.btn` …) vs our per-section type.
-- Plain `<img>` vs `next/image`.
+Dev note: if a CSS change doesn't show up, stop the dev server and delete `.next/dev`. The Tailwind loader caches CSS output there across restarts.
+
+## To decide (then it goes in `versions.css` or becomes the shared value)
+- **Text face:** Montreal Book (the shared pieces) or Regular (Lawrence's pieces and r17's Stack). Both versions mix the two today.
+- **Accent:** Kepler Condensed Medium (the shared pieces) or Kepler Italic/Display (Lawrence's pieces and r17's Stack).
+- **Text black:** `--ink` #1C1917 or Lawrence's `--color-ink` #262626.
+- **Fonts:** all are preloaded on every route; Kepler Condensed (126 KB) isn't subset to Latin yet.
+- **Smooth scroll:** Lenis runs on `/home-v1` only; shared pages don't have it yet.
+- **Images:** plain `<img>` vs `next/image`.
