@@ -1,0 +1,326 @@
+/* The site header: b10's nav (css/nav.css, icons.css and the .btn it uses), the same in v1 and v2. Behaviour: ./motion.ts.
+   Desktop: one flat pill (paper on light, a lifted black on dark), the N directly in it, Get started with the emerald dot; a menu opens the black panel,
+   unfolding out of the pill. Phone: the N + Menu → the full-screen map. Grammar: circle = you (the emerald dot), pill = action.
+   Every selector stays under .nvh; b10's tokens are set on .nvh, so the header looks the same whatever the page around it uses.
+   State (motion.ts): .is-dark (the ground under the pill), .nv-popped / .nv-switch (a panel), .nv-hide (scrolled down), .nv-fading / .nv-away (the footer),
+   .nv-mapped (the map), .nv-flip (one frame without transitions). */
+
+/* ---------------------------------------------------------------- the host: a pass-through layer; b10's tokens */
+.nvh {
+  /* b10 palette */
+  --paper-0: #f5f4f1; --paper-1: #edece8; --paper-2: #e2e1de; --ink: #262626; --muted: #5f6669;
+  --line: rgb(38 38 38 / 0.12); --line-strong: rgb(38 38 38 / 0.24); --line-dark: rgb(245 244 241 / 0.12);
+  --emerald: #00dc8d; --green-text: #00774f; --deep: #1c1917; /* the CTA's hover: our ink, a step under the black */ --mint-1: #f0faf5; --mint-2: #dcf3e8;
+  --on-dark: #f5f4f1; --on-dark-2: rgb(245 244 241 / 0.65);
+  /* b10 type: Montreal, 500 for UI (the Medium cut) */
+  --sans: var(--font-montreal-nav), ui-sans-serif, system-ui, sans-serif; --sans-display: var(--sans);
+  --t-ui: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem); --t-ui-lh: 1.2; --t-ui-tr: -0.003em; --t-ui-w: 500;
+  --t-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem); --t-small-lh: 1.45; --t-small-tr: 0em;
+  --t-label: 0.8125rem; --t-label-tr: 0.07em;
+  --t-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); --t-h3-lh: 1.12; --t-h3-tr: -0.015em; --t-h3-w: 500;
+  --t-h2: clamp(2.75rem, 1.914rem + 3.429vw, 5rem); --t-h2-lh: 0.98; --t-h2-tr: -0.03em; --t-h2-w: 500;
+  --margin: clamp(20px, 5.56vw, 96px);
+  /* b10 motion */
+  --dur-tick: 240ms; --dur-fade: 400ms; --dur-exit: 500ms; --dur-glide: 900ms;
+  --ease-tick: cubic-bezier(0.2, 0, 0, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); --ease-glide: cubic-bezier(0.22, 1, 0.36, 1); --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  /* the focus ring: 2 px, offset 3 px, ink on light, paper on dark */
+  --focus-w: 2px; --focus-off: 3px; --focus-c: var(--ink);
+
+  position: fixed; inset: 0 0 auto 0; z-index: 100;
+  display: block; height: 0; padding: 0;
+  pointer-events: none; color: var(--ink);
+  font-family: var(--sans); font-feature-settings: "kern" 1; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  --nv-s: var(--paper-0); --nv-fg: var(--ink); --nv-mute: var(--muted); --nv-green: var(--green-text);
+  --nv-line: var(--line); --nv-edge: rgb(38 38 38 / 0.1);
+  --nv-shadow: 0 1px 1px rgb(38 38 38 / 0.03), 0 12px 32px -20px rgb(38 38 38 / 0.32);
+  /* the open panel: our black (--dark) on every ground */
+  --nv-p: #262626; --nv-p-fg: var(--on-dark); --nv-p-mute: var(--on-dark-2); --nv-p-dim: rgb(245 244 241 / 0.42);
+  --nv-p-hover: rgb(245 244 241 / 0.06); --nv-p-edge: rgb(245 244 241 / 0.08);
+}
+.nvh.is-dark {
+  color: var(--on-dark);
+  --nv-s: #2f2f2f; --nv-fg: var(--on-dark); --nv-mute: var(--on-dark-2); --nv-green: var(--emerald);
+  --nv-line: var(--line-dark); --nv-edge: rgb(245 244 241 / 0.12);
+  --nv-shadow: 0 12px 32px -20px rgb(0 0 0 / 0.5);
+  --nv-p: #333333; --nv-p-edge: rgb(245 244 241 / 0.12);
+}
+.nvh.is-dark .nv-bar, .nvh.is-dark .nv-pop { --focus-c: var(--on-dark); }
+:where(.nvh) button { font: inherit; }
+:where(.nvh) a { text-decoration: none; }
+:where(.nvh) ul { margin: 0; padding: 0; list-style: none; }
+:where(.nvh) p { margin: 0; }
+.nvh .nv-bar, .nvh .nv-pop, .nvh .nv-map { pointer-events: auto; }
+.nvh :focus-visible { outline: var(--focus-w) solid var(--focus-c); outline-offset: var(--focus-off); }
+.nvh .nv-panel { --focus-c: var(--on-dark); }
+.nvh .nv-map { --focus-c: var(--ink); }
+/* the dark flip is one clean switch; it never cuts the open panel's own fade or glide */
+.nvh.nv-flip .nv-bar, .nvh.nv-flip .nv-bar :not(.nv-pop, .nv-panel, .nv-panel *), .nvh.nv-flip .nv-bar :not(.nv-pop, .nv-panel, .nv-panel *)::before, .nvh.nv-flip .nv-bar :not(.nv-pop, .nv-panel, .nv-panel *)::after { transition: none !important; }
+.nvh .nv-logo::before { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); } /* hit area >= 44 */
+
+/* skip link (ours): the first stop for keyboards */
+.nvh .nv-skip { position: absolute; left: 12px; top: 8px; z-index: 5; padding: 10px 16px; border-radius: 999px; background: var(--ink); color: var(--paper-0); font-size: var(--t-ui); font-weight: var(--t-ui-w); pointer-events: auto; transform: translateY(-200%); }
+.nvh .nv-skip:focus-visible { transform: none; }
+
+/* ---------------------------------------------------------------- the NEAR mark */
+.nvh .nv-n { display: block; width: 100%; height: 100%; overflow: visible; fill: currentColor; }
+
+/* ---------------------------------------------------------------- icons: the map's sprite; the panels' line icons (icons.ts) */
+.nvh .icon { display: block; flex: none; color: inherit; overflow: visible; }
+:where(.nvh i[data-icon]) { --ic-size: 24px; display: inline-block; flex: none; width: var(--ic-size); height: var(--ic-size); line-height: 0; font-style: normal; vertical-align: middle; color: inherit; }
+:where(.nvh i[data-icon][data-icon-size="20"]) { --ic-size: 20px; }
+:where(.nvh i[data-icon][data-icon-size="32"]) { --ic-size: 32px; }
+.nvh .ic { display: block; width: 100%; height: 100%; overflow: visible; }
+.nvh .ic-ln * { fill: none; stroke: currentColor; stroke-width: var(--ic-sw, 1.25); stroke-linecap: round; stroke-linejoin: round; }
+.nvh .ic-dots circle, .nvh .ic-f { fill: currentColor; stroke: none; }
+.nvh .ic-g { fill: var(--ic-green, #00dc8d); stroke: none; transform-box: fill-box; transform-origin: center; }
+
+/* ---------------------------------------------------------------- the pill: N · four menus · Get started, even insets */
+.nvh .nv-bar {
+  position: fixed; z-index: 2; isolation: isolate; translate: none; /* none, not 0 0: a translate makes the bar the containing block of its fixed panels */
+  top: 16px; left: 0; right: 0; margin: 0 auto;
+  width: max-content; height: 56px; padding: 0 8px 0 22px; /* the N's inset = the CTA's optical inset */
+  display: flex; align-items: center; gap: 28px;
+  color: var(--nv-fg);
+}
+.nvh .nv-surface { position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: 999px;
+  background: var(--nv-s); box-shadow: inset 0 0 0 1px var(--nv-edge), var(--nv-shadow);
+  transition: background-color var(--dur-tick) var(--ease-tick), box-shadow var(--dur-tick) var(--ease-tick); }
+
+/* the N, directly in the pill: no circle */
+.nvh .nv-logo { position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 40px; color: inherit; border-radius: 4px; }
+.nvh .nv-mark { display: block; width: 26px; height: 26px; transition: transform var(--dur-fade) var(--ease-settle); }
+.nvh .nv-logo:hover .nv-mark { transform: scale(1.06); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+
+/* the four menus: hover inks the label up, the emerald dot (you) appears under the open one (never green type) */
+.nvh .nv-nav { flex: none; }
+.nvh .nv-list { display: flex; gap: 0; margin: 0 -12px 0 -14px; padding: 0; list-style: none; }
+.nvh .nv-trig {
+  position: relative; height: 40px; padding: 0 13px; border: 0; border-radius: 999px;
+  background: transparent; color: inherit; cursor: pointer;
+  font-family: var(--sans); font-size: var(--t-ui); font-weight: var(--t-ui-w); line-height: var(--t-ui-lh); letter-spacing: var(--t-ui-tr);
+  transition: color var(--dur-fade) var(--ease-settle);
+}
+.nvh .nv-trig .nv-tl { opacity: 0.78; transition: opacity var(--dur-fade) var(--ease-settle); }
+.nvh .nv-trig::after {
+  content: ""; position: absolute; left: 50%; bottom: 2px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%;
+  background: var(--emerald); transform: scale(0); transition: transform var(--dur-fade) var(--ease-settle);
+}
+.nvh .nv-trig:hover, .nvh .nv-trig[aria-expanded="true"], .nvh .nv-trig:focus-visible { color: var(--nv-fg); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .nv-trig:hover .nv-tl, .nvh .nv-trig[aria-expanded="true"] .nv-tl, .nvh .nv-trig:focus-visible .nv-tl { opacity: 1; transition-duration: var(--dur-tick); }
+.nvh .nv-trig[aria-expanded="true"]::after, .nvh .nv-trig:focus-visible::after { transform: scale(1); transition: transform var(--dur-tick) var(--ease-tick); }
+
+/* ---------------------------------------------------------------- buttons (b10's .btn) */
+.nvh .nv-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  height: 40px; padding: 0 18px; border-radius: 999px; border: 0;
+  background: var(--ink); color: var(--paper-0);
+  font-family: var(--sans); font-size: var(--t-ui); font-weight: var(--t-ui-w); letter-spacing: var(--t-ui-tr); line-height: var(--t-ui-lh);
+  white-space: nowrap; cursor: pointer;
+  transition: transform var(--dur-tick) var(--ease-tick), background-color var(--dur-tick) var(--ease-tick),
+              color var(--dur-tick) var(--ease-tick), box-shadow var(--dur-tick) var(--ease-tick);
+}
+.nvh .nv-btn:hover { transform: translateY(-1px); }
+
+/* Get started with the dot: the emerald dot (you) always leads the label; hover: the pill goes a step darker, the dot breathes out */
+.nvh .nv-actions { flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.nvh .nv-cta { position: relative; height: 40px; padding: 0 18px 0 16px; gap: 10px; font-size: var(--t-ui); line-height: var(--t-ui-lh); letter-spacing: var(--t-ui-tr); }
+.nvh .nv-dot { flex: none; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--emerald);
+  box-shadow: 0 0 0 0 rgb(0 220 141 / 0); transition: box-shadow var(--dur-fade) var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+.nvh .nv-cta:hover .nv-dot, .nvh .nv-cta:focus-visible .nv-dot, .nvh .nv-map-cta:hover .nv-dot { box-shadow: 0 0 0 4px rgb(0 220 141 / 0.2); transform: scale(1.1); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .nv-cta { background: var(--ink); color: var(--paper-0); }
+.nvh .nv-cta:hover, .nvh .nv-cta:focus-visible { background: var(--deep); }
+.nvh.is-dark .nv-cta { background: var(--on-dark); color: var(--ink); } /* paper pill, green dot */
+.nvh.is-dark .nv-cta:hover { background: #ffffff; }
+/* quiet while the hero's own CTA is on screen (html[data-hero-in-view], set by each home's hero): one filled action per screen */
+html[data-hero-in-view] .nvh .nv-bar .nv-cta { background: transparent; color: var(--nv-fg); box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 26%, transparent); }
+html[data-hero-in-view] .nvh .nv-bar .nv-cta:hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 60%, transparent); }
+.nvh .nv-cta:hover, .nvh .nv-map-cta:hover { transform: none; }
+/* magnet (motion.ts, pointer: fine): translate only; in tick 240, back settle 400 */
+.nvh .mag-l { display: inline-flex; align-items: center; gap: inherit; }
+.nvh [data-mag], .nvh [data-mag] > .mag-l { translate: 0 0; transition-property: translate, transform, background-color, color, box-shadow, opacity; transition-duration: var(--dur-fade); transition-timing-function: var(--ease-settle); }
+.nvh [data-mag].is-mag, .nvh [data-mag].is-mag > .mag-l { transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .nv-cta { transition-property: translate, transform, opacity, background-color, color, box-shadow; transition-duration: var(--dur-fade), var(--dur-fade), var(--dur-fade), var(--dur-tick), var(--dur-tick), var(--dur-tick); transition-timing-function: var(--ease-settle); }
+.nvh .nv-cta.is-mag { transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+
+/* Menu (phone): label + two lines, a cross when open */
+.nvh .nv-menu {
+  display: none; align-items: center; gap: 10px; height: 44px; padding: 0 14px 0 16px; border: 0; border-radius: 999px; cursor: pointer;
+  background: transparent; color: var(--nv-fg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
+  font-family: var(--sans); font-size: var(--t-ui); font-weight: var(--t-ui-w); line-height: var(--t-ui-lh); letter-spacing: var(--t-ui-tr);
+  transition: background-color var(--dur-tick) var(--ease-tick), color var(--dur-tick) var(--ease-tick), box-shadow var(--dur-tick) var(--ease-tick);
+}
+.nvh .nv-menu-ico { position: relative; width: 14px; height: 10px; flex: none; }
+.nvh .nv-menu-ico i { position: absolute; left: 0; width: 14px; height: 1.5px; border-radius: 1px; background: currentColor; transition: transform var(--dur-tick) var(--ease-tick), opacity var(--dur-tick) var(--ease-tick); }
+.nvh .nv-menu-ico i:nth-child(1) { top: 2px; }
+.nvh .nv-menu-ico i:nth-child(2) { top: 6.5px; width: 9px; left: 5px; }
+.nvh .nv-menu-ico i:nth-child(3) { display: none; }
+.nvh .nv-menu[aria-expanded="true"] .nv-menu-ico i:nth-child(1), .nvh .nv-menu[aria-expanded="true"] .nv-menu-ico i:nth-child(2) { top: 4.25px; left: 0; width: 14px; }
+.nvh .nv-menu[aria-expanded="true"] .nv-menu-ico i:nth-child(1) { transform: rotate(45deg); }
+.nvh .nv-menu[aria-expanded="true"] .nv-menu-ico i:nth-child(2) { transform: rotate(-45deg); }
+
+/* ---------------------------------------------------------------- the pill hides on the way down, returns on the way up (motion.ts)
+   transform here, translate for the footer slide: they compose. Out: exit 500; back: glide 600. */
+.nvh .nv-bar { transform: none; opacity: 1; transition: color var(--dur-tick) var(--ease-tick), transform 600ms var(--ease-glide), opacity var(--dur-fade) var(--ease-settle); }
+.nvh:not(.nv-fading):not(.nv-hide) .nv-bar { transition: color var(--dur-tick) var(--ease-tick), transform 600ms var(--ease-glide), translate 600ms var(--ease-glide), opacity var(--dur-fade) var(--ease-settle); } /* back from the footer slide on the way up */
+.nvh.nv-hide .nv-pop { pointer-events: none; }
+.nvh.nv-hide .nv-bar { transform: translateY(calc(-100% - 24px)); opacity: 0; pointer-events: none; transition: color var(--dur-tick) var(--ease-tick), transform var(--dur-exit) var(--ease-exit), opacity var(--dur-exit) var(--ease-exit); }
+
+/* ---------------------------------------------------------------- the open menu: the dark-green panel, unfolding out of the pill
+   .nv-pop is the panel's box (motion.ts places it: folded under the pill when closed). Content: .nv-panel, above it.
+   Both are absolute children of .nv-bar, so they move with the pill (hide / return slide) and never re-anchor. */
+.nvh .nv-pop {
+  position: absolute; z-index: -2; left: 0; top: 0; width: 0; height: 0; border-radius: 20px;
+  background: var(--nv-p); box-shadow: inset 0 0 0 1px var(--nv-p-edge), 0 32px 64px -32px rgb(20 20 20 / 0.55), 0 8px 20px -12px rgb(20 20 20 / 0.3);
+  opacity: 0; visibility: hidden;
+  transition: left 460ms var(--ease-glide), top 460ms var(--ease-glide), width 460ms var(--ease-glide), height 460ms var(--ease-glide),
+              border-radius 460ms var(--ease-glide), opacity var(--dur-tick) var(--ease-tick), visibility 0s linear 460ms;
+}
+.nvh .nv-pop:not(.is-open) { border-radius: 999px; transition-duration: 320ms, 320ms, 320ms, 320ms, 320ms, 120ms, 0s; transition-delay: 0s, 0s, 0s, 0s, 0s, 200ms, 320ms; }
+/* solid at once on open (folded, it is fully under the pill), so it never shows as a translucent blob in the first frames; on close it tucks back under the pill solid and only then fades */
+.nvh .nv-pop.is-open { opacity: 1; visibility: visible; transition-delay: 0s; transition-duration: 460ms, 460ms, 460ms, 460ms, 460ms, 0s, 0s; }
+.nvh .nv-panel {
+  position: absolute; left: 0; top: 0; z-index: 3; padding: 22px 16px 16px; width: max-content;
+  opacity: 0; visibility: hidden; transform: translateY(6px); color: var(--nv-p-fg);
+  transition: opacity 160ms var(--ease-tick), transform 160ms var(--ease-tick), visibility 0s linear 160ms;
+}
+.nvh .nv-panel.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity 360ms var(--ease-settle) 110ms, transform 520ms var(--ease-settle) 110ms, visibility 0s; }
+.nvh.nv-switch .nv-panel.is-on { transition-delay: 60ms; }
+.nvh .nv-cards { display: grid; grid-template-columns: repeat(3, 248px); gap: 4px; margin: 0; padding: 0; list-style: none; }
+.nvh .nv-cols { display: grid; grid-auto-flow: column; grid-auto-columns: 208px; gap: 8px; }
+.nvh .nv-col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.nvh .nv-card, .nvh .nv-link { position: relative; display: flex; color: inherit; border-radius: 12px; transition: background-color var(--dur-fade) var(--ease-settle); }
+.nvh .nv-card { flex-direction: column; gap: 20px; padding: 16px 16px 18px; height: 100%; }
+.nvh .nv-link { flex-direction: row; align-items: center; gap: 12px; padding: 0 12px; min-height: 44px; }
+.nvh .nv-ico { flex: none; display: block; width: 32px; height: 32px; color: var(--nv-p-fg); }
+.nvh .nv-link .nv-ico { width: 20px; height: 20px; color: var(--nv-p-mute); transition: color var(--dur-fade) var(--ease-settle); }
+.nvh .nv-link:hover .nv-ico, .nvh .nv-link:focus-visible .nv-ico { color: var(--nv-p-fg); transition-duration: var(--dur-tick); }
+.nvh .nv-ico:empty { display: none; } /* until icons.ts draws into the slot it takes no room */
+.nvh .nv-card:hover, .nvh .nv-link:hover, .nvh .nv-card:focus-visible, .nvh .nv-link:focus-visible { background: var(--nv-p-hover); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .nv-card:focus-visible, .nvh .nv-link:focus-visible { outline-offset: -2px; }
+.nvh .nv-tx { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.nvh .nv-nm { position: relative; display: inline-flex; align-items: center; gap: 6px; font-family: var(--sans); font-size: var(--t-ui); font-weight: var(--t-ui-w); line-height: var(--t-ui-lh); letter-spacing: var(--t-ui-tr); color: var(--nv-p-fg); }
+.nvh .nv-ds { font-family: var(--sans); font-size: var(--t-small); font-weight: 400; line-height: var(--t-small-lh); letter-spacing: var(--t-small-tr); color: var(--nv-p-mute); text-wrap: pretty; }
+.nvh .nv-ext { flex: none; color: var(--nv-p-dim); transform: translate(-1px, 1px); transition: color var(--dur-fade) var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+/* hover: the dot (you) lands in the row's left gutter, the external arrow lights and steps out; the text never moves */
+.nvh .nv-you { position: absolute; left: -11px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: var(--emerald); transform: scale(0); transition: transform var(--dur-fade) var(--ease-settle); }
+.nvh .nv-ico:not(:empty) + .nv-tx .nv-you { display: none; } /* with a picture, the picture answers the hover */
+.nvh .nv-card:hover .nv-you, .nvh .nv-link:hover .nv-you, .nvh .nv-card:focus-visible .nv-you, .nvh .nv-link:focus-visible .nv-you { transform: scale(1); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .nv-card:hover .nv-ext, .nvh .nv-link:hover .nv-ext { color: var(--nv-p-fg); transform: translate(1px, -1px); transition-duration: var(--dur-tick); }
+.nvh .nv-colh { margin: 0 12px 8px; font-family: var(--sans); font-size: var(--t-label); font-weight: 500; line-height: 1; letter-spacing: var(--t-label-tr); text-transform: uppercase; color: var(--nv-p-dim); }
+.nvh .nv-panel--cards { padding-top: 16px; }
+
+/* ---------------------------------------------------------------- the footer leads: the floating pill slides out, scrubbed by --nv-fade (motion.ts) */
+.nvh.nv-fading .nv-bar { translate: 0 calc(var(--nv-fade, 0) * -96px); opacity: calc(1 - clamp(0, (var(--nv-fade, 0) - 0.8) * 5, 1)); }
+.nvh.nv-away .nv-bar { visibility: hidden !important; }
+
+/* ---------------------------------------------------------------- the map (phone menu; full screen) */
+.nvh .nv-map {
+  position: fixed; inset: 0; z-index: 4; display: flex; flex-direction: column;
+  background: var(--paper-0); color: var(--ink);
+  --nv-s: var(--paper-0); --nv-fg: var(--ink); --nv-mute: #5c574f; --nv-line: var(--line); --nv-line-s: var(--line-strong);
+  opacity: 0; transition: opacity var(--dur-tick) var(--ease-tick);
+}
+.nvh .nv-map[hidden] { display: none; }
+.nvh .nv-map.is-open { opacity: 1; }
+.nvh .nv-map-top { flex: none; display: flex; align-items: center; justify-content: space-between; height: 80px; padding: 0 var(--margin); }
+.nvh .nv-map-logo { width: 44px; height: 44px; margin-left: -10px; color: var(--ink); }
+.nvh .nv-map-act { display: flex; align-items: center; gap: 8px; }
+.nvh .nv-map .nv-menu { display: inline-flex; color: var(--ink); }
+.nvh .nv-map .nv-btn { position: relative; background: var(--ink); color: var(--paper-0); height: 44px; padding: 0 18px; }
+.nvh .nv-map-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0 var(--margin) 24px; }
+
+/* ---------------------------------------------------------------- the map's grid */
+.nvh .b3map { display: grid; gap: 1px; background: var(--line); box-shadow: 0 0 0 1px var(--line); color: var(--ink); --b-bg: var(--paper-0); --b-hover: var(--paper-1); --b-prod: var(--mint-1); --b-prod-h: var(--mint-2); --b-st: var(--paper-1); --b-st-h: var(--paper-2); --b-mute: #5a5853; } /* ≥ 4.6:1 on paper and mint */
+.nvh .b3map--map { height: 100%; grid-template-rows: minmax(min-content, 1.75fr) minmax(min-content, 1fr); }
+.nvh .b3map--map.is-tall { height: auto; grid-template-rows: auto auto; }
+.nvh .b3map .nv-band { display: grid; gap: 1px; }
+.nvh .b3map .nv-band--a { grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(min-content, 1fr));
+  grid-template-areas: "a a a b b d d" "a a a b b d d" "a a a c c e f" "a a a c c e f"; } /* the same 7 columns as the tiles below */
+.nvh .b3map .nv-band--b { grid-template-columns: repeat(7, minmax(0, 1fr)); } /* 7 columns, shared by both bands: every column line runs through */
+.nvh .b3map .nv-grp { display: grid; gap: inherit; grid-template-rows: auto repeat(2, minmax(min-content, 1fr)); grid-auto-flow: column; background: var(--line); }
+.nvh .b3map .nv-grp--resources { grid-column: 1 / span 4; grid-template-columns: subgrid; }
+.nvh .b3map .nv-grp--about { grid-column: 5 / span 3; grid-template-columns: subgrid; }
+.nvh .b3map .nv-region { grid-column: 1 / -1; grid-row: 1; display: flex; align-items: center; min-height: 40px; padding: 0 20px; background: var(--b-bg); }
+.nvh .b3map .nv-region span { font-family: var(--sans); font-weight: 500; font-size: var(--t-label); line-height: 1; letter-spacing: var(--t-label-tr); text-transform: uppercase; color: currentColor; white-space: nowrap; }
+.nvh .b3map .nv-blk {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-width: 0;
+  padding: 20px 20px 22px; background: var(--b-bg); color: inherit;
+  transition: background-color var(--dur-fade) var(--ease-settle), color var(--dur-fade) var(--ease-settle);
+}
+.nvh .b3map .nv-blk[data-grp="products"] { background: var(--b-prod); }
+.nvh .b3map .nv-blk--st { background: var(--b-st); }
+.nvh .b3map .nv-blk:hover, .nvh .b3map .nv-blk:focus-visible { background: var(--b-hover); --icon-you: var(--emerald); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .b3map .nv-blk[data-grp="products"]:hover, .nvh .b3map .nv-blk[data-grp="products"]:focus-visible { background: var(--b-prod-h); }
+.nvh .b3map .nv-blk--st:hover, .nvh .b3map .nv-blk--st:focus-visible { background: var(--b-st-h); }
+.nvh .b3map .nv-blk:focus-visible { outline: var(--focus-w) solid var(--focus-c); outline-offset: calc(-1 * var(--focus-off) - var(--focus-w)); } /* inset: the blocks touch */
+.nvh .b3map .nv-blk-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.nvh .b3map .nv-blk-l { font-family: var(--sans); font-weight: 500; font-size: var(--t-label); line-height: 1; letter-spacing: var(--t-label-tr); text-transform: uppercase; color: var(--b-mute); }
+.nvh .b3map .nv-blk-gl { flex: none; color: inherit; }
+.nvh .b3map .nv-blk:not(.nv-blk--xl) { justify-content: flex-start; } /* titles top-aligned under one icon slot: one baseline per row */
+.nvh .b3map .nv-blk--s .nv-blk-gl { --icon-sw: 1.2; } /* the dense 24 px objects carry the same visual weight as the larger icons */
+.nvh .b3map .nv-blk-l[data-rep] { visibility: hidden; } /* the group label once per group (its first block) */
+.nvh .b3map .nv-blk--s .nv-blk-l { display: none; } /* small tiles: the region header (Resources, About) is the group label */
+.nvh .b3map .nv-blk-tx { display: flex; flex-direction: column; gap: 8px; max-width: 30em; }
+.nvh .b3map .nv-blk-nm { position: relative; font-family: var(--sans); font-size: var(--t-ui); font-weight: var(--t-ui-w); line-height: var(--t-ui-lh); letter-spacing: var(--t-ui-tr); }
+.nvh .b3map .nv-blk-ar { position: absolute; display: inline-block; margin-left: 0.4em; bottom: 0.12em; opacity: 0; transform: translateX(-4px); transition: opacity var(--dur-fade) var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+.nvh .b3map .nv-blk:hover .nv-blk-ar, .nvh .b3map .nv-blk:focus-visible .nv-blk-ar { opacity: 1; transform: none; transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.nvh .b3map .nv-blk-ds { font-family: var(--sans); font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--b-mute); text-wrap: pretty; }
+.nvh .b3map .nv-blk--l .nv-blk-nm, .nvh .b3map .nv-blk--m .nv-blk-nm { font-family: var(--sans-display); font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); font-weight: var(--t-h3-w); }
+.nvh .b3map .nv-blk--xl .nv-blk-nm { font-family: var(--sans-display); font-size: var(--t-h2); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-tr); font-weight: var(--t-h2-w); }
+.nvh .b3map .nv-blk--xl .nv-blk-ds { font-size: var(--t-small); max-width: 20em; }
+.nvh .b3map .nv-blk--l .nv-blk-ds, .nvh .b3map .nv-blk--m .nv-blk-ds { max-width: 22em; }
+.nvh .b3map .nv-blk--l .nv-blk-ar svg, .nvh .b3map .nv-blk--m .nv-blk-ar svg { width: 20px; height: 20px; }
+.nvh .b3map .nv-blk--xl .nv-blk-ar svg { width: 28px; height: 28px; }
+.nvh .b3map .nv-blk--s { justify-content: flex-start; gap: 18px; }
+
+/* entrance: groups glide in one after the other (70 ms stagger) on open */
+.nvh .b3map .nv-blk > * { opacity: 0; transform: translateY(8px); transition: opacity var(--dur-fade) var(--ease-glide), transform var(--dur-glide) var(--ease-glide); }
+.nvh .nv-map.is-open .b3map .nv-blk > * { opacity: 1; transform: none; }
+.nvh .nv-map.is-open .b3map .nv-blk--st > * { transition-delay: 70ms; }
+.nvh .nv-map.is-open .b3map .nv-band--b .nv-blk > * { transition-delay: 140ms; }
+.nvh .nv-map.is-open .b3map .nv-band--b .nv-blk--about > * { transition-delay: 210ms; }
+.nvh .b3map .nv-region > * { opacity: 0; transition: opacity var(--dur-fade) var(--ease-glide) 140ms; }
+.nvh .nv-map.is-open .b3map .nv-region > * { opacity: 1; }
+
+/* ================================================================ phone (< 860 px): the N and one Menu button → the map */
+@media (max-width: 859px) {
+  .nvh .nv-nav, .nvh .nv-bar .nv-cta { display: none; }
+  .nvh .nv-menu { display: inline-flex; }
+  .nvh .nv-bar { top: 12px; width: calc(100% - 24px); height: 56px; padding: 0 6px 0 18px; }
+  .nvh .nv-logo { width: 44px; height: 44px; margin-left: -10px; } /* tap target ≥ 44 */
+  .nvh .nv-bar .nv-mark { width: 24px; height: 24px; }
+  .nvh .nv-btn { height: 44px; } /* touch target >= 44 px */
+  .nvh .nv-map-top { height: 68px; padding: 0 12px 0 24px; }
+  .nvh .nv-map-body { padding: 0 12px 16px; }
+  .nvh .b3map { min-height: 0; display: flex; flex-direction: column; }
+  .nvh .b3map .nv-band--a { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(196px, auto) repeat(3, minmax(132px, auto)); grid-template-areas: "a a" "b c" "d d" "e f"; }
+  .nvh .b3map .nv-band--b { grid-template-columns: 1fr; }
+  .nvh .b3map .nv-grp, .nvh .b3map .nv-grp--resources, .nvh .b3map .nv-grp--about { grid-column: 1; grid-template-columns: 1fr 1fr; grid-template-rows: none; grid-auto-flow: row; }
+  .nvh .b3map .nv-band--b .nv-blk { min-height: 104px; }
+  .nvh .b3map .nv-region { padding: 0 16px; }
+  .nvh .b3map .nv-blk { padding: 16px 16px 18px; gap: 12px; }
+  .nvh .b3map .nv-blk--xl .nv-blk-gl svg { width: 48px; height: 48px; }
+  .nvh .b3map .nv-blk--l .nv-blk-gl svg, .nvh .b3map .nv-blk--m .nv-blk-gl svg { width: 32px; height: 32px; }
+  .nvh .b3map .nv-blk-ar { display: none; }
+  .nvh .b3map .nv-blk-l { font-size: 11px; letter-spacing: 0.04em; }
+}
+@media (max-height: 920px) and (min-width: 860px) {
+  .nvh .nv-map-top { height: 72px; }
+  .nvh .nv-blk { padding: 16px 16px 18px; gap: 12px; }
+}
+
+/* ---------------------------------------------------------------- locked page while the map is open */
+html.nv-locked, html.nv-locked body { overflow: hidden; }
+
+/* ---------------------------------------------------------------- reduced motion (or v1's ?rm=1): opacity only, <= 200 ms, no moves */
+@media (prefers-reduced-motion: reduce) {
+  .nvh *, .nvh { transition-duration: 0s !important; }
+  .nvh .nv-pop, .nvh .nv-panel, .nvh .nv-map, .nvh .nv-surface, .nvh .nv-mark, .nvh .b3map .nv-blk > *, .nvh .nv-bar {
+    transition-property: opacity, visibility !important; transition-duration: 200ms, 0s !important; transition-delay: 0s !important; transform: none !important; translate: none !important;
+  }
+}
+html[data-rm] .nvh *, html[data-rm] .nvh { transition-duration: 0s !important; }
+html[data-rm] .nvh .nv-pop, html[data-rm] .nvh .nv-panel, html[data-rm] .nvh .nv-map, html[data-rm] .nvh .nv-surface, html[data-rm] .nvh .nv-mark, html[data-rm] .nvh .b3map .nv-blk > *, html[data-rm] .nvh .nv-bar {
+  transition-property: opacity, visibility !important; transition-duration: 200ms, 0s !important; transition-delay: 0s !important; transform: none !important; translate: none !important;
+}

@@ -57,14 +57,4 @@ export const keplerCondensed = localFont({
   display: "swap",
 });
 
-// The header (b10's nav): Montreal Regular for 400 and the Medium cut for its 500 UI text (menus, Get started, names). Only the header uses it.
-export const montrealNav = localFont({
-  src: [
-    { path: "../fonts/PPNeueMontreal-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/PPNeueMontreal-Medium.woff2", weight: "500", style: "normal" },
-  ],
-  variable: "--font-montreal-nav",
-  display: "swap",
-});
-
-export const fontVariables = [montreal.variable, montrealMono.variable, keplerDisplay.variable, kepler.variable, montrealBook.variable, keplerCondensed.variable, montrealNav.variable].join(" ");
+export const fontVariables = [montreal.variable, montrealMono.variable, keplerDisplay.variable, kepler.variable, montrealBook.variable, keplerCondensed.variable].join(" ");

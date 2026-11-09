@@ -1,6 +1,6 @@
 import styles from "./Selector.module.css";
 
-// The index: a choice between the two homepage directions. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
+// The index: a choice between the homepage directions. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
 const VERSIONS = [
   {
     href: "/home-v1",
@@ -18,6 +18,14 @@ const VERSIONS = [
     tags: ["Rendered film", "3D scenes", "Scroll-scrubbed"],
     img: "/selector-v2.webp",
   },
+  {
+    href: "/home-v3",
+    n: "03",
+    name: "Flat + b10",
+    note: "The flat direction with b10's navigation and buttons: a floating pill nav whose menus unfold out of it, and b10's pill buttons.",
+    tags: ["Dot globe", "Pill nav", "b10 buttons"],
+    img: "/selector-v3.webp",
+  },
 ];
 
 export default function Selector() {
@@ -29,8 +37,8 @@ export default function Selector() {
       </header>
 
       <div className={styles.intro}>
-        <h1 className={styles.h}>Two directions for the homepage<span className={styles.sq} aria-hidden="true" /></h1>
-        <p className={styles.sub}>Same story, same copy. One is drawn in dots and lines; the other is rendered in 3D.</p>
+        <h1 className={styles.h}>Three directions for the homepage<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>Same story, same copy. Drawn in dots and lines, rendered in 3D, or flat with b10’s navigation and buttons.</p>
       </div>
 
       <ul className={styles.grid}>

@@ -41,13 +41,13 @@ export function Close() {
         <form ref={formRef} className={s["cl-form"]} data-k="form" method="post" onSubmit={onSubmit}>
           <label htmlFor="cl-email" className="sr-only">Email address</label>
           <div className={s["cl-slot"]}>
-            <div className={s["cl-row"]} data-done={done ? "" : undefined} inert={done}>
+            <div className={s["cl-row"]} data-btn="field" data-done={done ? "" : undefined} inert={done}>
               <input
                 ref={inputRef} id="cl-email" className={s["cl-input"]} name="email" type="email" required autoComplete="email" inputMode="email" spellCheck={false}
                 placeholder="Email address" aria-invalid={error ? true : undefined} aria-describedby={error ? "cl-error" : undefined}
                 onInput={() => { if (error) setError(null); }}
               />
-              <button type="submit" className={s["cl-submit"]}>Subscribe</button>
+              <button type="submit" className={s["cl-submit"]} data-btn="submit">Subscribe</button>
             </div>
             <div role="status" className={s["cl-status"]}>
               {done && (

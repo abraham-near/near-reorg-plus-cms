@@ -1,0 +1,131 @@
+/* v3's buttons: b10's (near-homepage-directions /b10: base.css .btn, b.css .hero-cta, content.css .l-btn / .l-link / .l-tab / .l-path / .l-field,
+   stack.css .sk-more), on v1's markup. Only under html[data-version="v3"]: v1 and v2 keep their own.
+   b10's grammar: pill = action (48 px, ink, Montreal 500 at the UI size); text actions carry a drawn arrow and a hairline that sweeps in on hover;
+   the emerald dot (you) opens before a label on hover. Hover effects only where hover exists. */
+:root[data-version="v3"] {
+  --b-ink: var(--dark);                                                  /* our black (#262626), as the header */
+  --b-paper: #f5f4f1;
+  --b-muted: #5f6669;
+  --b-emerald: #00dc8d;
+  --b-sans: var(--font-montreal-nav, var(--font-montreal)), var(--font-sans);
+  --b-ui: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);                  /* 15 */
+  --b-tick: 240ms; --b-fade: 400ms;
+  --b-ease-tick: cubic-bezier(0.2, 0, 0, 1); --b-ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --b-hair: 1px;
+  /* b10's drawn arrows (the fonts have no arrow glyphs) */
+  --b-arr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 8h10.5M9 3.5 13.5 8 9 12.5'/%3E%3C/svg%3E");
+}
+@media (min-resolution: 2dppx) { :root[data-version="v3"] { --b-hair: 0.5px; } }
+
+/* ---------------------------------------------------------------- 1 · the hero's Get started → b10's .btn.btn-lg.hero-cta
+   a 48 px ink pill, "Get started →"; hover: the pill lifts 1 px, the arrow turns emerald and steps right */
+:root[data-version="v3"] .hero .cta {
+  width: auto; height: 48px; padding: 0 22px; gap: 10px; border-radius: 999px; overflow: visible;
+  background: var(--b-ink); color: var(--b-paper);
+  font-family: var(--b-sans); font-size: 15px; font-weight: 500; line-height: 1.2; letter-spacing: -0.003em;
+  transition: transform var(--b-tick) var(--b-ease-tick), background-color var(--b-tick) var(--b-ease-tick), color var(--b-tick) var(--b-ease-tick);
+}
+:root[data-version="v3"] .hero .cta::before, :root[data-version="v3"] .hero .cta::after { content: none; }
+:root[data-version="v3"] .hero .cta .arr {
+  --arr: var(--b-paper); --arrow: var(--b-arr); width: 15px; height: 15px;   /* not currentColor: .arr itself is color: transparent */
+  transition: transform var(--b-fade) var(--b-ease-settle), background-color var(--b-fade) var(--b-ease-settle);
+}
+:root[data-version="v3"] .hero .cta:hover, :root[data-version="v3"] .hero .cta:focus-visible { color: var(--b-paper); transform: translateY(-1px); }
+:root[data-version="v3"] .hero .cta:hover .arr, :root[data-version="v3"] .hero .cta:focus-visible .arr { --arr: var(--b-emerald); transform: translateX(3px); transition-duration: var(--b-tick); transition-timing-function: var(--b-ease-tick); }
+:root[data-version="v3"] .hero .cta:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 3px; }
+@media (max-width: 760px) { :root[data-version="v3"] .hero .cta { width: auto; height: 48px; font-size: 15px; } }
+
+/* ---------------------------------------------------------------- 2 · the Stack's links → b10's .sk-more__a: no underline; an emerald hairline sweeps in on hover */
+:root[data-version="v3"] .stk .stk-more, :root[data-version="v3"] .stk .stk-url {
+  text-decoration: none; background: linear-gradient(var(--b-emerald), var(--b-emerald)) 0 100% / 0 1px no-repeat;
+  transition: background-size 320ms var(--b-ease-settle);
+}
+:root[data-version="v3"] .stk .stk-more { display: inline-flex; align-items: center; gap: 6px; font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; letter-spacing: -0.003em; color: var(--color-on-dark); }
+:root[data-version="v3"] .stk .stk-more:hover, :root[data-version="v3"] .stk .stk-more:focus-visible,
+:root[data-version="v3"] .stk .stk-url:hover, :root[data-version="v3"] .stk .stk-url:focus-visible { text-decoration: none; background-size: 100% 1px; }
+
+/* ---------------------------------------------------------------- 3 · Go deeper's filters → b10's .l-tab: Montreal 500, muted; the chosen one inks up and the emerald dot marks it */
+:root[data-version="v3"] .gd .gd-filter {
+  font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; letter-spacing: -0.003em; text-transform: none; color: var(--b-muted);
+  transition: color 0.2s var(--b-ease-tick);
+}
+:root[data-version="v3"] .gd .gd-filter::before { width: 6px; height: 6px; border-radius: 50%; background: var(--b-emerald); transition: transform 0.6s var(--b-ease-settle); }
+:root[data-version="v3"] .gd .gd-filter:hover, :root[data-version="v3"] .gd .gd-filter[aria-selected="true"] { color: var(--b-ink); }
+
+/* "View everything" → b10's .l-link: Montreal 500, a drawn arrow; hover: a hairline sweeps under it, the arrow steps 4 px */
+:root[data-version="v3"] .gd .gd-all {
+  gap: 10px; min-height: 0; padding: 6px 0; font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; line-height: 1.2; letter-spacing: -0.003em; text-transform: none;
+  color: var(--b-ink); text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--b-hair) no-repeat; transition: background-size 0.4s var(--b-ease-settle);
+}
+:root[data-version="v3"] .gd .gd-all::after {
+  content: ""; flex: none; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--b-arr) center / contain no-repeat; mask: var(--b-arr) center / contain no-repeat;
+  transition: translate 0.24s var(--b-ease-tick);
+}
+@media (hover: hover) {
+  :root[data-version="v3"] .gd .gd-all:hover { text-decoration: none; background-size: 100% var(--b-hair); }
+  :root[data-version="v3"] .gd .gd-all:hover::after { translate: 4px 0; }
+}
+
+/* ---------------------------------------------------------------- 4 · Origin's "Our story" → b10's .l-btn: a 48 px pill outlined in ink;
+   hover: it fills ink, the label steps right and the emerald dot opens before it */
+:root[data-version="v3"] .og .og-btn {
+  height: 48px; min-height: 48px; gap: 0; padding: 0 24px; border: 0; border-radius: 999px; overflow: visible;
+  color: var(--b-ink); background: transparent; box-shadow: inset 0 0 0 1px var(--b-ink);
+  font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; line-height: 1.2; letter-spacing: -0.003em; text-transform: none;
+  transition: background-color 0.2s var(--b-ease-tick), color 0.2s var(--b-ease-tick), padding 0.3s var(--b-ease-settle);
+}
+:root[data-version="v3"] .og .og-btn::before {
+  inset: auto; left: 20px; top: 50%; z-index: 0; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--b-emerald);
+  transform: scale(0); transition: transform 0.3s var(--b-ease-settle);   /* transform only: a minifier folds scale into it */
+}
+:root[data-version="v3"] .og .og-ext { display: none; }
+:root[data-version="v3"] .og .og-btn:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 3px; }
+@media (hover: hover) {
+  :root[data-version="v3"] .og .og-btn:hover { padding-left: 38px; color: var(--b-paper); background: var(--b-ink); }
+  :root[data-version="v3"] .og .og-btn:hover::before { transform: scale(1); }
+}
+@media (max-width: 760px) { :root[data-version="v3"] .og .og-btn { height: 48px; min-height: 48px; font-size: var(--b-ui); } }
+
+/* ---------------------------------------------------------------- 5 · Get into NEAR's actions → b10's .l-path__go: Montreal 500 in sentence case;
+   on the row's hover a hairline sweeps under the label and the ↗ steps out */
+:root[data-version="v3"] [data-btn="path"] { gap: 8px; min-height: 0; font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; line-height: 1.2; letter-spacing: -0.003em; text-transform: none; }
+:root[data-version="v3"] [data-btn-l] { padding: 4px 0; margin: 0; background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--b-hair) no-repeat; transition: background-size 0.4s var(--b-ease-settle); }
+:root[data-version="v3"] [data-btn-x] { width: 10px; height: 10px; transition: translate 0.24s var(--b-ease-tick), transform 0.24s var(--b-ease-tick); }
+@media (hover: hover) {
+  :root[data-version="v3"] [data-k="row"]:hover [data-btn-l] { background-size: 100% var(--b-hair); }
+  :root[data-version="v3"] [data-k="row"]:hover [data-btn-x] { transform: translate(2px, -2px); }
+}
+:root[data-version="v3"] [data-k="row"]:has(a:focus-visible) [data-btn-l] { background-size: 100% var(--b-hair); }
+
+/* ---------------------------------------------------------------- 6 · Close's newsletter → b10's .l-field: no frame, a hairline rule under the field;
+   "Subscribe →" as text; hover: the emerald dot opens before it and the arrow steps 4 px; focus: an ink line draws over the rule */
+:root[data-version="v3"] [data-btn="field"] {
+  gap: 24px; border: 0; background: linear-gradient(var(--b-ink), var(--b-ink)) 0 100% / 100% var(--b-hair) no-repeat; box-shadow: none;
+}
+:root[data-version="v3"] [data-btn="field"]:focus-within { outline: none; background-size: 100% 2px; }
+:root[data-version="v3"] [data-btn="field"]:has(input[aria-invalid="true"]) { box-shadow: none; background-size: 100% 2px; }
+:root[data-version="v3"] [data-btn="field"] input { padding: 0; font-family: var(--b-sans); }
+:root[data-version="v3"] [data-btn="submit"] {
+  gap: 10px; padding: 0 0 0 4px; border: 0; background: none; color: var(--b-ink); overflow: visible;
+  font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; line-height: 1.2; letter-spacing: -0.003em;
+}
+:root[data-version="v3"] [data-btn="submit"]::before {
+  position: static; inset: auto; z-index: 0; flex: none; width: 6px; height: 6px; margin-right: -16px; border-radius: 50%; background: var(--b-emerald);
+  transform: scale(0); transition: transform 0.3s var(--b-ease-settle), margin 0.3s var(--b-ease-settle);
+}
+:root[data-version="v3"] [data-btn="submit"]::after {
+  content: ""; flex: none; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--b-arr) center / contain no-repeat; mask: var(--b-arr) center / contain no-repeat;
+  transition: translate 0.24s var(--b-ease-tick);
+}
+:root[data-version="v3"] [data-btn="submit"]:hover, :root[data-version="v3"] [data-btn="submit"]:focus-visible { color: var(--b-ink); }
+:root[data-version="v3"] [data-btn="submit"]:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 4px; border-radius: 2px; }
+@media (hover: hover) {
+  :root[data-version="v3"] [data-btn="submit"]:hover::before { transform: scale(1); margin-right: 0; }
+  :root[data-version="v3"] [data-btn="submit"]:hover::after { translate: 4px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-version="v3"] :is(.hero .cta, .hero .cta .arr, .stk-more, .stk-url, .gd-filter, .gd-filter::before, .gd-all, .gd-all::after, .og-btn, .og-btn::before,
+    [data-btn-l], [data-btn-x], [data-btn="submit"], [data-btn="submit"]::before, [data-btn="submit"]::after) { transition: none; }
+}

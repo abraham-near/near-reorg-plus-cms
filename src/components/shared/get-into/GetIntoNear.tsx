@@ -39,9 +39,9 @@ export function GetIntoNear() {
               </div>
               <p className={s["gb-act"]}>
                 <a className={s["gb-link"]} href={p.href}>
-                  <span className={s["gb-btn"]}>
-                    <span className={s["gb-label"]}>{p.label}</span>
-                    <svg className={s["gb-ext"]} viewBox="0 0 10 10" width="10" height="10" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" fill="none" stroke="currentColor" strokeWidth="1.2" /></svg>
+                  <span className={s["gb-btn"]} data-btn="path">
+                    <span className={s["gb-label"]} data-btn-l="">{p.label}</span>
+                    <svg className={s["gb-ext"]} data-btn-x="" viewBox="0 0 10 10" width="10" height="10" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" fill="none" stroke="currentColor" strokeWidth="1.2" /></svg>
                   </span>
                   <span className="sr-only"> (another NEAR site)</span>
                 </a>

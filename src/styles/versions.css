@@ -1,5 +1,5 @@
 /*
- * What changes between the two homepage directions, and nothing else. <html data-version="v1|v2"> picks the set:
+ * What changes between the homepage directions, and nothing else. <html data-version="v1|v2|v3"> picks the set:
  * each home fixes its own (components/shared/version.tsx); any other page follows ?v=1 / ?v=2 (remembered), v1 by default.
  * Shared components read only these names, never a value of their own, so a page is written once and renders in either version.
  * The day one version wins: its values move to :root below and the other block goes.
@@ -11,15 +11,28 @@
   --font-text: var(--font-montreal-book), var(--font-sans);          /* Montreal Book for 400 (r17); 500 falls back to Regular through --font-sans */
   --font-acc: var(--font-kepler-cn), var(--font-accent-display);     /* the Kepler accent: Medium Condensed Italic Display, weight 500 */
 
-  /* the corners of small controls outside the header (the version switch) */
-  --ctl-radius: 0px;
+  /* the header (components/shared/header) */
+  --hd-radius: 0px;                                                  /* the bar and its panel */
+  --hd-radius-ctl: 0px;                                              /* the controls inside it and the panel's highlighted links */
+  --hd-dark-fill: transparent;                                       /* the header's own paint over the dark bands */
 }
 
-/* v1 = near-reorg r17 v1 "Carril vivo": square corners (the defaults above) */
+/* v1 = near-reorg r17 v1 "Carril vivo": square corners; over the dark bands the header is a solid bar */
+:root[data-version="v1"] {
+  --hd-dark-fill: var(--dark);
+}
 
-/* v2 = Lawrence's hero -> Stack + the shared sections: rounded controls */
+/* v2 = Lawrence's hero -> Stack + the shared sections: rounded header */
 :root[data-version="v2"] {
-  --ctl-radius: 12px;
+  --hd-radius: 16px;
+  --hd-radius-ctl: 12px;
 }
 
-/* The header (components/shared/header) is b10's nav, the same in both versions: it carries its own values. */
+/* v3 = v1 with b10's header (components/v3/header, in our black) and b10's buttons (components/v3/buttons.css). Its header carries its own values;
+   the old shared header never shows in v3, and b10's never shows elsewhere (a shared page such as /template renders both). */
+:root[data-version="v3"] {
+  --hd-dark-fill: var(--dark);
+  --hd-radius-ctl: 999px;          /* the version switch: b10's pills */
+}
+:root[data-version="v3"] .hd { display: none; }
+:root:not([data-version="v3"]) .nvh { display: none; }

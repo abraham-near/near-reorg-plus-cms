@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/shared/header/Header";
+import { V3Header } from "@/components/v3/header/Header";
+import "@/components/v3/buttons.css";   // v3's buttons (they apply under html[data-version="v3"] only)
 import { Footer } from "@/components/shared/footer/Footer";
 import { VersionSwitch } from "@/components/shared/VersionSwitch";
 import { ProofStrip } from "@/components/shared/proof/ProofStrip";
@@ -16,7 +18,9 @@ export const metadata: Metadata = { title: "Page template" };
 export default function Template() {
   return (
     <>
+      {/* both headers: the shared one (v1, v2) and v3's; html[data-version] shows one (styles/versions.css) */}
       <Header />
+      <V3Header />
       <main id="main">
         <ProofStrip />
         <GoDeeper />

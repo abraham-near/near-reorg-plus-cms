@@ -1,4 +1,4 @@
-// A small fixed control on shared pages: view the page as v1 or v2. Plain links with ?v= (a full load, remembered by the head script);
+// A small fixed control on shared pages: view the page as v1, v2 or v3. Plain links with ?v= (a full load, remembered by the head script);
 // the current one is marked from html[data-version] in CSS, so it needs no JS.
 import styles from "./VersionSwitch.module.css";
 
@@ -8,6 +8,7 @@ export function VersionSwitch() {
       <span className={styles.l}>View as</span>
       <a className={`${styles.o} ${styles.v1}`} href="?v=1">v1 · Flat</a>
       <a className={`${styles.o} ${styles.v2}`} href="?v=2">v2 · 3D</a>
+      <a className={`${styles.o} ${styles.v3}`} href="?v=3">v3 · Flat + b10</a>
     </nav>
   );
 }

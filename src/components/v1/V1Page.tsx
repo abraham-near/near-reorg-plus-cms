@@ -2,8 +2,9 @@
 // Figma isometrics, the Stack, the proof strip, Go deeper, Origin, the voices, Get into NEAR, Close and the CMS footer.
 // Its own pieces (world/, rail/, stack/) live here; the header, the sections after the Stack and the footer are the shared ones (components/shared),
 // in v1's values (data-version="v1", styles/versions.css). They wait for the world, the rail and the Stack (V1Gate).
+import type { ReactNode } from "react";
 import { InlineScript } from "@/components/InlineScript";
-import { FixVersion } from "@/components/shared/version";
+import { FixVersion, type Version } from "@/components/shared/version";
 import { Header } from "@/components/shared/header/Header";
 import { Footer } from "@/components/shared/footer/Footer";
 import { ProofStrip } from "@/components/shared/proof/ProofStrip";
@@ -19,12 +20,13 @@ import { V1Boot } from "./V1Boot";
 import { V1Gate } from "./V1Gate";
 import { HEAD } from "./world/head";
 
-export function V1Page() {
+/** v and header: v3 is this page in its own values (data-version="v3") with its own header (components/v3) */
+export function V1Page({ v = "v1", header }: { v?: Version; header?: ReactNode }) {
   return (
     <>
-      <FixVersion v="v1" />
+      <FixVersion v={v} />
       <InlineScript html={HEAD} />
-      <Header home="/home-v1" />
+      {header ?? <Header home="/home-v1" />}
       <V1Gate>
         <main id="main">
           <World />
