@@ -1,0 +1,11 @@
+/* v3's world: the globe at b10's size (near-homepage-directions /b10, measured live at 2080 x 985 and 1300 x 700).
+   Desktop: the diameter is ~95 % of the screen's height (never more than 62 % of its width), its centre at 73.5 % across and 57 % down,
+   so it fills the right half and runs a little past the bottom. Phones / portrait: wider than the screen (110 vw), under the copy, cut at the sides.
+   The globe reads its box (.globe) on every resize, so the intro and the scroll transition follow. Only under html[data-version="v3"]. */
+:root[data-version="v3"] .pin { --gd: min(95svh, 62vw); }
+:root[data-version="v3"] .globe { left: 73.5vw; top: 57vh; top: 57svh; }
+
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
+  :root[data-version="v3"] .pin { --gd: min(110vw, 64svh); }
+  :root[data-version="v3"] .globe { left: 56vw; top: calc(100svh - var(--gd) * .78); transform: translateX(-50%); }
+}
