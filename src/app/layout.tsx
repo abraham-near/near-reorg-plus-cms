@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { fontVariables } from "@/styles/fonts";
 import { InlineScript } from "@/components/InlineScript";
-import { Header } from "@/components/site/header/Header";
-import { Footer } from "@/components/site/footer/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,11 +17,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <InlineScript html="document.documentElement.setAttribute('data-js','')" />
       </head>
-      <body>
-        <Header />
-        {children}
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

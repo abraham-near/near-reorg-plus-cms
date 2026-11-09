@@ -1,0 +1,147 @@
+/* r17 v1 css/layer.css · the rail of the Figma frames (TJ38G7245lEghviUBaCTFJ): a straight green line at 64 %, the three phrases, the problem, the title, four stations that slide along the
+   line; then the straight tide into the Stack (rail/layer.ts).
+   Two states of ONE section: the stacked, readable page (?rm=1, reduced motion, no JS) and the pinned stage (html[data-rail]).
+   Paper #F5F5F5, ink #1C1917, warm grey #6C675F, the flat green #00DC8D (line / node / marker only; text on green is ink). Montreal 400, tight; Kepler italic only as the one accent word per heading.
+   The illustrations are rail/vig2 (its own CSS): this file only places and sizes their hosts (.rail__art, .rs__art, .rs__gate). */
+.layer {
+  --ink-2: #6C675F; --line: rgba(28, 25, 23, .34);
+  --h2: clamp(34px, calc(3.7 * var(--u)), 72px); --pp: clamp(16px, calc(1.42 * var(--u)), 23px); --hp: clamp(27px, calc(3.2 * var(--u)), 54px);
+  position: relative; background: var(--paper); color: var(--ink); overflow: clip;
+  /* r17's body (kit base.css): Montreal Book, 1.4; the project's root sets Montreal Regular, 1.6 */
+  font-family: var(--font-text); line-height: 1.4;
+}
+/* the project's root balances headings and prettifies paragraphs; r17 did neither (the rules below that want pretty say so) */
+.layer :where(h2, h3, p, li) { text-wrap-style: auto; }
+.layer .acc { font-family: var(--font-acc); font-style: italic; font-weight: 500; font-size: 1.18em; letter-spacing: -.02em; line-height: 0; }
+
+/* ───────── the stacked page (the section's real text; the only thing screen readers get) ───────── */
+.rail__static { position: relative; z-index: 1; padding: calc(var(--nav-h) + 7svh) var(--m) calc(8 * var(--u)); }
+.rail__h { margin: 0; font-weight: 400; font-size: clamp(30px, calc(4.6 * var(--u)), 90px); line-height: 1.05; letter-spacing: -.005em; }
+.rail__s { display: block; }
+.rail__problem { margin: calc(5 * var(--u)) 0 0; max-width: 20em; font-size: var(--hp); line-height: 1.1; letter-spacing: -.035em; }
+.rail__answer { margin: calc(5 * var(--u)) 0 0; font-size: clamp(26px, calc(3.86 * var(--u)), 76px); line-height: 1.1; letter-spacing: -.01em; }
+.rail__mark { position: relative; display: inline-block; isolation: isolate; }
+.rail__mark::before { content: ""; position: absolute; z-index: -1; left: -.12em; right: -.1em; top: .08em; bottom: -.04em; background: var(--green); }
+.rail__list { list-style: none; margin: calc(6 * var(--u)) 0 0; padding: 0; display: grid; gap: calc(5 * var(--u)); }
+.rail__list li { display: grid; gap: 12px; align-items: center; }
+.rail__list .rail__art { position: relative; width: min(100%, 380px); aspect-ratio: 4 / 3; }
+.rail__list h3 { margin: 0; font-weight: 400; font-size: var(--h2); line-height: 1.1; letter-spacing: -.04em; }
+.rail__list p { margin: 0; max-width: 30em; text-wrap-style: pretty; font-size: var(--pp); line-height: 1.37; letter-spacing: -.012em; }
+@media (min-width: 900px) {
+  .rail__list li { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); column-gap: calc(5 * var(--u)); row-gap: 10px; }
+  .rail__list .rail__art { grid-column: 2; grid-row: 1 / span 2; }
+  .rail__list h3 { align-self: end; } .rail__list p { align-self: start; }
+}
+
+html[data-ownanim]:not([data-ly="static"]) .layer { height: 100vh; height: 100svh; }
+html[data-ownanim]:not([data-ly="static"]) .rail__static { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.rs { display: none; }
+html[data-rail] .rs { display: block; position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+html[data-ly-dark] .layer { background: #262626; }
+
+/* ───────── the pinned stage ─────────
+   Sizes from the Figma frames at 1638 x 844 (the phrases 84 px, the title 70 px, "Own your" 68 px, the sentence 23 px on a 500 px measure, the viewfinder 444 x 344, the line at 64 %). */
+.rs {
+  --rail-y: 64%; --art-w: clamp(300px, 26vw, 400px); --art-h: min(calc(var(--art-w) * .9), 38svh, var(--art-cap, 2000px));   /* room for the isometric art */
+  --cs: clamp(30px, calc(4.6 * var(--u)), 90px); --ml: calc(max(var(--m), (100vw - 1440px) / 2 + var(--m)) + .5 * var(--u)); --ct: calc(var(--cs) * .84); --line-w: calc(var(--pp) * 21.7);
+  --tt: 34px;                                                                     /* the station title's top, under the line */
+  font-family: var(--font-text); font-weight: 400; color: var(--ink);
+}
+/* the faint world (rail/railglobe.ts): the stage's lowest layer, a box from the top to the line, which clips it (nothing of it under the line); it sweeps in with the approach (the .sw mask) */
+.rs__globe { position: absolute; left: 0; top: 0; width: 100%; height: var(--rail-y); overflow: hidden; pointer-events: none; contain: strict;
+  --e: 0px; --f: 380px; -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--e) - var(--f)), transparent var(--e)); mask-image: linear-gradient(90deg, #000 calc(var(--e) - var(--f)), transparent var(--e)); }
+.rs__globe.is-open { -webkit-mask-image: none; mask-image: none; }
+.rs__globe canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+.rs__cv { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+/* the cover canvas lies ABOVE the text: the green line and (in the transition) the dark, so that the rising tide passes over the content; the node and the station dots ride above it */
+.rs__cv2 { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; z-index: 3; }
+.rs__rail { position: absolute; left: 0; right: 0; top: var(--rail-y); height: 0; visibility: hidden; pointer-events: none; }   /* measuring only: the line is drawn on the canvas */
+.rs__world, .rs__track { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; pointer-events: none; }
+.rs__track { z-index: 5; }
+
+/* the soft edge: a horizontal mask whose opaque part ends at --e - --f (written by rail/layer.ts) */
+.sw { --e: 0px; --f: 120px; -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--e) - var(--f)), transparent var(--e)); mask-image: linear-gradient(90deg, #000 calc(var(--e) - var(--f)), transparent var(--e)); }
+.rs__problem .si { --e: 0px; --f: 30px; -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--e) - var(--f)), transparent var(--e)); mask-image: linear-gradient(90deg, #000 calc(var(--e) - var(--f)), transparent var(--e)); }
+.sw.is-open, .rs__problem .si.is-open { -webkit-mask-image: none; mask-image: none; }
+.sw.is-off, .rs__problem .si.is-off { visibility: hidden; }
+/* type under a mask needs room for the overshoot of its glyphs */
+.sw-t { padding: .09em .22em .24em .1em; margin: -.09em -.22em -.24em -.1em; }
+
+/* fixed on the stage, top left: the three phrases (384:8605), then the title (384:9555).
+   Lawrence's layout (StoryRail .connect): the three lines set tight, 1.05 apart (the line boxes keep 1.24 for the NEAR node and the masks; the bottom margin, collapsing with the next top, pulls
+   them in), from his inset (the page margin inside a 1440 px column); our Montreal 400. */
+.rs__conn { position: absolute; left: var(--ml); top: 13.7%; font-size: var(--cs); line-height: 1.24; letter-spacing: -.005em; }
+.rs { --dock-y: .118; }
+.rs__conn .cl { margin: -.09em 0 -.52em -.1em; display: block; width: max-content; white-space: nowrap; }
+/* line 3 sits in a slot that docks (translate + scale, JS); NEAR is ONE node above the spacers (.ns in line 3, .ns2 in the title), moved and resized by JS (origin: its text's top left) */
+.rs__slot { position: relative; width: max-content; transform-origin: 0 0; }
+.rs__conn .cl2 > span, .rs__ans > span { display: inline-block; white-space: pre; vertical-align: top; }
+.rs .ns { display: inline-block; height: 1.24em; vertical-align: top; }
+.rs__near { position: absolute; left: 0; top: 0; font-size: var(--cs); line-height: 1.24; letter-spacing: -.005em; white-space: nowrap; transform-origin: .1em .09em; z-index: 1; }
+.rs__ans { position: absolute; left: var(--ml); top: calc(12.6% - .07 * var(--ct)); margin: -.09em 0 -.24em -.1em; font-size: var(--ct); line-height: 1.24; letter-spacing: -.005em; white-space: nowrap; }
+/* the problem (384:9085): big, top left, its foot 56 px above the line; it climbs in word by word (a window per word) and dissolves */
+.rs__problem { position: absolute; left: var(--ml);   /* on the thesis' inset (Lawrence's column) */
+   bottom: calc(100% - var(--rail-y) + 56px); width: min(46rem, 50vw); font-size: var(--hp); line-height: 1.1; letter-spacing: -.035em; }
+.rs__problem p { margin: 0; }
+.rs__problem .sk { height: 1.1em; padding-bottom: .22em; margin-bottom: -.22em; }
+.rs__mk { position: relative; display: inline-block; isolation: isolate; --mark: 0; }
+.rs__mk::before { content: ""; position: absolute; z-index: -1; left: -.12em; right: -.1em; top: .08em; bottom: -.04em; background: var(--green); transform-origin: 0 50%; transform: scaleX(var(--mark)); }
+
+/* the line's furniture: the end labels hang from it near its two ends (in the world). Lawrence's (StoryRail .end): h3 size, 24 px under the line, at 5 / 95 vw; Montreal 400 */
+.rs__end { position: absolute; left: var(--x); top: calc(var(--rail-y) + 24px); font-size: clamp(24px, calc(1.314rem + .762vw), 32px); line-height: 1.1; letter-spacing: -.005em; white-space: nowrap; }
+.rs__end b { font-weight: 400; } .rs__end em { font-style: normal; color: var(--ink-2); margin-left: .375em; }
+.rs__end--r { transform: translateX(-100%); }
+/* Lawrence's rail furniture (StoryRail "horizon"): NEAR's green tile with the official black N (icon.svg, unaltered, at 92 % of the tile), its corner a quarter of its side.
+   The hub (48 px) pops where AI and blockchain meet and leaves with the phrases; each station has a 32 px tile; the playhead is a square frame 8 px wider than the station tile, its corner
+   concentric with the tile's (an even 4 px gap), drawn around the first tile as it lands and fixed at the centre from then on. They ride the tide up. */
+.rs { --tile: 32px; --hub: 48px; --frame: calc(var(--tile) + 8px); }
+.rs__point, .rs__dot { position: absolute; top: var(--rail-y); display: grid; place-items: center; background: var(--green); transform: scale(0); }
+.rs__point { left: 50%; width: var(--hub); height: var(--hub); margin: calc(var(--hub) / -2) 0 0 calc(var(--hub) / -2); border-radius: calc(var(--hub) / 4); z-index: 4; }
+.rs__dot { left: var(--x); width: var(--tile); height: var(--tile); margin: calc(var(--tile) / -2) 0 0 calc(var(--tile) / -2); border-radius: calc(var(--tile) / 4); }
+.rs__point img, .rs__dot img { display: block; width: 92%; height: auto; }
+.rs__play { position: absolute; left: 50%; top: var(--rail-y); width: var(--frame); height: var(--frame); margin: calc(var(--frame) / -2) 0 0 calc(var(--frame) / -2); z-index: 4; visibility: hidden; }
+.rs__play svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.rs__play rect { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; }
+
+/* a station (in the world, centred on its --x): the illustration above the line, its title and sentence below; they slide with the line, level */
+.rs__st { position: absolute; left: var(--x); top: 0; bottom: 0; width: 0; }
+.rs__art { position: absolute; left: 0; bottom: calc(100% - var(--rail-y) + 34px); width: var(--art-w); height: var(--art-h); transform: translateX(-50%); }
+/* the problem's illustration (rail/vig2 problem, Figma 459:527), fixed on the stage to the right of the paragraph (384:9085), standing above the line like the stations' art */
+.rs__gate { position: absolute; left: 71%; bottom: calc(100% - var(--rail-y) + 26px); width: min(calc(var(--art-h) * 1.3), 46vw); aspect-ratio: 1; transform: translateX(-50%); pointer-events: none; }
+@media (max-width: 760px) { .rs__gate { display: none; } }
+.rs__title { position: absolute; left: 0; top: calc(var(--rail-y) + var(--tt)); transform: translateX(-50%); margin: 0; white-space: nowrap; text-align: center; font-size: var(--h2); line-height: 1.1; letter-spacing: -.04em; }
+.rs__line { position: absolute; left: 0; top: calc(var(--rail-y) + var(--tt) + 1.57 * var(--h2)); width: var(--line-w); transform: translateX(-50%); margin: 0; text-align: center; font-size: var(--pp); line-height: 1.3; letter-spacing: -.012em; text-wrap-style: pretty; }
+/* the staircase: every word is a window and the word inside rises through it, bottom to top */
+.sk { display: inline-block; overflow: hidden; vertical-align: top; height: 1.3em; padding: 0 .06em; margin: 0 -.06em; }
+.si { display: inline-block; will-change: transform, opacity; }
+.rs__title .sk { height: 1.18em; padding: 0 .14em .06em; margin: 0 -.14em -.06em; }
+.rs__title .acc { line-height: 1; }
+/* the viewfinder: four corner brackets, fixed at the centre, that lock on each station's illustration */
+.rs__fin { position: absolute; left: 50%; width: calc(var(--art-w) + 44px); height: calc(var(--art-h) + 44px); margin-left: calc((var(--art-w) + 44px) / -2); bottom: calc(100% - var(--rail-y) + 12px); z-index: 2; transform: scale(1.14); pointer-events: none; }
+.rs__fin i { position: absolute; width: 16px; height: 16px; border: 0 solid var(--ink); }
+.rs__fin .tl { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; } .rs__fin .tr { right: 0; top: 0; border-right-width: 1px; border-top-width: 1px; }
+.rs__fin .bl { left: 0; bottom: 0; border-left-width: 1px; border-bottom-width: 1px; } .rs__fin .br { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+
+/* ───────── phones and small tablets: the same rail, proportioned for a portrait frame ───────── */
+/* r17 set these page-wide for phones and portrait tablets (r13 hero-a.css :root); the project keeps the desktop values at the root, so the rail declares them for itself */
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) { .layer { --m: clamp(20px, 5.2vw, 40px); --nav-h: 64px; } }
+@media (max-width: 760px) {
+  .layer { --h2: clamp(30px, 8.3vw, 46px); --pp: clamp(15.5px, 4.2vw, 20px); --hp: clamp(26px, 7vw, 40px); }
+  .rail__problem { max-width: none; }
+  .rs__problem { width: calc(100vw - 2 * var(--m)); bottom: calc(100% - var(--rail-y) + 40px); }
+  .rail__static { padding-top: calc(var(--nav-h) + 40px); }
+  .rail__h { font-size: clamp(28px, 7.4vw, 48px); } .rail__answer { margin-top: 44px; font-size: clamp(24px, 6.4vw, 40px); }
+  .rail__list { margin-top: 64px; gap: 56px; }
+  .rs { --tile: 28px; --hub: 40px; --rail-y: 62%; --art-w: min(300px, 76vw); --art-h: min(calc(var(--art-w) * .9), var(--art-cap, 2000px)); --cs: clamp(25px, 7.1vw, 40px); --ct: min(calc(var(--cs) * .84), calc((100vw - 2 * var(--m)) / 13.6)); --line-w: calc(100vw - 2 * var(--m)); --tt: 20px; }
+  .rs__conn { top: 14%; }
+  .rs__end { top: calc(var(--rail-y) + 14px); font-size: clamp(14px, 4vw, 17px); }
+  .rs__art { bottom: calc(100% - var(--rail-y) + 22px); }
+  .rs__fin { bottom: calc(100% - var(--rail-y) + 4px); }
+}
+/* tablets in portrait: the desktop rail, a little larger type for the narrower frame */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .layer { --h2: calc(4.6 * var(--u)); --pp: max(16px, calc(1.9 * var(--u))); --hp: calc(4 * var(--u)); }
+  .rs__problem { width: min(46rem, 64vw); }
+  .rs { --art-w: 340px; --cs: calc(5.6 * var(--u)); --line-w: min(calc(var(--pp) * 21.7), 64vw); }
+}
+@media (max-height: 640px) and (min-width: 761px) { .rs { --rail-y: 66%; } }

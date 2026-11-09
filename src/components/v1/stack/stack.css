@@ -1,0 +1,211 @@
+/* Home v1 · the Stack (r17 v1 css/stack.css): Lawrence's section (his Stack.module.css + the type roles of his globals.css + his tokens), ported to plain CSS. Every value is his; only the names
+   change (CSS-module class -> .stk-*), his html[data-js] guard is html[data-stk], and his pinned desktop layout (sticky track) and the hand-off thread are dropped: here the section is normal flow.
+   The tokens are scoped to .stk so nothing leaks into the world above. The band's ground is his --color-ink (#262626): the grey the world's dots turn into.
+   The accent word is set in Lawrence's own Kepler cuts (next/font: --font-kepler-display, the Display italic for h2 at 768+; --font-kepler, the text italic below / in h3, h4), not the page's
+   Medium Condensed (--font-acc), which is narrower and would re-wrap his phone heading. */
+/* r17 drew weight 500 in Montreal Medium; this project sets 500 in Montreal Regular (the user's call), as everywhere else. */
+.stk {
+  --color-ink: #262626; --color-green: #00dc8d; --color-on-dark: #f5f4f1; --color-on-dark-muted: rgb(245 244 241 / 0.65); --color-line-on-dark: rgb(245 244 241 / 0.18);
+  --font-accent-display: var(--font-kepler-display), Georgia, serif; --font-accent: var(--font-kepler), Georgia, serif;
+  /* type scale (fluid 390 -> 768 -> 1440) */
+  --text-h2: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); --text-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); --text-h4: clamp(1.125rem, 0.996rem + 0.529vw, 1.25rem);
+  --text-lede: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --text-body: clamp(1rem, 0.929rem + 0.149vw, 1.0625rem); --text-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);
+  --text-label: 0.8125rem; --text-caption: 0.8125rem;
+  --tracking-h2: -0.01em; --tracking-h3: -0.005em; --tracking-accent: -0.02em; --tracking-label: 0.2em; --accent-scale: 1.18em; --measure: 40ch;
+  /* the Stack illustration colours: flat faces per layer (t top, l left side, r right side), and the charcoal the others drop to on hover */
+  --stack-protocol-t: #5fe0ae; --stack-protocol-l: #3cc994; --stack-protocol-r: #22a374;
+  --stack-intents-t: #d4f8e7; --stack-intents-l: #9debc8; --stack-intents-r: #6dd9aa;
+  --stack-ai-t: #4fd09c; --stack-ai-l: #33b482; --stack-ai-r: #208e64;
+  --stack-com-t: #2a9a6d; --stack-com-l: #1e7a55; --stack-com-r: #145b3f;
+  --stack-dim-top: #4a4d4b; --stack-dim-l: #3a3c3b; --stack-dim-r: #313332;
+  /* spacing, content width, section padding */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px; --space-10: 128px; --space-11: 192px;
+  --section-pad-y: var(--space-8); --page-margin: var(--space-4); --content-max: 1440px;
+  /* motion */
+  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms; --dur-4: 600ms; --dur-5: 1200ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (min-width: 768px) { .stk { --section-pad-y: var(--space-9); --page-margin: var(--space-6); } }
+@media (min-width: 1280px) { .stk { --section-pad-y: var(--space-10); --page-margin: var(--space-8); } }
+@media (prefers-reduced-motion: reduce) { .stk { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; --dur-4: 0ms; --dur-5: 0ms; } }
+
+/* the band: his body type (16-17 px, 1.6) on his ink */
+.stk { position: relative; overflow-x: clip; background: var(--color-ink); color: var(--color-on-dark); padding-block: var(--section-pad-y); font-family: var(--font-text); font-weight: 400; font-size: var(--text-body); line-height: 1.6; letter-spacing: normal; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+.stk :focus-visible { outline: 2px solid var(--color-on-dark); outline-offset: 3px; }
+.stk p, .stk li { text-wrap: pretty; }
+.stk :where(h2, h3) { text-wrap: balance; }
+.stk-inner { max-width: var(--content-max); margin-inline: auto; padding-inline: var(--page-margin); }
+
+/* type roles (globals.css): t-h2, t-h3, t-h4, t-lede, t-label, the Kepler accent */
+.stk :is(.stk-h2, .stk-h3, .stk-h4, .stk-statValue, .stk-more) { font-family: var(--font-montreal), var(--font-text); }
+.stk-h2 { font-size: var(--text-h2); font-weight: 500; line-height: 1.1; letter-spacing: var(--tracking-h2); }
+.stk-h3 { font-size: var(--text-h3); font-weight: 500; line-height: 1.15; letter-spacing: var(--tracking-h3); }
+.stk-h4 { font-size: var(--text-h4); font-weight: 500; line-height: 1.2; }
+.stk-lede { font-size: var(--text-lede); line-height: 1.5; max-width: var(--measure); text-wrap: balance; }
+.stk-label { font-size: var(--text-label); font-weight: 500; line-height: 1.2; letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.stk .accent { font-family: var(--font-accent-display); font-style: italic; font-weight: 400; font-size: var(--accent-scale); letter-spacing: var(--tracking-accent); line-height: 0; }
+.stk-h3 .accent, .stk-h4 .accent { font-family: var(--font-accent); }
+@media (max-width: 767px) { .stk-h2 .accent { font-family: var(--font-accent); } }
+
+/* Layout (D14; the Figma's measurements in D17): phones and tablets stack the heading, the drawing, then the list and the selected layer's detail. Desktop: the heading, then a 224 px list, a 48 px gap,
+   a 416 px detail column, 112 px of air, then the drawing at up to 624 px, running into the right margin. */
+.stk-grid { --list-w: calc(var(--space-11) + var(--space-6)); --detail-w: calc(var(--space-11) * 2 + var(--space-6)); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-7); }
+.stk-head { max-width: none; }
+.stk-head h2 { margin: 0; }
+.stk-head p { max-width: var(--measure); margin: var(--space-5) 0 0; color: var(--color-on-dark-muted); }
+.stk-pin { position: relative; }
+.stk-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-7); }
+.stk-art { width: min(100%, calc(var(--space-11) * 2 + var(--space-8))); margin-inline: auto; }
+@media (min-width: 768px) {
+  .stk-cols { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--space-5); }
+  .stk-art { grid-column: 1 / -1; }
+  .stk-list { grid-column: 1 / span 4; }
+  .stk-panels { grid-column: 5 / -1; }
+}
+/* Desktop: the whole Stack in ONE screen (Lawrence's pinned desktop layout, D18, as the model: the heading top-left, the list and the selected layer's detail side by side under it, the drawing
+   on the right, capped to the viewport's height), but in normal flow. The track / pin / columns wrappers step aside (display: contents) so the heading, the list, the panels, the drawing and the close
+   are items of ONE grid: row 1 the heading (over the list + detail columns), row 2 the list and the detail, the drawing in column 3 across rows 1-2 (its box is the first screen's height, so the close,
+   row 3, starts right below the first screen). Vertical rhythm follows the viewport's height (720 -> 1080) so 1280 x 720 still fits: --top leaves room for Lawrence's header bar (80 px with its offset). */
+@media (min-width: 1280px) {
+  .stk { --top: clamp(88px, 11vh, 120px); --foot: var(--space-5); padding-top: var(--top); }
+  .stk-grid { grid-template-columns: var(--list-w) var(--detail-w) minmax(0, 1fr); grid-template-rows: auto 1fr auto;   /* row 2 (1fr) takes the drawing's extra height, so the list stays right under the heading */ column-gap: var(--space-7); row-gap: 0; align-items: start; }
+  .stk-track, .stk-pin, .stk-cols { display: contents; }
+  .stk-head { grid-column: 1 / 3; grid-row: 1; padding-bottom: clamp(18px, 3.4vh, 48px); }
+  .stk-h2 { font-size: min(var(--text-h2), 6.6vh); }
+  .stk-head p { margin-top: clamp(12px, 2.6vh, var(--space-5)); }
+  .stk-list { grid-column: 1; grid-row: 2; }
+  .stk-panels { grid-column: 2; grid-row: 2; }
+  /* the detail breathes with the height (Lawrence's 36 / 32 / 22 / 24 px at 900+, tighter on a 720 screen) */
+  .stk .stk-line { margin-top: clamp(18px, 4vh, calc(var(--space-6) + var(--space-1))); }
+  .stk .stk-features { margin-top: clamp(14px, 3.4vh, var(--space-6)); gap: clamp(10px, 2.4vh, calc(var(--space-5) - 2px)); }
+  .stk .stk-stats { margin-top: clamp(12px, 2.6vh, var(--space-5)); }
+  /* 112 px of air before the drawing; it may run past the column into the page margin, stopping 16 px short of the viewport edge, up to 624 px wide (his), and no taller than the first screen
+     below --top (his pinned cap, 0.84 = the drawing's width / height). The box itself is the first screen's height; the drawing sits centred in it. */
+  .stk-art {
+    --air: calc(var(--space-10) - var(--space-4) - var(--space-7));
+    grid-column: 3; grid-row: 1 / 3; align-self: start; justify-self: start;
+    display: flex; align-items: flex-start;
+    height: max(420px, calc(100vh - var(--top) - var(--foot)));
+    width: min(calc(100% - var(--air) + var(--page-margin) - var(--space-4) + max(0px, (100vw - var(--content-max)) / 2)), calc(var(--space-11) * 3 + var(--space-7)), calc((100vh - var(--top) - var(--foot)) * 0.84));
+    margin: 0 0 0 var(--air);
+  }
+  .stk .stk-close { grid-column: 1 / -1; grid-row: 3; margin-top: var(--space-8); }
+  /* the drawing's top (the N cap's top vertex, with the selected pillar lifted, as it rests) on the top of the heading's cap height (the "F"); same size and x, the spare height goes
+     below it. Both are proportional, so it holds at every size: the cap top of Montreal 500 at line-height 1.1 is 0.1921 em under the heading's top (measured), and the lifted vertex is 6.63 %
+     of the drawing's own height under its top (the SVG's geometry: 51.9 of 783 units). The art box's top is the heading's top (grid row 1). A transform, so nothing reflows; the band only clips x,
+     so the rings dropping in from above (build-in) and the lift are never cut. */
+  .stk-iso { transform: translateY(calc(min(var(--text-h2), 6.6vh) * .1921 - 6.63%)); }
+}
+
+/* The layer list (Figma: 54 px rows, 15 px inset, ~10 px index, 20 px name in a muted tone; the selected row a green field with ink type) */
+.stk-list { display: flex; flex-direction: column; align-self: start; border-bottom: 1px solid var(--color-line-on-dark); }
+.stk-tab {
+  display: flex; align-items: center; gap: var(--space-5); white-space: nowrap;
+  min-height: calc(var(--space-7) + var(--space-1) * 1.5); padding: 0 var(--space-4); cursor: pointer;
+  border: 0; border-top: 1px solid var(--color-line-on-dark); background: none; color: var(--color-on-dark-muted); font: inherit; text-align: left;
+  transition: color var(--dur-2) var(--ease-out);
+}
+.stk-tab:hover { color: var(--color-on-dark); }
+.stk-tab[aria-selected="true"] { background: var(--color-green); color: var(--color-ink); border-top-color: var(--color-green); }
+.stk-tab:focus-visible { outline-offset: -4px; }
+.stk-tab[aria-selected="true"]:focus-visible { outline-color: var(--color-ink); }
+.stk-index { flex: none; width: 2ch; font-size: var(--text-caption); font-variant-numeric: tabular-nums; }
+.stk-tabName { font-size: var(--text-h4); font-weight: 400; line-height: 1.2; }
+
+/* The selected layer's detail. Panels share one cell from tablet up (no jump when switching); without JS all show. */
+.stk-panels { display: grid; }
+.stk-panel { grid-area: 1 / 1; min-width: 0; }
+/* Switching (D28): out fast, in slow. The old panel fades out in 120 ms; then the new one fades up 8 px on a long settle. Phones show only the active panel (it settles in the same way). */
+@media (max-width: 767px) { html[data-stk] .stk-panel[data-active] { animation: stk-panel-in var(--dur-4) var(--ease-settle); } }
+@keyframes stk-panel-in { from { opacity: 0; transform: translateY(var(--space-2)); } }
+.stk-panel + .stk-panel { margin-top: var(--space-8); }
+html[data-stk] .stk-panel + .stk-panel { margin-top: 0; }
+html[data-stk] .stk-panel:not([data-active]) { display: none; }
+@media (min-width: 768px) {
+  html[data-stk] .stk-panel { transition: opacity var(--dur-3) var(--ease-out) var(--dur-1), transform var(--dur-4) var(--ease-settle) var(--dur-1); }
+  html[data-stk] .stk-panel:not([data-active]) {
+    display: block; visibility: hidden; opacity: 0; transform: translateY(var(--space-2));
+    transition: opacity var(--dur-1) var(--ease-out), visibility 0s linear var(--dur-1), transform 0s linear var(--dur-1);
+  }
+}
+.stk-panelTop {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-5);
+  padding-block: calc(var(--space-4) - 1px); border-bottom: 1px solid var(--color-line-on-dark);
+}
+.stk-role, .stk-url { font-size: var(--text-caption); font-weight: 400; letter-spacing: 0.02em; text-transform: uppercase; }
+.stk-role { margin: 0; color: var(--color-on-dark); }
+.stk-url { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 24px; color: var(--color-on-dark); text-decoration: none; }
+.stk-url:hover, .stk-url:focus-visible { text-decoration: underline; text-decoration-color: var(--color-green); text-underline-offset: 4px; }
+.stk-line { margin: calc(var(--space-6) + var(--space-1)) 0 0; font-size: var(--text-h4); font-weight: 400; line-height: 1.15; text-wrap: balance; }
+.stk-features {
+  display: grid; gap: calc(var(--space-5) - 2px); margin: var(--space-6) 0 0;
+  padding: var(--space-3) 0 var(--space-3) calc(var(--space-4) + var(--space-1)); list-style: none; border-left: 1px solid var(--color-line-on-dark);
+}
+.stk-features p { margin: 0; }
+.stk-featTitle { font-size: var(--text-body); line-height: 1.2; }
+.stk-features .stk-featDetail { margin-top: 2px; font-size: var(--text-caption); line-height: 1.3; color: var(--color-on-dark); }
+/* Stats: a green square, the value, a hairline, its label */
+.stk-stats { display: flex; flex-wrap: wrap; gap: calc(var(--space-2) + 2px) var(--space-5); margin: var(--space-5) 0 0; padding: 0; list-style: none; font-size: var(--text-caption); }
+.stk-stats li { display: flex; align-items: center; gap: calc(var(--space-2) - 1px); }
+.stk-stats li::before { content: ""; flex: none; width: calc(var(--space-1) * 1.5); height: calc(var(--space-1) * 1.5); margin-right: 2px; background: var(--color-green); }
+@media (max-width: 767px) { .stk-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-5); } .stk-stats li { min-width: 0; align-items: baseline; } }
+.stk-statValue { padding-right: calc(var(--space-2) - 1px); border-right: 1px solid var(--color-line-on-dark); font-weight: 500; }
+
+/* The drawing (D18): flat faces per layer. Each piece is two groups: .stk-c lifts (hover, selection), .stk-b builds in. */
+.stk-iso { display: block; width: 100%; height: auto; overflow: visible; }
+.stk-c { cursor: pointer; transform: translateY(var(--lift, 0px)); transition: transform var(--dur-2) var(--ease-out); }
+.stk-c[data-tone="protocol"] { --t: var(--stack-protocol-t); --l: var(--stack-protocol-l); --r: var(--stack-protocol-r); }
+.stk-c[data-tone="intents"] { --t: var(--stack-intents-t); --l: var(--stack-intents-l); --r: var(--stack-intents-r); }
+.stk-c[data-tone="ai"] { --t: var(--stack-ai-t); --l: var(--stack-ai-l); --r: var(--stack-ai-r); }
+.stk-c[data-tone="com"] { --t: var(--stack-com-t); --l: var(--stack-com-l); --r: var(--stack-com-r); }
+.stk-iso polygon { stroke-width: 0.9; stroke-linejoin: round; transition: fill var(--dur-2) var(--ease-out), stroke var(--dur-2) var(--ease-out); }
+.stk-t { fill: var(--t); stroke: var(--t); }
+.stk-l { fill: var(--l); stroke: var(--l); }
+.stk-r { fill: var(--r); stroke: var(--r); }
+/* Build (D18; whole rings in D20; flat in D21): data-build on the band is how many layers out from the core are shown (0 = the pillar only; -1 = nothing yet). Each ring is one group, so it fades on as a
+   single flat image and settles down into place on a long ease to a stop. A ring's pillar cover appears with it at once and only leaves once the ring has faded out. Without data-build (no JS,
+   reduced motion) every layer shows. */
+.stk-b { opacity: var(--shown, 1); transform: translateY(calc((1 - var(--shown, 1)) * var(--space-7) * -1)); transition: opacity var(--dur-5) var(--ease-settle), transform calc(var(--dur-5) * 1.25) var(--ease-settle); }
+.stk-cover { opacity: var(--shown, 1); transition: opacity 0s linear calc((1 - var(--shown, 1)) * var(--dur-5)); }
+.stk[data-build="-1"] .stk-c[data-li],
+.stk[data-build="0"] .stk-c:is([data-li="1"], [data-li="2"], [data-li="3"]),
+.stk[data-build="1"] .stk-c:is([data-li="2"], [data-li="3"]),
+.stk[data-build="2"] .stk-c[data-li="3"] { --shown: 0; pointer-events: none; }
+
+/* The selected layer lifts. Hovering a layer (data-hl) lifts that one instead and drops the others to charcoal. */
+.stk[data-hl="protocol"] .stk-c:not([data-tone="protocol"]),
+.stk[data-hl="intents"] .stk-c:not([data-tone="intents"]),
+.stk[data-hl="ai"] .stk-c:not([data-tone="ai"]),
+.stk[data-hl="com"] .stk-c:not([data-tone="com"]) { --t: var(--stack-dim-top); --l: var(--stack-dim-l); --r: var(--stack-dim-r); }
+.stk:is([data-hl="protocol"], [data-active-layer="protocol"]:not([data-hl])) .stk-c[data-tone="protocol"],
+.stk:is([data-hl="intents"], [data-active-layer="intents"]:not([data-hl])) .stk-c[data-tone="intents"],
+.stk:is([data-hl="ai"], [data-active-layer="ai"]:not([data-hl])) .stk-c[data-tone="ai"],
+.stk:is([data-hl="com"], [data-active-layer="com"]:not([data-hl])) .stk-c[data-tone="com"] { --lift: calc(var(--space-3) * -1); }
+
+/* Close and the secondary row. Each sentence of the close on its own line on phones, so neither breaks mid-phrase */
+@media (max-width: 767px) { .stk-sentence { display: block; } }
+.stk-close { margin: var(--space-9) auto 0; max-width: 26ch; text-align: center; text-wrap: balance; }
+.stk-secondary { display: grid; gap: var(--space-6); margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-line-on-dark); }
+.stk-secondary h3 { margin: 0 0 var(--space-2); }
+.stk-secondary p { margin: 0 0 var(--space-3); font-size: var(--text-small); color: var(--color-on-dark-muted); max-width: 46ch; }
+.stk-more { font-size: var(--text-small); font-weight: 500; color: var(--color-on-dark); text-decoration-line: underline; text-decoration-color: var(--color-on-dark-muted); text-underline-offset: 5px; text-decoration-thickness: 1px; }
+.stk-ext { display: inline-block; vertical-align: baseline; margin-left: var(--space-1); }
+.stk-more:hover { text-decoration-color: var(--color-green); text-decoration-thickness: 2px; }
+@media (min-width: 768px) {
+  .stk-secondary { grid-template-columns: 1fr 1fr; }
+  .stk-secondary > div:last-child { border-left: 1px solid var(--color-line-on-dark); }
+  .stk-secondary > div { display: flex; flex-direction: column; align-items: center; padding-inline: var(--space-6); text-align: center; }
+  .stk-secondary p { margin-inline: auto; }
+  .stk-secondary .stk-more { margin-top: auto; }
+}
+
+/* ───────── how this section joins the world above ─────────
+   While the world is pinned (html[data-rail]) the band is pulled up over the last part of the pin (--ov, written by the rail (rail/motion.ts): the part of the pin after the world has turned fully dark), so the Stack
+   slides in on the same dark ground with no seam; the pin releases and the band is normal flow. In the static page (?rm=1, reduced motion, no JS) it simply follows the stacked section. */
+html[data-rail] .stk { margin-top: calc(var(--ov, 0px) * -1); z-index: 3; }
+/* the overlap is see-through (a hard stop, not a gradient): the world's own dark is the ground under the heading while it arrives, so the band's flat edge never shows against the last dots */
+html[data-rail] .stk { background: linear-gradient(transparent 0 var(--ov, 0px), var(--color-ink) var(--ov, 0px)); }
+/* the build-in of the text (tabs, panel): a quiet rise as each block comes into view; without JS / reduced motion everything is simply there */
+html[data-stk-in] .stk [data-rise] { opacity: 0; transform: translateY(var(--space-3)); transition: opacity var(--dur-4) var(--ease-settle), transform var(--dur-5) var(--ease-settle); }
+html[data-stk-in] .stk [data-rise].is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { html[data-stk-in] .stk [data-rise] { opacity: 1; transform: none; } }

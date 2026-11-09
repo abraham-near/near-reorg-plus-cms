@@ -1,0 +1,184 @@
+/* The world (r17 v1): the pinned wrapper, the stage / globe boxes, hero A "Esfera", the statement, the dissolve of its words, the orbital-dawn intro's gate, Lenis.
+   From r13/lib/css/page.css, hero-a.css, statement.css and r17 v1 css/version.css + css/intro.css (the kit nav's rules dropped: r17 v1 hides it).
+   DOM contract: .pin > .stage > canvas | .globe | .hero | .statement ; <html> flags from head.ts: data-rm, data-gl="off", data-pin, data-intro, data-r16-intro, data-r16-live. */
+
+/* ───────── the world's own tokens (r13's :root, scoped here; the shared ones come from styles/tokens.css) ───────── */
+.pin {
+  --max: calc(1820px + 2 * var(--m));
+  --cw: min(calc(100vw - 2 * var(--m)), 1820px);       /* the container's content width */
+  /* hero A: H1 143 px (cap top at 31 % of the height) at 1885, copy on x = 100, sub 33 px, CTA 212 x 60, globe centre (69 %, 59 %), diameter 38 vw */
+  --h1: calc(7.6 * var(--u));                          /* 143 px at 1885 */
+  --lh1: calc(var(--h1) * 1.1241);                     /* 161 px: the line pitch */
+  --kep: 1.365;                                        /* "world" = H1 x 1.365 */
+  --sq: calc(var(--h1) * .2125);                       /* the green square, 30 px */
+  --p: calc(1.74 * var(--u));                          /* sub, 33 px */
+  --gd: min(calc(var(--cw) * .4255), 67svh);           /* the globe's diameter: 38 vw at 1885, never more than 67 % of the height */
+  --cta-w: clamp(176px, calc(11.25 * var(--u)), 240px); --cta-h: clamp(52px, calc(3.18 * var(--u)), 68px); --cta-fs: clamp(16px, calc(.955 * var(--u)), 19.6px);
+  /* r17's body (kit/css/base.css): the project's root is Lawrence's */
+  font-family: var(--font-text); font-weight: 400; font-size: 17px; line-height: 1.4; color: var(--ink);
+}
+.pin .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.pin .wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--m); }
+/* the project's global text-wrap (balance / pretty) is not r17's: the hero and the statement wrap as they did */
+.pin .h1, .pin .st, .pin .hero__sub { text-wrap-style: auto; }
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* ───────── the pinned wrapper: stage (canvas) + globe box + hero + statement ───────── */
+.pin { position: relative; isolation: isolate; overflow: hidden; touch-action: pan-y; }
+.pin.is-grab { cursor: grab; }
+.pin.is-drag { cursor: grabbing !important; }
+.pin a, .pin button { cursor: pointer; }
+.stage { position: absolute; z-index: 0; left: 0; top: 0; width: 100%; height: 100vh; height: 100svh; pointer-events: none; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.globe { position: absolute; z-index: 0; pointer-events: none; aspect-ratio: 1; transform: translate(-50%, -50%); }
+.globe__poster { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
+html[data-gl="off"] .globe__poster { display: block; }
+html[data-gl="off"] .stage { display: none; }
+.hero { position: relative; z-index: 2; height: 100vh; height: 100svh; }
+.hero__main { position: relative; z-index: 2; pointer-events: none; }
+.hero__copy a { pointer-events: auto; }
+
+/* pinned (JS on, WebGL on, motion allowed): the hero and the statement are stacked in one screen; the transition's timeline moves them */
+html[data-pin] .pin { height: 100vh; height: 100svh; overflow: hidden; }
+html[data-pin] .hero, html[data-pin] .statement { position: absolute; inset: 0; }
+html[data-pin] .statement { z-index: 3; opacity: 0; pointer-events: none; }
+
+.h1 { font-family: var(--font-text); font-weight: 400; font-size: var(--h1); line-height: var(--lh1); letter-spacing: -.0202em; color: var(--ink); }
+.ln--key { font-family: var(--font-acc); font-style: italic; font-weight: 500; font-size: calc(var(--h1) * var(--kep)); letter-spacing: calc(var(--h1) * -.043); position: relative; top: calc(var(--h1) * .0965); }
+.ln--key em { font: inherit; letter-spacing: inherit; }
+.sq { display: inline-block; width: var(--sq); height: var(--sq); background: var(--green); }
+
+/* the hero button: flat green, label, a down arrow, and the diagonal hatch at the right end */
+.cta { position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; gap: .94em;
+  width: var(--cta-w); height: var(--cta-h); padding-left: calc(var(--cta-w) * .133);
+  background: var(--green); color: var(--ink); font-size: var(--cta-fs); line-height: 1; letter-spacing: -.0308em; transition: color .2s; }
+.cta::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ink); transform: translateY(101%); transition: transform .45s var(--ease); }
+.cta::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 24.43%; background: url("/v1/world/hatch.svg") 0 0 / 100% 100% no-repeat; z-index: 0; pointer-events: none; }
+.cta:hover, .cta:focus-visible { color: var(--paper); }
+.cta:hover::before, .cta:focus-visible::before { transform: none; }
+.cta .arr { display: block; flex: none; overflow: hidden; background-color: var(--arr, currentColor); -webkit-mask: var(--arrow) center / contain no-repeat; mask: var(--arrow) center / contain no-repeat; color: transparent; }
+.cta .arr { --arr: var(--ink); --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 9.2' fill='none' stroke='%23000' stroke-width='.95'%3E%3Cpath d='M3.5 0V8.7M.3 5.5 3.5 8.7 6.7 5.5'/%3E%3C/svg%3E"); width: .56em; height: .74em; transition: transform .35s var(--ease); }
+.cta:hover .arr, .cta:focus-visible .arr { --arr: var(--paper); transform: translateY(3px); }
+
+/* entry: the globe draws itself, then the copy rises (staggered, .5 s each). Never with ?rm=1 / ?gl=0 (no data-intro).
+   After it has played the boot sets data-intro="over" (animations off, the final state stays) so that GSAP owns the transforms. */
+@keyframes rise { from { opacity: 0; transform: translateY(.12em); } to { opacity: 1; transform: none; } }
+@keyframes fadeup { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+html[data-intro="wait"] .ln, html[data-intro="wait"] .hero .in { opacity: 0; }
+html[data-intro="done"] .ln { animation: rise .5s var(--ease) both; }
+html[data-intro="done"] .ln:nth-child(2) { animation-delay: .1s; }
+html[data-intro="done"] .hero .in { animation: fadeup .5s var(--ease) both; animation-delay: calc(.2s + var(--i, 0) * .1s); }
+html[data-intro="over"] .ln, html[data-intro="over"] .hero .in { animation: none; }
+html[data-rm] .ln, html[data-rm] .in { animation: none !important; opacity: 1 !important; }
+@media (prefers-reduced-motion: reduce) { .ln, .in { animation: none !important; opacity: 1 !important; } }
+
+/* not pinned (?rm=1, ?gl=0, no WebGL, no JS): the statement follows the hero and simply fades in when it comes into view */
+html:not([data-pin]) .statement.is-pre { opacity: 0; transform: translateY(14px); }
+html:not([data-pin]) .statement { transition: opacity .8s var(--ease), transform .8s var(--ease); }
+html[data-rm] .statement, html[data-rm] .statement.is-pre { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+/* the hero copy leaves through masks: the h1 / the sub are clipped to (a little more than) their own boxes while the lines slide up */
+html[data-pin] .h1 { clip-path: inset(calc(var(--h1) * -.12) calc(var(--h1) * -.8) calc(var(--h1) * -.1)); }
+html[data-pin] .hero__sub { clip-path: inset(-.3em -1em -.45em); }
+
+/* ───────── hero A: text left, the whole globe right ───────── */
+/* the box that says where the world is and how big it is (the globe reads it): centre (69 %, 59 %), diameter 38 vw */
+.globe { width: var(--gd); left: calc((100vw - var(--cw)) / 2 + var(--cw) * .7122); top: 59vh; top: 59svh; }
+.hero__main { padding-top: calc(31svh - var(--h1) * .18); }
+.hero__copy { width: fit-content; max-width: 100%; }
+.ln { display: block; white-space: nowrap; }
+.sq { margin-left: calc(var(--h1) * .058); }
+.hero__sub { margin-top: calc(.8 * var(--u)); max-width: 22.5em; font-size: var(--p); line-height: 1.2194; letter-spacing: -.0134em; color: var(--ink); }
+.hero__sub .bl { display: block; }
+.hero__cta { margin-top: clamp(26px, calc(3.24 * var(--u)), 84px); display: flex; }
+
+/* stacked: phones (and portrait tablets): the copy on top, the globe under it, centred, cropped a little at the bottom */
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
+  .pin { --m: clamp(20px, 5.2vw, 40px); --nav-h: 64px; --h1: clamp(52px, min(19vw, 13.5svh), 130px); --p: clamp(17px, 4.6vw, 26px); --gd: min(86vw, 54svh, 640px); }
+  .hero__main { padding-top: calc(var(--nav-h) + 3svh); }
+  .hero__sub { margin-top: 14px; max-width: 24em; line-height: 1.25; }
+  .hero__sub .bl { display: inline; }
+  .hero__cta { margin-top: 22px; }
+  .cta { --cta-w: min(100%, 340px); --cta-h: 56px; --cta-fs: 17px; }
+  .hero__cta { width: 100%; }
+  .globe { left: 50%; top: calc(100svh - var(--gd) * .85); transform: translateX(-50%); }
+}
+
+/* ───────── the statement: large type, five lines with staggered indents, the small N mark above the first line, the flat green marker behind the last phrase ─────────
+   The <h2> is ONE sentence; split.ts wraps every word in a mask: .st__w (overflow hidden) > .st__wi (the thing that moves). The text is real and whole for assistive tech. */
+.statement {
+  --st: calc(5.25 * var(--u)); --st-lh: 1.04; --st-track: -.036em;
+  --in1: 0px; --in2: calc(9.5 * var(--u)); --in3: calc(3 * var(--u)); --in4: calc(15.5 * var(--u)); --in5: calc(31 * var(--u));
+  --n-size: calc(2.7 * var(--u));
+  position: relative; color: var(--ink); display: flex; align-items: center; min-height: 100vh; min-height: 100svh;
+  padding-block: calc(var(--nav-h) + 3svh) 6svh;
+}
+.statement__inner { position: relative; }
+.statement__n { display: block; width: var(--n-size); height: auto; margin-bottom: calc(2.6 * var(--u)); fill: var(--n-fill, var(--ink)); }
+.st { position: relative; isolation: isolate; font-family: var(--font-text); font-weight: 400; font-size: var(--st); line-height: var(--st-lh); letter-spacing: var(--st-track); color: inherit; }
+.st__l { display: block; white-space: nowrap; }
+.st__l:nth-child(1) { padding-left: var(--in1); }
+.st__l:nth-child(2) { padding-left: var(--in2); }
+.st__l:nth-child(3) { padding-left: var(--in3); }
+.st__l:nth-child(4) { padding-left: var(--in4); }
+.st__l:nth-child(5) { padding-left: var(--in5); }
+/* a word's mask: it clips the rise; the padding / negative margin give descenders room without moving the layout */
+.st__w { display: inline-block; overflow: hidden; vertical-align: top; padding: .09em 0 .16em; margin: -.09em 0 -.16em; }
+.st__wi { display: inline-block; will-change: transform; }
+/* the green marker: flat #00DC8D behind the last phrase; wipes left -> right with --mark 0 -> 1 */
+.st__mark { position: relative; display: inline-block; --mark: 1; }
+.st__mark::before { content: ""; position: absolute; z-index: -1; left: -.1em; right: -.1em; top: .13em; bottom: .02em; background: var(--green); transform-origin: 0 50%; transform: scaleX(var(--mark)); }
+
+/* phones: the lines re-wrap by themselves, no indents, the mask words still rise (visual lines are found by position) */
+@media (max-width: 760px) {
+  .statement { --st: clamp(30px, 8.3vw, 52px); --st-lh: 1.06; --n-size: 34px; align-items: center; padding-block: calc(var(--nav-h) + 2svh) 6svh; }
+  .statement__n { margin-bottom: 26px; }
+  .st__l { display: inline; white-space: normal; padding-left: 0 !important; }
+  .st__mark { display: inline; background: linear-gradient(var(--green), var(--green)) 0 .15em / calc(var(--mark) * 100%) calc(100% - .17em) no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .st__mark::before { display: none; }
+}
+
+/* ───────── "the type follows the dots": the statement's words and the N mark dissolve in from left to right (--c 0 -> 1 is written by transition.ts from the playhead) ─────────
+   A soft edge (30 % of the word) so the real type melts over the dotted lettering; once a word is open (.is-open) the mask goes away: the final type is untouched. */
+html[data-pin] .st__w, html[data-pin] .statement__n {
+  --c: 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--c) * 130% - 30%), transparent calc(var(--c) * 130%));
+  mask-image: linear-gradient(90deg, #000 calc(var(--c) * 130% - 30%), transparent calc(var(--c) * 130%));
+}
+html[data-pin] .st__w.is-open, html[data-pin] .statement__n.is-open { -webkit-mask-image: none; mask-image: none; }
+
+/* ───────── the orbital-dawn intro's gate (intro.ts). html[data-r16-intro]: run -> reveal -> done (never set with ?rm=1 / ?gl=0 / no JS) ─────────
+   The copy waits for THIS intro, not for the globe's own draw-in (data-intro above): those wait / done animations are switched off under this flag and the intro runs its own.
+   The CTA's own box (.hero__cta, the one GSAP fades on scroll) stays opaque: the button inside it is hidden / revealed, so the scroll transition records a visible start. */
+html[data-r16-intro] .hero .in { opacity: 1; animation: none; }
+html[data-r16-intro] .hero .ln { animation: none; }
+
+/* run: nothing of the header or the copy shows; the stage shows from the first frame the intro has drawn.
+   The header is header/: r17 slid its frame (.hd-frame, the bar's wrapper); the ported header has no wrapper, so its bar slides (the same box: the bar + the 16 px above it) */
+html[data-r16-intro="run"] .hero .ln, html[data-r16-intro="run"] .hero .hero__sub, html[data-r16-intro="run"] .hero__cta .cta { opacity: 0 !important; }
+html[data-r16-intro="run"] .hd .hd-bar { transform: translateY(-100%); transition: none; }
+html[data-r16-intro]:not([data-r16-live]) .stage { visibility: hidden; }
+/* done (also ?intro=0): the end state, all visible (the CTA's own box is GSAP's from here) */
+html[data-r16-intro="done"] .hero .ln { opacity: 1; }
+
+/* the horizon line (an arc on the limb; JS writes d and opacity) */
+.r16i-sky { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.r16i-limb { fill: none; stroke: var(--ink, #1C1917); stroke-width: 1; }
+.r16i-ticks { fill: none; stroke: var(--ink, #1C1917); stroke-width: 1; }
+/* the light orbit, the flash and the twinkles (intro.ts draws them; the soft green halo lives only on this canvas) */
+.r16i-light { pointer-events: none; }
+
+/* reveal: the header slides down (the bar's translateY, --ease-settle; .7 s), then the title lines rise, then the sub and the CTA (on `translate` so they never fight GSAP's
+   transforms). At k = 1 the whole reveal is 2 s (INTRO.revealMs): it starts at ~2.0 s and the CTA lands with the world at ~3.9 s. --r16k scales it (a late entry; .25 after a cut / Esc). */
+@keyframes r16i-rise { from { opacity: 0; translate: 0 .12em; } to { opacity: 1; translate: none; } }
+@keyframes r16i-up { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: none; } }
+html[data-r16-intro="reveal"] .hd .hd-bar { transition: transform calc(700ms * var(--r16k, 1)) var(--ease-settle, cubic-bezier(.16, 1, .3, 1)), color var(--tick) linear; }
+html[data-r16-intro="reveal"] .hero .ln { animation: r16i-rise calc(.7s * var(--r16k, 1)) var(--ease) both; animation-delay: calc(.2s * var(--r16k, 1)); }
+html[data-r16-intro="reveal"] .hero .ln:nth-child(2) { animation-delay: calc(.34s * var(--r16k, 1)); }
+html[data-r16-intro="reveal"] .hero .hero__sub { animation: r16i-up calc(.7s * var(--r16k, 1)) var(--ease) both; animation-delay: calc(.7s * var(--r16k, 1)); }
+html[data-r16-intro="reveal"] .hero__cta .cta { animation: r16i-up calc(.8s * var(--r16k, 1)) var(--ease) both; animation-delay: calc(1.2s * var(--r16k, 1)); }

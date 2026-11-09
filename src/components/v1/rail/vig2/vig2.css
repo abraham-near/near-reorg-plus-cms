@@ -1,0 +1,10 @@
+/* r17 v1 · the Figma isometrics (rail/vig2): each fills its host, contained, standing on the host's bottom edge. Per-illustration rules go below, scoped to .v2--<key>.
+   (r17's css/vig2.css + css/vig2-<key>.css in one file; "data" and "assets" need none: their motion is all svg transforms / opacity / dash offsets.) */
+.v2 { position: absolute; inset: 0; pointer-events: none; }
+.v2 svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* identity: the motion is all inline (transforms, opacity, dash offsets) */
+.v2--identity .i-glint { pointer-events: none; }
+
+/* intelligence: the seal's glint, a flat paper band (no glow, no gradient); its opacity is driven by set() on the arrival and by idle(t, w) */
+.v2--intelligence .v2i-glint { fill: #F5F5F5; stroke: none; }

@@ -1,27 +1,37 @@
-import { ChapterOne } from "@/components/home/chapter-one/ChapterOne";
-import { StoryRail } from "@/components/home/story/StoryRail";
-import { StackSection } from "@/components/home/stack/StackSection";
-import { ProofStrip } from "@/components/home/proof/ProofStrip";
-import { GoDeeper } from "@/components/home/go-deeper/GoDeeper";
-import { Origin } from "@/components/home/origin/Origin";
-import { Voices } from "@/components/home/voices/Voices";
-import { GetIntoNear } from "@/components/home/get-into/GetIntoNear";
-import { Close } from "@/components/home/close/Close";
+import styles from "./Selector.module.css";
 
-// The homepage. Hero -> Stack: Lawrence's (near-org-site, direction-b @ a4d088b): one of his five heroes at random, the rail in its Horizon look with the
-// live Orbit stations, the Stack. After the Stack: Abraham's (near-reorg r17 v1): the proof strip, Go deeper, Origin, the voices, Get into NEAR, Close.
-export default function HomePage() {
+// The index: only a choice between the two homepages. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
+const VERSIONS = [
+  { href: "/home-v1", n: "v1", name: "Carril vivo", note: "The globe intro, the living rail with the isometrics, the Stack, then Abraham’s sections." },
+  { href: "/home-v2", n: "v2", name: "Lawrence + Abraham", note: "Lawrence’s hero, rail and Stack, then Abraham’s header, sections and footer." },
+];
+
+export default function Selector() {
   return (
-    <main id="main">
-      <ChapterOne hero="random" />
-      <StoryRail look="horizon" art="orbit-live" />
-      <StackSection />
-      <ProofStrip />
-      <GoDeeper />
-      <Origin />
-      <Voices />
-      <GetIntoNear />
-      <Close />
+    <main className={styles.page}>
+      <header className={styles.top}>
+        <img className={styles.logo} src="/brand/logo.svg" alt="NEAR" width={88} height={23} />
+        <p className={styles.label}>Homepage prototypes</p>
+      </header>
+      <h1 className={styles.h}>
+        Choose a <span className={styles.acc}>version.</span>
+      </h1>
+      <ul className={styles.list}>
+        {VERSIONS.map((v) => (
+          <li key={v.n}>
+            <a className={styles.row} href={v.href}>
+              <span className={styles.n}>{v.n}</span>
+              <span className={styles.body}>
+                <span className={styles.name}>{v.name}</span>
+                <span className={styles.note}>{v.note}</span>
+              </span>
+              <span className={styles.go} aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
