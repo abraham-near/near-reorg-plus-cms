@@ -11,19 +11,15 @@
   --font-text: var(--font-montreal-book), var(--font-sans);          /* Montreal Book for 400 (r17); 500 falls back to Regular through --font-sans */
   --font-acc: var(--font-kepler-cn), var(--font-accent-display);     /* the Kepler accent: Medium Condensed Italic Display, weight 500 */
 
-  /* the header (components/shared/header) */
-  --hd-radius: 0px;                                                  /* the bar and its panel */
-  --hd-radius-ctl: 0px;                                              /* the controls inside it and the panel's highlighted links */
-  --hd-dark-fill: transparent;                                       /* the header's own paint over the dark bands */
+  /* the corners of small controls outside the header (the version switch) */
+  --ctl-radius: 0px;
 }
 
-/* v1 = near-reorg r17 v1 "Carril vivo": square corners; over the dark bands the header is a solid bar */
-:root[data-version="v1"] {
-  --hd-dark-fill: var(--dark);
-}
+/* v1 = near-reorg r17 v1 "Carril vivo": square corners (the defaults above) */
 
-/* v2 = Lawrence's hero -> Stack + the shared sections: rounded header */
+/* v2 = Lawrence's hero -> Stack + the shared sections: rounded controls */
 :root[data-version="v2"] {
-  --hd-radius: 16px;
-  --hd-radius-ctl: 12px;
+  --ctl-radius: 12px;
 }
+
+/* The header (components/shared/header) is b10's nav, the same in both versions: it carries its own values. */

@@ -159,9 +159,9 @@ html[data-r16-intro] .hero .in { opacity: 1; animation: none; }
 html[data-r16-intro] .hero .ln { animation: none; }
 
 /* run: nothing of the header or the copy shows; the stage shows from the first frame the intro has drawn.
-   The header is header/: r17 slid its frame (.hd-frame, the bar's wrapper); the ported header has no wrapper, so its bar slides (the same box: the bar + the 16 px above it) */
+   The header is the shared one (b10's pill): its bar slides up out of view, as when it hides on the way down */
 html[data-r16-intro="run"] .hero .ln, html[data-r16-intro="run"] .hero .hero__sub, html[data-r16-intro="run"] .hero__cta .cta { opacity: 0 !important; }
-html[data-r16-intro="run"] .hd .hd-bar { transform: translateY(-100%); transition: none; }
+html[data-r16-intro="run"] .nvh .nv-bar { transform: translateY(calc(-100% - 24px)); transition: none; }
 html[data-r16-intro]:not([data-r16-live]) .stage { visibility: hidden; }
 /* done (also ?intro=0): the end state, all visible (the CTA's own box is GSAP's from here) */
 html[data-r16-intro="done"] .hero .ln { opacity: 1; }
@@ -177,7 +177,7 @@ html[data-r16-intro="done"] .hero .ln { opacity: 1; }
    transforms). At k = 1 the whole reveal is 2 s (INTRO.revealMs): it starts at ~2.0 s and the CTA lands with the world at ~3.9 s. --r16k scales it (a late entry; .25 after a cut / Esc). */
 @keyframes r16i-rise { from { opacity: 0; translate: 0 .12em; } to { opacity: 1; translate: none; } }
 @keyframes r16i-up { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: none; } }
-html[data-r16-intro="reveal"] .hd .hd-bar { transition: transform calc(700ms * var(--r16k, 1)) var(--ease-settle, cubic-bezier(.16, 1, .3, 1)), color var(--tick) linear; }
+html[data-r16-intro="reveal"] .nvh .nv-bar { transition: transform calc(700ms * var(--r16k, 1)) var(--ease-settle, cubic-bezier(.16, 1, .3, 1)), color var(--dur-tick) var(--ease-tick); }
 html[data-r16-intro="reveal"] .hero .ln { animation: r16i-rise calc(.7s * var(--r16k, 1)) var(--ease) both; animation-delay: calc(.2s * var(--r16k, 1)); }
 html[data-r16-intro="reveal"] .hero .ln:nth-child(2) { animation-delay: calc(.34s * var(--r16k, 1)); }
 html[data-r16-intro="reveal"] .hero .hero__sub { animation: r16i-up calc(.7s * var(--r16k, 1)) var(--ease) both; animation-delay: calc(.7s * var(--r16k, 1)); }

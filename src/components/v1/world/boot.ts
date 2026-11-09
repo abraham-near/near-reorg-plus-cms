@@ -9,6 +9,7 @@
 //   onLayout(cb) -> off      cb(ctx) once after the fonts + the layout are settled, then after every resize / dot-count change
 //   dispose()                tears the world down (WebGL, Lenis, the ticker, the ScrollTriggers, the listeners, the statement's split); idempotent; also runs when `signal` aborts
 import { gsap } from "gsap";
+import { setSmooth } from "@/lib/motion/smooth";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import type { V1Ctx, Dispose } from "../ctx";
@@ -128,6 +129,7 @@ export async function startWorld(signal: AbortSignal): Promise<WorldCtx> {
   /* ───── Lenis (smooth scroll) + ONE ticker: Lenis, then the globe's frame (after the scrub tweens of this tick have written their uniforms) ───── */
   lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
   ctx.lenis = lenis;
+  setSmooth(lenis);   // the shared header scrolls (logo, Get started) and locks (phone map) through it
   lenis.on("scroll", ScrollTrigger.update);
   ScrollTrigger.config({ ignoreMobileResize: true });
   gsap.ticker.lagSmoothing(0);
@@ -193,7 +195,7 @@ export async function startWorld(signal: AbortSignal): Promise<WorldCtx> {
     if (tickFn) { gsap.ticker.remove(tickFn); tickFn = null; gsap.ticker.lagSmoothing(500, 33); }
     cancelAnimationFrame(loopRaf);
     if (gctx) { gctx.revert(); gctx = null; }
-    if (lenis) { lenis.destroy(); lenis = null; ctx.lenis = null; }
+    if (lenis) { setSmooth(null); lenis.destroy(); lenis = null; ctx.lenis = null; }
     if (g) { g.destroy(); g = null; ctx.globe = null; }
     io?.disconnect(); io = null;
     statementEl?.classList.remove("is-pre");

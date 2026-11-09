@@ -14,7 +14,7 @@ Two directions for the NEAR homepage in one Next.js app, while we choose one, an
 Three layers, so nothing has to wait for the decision:
 
 1. **Shared** (both versions, every page), `src/components/shared/`:
-   - the header and the footer;
+   - the header (b10's floating pill nav, identical in both versions; its icons and font in `public/nav`, `src/fonts`) and the footer;
    - the sections after the Stack: proof, Go deeper, Origin, voices, Get into NEAR, Close;
    - the version switch (`VersionSwitch`) and `version.tsx`.
 
@@ -22,7 +22,7 @@ Three layers, so nothing has to wait for the decision:
    - `src/lib/motion` (scroll motion);
    - `src/styles/tokens.css` (brand tokens);
    - `src/app/globals.css` (Tailwind and the page base).
-2. **Per version**, `src/styles/versions.css`: the values that differ, under `<html data-version="v1|v2">`. Today these are the header's corners and its paint over dark bands. Shared components read only these variables, never a value of their own.
+2. **Per version**, `src/styles/versions.css`: the values that differ, under `<html data-version="v1|v2">`. Today only the corners of small controls (the version switch). Shared components read only these variables, never a value of their own.
 3. **One version only**:
    - `src/components/v1/`: r17's world (globe, intro, hero, statement), rail and Stack, and its boot;
    - `src/components/v2/`: Lawrence's heroes, StoryRail and Stack, plus `v2.css`, his type roles and buttons (`.t-h1`, `.btn` …), which load on `/home-v2` only.
