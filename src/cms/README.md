@@ -46,6 +46,12 @@ npm run dev                     # http://localhost:3000/admin
 
 Accounts created from the command line can sign in right away. Without `RESEND_API_KEY`, emails (invitations, password resets) are only logged.
 
+## Deploying
+
+- Run behind a proxy that sets `X-Real-IP` / `X-Forwarded-For` (Railway, Vercel). Per-IP sign-in limits trust those headers; exposed directly, a client could spoof them (per-account limits still apply).
+- Set `CMS_ORIGIN` to the public address: emails link to it, Claude is told to use it, and same-origin checks accept it.
+- Run `npm run db:deploy` on release. Secure cookies (`__Host-`) are used in production.
+
 ## Claude (MCP)
 
 1. In the CMS: Settings › Claude › create a token.
