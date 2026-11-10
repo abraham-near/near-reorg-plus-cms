@@ -1,0 +1,17 @@
+# Local Postgres for the CMS (src/cms). Development only: credentials here are not secrets.
+#   docker compose up -d
+#   DATABASE_URL=postgresql://cms:cms@localhost:5433/near_cms_dev
+#   TEST_DATABASE_URL=postgresql://cms:cms@localhost:5433/near_cms_migrate_test
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: cms
+      POSTGRES_PASSWORD: cms
+      POSTGRES_DB: near_cms_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - cms-db:/var/lib/postgresql
+volumes:
+  cms-db:
