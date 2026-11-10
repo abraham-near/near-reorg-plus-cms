@@ -1,0 +1,182 @@
+/* v3's footer: b10's (css/footer.css, "dark": the b8 composition), on our black instead of b10's forest. Markup: Footer.tsx; motion and the big word: motion.ts.
+   Colour roles and b10's tokens on .b10f, so the footer reads the same whatever the page around it uses. */
+.b10f {
+  /* b10 tokens */
+  --ink: #262626; --paper-0: #f5f4f1; --emerald: #00dc8d;
+  --on-dark: #f5f4f1; --on-dark-2: rgb(245 244 241 / 0.65); --on-dark-3: rgb(245 244 241 / 0.44);
+  --line-dark: rgb(245 244 241 / 0.12); --line-dark-strong: rgb(245 244 241 / 0.18);
+  --hair: 1px; --margin: clamp(20px, 5.56vw, 96px); --gutter: 24px;
+  --s12: 12px; --s16: 16px; --s24: 24px; --s32: 32px; --s48: 48px; --s72: 72px; --s120: 120px;
+  --sans: var(--font-montreal-nav, var(--font-montreal)), ui-sans-serif, system-ui, sans-serif;
+  --t-h2s: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); --t-h2s-lh: 1.04; --t-h2s-tr: -0.025em;
+  --t-h4: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --t-h4-lh: 1.25; --t-h4-tr: -0.008em;
+  --t-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);
+  --t-ui: var(--t-small); --t-ui-lh: 1.2; --t-ui-tr: -0.003em; --t-ui-w: 500;
+  --t-label: 0.8125rem; --t-label-lh: 1.2; --t-label-tr: 0.07em;
+  --t-caption: 0.8125rem; --t-caption-lh: 1.4; --t-caption-tr: 0.01em;
+  --dur-tick: 240ms; --dur-fade: 400ms;
+  --ease-tick: cubic-bezier(0.2, 0, 0, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --f-inset: var(--s24);   /* text sits 24 px inside the margin hairlines, as in every section above; the rules still run to them */
+  /* colour roles: our black (b10: forest, --deep) */
+  --f-bg: #262626; --f-fg: var(--on-dark); --f-2: var(--on-dark-2); --f-3: var(--on-dark-3);
+  --f-line: var(--line-dark); --f-line-s: var(--line-dark-strong); --f-cross: rgb(245 244 241 / 0.5);
+  --f-green: var(--emerald); --f-tint: rgb(245 244 241 / 0.035);
+  --f-cta-bg: var(--on-dark); --f-cta-fg: var(--ink);
+  --fw-face: #f5f4f1;                                  /* the big word's face; motion.ts reads these */
+  --fw-side-a: #a5a5a4; --fw-side-b: #333333;          /* its depth: a little darker than the face → the ground at the back (b10: → forest) */
+
+  position: relative; z-index: 5; overflow: hidden; color: var(--f-fg); font-family: var(--sans); -webkit-font-smoothing: antialiased;
+  /* the side rules belong to the footer's own index: they start at the Products / Stack labels (--f-rail, measured in motion.ts) after a short fade */
+  background:
+    linear-gradient(transparent calc(var(--f-rail, 360px) - 48px), var(--f-line) var(--f-rail, 360px)) var(--margin) 0 / var(--hair) 100% no-repeat,
+    linear-gradient(transparent calc(var(--f-rail, 360px) - 48px), var(--f-line) var(--f-rail, 360px)) calc(100% - var(--margin)) 0 / var(--hair) 100% no-repeat,
+    var(--f-bg);
+}
+@media (min-resolution: 2dppx) { .b10f { --hair: 0.5px; } }
+@media (max-width: 859px) { .b10f { --gutter: 16px; } }
+.b10f .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:where(.b10f) :where(p, ul) { margin: 0; padding: 0; }
+:where(.b10f) ul { list-style: none; }
+:where(.b10f) a { color: inherit; text-decoration: none; }   /* zero specificity: every link's own colour wins */
+.b10f :focus-visible { outline: 2px solid var(--f-fg); outline-offset: 3px; }
+.b10f .accent { font-family: var(--font-accent-display); font-style: italic; font-weight: 400; font-size: var(--accent-scale, 1.18em); letter-spacing: var(--tracking-accent, -0.02em); line-height: 0; color: var(--f-fg); }
+
+.b10f-in { position: relative; padding: var(--s120) var(--margin) 0; }
+.b10f-in > :not(.b10f-word) { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+
+/* `+` marks where the meta rule meets the margin lines */
+.b10f-head, .b10f-meta { position: relative; }
+.b10f-meta::before, .b10f-meta::after {
+  content: ""; position: absolute; width: 11px; height: 11px; pointer-events: none; top: -5px;
+  background: linear-gradient(var(--f-cross), var(--f-cross)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--f-cross), var(--f-cross)) 0 50% / 100% var(--hair) no-repeat;
+}
+.b10f-meta::before { left: -5px; } .b10f-meta::after { right: -5px; }
+.b10f .b10f-meta { background: linear-gradient(var(--f-line-s), var(--f-line-s)) 0 0 / 100% var(--hair) no-repeat; }
+
+/* ---------------------------------------------------------------- head: the client's line · Get started */
+.b10f-head { align-items: center; padding: 0 var(--f-inset) var(--s120); }
+.b10f-line { grid-column: 1 / span 9; padding: 0.06em 0 0.16em; margin: -0.06em 0 -0.16em;
+  font-family: var(--sans); font-weight: 500; font-size: var(--t-h2s); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--f-fg); }
+.b10f-w { display: inline-block; line-height: var(--t-h2s-lh); clip-path: inset(-0.12em -0.2em -0.26em -0.2em); } /* one mask per word, on the baseline */
+.b10f-wi { display: inline-block; }
+/* Get started (b10's .btn.btn-lg): a 48 px paper pill; hover: the green dot opens before the label, the label steps right, the arrow steps on */
+.b10f-cta { grid-column: 11 / span 2; justify-self: end; position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border-radius: 999px;
+  background: var(--f-cta-bg); color: var(--f-cta-fg); white-space: nowrap;
+  font: var(--t-ui-w) 15px/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr);
+  transition-property: background-color, color, padding; transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.b10f-cta-l { display: inline-block; transition: transform var(--dur-fade) var(--ease-settle); }
+.b10f-arr { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur-fade) var(--ease-settle); }
+.b10f-cta::before { content: ""; position: absolute; left: 11px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
+  background: var(--emerald); transform: scale(0); transition: transform var(--dur-fade) var(--ease-settle); }
+.b10f-cta:hover::before, .b10f-cta:focus-visible::before { transform: scale(1); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.b10f-cta:hover .b10f-cta-l, .b10f-cta:focus-visible .b10f-cta-l { transform: translateX(5px); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.b10f-cta:hover .b10f-arr { transform: translateX(3px); }
+
+/* ---------------------------------------------------------------- labels */
+.b10f-h { font-family: var(--sans); font-weight: 500; font-size: var(--t-label); line-height: var(--t-label-lh); letter-spacing: var(--t-label-tr); text-transform: uppercase; white-space: nowrap; color: var(--f-3); }
+
+/* ---------------------------------------------------------------- Products and Stack: six rows (icon, name, arrow) */
+.b10f-map { display: block !important; }
+.b10f-prod { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); padding-bottom: var(--s48); }
+.b10f-idx { grid-column: span 6; }
+.b10f-idx .b10f-h { padding: 0 var(--f-inset) var(--s16); }
+.b10f-idx li { position: relative; }
+.b10f-row { position: relative; display: grid; grid-template-columns: 32px minmax(0, 1fr) 24px; column-gap: var(--s24); align-items: center; padding: var(--s24) var(--f-inset);
+  transition: background-color var(--dur-fade) var(--ease-settle), padding var(--dur-fade) var(--ease-settle); }
+/* the rules: a hairline above each row and below the last; on hover a green line draws over it from the left */
+.b10f-row::before, .b10f-idx li:last-child .b10f-row::after { content: ""; position: absolute; left: 0; right: 0; height: var(--hair); background: var(--f-line-s); transform-origin: 0 50%; }
+.b10f-row::before { top: 0; } .b10f-idx li:last-child .b10f-row::after { bottom: 0; }
+.b10f-idx li::before { content: ""; position: absolute; z-index: 1; left: 0; right: 0; top: 0; height: 1px; background: var(--f-green); transform: scaleX(0); transform-origin: 0 50%; transition: transform 500ms var(--ease-settle); pointer-events: none; }
+.b10f-ic { display: block; width: 32px; height: 32px; position: relative; color: var(--f-fg); font-style: normal; }
+.b10f-tx { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.b10f-nm { font-family: var(--sans); font-weight: 500; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); color: var(--f-fg); transition: color var(--dur-tick) var(--ease-tick); }
+.b10f-go { justify-self: end; font-size: var(--t-small); color: var(--f-green); opacity: 0; transform: translate(-6px, 0); transition: opacity var(--dur-fade) var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+@media (hover: hover) {
+  .b10f-row:hover { background: var(--f-tint); }
+  .b10f-idx li:hover::before { transform: scaleX(1); }
+  .b10f-row:hover .b10f-go { opacity: 1; transform: none; transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+}
+.b10f-row:focus-visible .b10f-go { opacity: 1; transform: none; }
+
+/* ---------------------------------------------------------------- the five link columns */
+.b10f-in > .b10f-map > .b10f-cols, .b10f-cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: var(--s48); padding-bottom: var(--s72); }
+.b10f-col .b10f-h, .b10f-col ul { padding-inline: var(--f-inset) 0; }
+.b10f-col .b10f-h { position: relative; padding-bottom: var(--s16); margin-bottom: var(--s12); }
+.b10f-col .b10f-h::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--hair); background: var(--f-line); transform-origin: 0 50%; }
+.b10f-col ul { display: grid; gap: 0; }
+/* a quiet link hover: the label brightens and a hairline draws under it */
+.b10f-a { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; font-family: var(--sans); font-size: var(--t-ui); font-weight: var(--t-ui-w); line-height: var(--t-ui-lh); letter-spacing: var(--t-ui-tr); color: var(--f-2);
+  transition: color var(--dur-fade) var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+.b10f-a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 5px; height: 0; border-bottom: var(--hair) solid currentColor; transform: scaleX(0); transform-origin: 0 50%; transition: transform var(--dur-fade) var(--ease-settle); }
+.b10f-ext { flex: none; opacity: 0.55; transition: opacity var(--dur-fade) var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+.b10f-a:hover, .b10f-a:focus-visible { color: var(--f-fg); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.b10f-a:hover::after, .b10f-a:focus-visible::after { transform: none; transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
+.b10f-a:hover .b10f-ext { opacity: 1; transform: translate(1px, -1px); }
+
+/* ---------------------------------------------------------------- meta: socials · Back to top / © · the legal links */
+.b10f-meta { align-items: center; row-gap: 0; padding: var(--s24) var(--f-inset) 0; }
+.b10f-inline { grid-column: 1 / span 8; display: flex; flex-wrap: wrap; gap: 0 var(--s32); }
+.b10f-soc .b10f-a { gap: 8px; color: var(--f-fg); }
+.b10f-soc .b10f-a::after { left: 24px; }
+.b10f-soc i[data-icon] { color: var(--f-2); transition: color var(--dur-tick) var(--ease-tick); }
+.b10f-soc .b10f-a:hover i[data-icon] { color: var(--f-fg); }
+.b10f-top { grid-column: 11 / span 2; justify-self: end; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-family: var(--sans); font-size: var(--t-small); color: var(--f-2); transition: color var(--dur-tick) var(--ease-tick); }
+.b10f-top span { transition: transform var(--dur-fade) var(--ease-settle); }
+.b10f-top:hover { color: var(--f-fg); }
+.b10f-top:hover span { transform: translateY(-3px); transition-duration: var(--dur-tick); }
+.b10f-base { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 var(--s24);
+  margin: var(--s16) calc(-1 * var(--f-inset)) 0; padding: var(--s16) var(--f-inset) 0; border-top: var(--hair) solid var(--f-line); }
+.b10f-copy { font-family: var(--sans); font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); font-variant-numeric: tabular-nums; color: var(--f-3); }
+.b10f-legal { display: flex; flex-wrap: wrap; gap: 0 var(--s24); }
+.b10f-legal .b10f-a { font-size: var(--t-caption); letter-spacing: var(--t-caption-tr); color: var(--f-3); min-height: 32px; }
+
+/* ---------------------------------------------------------------- the line icons (../header/icons.ts draws them) */
+.b10f :where(i[data-icon]) { display: inline-block; flex: none; width: 24px; height: 24px; line-height: 0; font-style: normal; vertical-align: middle; color: inherit; }
+.b10f :where(i[data-icon][data-icon-size="16"]) { width: 16px; height: 16px; }
+.b10f :where(i[data-icon][data-icon-size="32"]) { width: 32px; height: 32px; }
+.b10f .ic { display: block; width: 100%; height: 100%; overflow: visible; }
+.b10f .ic-ln * { fill: none; stroke: currentColor; stroke-width: var(--ic-sw, 1.25); stroke-linecap: round; stroke-linejoin: round; }
+.b10f .ic-dots circle, .b10f .ic-f { fill: currentColor; stroke: none; }
+.b10f .ic-g { fill: var(--ic-green, #00dc8d); stroke: none; transform-box: fill-box; transform-origin: center; }
+
+/* ---------------------------------------------------------------- the big `near`: between the margins, cut by the page end */
+.b10f-word { position: relative; width: 100%; aspect-ratio: 363 / 73.32; margin-top: var(--s72); overflow: visible; color: var(--fw-face); user-select: none; -webkit-user-select: none; }
+.b10f-word svg { position: absolute; left: 0; top: 0; display: block; width: 100%; height: auto; }
+.b10f-word path { fill: currentColor; }
+.b10f-word canvas { position: absolute; left: 0; top: -200px; width: 100%; height: calc(100% + 200px); display: block; pointer-events: none; } /* room above the word for its rise and depth */
+.b10f-word.is-live svg { visibility: hidden; }
+
+/* ---------------------------------------------------------------- arrival, in sequence (motion only)
+   Each piece waits its own --d (Footer.tsx). The line rises word by word in its masks; rules draw from the left; rows, links and meta settle 8 px up. */
+.b10f.is-motion .b10f-wi { transition: transform 1100ms var(--ease-glide) var(--d, 0ms); }
+.b10f.is-motion .b10f-rv:not(.is-in) .b10f-wi { transform: translateY(112%); }
+.b10f.is-motion :is(.b10f-cta, .b10f-h, .b10f-tx, .b10f-go, .b10f-col li, .b10f-meta > *, .b10f-soc li) { transition: opacity 900ms var(--ease-settle) var(--d, 0ms), transform 900ms var(--ease-glide) var(--d, 0ms), color var(--dur-tick) var(--ease-tick), background-color var(--dur-tick); }
+.b10f.is-motion .b10f-rv:not(.is-in) :is(.b10f-cta, .b10f-h, .b10f-tx, .b10f-col li, .b10f-meta > *, .b10f-soc li) { opacity: 0; transform: translateY(8px); }
+.b10f.is-motion .b10f-rv:not(.is-in) .b10f-go { opacity: 0; }
+.b10f.is-motion .b10f-idx li { --d0: var(--d, 0ms); }
+.b10f.is-motion .b10f-tx { transition-delay: calc(var(--d0, 0ms) + 120ms); }
+.b10f.is-motion .b10f-row::before, .b10f.is-motion .b10f-idx li:last-child .b10f-row::after { transition: transform 1200ms var(--ease-glide) var(--d0, 0ms); }
+.b10f.is-motion .b10f-rv:not(.is-in) .b10f-row::before, .b10f.is-motion .b10f-rv:not(.is-in) .b10f-idx li:last-child .b10f-row::after { transform: scaleX(0); }
+.b10f.is-motion .b10f-col { --d0: var(--d, 0ms); }
+.b10f.is-motion .b10f-col .b10f-h { transition-delay: var(--d0, 0ms); }
+.b10f.is-motion .b10f-col .b10f-h::after { transition: transform 1100ms var(--ease-glide) calc(var(--d0, 0ms) + 60ms); }
+.b10f.is-motion .b10f-rv:not(.is-in) .b10f-col .b10f-h::after { transform: scaleX(0); }
+.b10f.is-motion .b10f-rv:not(.is-in) .b10f-col .b10f-h { transform: none; }
+.b10f.is-motion .b10f-meta::before, .b10f.is-motion .b10f-meta::after { transition: opacity 600ms var(--ease-settle) 200ms; }
+.b10f.is-motion .b10f-rv:not(.is-in).b10f-meta::before, .b10f.is-motion .b10f-rv:not(.is-in).b10f-meta::after { opacity: 0; }
+.b10f.is-motion .b10f-meta { transition: background-size 1200ms var(--ease-glide); }
+.b10f.is-motion .b10f-meta:not(.is-in) { background-size: 0% var(--hair); }
+
+/* ---------------------------------------------------------------- below 860: one column at a time, never broken */
+@media (max-width: 859px) {
+  .b10f-in { padding-top: var(--s72); }
+  .b10f-head { padding-bottom: var(--s72); row-gap: var(--s32); }
+  .b10f-line { grid-column: 1 / -1; }
+  .b10f-cta { grid-column: 1 / -1; justify-self: start; }
+  .b10f-idx { grid-column: 1 / -1; }
+  .b10f-idx + .b10f-idx { margin-top: var(--s32); }
+  .b10f-in > .b10f-map > .b10f-cols, .b10f-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .b10f-inline { grid-column: 1 / -1; gap: 0 var(--s24); }
+  .b10f-top { grid-column: 1 / -1; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { .b10f *, .b10f *::before, .b10f *::after { transition-duration: 0s !important; } }

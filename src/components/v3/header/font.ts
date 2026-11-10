@@ -9,3 +9,13 @@ export const montrealNav = localFont({
   variable: "--font-montreal-nav",
   display: "swap",
 });
+
+// v3's large Kepler accents (styles/versions.css --font-acc: the hero's "world.", the rail, Origin, Get into NEAR, Close, the footer): Light Italic,
+// lighter than the Italic at those sizes. Subset to Latin from KeplerStd-LightIt.otf. The small accents ("deeper", the Stack) stay in Italic.
+export const keplerLight = localFont({
+  src: "../../../fonts/KeplerStd-LightIt.woff2",
+  weight: "300",
+  style: "italic",
+  variable: "--font-kepler-light",
+  display: "swap",
+});

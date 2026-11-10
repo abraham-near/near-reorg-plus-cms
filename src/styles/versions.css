@@ -33,6 +33,11 @@
 :root[data-version="v3"] {
   --hd-dark-fill: var(--dark);
   --hd-radius-ctl: 999px;          /* the version switch: b10's pills */
+  /* Kepler: never a Display cut. The large accents (--font-acc, was Medium Condensed Italic Display: the hero's "world.", the rail, Origin, Get into NEAR,
+     Close, the footer) take Light Italic (--font-kepler-light, loaded by v3's header); the small ones (--font-kepler-display, was Italic Display: the Stack,
+     Go deeper's "deeper"; --font-accent-display reads it) take Italic */
+  --font-kepler-display: var(--font-kepler);
+  --font-acc: var(--font-kepler-light, var(--font-kepler)), Georgia, serif;
 }
 :root[data-version="v3"] .hd { display: none; }
 :root:not([data-version="v3"]) .nvh { display: none; }

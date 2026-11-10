@@ -20,8 +20,8 @@ import { V1Boot } from "./V1Boot";
 import { V1Gate } from "./V1Gate";
 import { HEAD } from "./world/head";
 
-/** v and header: v3 is this page in its own values (data-version="v3") with its own header (components/v3) */
-export function V1Page({ v = "v1", header }: { v?: Version; header?: ReactNode }) {
+/** v, header, afterStack and footer: v3 is this page in its own values (data-version="v3") with its own header and its own proof strip, Go deeper, Origin, voices, Get into NEAR and Close, and its own footer (components/v3) */
+export function V1Page({ v = "v1", header, afterStack, footer }: { v?: Version; header?: ReactNode; afterStack?: ReactNode; footer?: ReactNode }) {
   return (
     <>
       <FixVersion v={v} />
@@ -32,14 +32,18 @@ export function V1Page({ v = "v1", header }: { v?: Version; header?: ReactNode }
           <World />
           <Rail />
           <Stack />
-          <ProofStrip />
-          <GoDeeper />
-          <Origin />
-          <Voices />
-          <GetIntoNear />
-          <Close />
+          {afterStack ?? (
+            <>
+              <ProofStrip />
+              <GoDeeper />
+              <Origin />
+              <Voices />
+              <GetIntoNear />
+              <Close />
+            </>
+          )}
         </main>
-        <Footer />
+        {footer ?? <Footer />}
       </V1Gate>
       <V1Boot />
     </>

@@ -1,0 +1,431 @@
+/* v3's proof strip, Go deeper, Origin, voices, Close (b10's) and Get into NEAR (ours, on the same grid): (near-homepage-directions /b10, css/content.css §§ geometry, 1–4 and the bleed), ported. Markup: ProofDeeper.tsx; motion: motion.ts.
+   A page of ruled rows on paper: 1 px hairlines, a + crosshair where lines meet; text 24 px inside its cell, photos fill their cell.
+   Motion only under .l-page[data-motion] (set by motion.ts unless reduced motion); without it the section is simply finished. */
+.l-page {
+  /* b10's tokens (shared/base.css), so the section reads the same whatever the page around it uses */
+  --ink: #262626; --muted: #5f6669; --paper-0: #f5f4f1; --paper-1: #edece8; --paper-2: #e2e1de; --emerald: #00dc8d;
+  --line: rgb(38 38 38 / 0.12); --line-strong: rgb(38 38 38 / 0.24); --hair: 1px; --margin: clamp(20px, 5.56vw, 96px);
+  --sans: var(--font-montreal-nav, var(--font-montreal)), ui-sans-serif, system-ui, sans-serif; --sans-display: var(--sans);
+  --text-body: clamp(1rem, 0.929rem + 0.149vw, 1.0625rem);
+  --t-section: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); --t-h2s-lh: 1.04; --t-h2s-tr: -0.025em; --t-h2s-w: 500;
+  --t-statement: clamp(1.75rem, 1.2rem + 1.8vw, 2.5rem);
+  --t-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); --t-h3-lh: 1.12; --t-h3-tr: -0.015em;
+  --t-h4: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --t-h4-lh: 1.25; --t-h4-tr: -0.008em;
+  --t-body: var(--text-body); --t-body-lh: 1.55;
+  --t-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem); --t-small-lh: 1.45; --t-small-tr: 0em;
+  --t-ui: var(--t-small); --t-ui-lh: 1.2; --t-ui-tr: -0.003em; --t-ui-w: 500;
+  --t-label: 0.8125rem; --t-label-lh: 1.2; --t-label-tr: 0.07em;
+  --t-caption: 0.8125rem; --t-caption-lh: 1.4; --t-caption-tr: 0.01em;
+  --s24: 24px; --s48: 48px;
+  --graphite: #3d3e3f; --green-text: #00774f;
+  --emerald-deep: #00a86b; --text-lede: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem);
+  --t-display: clamp(3rem, 1.514rem + 6.095vw, 7rem); --t-display-lh: 0.96; --t-display-tr: -0.035em; --t-display-w: 500;
+  --t-body-l: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --t-body-l-lh: 1.45; --t-body-l-tr: -0.006em;
+  --ease-tick: cubic-bezier(0.2, 0, 0, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --l-line: var(--line-strong);   /* rules and dividers */
+  --l-soft: var(--line);          /* lines inside a cell (list rows, the footnote) */
+  --l-x: var(--ink);              /* crosshairs */
+  --l-pad: 24px;                  /* text inside its cell */
+  --l-gap: 0px; /* c2 · E21: sections share one rule; no gutter, no framed spacer band */
+  --l-ph-h: clamp(240px, 34vh, 420px); /* Go deeper photos: the whole section stays inside one 1440×900 screen */
+  position: relative; z-index: 3;
+  color: var(--ink); /* no ground of its own: body paper shows, and S lets the page rise over its closing (REQUESTS) */
+  font-family: var(--sans);
+}
+.l-page .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:where(.l-page) :where(p, h2, h3, figure, blockquote, ol, ul) { margin: 0; padding: 0; }
+:where(.l-page) :where(ol, ul) { list-style: none; }
+:where(.l-page) a { color: inherit; text-decoration: none; }
+.l-nb { white-space: nowrap; }
+
+/* ---------------------------------------------------------------- the geometry */
+.l-sec { position: relative; padding-top: var(--l-gap); }
+.l-proof { padding-top: var(--s48); } /* the page starts at the proof strip's rule, under the stack's closing */
+/* c1 · E21: a row right under a full-bleed photo: the photo's edge is its top line (no rule, no +, nothing stubs in) */
+.l-row[data-after-bleed]::before { display: none; }
+
+.l-row { position: relative; display: grid; margin: 0 var(--margin); }
+.l-row::before { content: ""; position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: var(--hair); background: var(--l-line); transform-origin: 0 50%; pointer-events: none; }
+.l-row::after { content: ""; position: absolute; z-index: 2; inset: 0; border-left: var(--hair) solid var(--l-line); border-right: var(--hair) solid var(--l-line); transform-origin: 50% 0; pointer-events: none; }
+.l-cell { position: relative; min-width: 0; padding: var(--l-pad); }
+.l-cell + .l-cell::before { content: ""; position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; width: var(--hair); background: var(--l-line); transform-origin: 50% 0; pointer-events: none; }
+/* the + : 9 px, ink, 1 px arms, centred on the meeting point (content.js places one per meeting) */
+.l-x { position: absolute; z-index: 3; top: 0; width: 9px; height: 9px; margin: -4px 0 0 -4px; pointer-events: none;
+  background: linear-gradient(var(--l-x), var(--l-x)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 0 50% / 100% var(--hair) no-repeat; }
+
+/* ---------------------------------------------------------------- arrivals (motion only) */
+:where(.l-page[data-motion]) .l-row::before { transform: scaleX(0); }
+:where(.l-page[data-motion]) .l-row::after { transform: scaleY(0); }
+:where(.l-page[data-motion]) .l-row .l-cell + .l-cell::before { transform: scaleY(0); }
+:where(.l-page[data-motion]) .l-row .l-x { opacity: 0; scale: 0.2; rotate: -90deg; }
+:where(.l-page[data-motion]) .l-row [data-rv] { opacity: 0; translate: 0 18px; }
+:where(.l-page[data-motion]) .l-row .l-ph { clip-path: inset(0 0 100% 0); }
+:where(.l-page[data-motion]) .l-row .l-ph > .l-img { scale: 1.12; }
+
+:where(.l-page[data-motion]) .l-row.is-in::before { transform: none; transition: transform 0.9s var(--ease-settle); }
+:where(.l-page[data-motion]) .l-row.is-in::after { transform: none; transition: transform 1.1s var(--ease-settle) 0.05s; }
+:where(.l-page[data-motion]) .l-row.is-in .l-cell + .l-cell::before { transform: none; transition: transform 0.9s var(--ease-settle) 0.15s; }
+:where(.l-page[data-motion]) .l-row.is-in .l-x { opacity: 1; scale: 1; rotate: 0deg;
+  transition: opacity 0.3s var(--ease-settle), scale 0.5s var(--ease-settle), rotate 0.5s var(--ease-settle); transition-delay: calc(0.2s + var(--xd, 0) * 0.4s); }
+/* the seams between sections are always closed: a section's first rule, its last rule and their + never animate */
+:where(.l-page[data-motion]) .l-row[data-start]::before, :where(.l-page[data-motion]) .l-row[data-start] > .l-x { transform: none; opacity: 1; scale: 1; rotate: 0deg; transition: none; }
+:where(.l-page[data-motion]) .l-row.is-in [data-rv] { opacity: 1; translate: none;
+  transition: opacity 0.9s var(--ease-glide) var(--rv, 0.2s), translate 1.1s var(--ease-settle) var(--rv, 0.2s); }
+:where(.l-page[data-motion]) .l-row.is-in .l-ph { clip-path: inset(0); transition: clip-path 1.4s var(--ease-settle) 0.15s; }
+:where(.l-page[data-motion]) .l-row.is-in .l-ph > .l-img { scale: 1; transition: scale 2s var(--ease-settle) 0.15s, filter 0.2s var(--ease-tick); }
+/* a row that was already above the view (a jump, a reload mid-page): no draw */
+:where(.l-page[data-motion]) .l-row.is-now::before, :where(.l-page[data-motion]) .l-row.is-now::after,
+:where(.l-page[data-motion]) .l-row.is-now *, :where(.l-page[data-motion]) .l-row.is-now .l-cell::before { transition: none !important; }
+
+/* ---------------------------------------------------------------- photos: muted, their green line is the kick */
+.l-ph { position: relative; overflow: hidden; background: var(--paper-2); }
+.l-ph--fill { position: absolute; inset: 0; }
+.l-img { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; display: block;
+  filter: saturate(0.8) contrast(0.97) brightness(1.01); transition: filter 0.2s var(--ease-tick); }
+/* r24 c2 (ad): no green hover line on photos: each photo keeps its own one green; card hovers are tone only */
+
+/* ---------------------------------------------------------------- type */
+.l-h2 { font-family: var(--sans-display); font-weight: var(--t-h2s-w, 500); font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); } /* c1 · E20: every section opener 56 */
+.l-h2--m { max-width: 10.5em; text-wrap: balance; }
+.l-lede { font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); max-width: 30em; text-wrap: pretty; }
+
+/* links and buttons: drawn arrows (the fonts have no arrow glyphs) */
+.l-arr { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ease-tick); }
+.l-ext { width: 10px; height: 10px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.2; transition: translate 0.24s var(--ease-tick); }
+.l-link { display: inline-flex; align-items: center; gap: 10px; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); padding: 6px 0;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
+.l-btn { position: relative; display: inline-flex; align-items: center; height: 48px; padding: 0 24px; border: 0; border-radius: 999px; cursor: pointer;
+  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink);
+  transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick), padding 0.3s var(--ease-settle); }
+.l-btn::before { /* the b4 dot: opens before the label on hover (transform only: a minifier folds `scale` into it) */
+  content: ""; position: absolute; left: 20px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
+  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+@media (hover: hover) {
+  .l-btn:hover { padding-left: 38px; color: var(--paper-0); background: var(--ink); }
+  .l-btn:hover::before { transform: scale(1); }
+}
+@media (hover: hover) {
+  .l-link:hover { background-size: 100% var(--hair); }
+  .l-link:hover .l-arr { translate: 4px 0; }
+}
+
+/* ---------------------------------------------------------------- r23 · E9 · small dotted icons (F's icons.js draws them) */
+.l-ic { position: absolute; top: var(--l-pad); right: var(--l-pad); display: block; width: 20px; height: 20px; color: var(--ink); pointer-events: none; }
+.l-ic svg { display: block; width: 100%; height: 100%; }
+.l-ic--s { position: static; width: 16px; height: 16px; }
+
+/* ---------------------------------------------------------------- 1 · proof strip */
+.l-proof__row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.l-fig { padding: 40px 12px 44px var(--l-pad); } /* c1: a 12 px right inset gives the captions the measure for two lines at most (an even row) */
+.l-fig__v { display: flex; align-items: baseline; gap: 0.22em; white-space: nowrap;
+  font-family: var(--sans-display); font-weight: 400; font-size: var(--t-statement); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; } /* 48 (F's Statement) */
+.l-fig__u { font-size: var(--text-body); letter-spacing: 0; color: var(--muted); }
+.l-fig__c { margin-top: 20px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); text-wrap: pretty; } /* c1: no forced breaks; the cell's measure sets the lines */
+.l-green { position: absolute; z-index: 3; left: 0; right: 0; top: 0; height: 2px; margin-top: -0.5px; background: var(--emerald); transform-origin: 50% 50%; pointer-events: none; }
+/* r23 · N9: S lands the closing bead on the rule's centre and draws it outward both ways (REQUESTS L → S) */
+/* S's closing bead runs along this rule and draws it (data-dot-dock; S owns it inline in html.sk-live, REQUESTS) */
+/* fallback without S (or in still mode): it draws once the strip's top passes 40 % of the view (content.js) */
+:where(.l-page[data-motion]) .l-proof__row .l-green { transform: scaleX(0); transition: transform 0.9s var(--ease-settle); }
+:where(.l-page[data-motion]) .l-proof__row.is-lit .l-green { transform: none; transition: transform 1.6s var(--ease-settle); }
+/* the figures: a soft mask from below at their final value (D2), cell by cell */
+:where(.l-page[data-motion]) .l-proof__row .l-fig__v { clip-path: inset(0 0 100% 0); translate: 0 0.35em; }
+:where(.l-page[data-motion]) .l-proof__row.is-in .l-fig__v { clip-path: inset(-0.1em -0.1em -0.2em -0.1em); translate: none;
+  transition: clip-path 1.1s var(--ease-settle) calc(0.25s + var(--i) * 0.08s), translate 1.1s var(--ease-settle) calc(0.25s + var(--i) * 0.08s); }
+:where(.l-page[data-motion]) .l-proof__row .l-fig__c { opacity: 0; }
+:where(.l-page[data-motion]) .l-proof__row.is-in .l-fig__c { opacity: 1; transition: opacity 0.9s var(--ease-glide) calc(0.45s + var(--i) * 0.08s); }
+
+/* ---------------------------------------------------------------- shared head row (Go deeper, Get into NEAR) */
+.l-head__cell { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s24); padding: 56px var(--l-pad) 28px; } /* sized to one line of heading (ad c2) */
+
+/* ---------------------------------------------------------------- 2 · Go deeper (one screen at 1440×900) */
+.l-tabs { position: relative; display: flex; gap: 28px; padding-left: 14px; margin-bottom: 6px; }
+.l-tab { padding: 10px 0; border: 0; background: none; cursor: pointer; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--muted); transition: color 0.2s var(--ease-tick); }
+.l-tab[aria-selected="true"] { color: var(--ink); }
+.l-tab:hover { color: var(--ink); }
+.l-tabs__dot { position: absolute; left: 0; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald); transition: translate 0.6s var(--ease-settle); }
+
+.l-deeper__body { grid-template-columns: minmax(0, 1fr); }
+.l-panel { grid-area: 1 / 1; display: grid; grid-template-columns: 5fr 3fr 4fr; }
+.l-panel:not([data-on]) { visibility: hidden; }
+.l-panel.is-one .l-feat-cell--a { grid-column: span 2; }
+.l-panel.is-one .l-feat-cell--b { display: none; }
+.l-feat-cell, .l-list-cell { padding: 0; }
+.l-feat { position: relative; isolation: isolate; display: flex; flex-direction: column; height: 100%; padding-bottom: 24px; }
+.l-feat::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); opacity: 0; transition: opacity 0.25s var(--ease-tick); } /* hover fills the whole item, its note too */
+/* r24 F7 (M8): every featured item is its own object: the photo sits inside its cell with air on three sides (the
+   cell's rules frame it), so neighbouring photos never touch; text, photo and note share the cell's 24 px edge */
+.l-feat__a { position: relative; isolation: isolate; display: flex; flex-direction: column; flex: 1 1 auto; padding: var(--l-pad) var(--l-pad) 0; }
+.l-feat__ph { flex: 1 1 auto; min-height: var(--l-ph-h); } /* r24 c2 (ad): the cover takes the column's height, so no dead paper sits under a short title */
+.l-feat__body { display: block; padding: 20px 0 0; }
+.l-meta { display: flex; align-items: center; }
+.l-feat__t { display: block; margin-top: 12px; max-width: 17em; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; } /* 32 (H3) */
+.l-feat-cell--b .l-feat__t { font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); } /* 21 (Title) */
+.l-feat__src { display: block; margin-top: 10px; font-size: var(--t-small); line-height: var(--t-small-lh); letter-spacing: var(--t-small-tr); color: var(--muted); }
+.l-feat__note { padding: 8px var(--l-pad) 0; font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.l-play { position: absolute; z-index: 3; left: calc(var(--l-pad) * 2); top: calc(var(--l-pad) * 2); /* on the cover's top left: its height now varies */ display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  background: rgb(245 244 241 / 0.92); color: var(--ink); transition: scale 0.3s var(--ease-settle); }
+.l-play i { display: block; width: 20px; height: 20px; }
+.l-play i:empty::after { content: ""; display: block; width: 0; height: 0; margin: 4px 0 0 7px; border-style: solid; border-width: 6px 0 6px 9px; border-color: transparent transparent transparent currentColor; }
+.l-meta::before, .l-tile__meta::after { /* hover: a green dot opens before the label (b7) */
+  content: ""; display: inline-block; flex: none; width: 0; height: 6px; margin-right: 0; border-radius: 50%; background: var(--emerald); scale: 0;
+  transition: scale 0.3s var(--ease-settle), width 0.3s var(--ease-settle), margin 0.3s var(--ease-settle); }
+
+/* r24 F7 (M8): the list is a column of distinct rows: rules with air (inset from the cell's frame, never touching the
+   featured photos), each row's glyph in one aligned column, the label / title / source on one text edge beside it;
+   hover fills the row (and only that row) and brings its arrow in */
+.l-tiles { display: flex; flex-direction: column; padding: 8px var(--l-pad) 16px; }   /* v3: more air than b10 (4 px): at the top and the end of the list */
+.l-tile + .l-tile { border-top: var(--hair) solid var(--l-soft); }
+.l-tile__a { position: relative; isolation: isolate; display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; column-gap: 14px; row-gap: 6px; padding: 24px 0 26px; }   /* v3: rows on the 24 px grid (b10: 18 / 20) */
+.l-tile__a::before { content: ""; position: absolute; z-index: -1; inset: 0 calc(var(--l-pad) * -0.5); background: var(--paper-1); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.45s var(--ease-settle); }
+.l-tile__meta { grid-column: 2; grid-row: 1; display: flex; align-items: center; gap: 10px; }
+.l-tile__meta::after { order: -1; } /* the hover dot sits before the label */
+.l-glyph { grid-column: 1; grid-row: 1; display: block; flex: none; width: 18px; height: 18px; color: var(--ink); }
+.l-tile__t { grid-column: 2; font-weight: 500; font-size: var(--text-body); line-height: 1.3; letter-spacing: -0.005em; text-wrap: balance; }
+.l-tile__src { grid-column: 2; margin-top: -2px; font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.l-tile__go { grid-column: 3; grid-row: 1 / span 3; opacity: 0; translate: -6px 0; transition: opacity 0.2s var(--ease-tick), translate 0.3s var(--ease-settle); }
+.l-empty { padding: 20px var(--l-pad); max-width: 26em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--muted); }
+.l-empty a { color: var(--ink); text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 3px; }
+.l-deeper__foot .l-cell { display: flex; justify-content: flex-end; padding-top: 14px; padding-bottom: 14px; }
+@media (hover: hover) {
+  .l-feat__a:hover .l-img { scale: 1.035; filter: saturate(1) contrast(1); transition: scale 1s var(--ease-settle), filter 0.2s var(--ease-tick); }
+  .l-feat__a:hover .l-meta::before, .l-tile__a:hover .l-tile__meta::after { width: 6px; margin-right: 10px; scale: 1; }
+  .l-feat:has(.l-feat__a:hover)::before { opacity: 1; }
+  .l-tile__a:hover .l-tile__meta::after { margin-right: -2px; }
+  .l-feat__a:hover .l-play { scale: 1.08; }
+  .l-tile__a:hover::before { transform: none; }
+  .l-tile__a:hover .l-tile__go { opacity: 1; translate: 0 0; }
+}
+/* a filter change: the new panel's photos open again, its rows rise in turn */
+@keyframes l-open { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+@keyframes l-zoom { from { scale: 1.1; } to { scale: 1; } }
+@keyframes l-rise { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: none; } }
+:where(.l-page[data-motion]) .l-panel.is-shown .l-ph { animation: l-open 1.1s var(--ease-settle) both; }
+:where(.l-page[data-motion]) .l-panel.is-shown .l-feat-cell--b .l-ph { animation-delay: 0.08s; }
+:where(.l-page[data-motion]) .l-panel.is-shown .l-ph > .l-img { animation: l-zoom 1.6s var(--ease-settle) both; }
+:where(.l-page[data-motion]) .l-panel.is-shown .l-feat__body, :where(.l-page[data-motion]) .l-panel.is-shown .l-feat__note { animation: l-rise 0.7s var(--ease-settle) 0.12s both; }
+:where(.l-page[data-motion]) .l-panel.is-shown .l-tile, :where(.l-page[data-motion]) .l-panel.is-shown .l-empty { animation: l-rise 0.7s var(--ease-settle) both; animation-delay: calc(0.1s + var(--j, 0) * 0.05s); }
+
+/* b10's label and Kepler accent (shared/base.css), for this section */
+.l-page .t-label { font-family: var(--sans); font-weight: 500; text-transform: uppercase; color: var(--muted); font-size: var(--t-label); line-height: var(--t-label-lh); letter-spacing: var(--t-label-tr); }
+.l-page .accent { font-family: var(--font-accent-display); font-style: italic; font-weight: 400; font-size: var(--accent-scale, 1.18em); letter-spacing: var(--tracking-accent, -0.02em); line-height: 0; }
+.l-page :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.l-page .l-tab:focus-visible { outline-offset: 2px; border-radius: 2px; }
+
+/* ---------------------------------------------------------------- 3 · Built by people… */
+.l-origin__row { grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: clamp(560px, 74vh, 820px); }
+.l-origin__ph { padding: 0; }
+.l-origin__body { display: flex; flex-direction: column; padding: 88px var(--l-pad) 0 calc(var(--l-pad) * 2); border-bottom: var(--hair) solid var(--l-line); } /* the text cell closes on a rule (the photo's edge is its own line) */
+.l-origin__text { margin-top: 40px; }
+.l-mark { font-size: max(13px, 0.6em); line-height: 0; margin-left: 1px; }
+.l-mark a { color: var(--green-text); }
+.l-cta { margin-top: 36px; }
+.l-src { display: flex; gap: 12px; margin: auto calc(var(--l-pad) * -1) 0 calc(var(--l-pad) * -2); padding: 16px var(--l-pad) 20px calc(var(--l-pad) * 2); border-top: var(--hair) solid var(--l-soft); font-size: var(--t-caption); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.l-src__n { color: var(--ink); font-variant-numeric: tabular-nums; }
+.l-src a { text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 3px; }
+.l-src a:hover { color: var(--ink); }
+
+/* ---------------------------------------------------------------- the full-bleed photo (b10 r23 E6), and v3's opening
+   b10: edge to edge, >= 85 vh, muted with a kick of green; the photo moves slower than the page and settles from 1.1 (motion.ts).
+   v3: at rest it is cut to the grid's width (the frame lines); as it reaches the middle of the view it opens to the whole screen, holds, and closes again
+   as it leaves, scrubbed (motion.ts writes --shut: 1 = the grid's width, 0 = the whole screen). The copy stays on the grid throughout. */
+.l-bleed { --shut: 1; position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: var(--paper-2); isolation: isolate;   /* v3: the whole screen's height (b10: max(88vh, 600px), <= 1080) */
+  clip-path: inset(0 calc(var(--margin) * var(--shut)) 0 calc(var(--margin) * var(--shut))); }
+.l-bleed__ph { position: absolute; inset: 0; background: var(--paper-2); }
+/* v3: the grid's top rule over the bleed's top edge (no +); the bottom border is the next row's own top rule */
+.l-bleed-wrap { position: relative; }
+.l-bleed-wrap::before { content: ""; position: absolute; z-index: 3; top: 0; left: var(--margin); right: var(--margin); height: var(--hair); background: var(--l-line); pointer-events: none; }
+.l-plate { position: absolute; left: 0; right: 0; top: -12%; height: 124%; transform-origin: 50% 50%; will-change: transform; }
+.l-plate > .l-img { top: 0; height: 100%; filter: saturate(0.72) contrast(0.96) brightness(1.02); }
+.l-bleed__in { position: relative; z-index: 2; height: 100%; margin: 0 var(--margin); padding: 0 var(--l-pad); }
+/* text rises once as the photo arrives (never scrubbed) */
+:where(.l-page[data-motion]) .l-bleed [data-rv] { opacity: 0; translate: 0 22px; }
+:where(.l-page[data-motion]) .l-bleed.is-in [data-rv] { opacity: 1; translate: none;
+  transition: opacity 1s var(--ease-glide) var(--rv, 0.1s), translate 1.3s var(--ease-settle) var(--rv, 0.1s); }
+:where(.l-page[data-motion]) .l-bleed.is-now [data-rv] { transition: none; }
+
+/* ---------------------------------------------------------------- 4 · voices: the lead quote in the mist, two voices on paper */
+.l-spacer .l-cell { height: 64px; padding: 0; } /* v3: the band of paper between the dark origin photo and the bleed is an empty cell of the grid (b10: a bare 64 px margin) */
+.l-voices__bleed .l-img { object-position: 50% 50%; }
+.l-voices__bleed::before { /* a soft veil of paper in the top left mist, so the ink reads at rest */
+  content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 0% 0%, rgb(245 244 241 / 0.62) 0%, rgb(245 244 241 / 0.32) 38%, rgb(245 244 241 / 0) 66%); }
+.l-voices__in { display: flex; flex-direction: column; justify-content: flex-start; padding-top: clamp(96px, 15vh, 160px); }
+.l-kicker { font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--graphite); }
+.l-page .hang { text-indent: -0.42em; } /* the opening quote hangs */
+.l-q blockquote p { position: relative; text-wrap: pretty; }
+.l-q--main { margin-top: clamp(32px, 5vh, 56px); }
+.l-q--main blockquote p { max-width: 16ch; font-family: var(--sans-display); font-weight: 400; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--ink); text-wrap: balance; }
+.l-q--main .l-who { margin-top: 36px; }
+.l-voices__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.l-voices__row .l-cell { padding: 40px var(--l-pad) 48px; }
+.l-voices__row .l-q blockquote p { max-width: 26ch; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); }
+.l-who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: var(--t-small); line-height: var(--t-small-lh); letter-spacing: var(--t-small-tr); }
+.l-voices__row .l-who { margin-top: 20px; }
+.l-who__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+.l-who__n { font-weight: var(--t-ui-w); letter-spacing: var(--t-ui-tr); color: var(--ink); }
+.l-who__r { color: var(--graphite); }
+.l-voices__row .l-who__r { color: var(--muted); }
+
+/* ---------------------------------------------------------------- 5 · Get into NEAR (ours: shared/get-into), on the grid
+   The heading in its row; then the three paths in one cell (rules between them, text 24 px inside) and the preview photo edge to edge in the next, its caption
+   on a strip under it. Hover / keyboard focus: the ink rises into the whole path (paper text), the label's hairline sweeps in, the ↗ steps out, the preview
+   switches to that path and stays on the last one pointed. Below 1100 px each path carries its own thumbnail instead of the preview. */
+.l-gi__row { grid-template-columns: 7fr 5fr; }
+.l-gi__list, .l-gi__pv { padding: 0; }
+.l-gi__item { position: relative; isolation: isolate; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; column-gap: 14px; align-items: start;
+  padding: 28px var(--l-pad) 30px; color: var(--ink); transition: color 0.35s var(--ease-settle); }
+.l-gi__item + .l-gi__item { border-top: var(--hair) solid var(--l-soft); }
+.l-gi__item::after { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ink); transform: scaleY(0); transform-origin: 50% 100%; transition: transform 0.5s var(--ease-settle); }
+.l-gi__idx { padding-top: 0.55em; font-size: var(--t-caption); line-height: 1; letter-spacing: var(--t-caption-tr); font-variant-numeric: tabular-nums; color: var(--muted); transition: color 0.35s var(--ease-settle); }
+.l-gi__th { display: none; }
+.l-gi__txt { min-width: 0; }
+.l-gi__name { font-family: var(--sans-display); font-size: clamp(24px, min(2.3vw, 4.4vh), 42px); font-weight: 400; line-height: 1.06; letter-spacing: -0.035em; }
+.l-gi__line { margin-top: 8px; max-width: 32em; font-size: clamp(15px, calc(1.04 * var(--u, 1vw)), 18px); line-height: 1.42; color: var(--muted); text-wrap: pretty; transition: color 0.35s var(--ease-settle); }
+.l-gi__act { align-self: end; }
+.l-gi__a { color: inherit; }
+.l-gi__a::after { content: ""; position: absolute; inset: 0; z-index: 2; } /* the whole path is one target */
+.l-gi__a:focus-visible { outline: none; }
+.l-gi__a:focus-visible::after { outline: 2px solid var(--ink); outline-offset: -2px; }
+.l-gi__go { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; white-space: nowrap; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); }
+.l-gi__label { padding: 4px 0; background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
+.l-gi__go .l-ext { transition: transform 0.24s var(--ease-tick); }
+@media (hover: hover) and (pointer: fine) {
+  .l-gi__item:hover { color: var(--paper-0); }
+  .l-gi__item:hover::after { transform: none; }
+  .l-gi__item:hover .l-gi__line, .l-gi__item:hover .l-gi__idx { color: rgb(245 244 241 / 0.65); }
+  .l-gi__item:hover .l-gi__label { background-size: 100% var(--hair); }
+  .l-gi__item:hover .l-ext { transform: translate(2px, -2px); }
+}
+.l-gi__item:has(.l-gi__a:focus-visible) { color: var(--paper-0); }
+.l-gi__item:has(.l-gi__a:focus-visible)::after { transform: none; }
+.l-gi__item:has(.l-gi__a:focus-visible) .l-gi__line, .l-gi__item:has(.l-gi__a:focus-visible) .l-gi__idx { color: rgb(245 244 241 / 0.65); }
+.l-gi__item:has(.l-gi__a:focus-visible) .l-gi__label { background-size: 100% var(--hair); }
+/* the preview: the photo fills its cell, the caption sits on a strip under it */
+.l-gi__pv { display: flex; flex-direction: column; }
+.l-gi__frame { position: relative; flex: 1; min-height: 300px; overflow: hidden; background: var(--paper-2); }
+.l-gi__img { position: absolute; inset: 0; opacity: 0; transition: opacity 0.55s var(--ease-settle); }
+.l-gi__img img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); transition: transform 1.1s var(--ease-settle); }
+.l-gi__cap { position: relative; flex: none; height: 52px; border-top: var(--hair) solid var(--l-soft); font-size: var(--t-caption); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.l-gi__cap span { position: absolute; left: var(--l-pad); top: 50%; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(calc(-50% + 6px)); transition: opacity 0.4s var(--ease-settle), transform 0.4s var(--ease-settle); }
+.l-gi__cap span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+.l-gi__row[data-act="0"] .l-gi__img[data-i="0"], .l-gi__row[data-act="1"] .l-gi__img[data-i="1"], .l-gi__row[data-act="2"] .l-gi__img[data-i="2"] { opacity: 1; z-index: 1; }
+.l-gi__row[data-act="0"] .l-gi__img[data-i="0"] img, .l-gi__row[data-act="1"] .l-gi__img[data-i="1"] img, .l-gi__row[data-act="2"] .l-gi__img[data-i="2"] img { transform: none; }
+.l-gi__row[data-act="0"] .l-gi__cap [data-i="0"], .l-gi__row[data-act="1"] .l-gi__cap [data-i="1"], .l-gi__row[data-act="2"] .l-gi__cap [data-i="2"] { opacity: 1; transform: translateY(-50%); }
+/* the path in the preview keeps a mark: its index in ink */
+.l-gi__row[data-act="0"] .l-gi__item[data-i="0"] .l-gi__idx, .l-gi__row[data-act="1"] .l-gi__item[data-i="1"] .l-gi__idx, .l-gi__row[data-act="2"] .l-gi__item[data-i="2"] .l-gi__idx { color: inherit; }
+/* below 1100: no preview; each path carries its own thumbnail */
+@media (max-width: 1099px) {
+  .l-gi__row { grid-template-columns: minmax(0, 1fr); }
+  .l-gi__pv { display: none; }
+  .l-gi__item { grid-template-columns: clamp(96px, 18vw, 180px) minmax(0, 1fr); column-gap: 18px; row-gap: 12px; }
+  .l-gi__idx { display: none; }
+  .l-gi__th { display: block; position: relative; grid-row: 1 / span 2; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-2); }
+  .l-gi__th img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .l-gi__act { grid-column: 2; }
+}
+@media (max-width: 520px) {
+  .l-gi__item { grid-template-columns: 88px minmax(0, 1fr); }
+  .l-gi__th { grid-row: 1; }
+  .l-gi__act { grid-column: 1 / -1; }
+}
+
+/* ---------------------------------------------------------------- 6 · NEAR belongs to you + the newsletter (b10 r26)
+   The line: the client's lockup is the word NEAR, centred in the sky; `belongs to you` opens out of it (motion.ts). The scene (desktop, motion on): the bleed is
+   200 vh and its stage sticks for the extra 100 vh; the lockup stands large, then glides to the headline's size while the words open. v3: like the voices'
+   photo, it starts at the grid's width and opens to the whole screen (here for the length of the scene), then closes as it leaves. */
+.l-display { font-family: var(--sans-display); font-weight: var(--t-display-w); font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
+.l-close__bleed .l-img { object-position: 50% 70%; }
+.l-close__stage { position: relative; height: 100%; overflow: hidden; }
+.l-close__in { display: flex; justify-content: center; align-items: flex-start; padding-top: clamp(150px, 25vh, 260px); }
+.l-close__h { margin: 0; white-space: nowrap; text-align: center; }
+.l-close__logo { --lk: 0.795em; display: inline-block; position: relative; height: var(--lk); vertical-align: calc(var(--lk) * -0.1556 + 0.03em); margin-right: 0.26em; transform-origin: 50% 50%; }
+.l-close__svg { display: block; height: 100%; width: auto; overflow: visible; fill: currentColor; }
+.l-close__rest { display: inline-block; }
+.l-close__bleed.is-scene .l-close__rest { padding: 0.3em 0.3em 0.3em 0; margin: -0.3em -0.3em -0.3em 0; } /* room for the soft mask */
+.l-close__bleed.is-scene :is(.l-close__h, .l-close__logo, .l-close__rest, .l-close__w) { will-change: transform; }
+.l-close__w { display: inline-block; }
+/* the scene: the bleed grows to 200 vh and its stage holds for the extra 100 vh (overflow visible, so the stage can stick) */
+.l-close__bleed.is-scene { height: 200vh; min-height: 0; overflow: visible; }
+.l-close__bleed.is-scene .l-close__stage { position: sticky; top: 0; height: 100vh; min-height: 620px; }
+/* arrival, once: the tile settles, the letters rise out of their baseline one by one */
+.l-close__m, .l-close__c { transform-box: fill-box; transform-origin: 50% 50%; }
+:where(.l-page[data-motion]) .l-close__bleed:not(.is-lit) .l-close__m { opacity: 0; transform: scale(0.86); }
+:where(.l-page[data-motion]) .l-close__bleed:not(.is-lit) .l-close__c { transform: translateY(105%); }
+:where(.l-page[data-motion]) .l-close__bleed.is-lit .l-close__m { transition: opacity 0.9s var(--ease-glide), transform 1.4s var(--ease-settle); }
+:where(.l-page[data-motion]) .l-close__bleed.is-lit .l-close__c { transition: transform 1.2s var(--ease-settle) calc(0.18s + var(--c) * 0.08s); }
+:where(.l-page[data-motion]) .l-close__bleed:not(.is-scene):not(.is-lit) .l-close__rest { opacity: 0; translate: 0 18px; }
+:where(.l-page[data-motion]) .l-close__bleed:not(.is-scene).is-lit .l-close__rest { transition: opacity 1s var(--ease-glide) 0.5s, translate 1.3s var(--ease-settle) 0.5s; }
+.l-close__row { grid-template-columns: 5fr 7fr; }
+.l-close__row .l-cell { padding: 48px var(--l-pad) 80px; }
+.l-close__form { padding-left: calc(var(--l-pad) * 2) !important; }
+.l-close__lede .l-lede { max-width: 22em; }
+/* the field: a visible label, one hairline, Montreal at body size, the button on the same line */
+.l-form { max-width: none; }
+.l-form__label { display: flex; align-items: center; gap: 10px; height: 16px; color: var(--muted); cursor: pointer; }
+.l-form__slot { position: relative; margin-top: 14px; }
+.l-field { position: relative; display: flex; align-items: center; gap: 24px; height: 56px;
+  background: linear-gradient(var(--l-line), var(--l-line)) 0 100% / 100% var(--hair) no-repeat; transition: opacity 0.3s var(--ease-tick); }
+.l-field input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; border-radius: 0; background: none; outline: none;
+  font: 400 var(--text-lede)/1 var(--sans); letter-spacing: -0.005em; color: var(--ink); caret-color: var(--emerald-deep); }
+.l-field input::placeholder { color: var(--muted); opacity: 0.7; }
+.l-field__btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 100%; padding: 0 0 0 4px; border: 0; background: none; cursor: pointer;
+  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--ink); }
+.l-field__btn::before { /* the green dot opens before the label on hover (transform only: a minifier folds `scale` into it) */
+  content: ""; width: 6px; height: 6px; margin-right: -16px; border-radius: 50%; background: var(--emerald); transform: scale(0);
+  transition: transform 0.3s var(--ease-settle), margin 0.3s var(--ease-settle); }
+.l-field__line { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 0.6s var(--ease-settle), background-color 0.2s var(--ease-tick); pointer-events: none; }
+.l-field:focus-within .l-field__line { transform: none; }
+.l-field input:focus-visible { outline: none; }
+.l-field:has(input:focus-visible) .l-field__line { height: 2px; background: var(--ink); }
+.l-field__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 2px; }
+.l-form.is-invalid .l-field__line { transform: none; height: 2px; background: var(--ink); }
+@media (hover: hover) {
+  .l-field__btn:hover::before { transform: scale(1); margin-right: 0; }
+  .l-field__btn:hover .l-arr { translate: 4px 0; }
+  .l-field:hover:not(:focus-within) { background-image: linear-gradient(var(--graphite), var(--graphite)); }
+}
+.l-form__status { position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none; }
+.l-form__slot.is-done .l-field { opacity: 0; visibility: hidden; }
+.l-form__slot.is-done { background: linear-gradient(var(--emerald), var(--emerald)) 0 100% / 100% 1px no-repeat; }
+.l-form__ok { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; font-size: var(--text-lede); font-weight: 400; letter-spacing: -0.005em; color: var(--ink); outline: none; }
+.l-form__ok svg { color: var(--green-text); }
+.l-form__pre { font-size: var(--t-small); line-height: var(--t-small-lh); letter-spacing: var(--t-small-tr); font-weight: 400; color: var(--muted); }
+:where(.l-page[data-motion]) .l-form__ok { animation: l-rise 0.6s var(--ease-settle) both; }
+.l-form__err { display: flex; align-items: center; gap: 8px; min-height: 1.4em; margin-top: 12px; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--ink); }
+.l-form__err:empty { margin-top: 0; min-height: 0; }
+.l-form__note { margin-top: 14px; font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.l-form__err:not(:empty) + .l-form__note { margin-top: 6px; }
+.l-form__note a { color: var(--ink); text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 3px; }
+
+/* below 860 */
+@media (max-width: 859px) {
+  .l-proof__row, .l-panel, .l-origin__row, .l-voices__row, .l-gi__row, .l-close__row { grid-template-columns: minmax(0, 1fr); }
+  .l-close__in .l-display { font-size: 44px; }
+  .l-close__h { white-space: normal; }
+  .l-origin__ph { min-height: 320px; }
+  .l-cell + .l-cell::before { display: none; }
+  .l-head__cell { flex-direction: column; align-items: flex-start; }
+  .l-panel.is-one .l-feat-cell--a { grid-column: auto; }
+}
+@media (min-resolution: 2dppx) { .l-page { --hair: 0.5px; } }
+
+/* b10's line icons (css/icons.css; drawn by ../header/icons.ts): hairline ink, one green element */
+:where(.l-page i[data-icon]) { display: inline-block; flex: none; width: 24px; height: 24px; line-height: 0; font-style: normal; vertical-align: middle; color: inherit; }
+.l-page .ic { display: block; width: 100%; height: 100%; overflow: visible; }
+.l-page .ic-ln * { fill: none; stroke: currentColor; stroke-width: var(--ic-sw, 1.25); stroke-linecap: round; stroke-linejoin: round; }
+.l-page .ic-dots circle, .l-page .ic-f { fill: currentColor; stroke: none; }
+.l-page .ic-g { fill: var(--ic-green, #00dc8d); stroke: none; transform-box: fill-box; transform-origin: center; }
+
+/* v3: the two featured items share their rows (photo / text / note) through subgrid, so their photos end on one line and their labels start on one line
+   (b10 lets each photo take its own column's height: a longer text under one made its photo shorter). Desktop only: on phones they stack. */
+@media (min-width: 860px) {
+  .l-panel { grid-template-rows: 1fr auto auto; }
+  .l-feat-cell, .l-list-cell { grid-row: 1 / span 3; }
+  .l-feat-cell { display: grid; grid-template-rows: subgrid; }
+  .l-feat { grid-row: 1 / span 3; display: grid; grid-template-rows: subgrid; height: auto; }
+  .l-feat__a { grid-row: 1 / span 2; display: grid; grid-template-rows: subgrid; }
+  .l-feat__ph { grid-row: 1; }
+  .l-feat__body { grid-row: 2; }
+  .l-feat__note { grid-row: 3; }
+}

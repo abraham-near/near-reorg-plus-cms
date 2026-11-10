@@ -1,4 +1,4 @@
-// b10's line icons (builder I, round 22, js/icons.js), ported for the header's panels.
+// b10's line icons (builder I, round 22, js/icons.js), ported for v3: the header's panels, the ruled page after the Stack and the footer.
 // Every <i data-icon="name"> under the root renders as inline SVG from public/nav/icons/<name>.svg (one file per icon).
 // Hairline ink, one green element. Motion: an icon rests as dots along its paths and draws into lines when it first enters the view,
 // when its panel opens (draw(root)) and on hover / focus of its link; the green comes last. Reduced motion: drawn, no motion.
@@ -6,10 +6,12 @@ const NS = "http://www.w3.org/2000/svg";
 const BASE = "/nav/icons/";
 // the files in public/nav/icons (an unknown name is never fetched)
 const NAMES = ["near-com", "near-intents", "near-ai", "near-protocol", "chain-abstraction", "quantum-security", "docs", "solutions", "research", "blog",
-  "analytics", "brand", "mail", "briefcase", "history", "roadmap", "economics", "foundation", "people", "governance"];
+  "analytics", "brand", "mail", "briefcase", "history", "roadmap", "economics", "foundation", "people", "governance",
+  "clock", "news", "quote", "video", "play", "x", "youtube", "github", "reddit", "telegram", "discord"];
 const ALIAS: Record<string, string> = {
   account: "near-com", intents: "near-intents", enclave: "near-ai", ai: "near-ai", protocol: "near-protocol", quantum: "quantum-security",
   contact: "mail", careers: "briefcase", community: "people",
+  read: "news", story: "quote", watch: "video",   /* Go deeper's glyphs (deeper-read …) */
 };
 const SHAPES = new Set(["path", "circle", "ellipse", "rect", "line", "polyline", "polygon"]);
 
