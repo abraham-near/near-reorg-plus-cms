@@ -3,6 +3,9 @@ import { AcceptInviteForm } from '@/cms/components/auth/AuthForms'
 import { sha256 } from '@/cms/lib/crypto'
 import { db } from '@/cms/lib/db'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Accept invitation', referrer: 'no-referrer' }
 
 type Props = { params: Promise<{ token: string }> }

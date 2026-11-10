@@ -3,6 +3,9 @@ import { requirePagePermission } from '@/cms/lib/auth'
 import { listTaxonomy } from '@/cms/lib/posts/taxonomy'
 import { TaxonomyManager } from '@/cms/components/posts/TaxonomyManager'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Categories & Tags' }
 
 export default async function CategoriesPage() {

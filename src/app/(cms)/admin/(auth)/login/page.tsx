@@ -4,6 +4,9 @@ import { LoginForm } from '@/cms/components/auth/AuthForms'
 import { safeNext } from '@/cms/lib/safe-next'
 import { getSession } from '@/cms/lib/session'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Sign in' }
 
 type Props = { searchParams: Promise<{ next?: string }> }

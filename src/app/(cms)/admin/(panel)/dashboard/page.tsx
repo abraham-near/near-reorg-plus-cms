@@ -9,6 +9,9 @@ import { can } from '@/cms/lib/permissions'
 import { getDashboard } from '@/cms/lib/people/dashboard'
 import { formatAdminDate } from '@/cms/lib/utils'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Dashboard' }
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {

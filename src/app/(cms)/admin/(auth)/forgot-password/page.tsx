@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { ForgotPasswordForm } from '@/cms/components/auth/AuthForms'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Reset password' }
 
 export default function ForgotPasswordPage() {

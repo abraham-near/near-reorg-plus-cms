@@ -6,6 +6,9 @@ import { can } from '@/cms/lib/permissions'
 import { postSelect } from '@/cms/lib/posts/select'
 import PostForm from '@/cms/components/posts/PostForm'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Edit post' }
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { user } = await requirePagePermission('content:read')

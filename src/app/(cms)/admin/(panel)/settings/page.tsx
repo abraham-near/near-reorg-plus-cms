@@ -12,6 +12,9 @@ import { can } from '@/cms/lib/permissions'
 import { getProfile } from '@/cms/lib/people/profile'
 import { listProfileSessions } from '@/cms/lib/people/sessions'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Settings' }
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string | string[] }> }) {

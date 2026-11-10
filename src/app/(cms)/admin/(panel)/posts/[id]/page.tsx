@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 type Props = { params: Promise<{ id: string }> }
 
 // /admin/posts/<id> is linked from the dashboard and audit views; the editor lives at /edit.

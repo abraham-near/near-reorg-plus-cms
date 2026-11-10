@@ -4,6 +4,9 @@ import { db } from '@/cms/lib/db'
 import { can } from '@/cms/lib/permissions'
 import PostForm from '@/cms/components/posts/PostForm'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'New post' }
 export default async function NewPostPage() {
   const { user } = await requirePagePermission('post:write')

@@ -9,6 +9,9 @@ import { Button } from '@/cms/components/ui/button'
 import { Input } from '@/cms/components/ui/input'
 import PostsTable from '@/cms/components/posts/PostsTable'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Posts' }
 const pageSize = 20
 const statuses = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const

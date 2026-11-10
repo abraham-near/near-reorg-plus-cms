@@ -3,6 +3,9 @@ import { UsersClient } from '@/cms/components/users/UsersClient'
 import { requirePagePermission } from '@/cms/lib/auth'
 import { listUsers, usersQuerySchema } from '@/cms/lib/people/users'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Users' }
 
 export default async function UsersPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

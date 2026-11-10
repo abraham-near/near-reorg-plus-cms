@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { VerifyEmailForm } from '@/cms/components/auth/AuthForms'
 import { findVerificationToken } from '@/cms/lib/email-verification'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Confirm email', referrer: 'no-referrer' }
 
 type Props = { params: Promise<{ token: string }> }

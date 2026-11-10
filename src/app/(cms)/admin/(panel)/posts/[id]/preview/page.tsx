@@ -9,6 +9,9 @@ import { isLive, isScheduled } from '@/cms/lib/posts/visibility'
 import { safeUrl, sanitizeRichHtml, stripTags } from '@/cms/lib/sanitize'
 import { formatAdminDate } from '@/cms/lib/utils'
 
+// Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
+export const instant = false
+
 export const metadata: Metadata = { title: 'Preview' }
 
 /** What a share card shows: the same fallbacks a public page should use (meta → excerpt → body). */
