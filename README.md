@@ -34,7 +34,7 @@ Three layers, so nothing has to wait for the decision:
 - `/template` shows the switch (bottom left).
 
 ### New pages
-Copy `src/app/template`. Build the page from shared pieces (new ones go in `components/shared`). Anything that should look different per version goes in a variable in `versions.css`, never in a version-specific copy.
+Copy `src/app/(site)/template`. Build the page from shared pieces (new ones go in `components/shared`). Anything that should look different per version goes in a variable in `versions.css`, never in a version-specific copy.
 
 ### The day one version wins
 1. Move its values in `versions.css` to `:root` and delete the other block.

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { fontVariables } from "@/styles/fonts";
 import { InlineScript } from "@/components/InlineScript";
 import { VERSION_HEAD } from "@/components/shared/version";
-import "./globals.css";
+import "../globals.css";
 
 export const metadata: Metadata = {
   title: { default: "NEAR: Own your world", template: "%s · NEAR" },
