@@ -1,0 +1,269 @@
+// CMS core schema (src/cms). Ported from near-org-website-primary (prisma/schema.prisma at 5133bfd)
+// and trimmed to the core: people and access, posts with categories and tags, media.
+// The site may read published posts from these tables directly (client: src/generated/prisma);
+// it never imports src/cms, and src/cms never imports the site.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── People and access ────────────────────────────────────────────────────────
+
+enum Role {
+  /// Everything, plus people and deleting media.
+  ADMIN
+  /// Runs the blog: posts, categories and tags, media (no delete), their own API tokens.
+  PUBLISHER
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  name              String
+  role              Role      @default(PUBLISHER)
+  active            Boolean   @default(true)
+  failedLogins      Int       @default(0)
+  lockedUntil       DateTime?
+  lastLoginAt       DateTime?
+  /// Set once the owner proves the address: accepting an invite, a confirmation link, a reset link,
+  /// or creation from the command line. Sign-in is refused until then.
+  emailVerifiedAt   DateTime?
+  passwordChangedAt DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  sessions        Session[]
+  resetTokens     PasswordResetToken[]
+  verifyTokens    EmailVerificationToken[]
+  posts           Post[]                   @relation("PostAuthor")
+  lastEditedPosts Post[]                   @relation("PostLastEditor")
+  revisions       Revision[]
+  apiTokens       ApiToken[]               @relation("ApiTokenOwner")
+  revokedTokens   ApiToken[]               @relation("ApiTokenRevoker")
+}
+
+/// Personal API tokens (Claude MCP). The token is shown once; only its SHA-256 is stored.
+/// Rows are kept after expiry or revocation so the audit trail can name them.
+model ApiToken {
+  id            String    @id @default(cuid())
+  name          String
+  /// First characters of the token, for display only ("ncms_AbC1dEf…").
+  prefix        String
+  tokenHash     String    @unique
+  userId        String
+  createdIp     String?
+  expiresAt     DateTime
+  lastUsedAt    DateTime?
+  lastUsedIp    String?
+  lastUsedAgent String?
+  revokedAt     DateTime?
+  revokedById   String?
+  /// USER, ADMIN, ROLE_CHANGE, DEACTIVATED, PASSWORD_RESET or PASSWORD_CHANGE.
+  revokeReason  String?
+  createdAt     DateTime  @default(now())
+  user          User      @relation("ApiTokenOwner", fields: [userId], references: [id], onDelete: Cascade)
+  revokedBy     User?     @relation("ApiTokenRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+/// Server-side sessions: the cookie holds a random token, the table holds its SHA-256.
+/// Deleting rows revokes access immediately (logout, password change, deactivation).
+model Session {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Single-use email confirmation link (24 h). Only the SHA-256 of the token is stored.
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  email       String
+  name        String
+  role        Role      @default(PUBLISHER)
+  invitedById String?
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+}
+
+/// Fixed-window counters shared by every instance (login, reset, invites, uploads, tokens).
+model RateLimit {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  userEmail   String?
+  action      String
+  entityType  String
+  entityId    String?
+  entityTitle String?
+  ip          String?
+  userAgent   String?
+  diff        Json?
+  /// Set when the action came through an API token rather than a browser session.
+  apiTokenId  String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([apiTokenId])
+}
+
+// ── Content ──────────────────────────────────────────────────────────────────
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+/// PUBLIC: listed and indexed. UNLISTED: reachable by URL, kept out of lists, feeds and sitemaps, noindex.
+enum Visibility {
+  PUBLIC
+  UNLISTED
+}
+
+/// A post is live when status = PUBLISHED and publishedAt <= now. A PUBLISHED post with a future
+/// publishedAt is scheduled: it goes live on its own, nothing has to run at that moment.
+model Post {
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  title           String
+  /// Sanitized HTML written by the editor (src/cms/lib/sanitize.ts).
+  body            String         @default("")
+  excerpt         String?
+  featuredImage   String?
+  metaTitle       String?
+  metaDescription String?
+  /// Social share image (Open Graph / X). Falls back to featuredImage.
+  metaImage       String?
+  status          Status         @default(DRAFT)
+  visibility      Visibility     @default(PUBLIC)
+  publishedAt     DateTime?
+  authorId        String?
+  lastEditedById  String?
+  lockedAt        DateTime?
+  lockedById      String?
+  /// Set when the lock is held through an API token, so the owner's browser and Claude do not
+  /// count as the same editor.
+  lockedByTokenId String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  author          User?          @relation("PostAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  lastEditedBy    User?          @relation("PostLastEditor", fields: [lastEditedById], references: [id], onDelete: SetNull)
+  categories      PostCategory[]
+  tags            Tag[]          @relation("PostToTag")
+
+  @@index([status, publishedAt])
+  @@index([visibility])
+}
+
+/// Full snapshots taken on every save of a post; restore = copy back.
+model Revision {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  snapshot   Json
+  message    String?
+  authorId   String?
+  createdAt  DateTime @default(now())
+  author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+}
+
+model Category {
+  id    String         @id @default(cuid())
+  name  String
+  slug  String         @unique
+  posts PostCategory[]
+}
+
+/// Explicit join so post categories keep their order (the first one is the main category).
+model PostCategory {
+  postId     String
+  categoryId String
+  position   Int      @default(0)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@index([categoryId])
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[] @relation("PostToTag")
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  /// Object key in the bucket, e.g. "cms/9f6b6507069105af.jpg".
+  key          String   @unique
+  /// Public path served by src/app/(cms)/cms/[...path], e.g. "/cms/9f6b6507069105af.jpg".
+  url          String   @unique
+  filename     String
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  alt          String?
+  uploadedById String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([mimeType])
+}
