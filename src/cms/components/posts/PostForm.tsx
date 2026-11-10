@@ -63,12 +63,16 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
         }
       }
     }
+    const release = () => { void adminFetch(`/api/admin/posts/${postId}/lock`, { method: 'DELETE', json: {}, keepalive: true }).catch(() => {}) }
     void acquire()
     const timer = setInterval(acquire, 30_000)
+    // A full page load (reload, typed URL, closed tab) does not unmount React: release the lock then too.
+    window.addEventListener('pagehide', release)
     return () => {
       active = false
       clearInterval(timer)
-      void adminFetch(`/api/admin/posts/${postId}/lock`, { method: 'DELETE', json: {}, keepalive: true }).catch(() => {})
+      window.removeEventListener('pagehide', release)
+      release()
     }
   }, [postId, permissions.write])
   useEffect(() => {
@@ -187,7 +191,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           <div className="space-y-2"><Label htmlFor="post-visibility">Visibility</Label><select id="post-visibility" className={fieldClass} value={form.visibility} onChange={(event) => update('visibility', event.target.value as Visibility)}><option value="PUBLIC">Public</option><option value="UNLISTED">Unlisted</option></select><p className="text-xs text-muted-foreground">{form.visibility === 'UNLISTED' ? 'Reachable by its link only: hidden from listings and search engines.' : 'Visible in listings and search engines.'}</p></div>
           <div className="space-y-2"><Label htmlFor="post-published">Publish at (UTC)</Label><Input id="post-published" type="datetime-local" value={form.publishedAt} onChange={(event) => update('publishedAt', event.target.value)} disabled={!permissions.publish} /><p className="text-xs text-muted-foreground">Leave empty to publish now. A future time schedules the post: it goes live on its own.</p></div>
         </fieldset>
-          {permissions.publish && <div className="flex flex-col gap-2"><Button type="button" disabled={!editable} onClick={() => save('PUBLISHED')}>{post?.status === 'PUBLISHED' ? 'Update publication' : futurePublish ? 'Schedule' : 'Publish now'}</Button>{post?.status === 'PUBLISHED' && <Button type="button" disabled={!editable} variant="outline" onClick={() => save('DRAFT')}>Unpublish to draft</Button>}</div>}
+          {permissions.publish && <div className="flex flex-col gap-2">{post?.status !== 'PUBLISHED' && <Button type="button" disabled={!editable} onClick={() => save('PUBLISHED')}>{futurePublish ? 'Schedule' : 'Publish now'}</Button>}{post?.status === 'PUBLISHED' && <Button type="button" disabled={!editable} variant="outline" onClick={() => save('DRAFT')}>Unpublish to draft</Button>}</div>}
           {permissions.write && post && post.status !== 'ARCHIVED' && <Button type="button" className="w-full" disabled={!editable} variant="ghost" onClick={() => save('ARCHIVED')}>Archive post</Button>}
           {permissions.write && post?.status === 'ARCHIVED' && <Button type="button" className="w-full" disabled={!editable} variant="outline" onClick={() => save('DRAFT')}>Move to draft</Button>}
         </section>

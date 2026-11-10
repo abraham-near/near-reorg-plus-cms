@@ -1,3 +1,5 @@
+import { defaultUploadDir } from './uploads'
+
 export type Config =
   | { ok: true; origin: string; host: string; uploadDir: string | null }
   | { ok: false; error: string }
@@ -19,7 +21,7 @@ export function parseUrl(raw: string): { origin: string; host: string } {
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
   try {
     const { origin, host } = parseUrl(env.NEAR_CMS_URL?.trim() || 'http://localhost:3000')
-    return { ok: true, origin, host, uploadDir: env.NEAR_CMS_UPLOAD_DIR?.trim() || null }
+    return { ok: true, origin, host, uploadDir: env.NEAR_CMS_UPLOAD_DIR?.trim() || defaultUploadDir() }
   } catch (e) {
     return { ok: false, error: (e as Error).message }
   }

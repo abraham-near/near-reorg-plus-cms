@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { requirePagePermission } from '@/cms/lib/auth'
 import { listTaxonomy } from '@/cms/lib/posts/taxonomy'
 import { TaxonomyManager } from '@/cms/components/posts/TaxonomyManager'
+
+export const metadata: Metadata = { title: 'Categories & Tags' }
 
 export default async function CategoriesPage() {
   await requirePagePermission('taxonomy:manage')

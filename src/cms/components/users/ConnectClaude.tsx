@@ -54,7 +54,7 @@ export default function ConnectClaude({ tokens, enabled, cmsOrigin }: Props) {
           <div>
             <p className="mb-1.5 font-medium">Claude can</p>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-              <li>Create drafts and duplicate posts as drafts</li>
+              <li>Create and edit drafts</li>
               <li>Turn a Word document into a draft with its images</li>
               <li>Publish now or at a set time, after you say yes</li>
               <li>Edit live and scheduled posts, after showing you the changes</li>
@@ -71,7 +71,7 @@ export default function ConnectClaude({ tokens, enabled, cmsOrigin }: Props) {
             </ul>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">Every save keeps a revision, so you can undo any change Claude makes from the editor’s Revision history. Everything done with a token is recorded in the audit log, and you get an email whenever a token publishes or schedules a post.</p>
+        <p className="text-xs text-muted-foreground">Every save keeps a revision, so you can undo any change Claude makes from the editor’s Revision history. Everything done with a token is recorded (Dashboard › Recent activity, for admins), and you get an email whenever a token publishes or schedules a post.</p>
       </section>
 
     </>

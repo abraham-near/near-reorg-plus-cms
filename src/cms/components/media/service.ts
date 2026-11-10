@@ -11,16 +11,12 @@ import { saveRevision } from '@/cms/lib/revisions'
 import { revalidatePost } from '@/cms/lib/cache-tags'
 import { isCmsMediaUrl, replaceExactUrl } from './reference-values'
 import { mediaSelect, type MediaReference } from './types'
+import { postSelect } from '@/cms/lib/posts/select'
 
 type ReferenceRecord = MediaReference & { snapshot: Prisma.InputJsonObject; changes: Record<string, Prisma.JsonValue> }
 type Actor = Pick<SessionUser, 'id' | 'email'>
 type Store = Prisma.TransactionClient
 
-const postSelect = {
-  id: true, slug: true, title: true, body: true, excerpt: true, featuredImage: true,
-  metaTitle: true, metaDescription: true, metaImage: true, status: true, visibility: true,
-  publishedAt: true, authorId: true, lastEditedById: true, updatedAt: true,
-} as const
 
 // Posts are the only content that holds media URLs.
 async function scanReferences(store: Store, oldUrl: string, newUrl = oldUrl): Promise<ReferenceRecord[]> {
@@ -74,7 +70,7 @@ export async function replaceMediaReferences(oldUrl: string, newUrl: string, use
     }
     const refs = options?.replaceEverywhere === false ? [] : await scanReferences(tx, oldUrl, newUrl)
     for (const ref of refs) {
-      await saveRevision(ref.entityType, ref.id, ref.snapshot, user.id, 'Before media replacement')
+      await saveRevision(ref.entityType, ref.id, ref.snapshot, user.id, 'Before media replacement', tx)
       const data = ref.changes
       const version = new Date(String(ref.snapshot.updatedAt))
       const where = { id: ref.id, updatedAt: version }

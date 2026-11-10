@@ -14,6 +14,8 @@ import { createPostSchema, updatePostSchema, type PostInput } from './schema'
 import { assertTokenPostWrite } from './token-rules'
 import { notifyTokenPublish } from './token-notify'
 
+const RESTORED_FIELDS = ['title', 'body', 'excerpt', 'featuredImage', 'metaTitle', 'metaDescription', 'metaImage'] as const
+
 export const LOCK_TTL_MS = 90_000
 export const activeLock = (post: Pick<AdminPost, 'lockedAt' | 'lockedById'>) => !!post.lockedById && !!post.lockedAt && post.lockedAt.getTime() > Date.now() - LOCK_TTL_MS
 
@@ -107,7 +109,7 @@ async function updateInTransaction(tx: Prisma.TransactionClient, previous: Admin
   if (user.via === 'token' && !input.expectedUpdatedAt) throw new HttpError(400, 'expectedUpdatedAt is required for API token writes')
   if (input.expectedUpdatedAt && new Date(input.expectedUpdatedAt).getTime() !== previous.updatedAt.getTime()) throw new HttpError(409, 'Post changed. Reload before saving.')
   const data = await prepare(tx, input, user, previous)
-  await saveRevision('POST', previous.id, JSON.parse(JSON.stringify(previous)), user.id, message)
+  await saveRevision('POST', previous.id, JSON.parse(JSON.stringify(previous)), user.id, message, tx)
   return tx.post.update({ where: { id: previous.id }, data, select: postSelect })
 }
 
@@ -134,8 +136,10 @@ export async function restorePost(id: string, revisionId: string, user: SessionU
     const revision = await tx.revision.findFirst({ where: { id: revisionId, entityType: 'POST', entityId: id }, select: { snapshot: true } })
     if (!revision || !revision.snapshot || typeof revision.snapshot !== 'object' || Array.isArray(revision.snapshot)) throw new HttpError(404, 'Revision not found')
     const snapshot = revision.snapshot as Record<string, unknown>
+    // A revision restores the content. Publication (status, time, visibility) and the URL stay as
+    // they are now, so restoring never silently unpublishes, reschedules or moves a post.
     const fields: Record<string, unknown> = {}
-    for (const key of Object.keys(createPostSchema.shape)) if (key in snapshot) fields[key] = snapshot[key]
+    for (const key of RESTORED_FIELDS) if (key in snapshot) fields[key] = snapshot[key]
     const categories = snapshot.categories as AdminPost['categories'] | undefined
     const tags = snapshot.tags as AdminPost['tags'] | undefined
     fields.categoryIds = categories?.map((c) => c.categoryId) ?? []

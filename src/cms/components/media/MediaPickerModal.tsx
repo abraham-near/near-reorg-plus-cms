@@ -341,7 +341,7 @@ function MediaPickerBody({
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
                     <p className="text-xs text-muted-foreground mt-3 opacity-60">
-                      Up to {MAX_FILES} images · JPG PNG WebP GIF SVG
+                      Up to {MAX_FILES} images at a time, 15 MB each · JPG PNG WebP GIF SVG
                     </p>
                   </div>
                 </div>
@@ -355,11 +355,7 @@ function MediaPickerBody({
                     <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 text-xs text-amber-600 dark:text-amber-400 flex-shrink-0">
                       <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                       <span>
-                        {oversizedCount} file{oversizedCount > 1 ? "s" : ""} exceed 500 KB — consider{" "}
-                        <a href="https://croma.aurora33.live" target="_blank" rel="noopener noreferrer" className="underline">
-                          compressing
-                        </a>{" "}
-                        first.
+                        {oversizedCount} file{oversizedCount > 1 ? "s" : ""} exceed 500 KB. Large images slow pages down: consider compressing them first (up to 15 MB is accepted).
                       </span>
                     </div>
                   )}

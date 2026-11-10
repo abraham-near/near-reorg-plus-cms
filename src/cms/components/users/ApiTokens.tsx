@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Badge } from '@/cms/components/ui/badge'
@@ -80,14 +79,12 @@ export default function ApiTokens({ tokens, enabled }: { tokens: ApiTokenRow[]; 
         <div className="max-w-xl space-y-1">
           <h2 id="tokens-heading" className="text-lg font-semibold"><span className="text-muted-foreground">1.</span> Create your API token</h2>
           <p className="text-sm text-muted-foreground">
-            The token is how Claude signs in to the CMS as you. Create one per computer, copy it and paste it in step 2. It works only with your account and stops working when it expires or you revoke it.{' '}
-            <Link href="/admin/help#api-tokens" className="underline underline-offset-2">Learn more</Link>
-          </p>
+            The token is how Claude signs in to the CMS as you. Create one per computer, copy it and paste it in step 2. It works only with your account and stops working when it expires or you revoke it.          </p>
         </div>
         <Button variant="outline" disabled={busy !== null || active === 0} onClick={() => revoke()}>{busy === 'all' ? 'Revoking…' : 'Revoke all'}</Button>
       </div>
 
-      {!enabled && <p role="status" className="rounded-md border bg-muted/40 p-3 text-sm">API tokens are turned off on this environment. They are enabled after the site switches to the database.</p>}
+      {!enabled && <p role="status" className="rounded-md border bg-muted/40 p-3 text-sm">API tokens are turned off on this environment. A developer turns them on with CMS_API_TOKENS_ENABLED=true.</p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       {secret && (

@@ -127,12 +127,14 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('posts API database integration'
 
   it('restores a revision through normal validation and snapshots', async () => {
     const post = await fixture({ status: 'PUBLISHED', categories: { create: { categoryId: categoryIds[0], position: 0 } } })
-    const response = await patch(request('PATCH', { title: 'New title', slug: slug() }), ctx(post.id))
+    const newSlug = slug()
+    const response = await patch(request('PATCH', { title: 'New title', slug: newSlug }), ctx(post.id))
     expect(response.status).toBe(200)
     const revision = await db.revision.findFirstOrThrow({ where: { entityId: post.id } })
     const restored = await restore(request('POST', { revisionId: revision.id }), ctx(post.id))
     expect(restored.status).toBe(200)
-    expect(await restored.json()).toMatchObject({ title: post.title, slug: post.slug })
+    // Content comes back; the URL and publication stay as they are now.
+    expect(await restored.json()).toMatchObject({ title: post.title, slug: newSlug, status: 'PUBLISHED' })
     expect(await db.revision.count({ where: { entityId: post.id } })).toBe(2)
   })
 

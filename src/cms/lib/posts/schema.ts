@@ -3,7 +3,7 @@ import { safeUrl, stripTags } from '@/cms/lib/sanitize'
 
 const plain = (max: number) => z.string().max(max).transform(stripTags)
 const nullableText = (max: number) => plain(max).nullable().optional()
-const url = z.string().max(2048).refine((v) => v === '' || safeUrl(v) !== null, 'Unsafe URL').transform((v) => v ? safeUrl(v)! : null).nullable().optional()
+const url = z.string().max(2048).refine((v) => v === '' || (safeUrl(v) !== null && !/[\s"'<>`]/.test(v)), 'Unsafe URL').transform((v) => v ? safeUrl(v)! : null).nullable().optional()
 const date = z.iso.datetime({ offset: true }).nullable().optional()
 const ids = z.array(z.string().min(1).max(100)).max(100).refine((v) => new Set(v).size === v.length, 'Duplicate IDs').optional()
 

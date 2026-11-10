@@ -25,6 +25,7 @@ export function createSlashCommand(onInsert: (kind: Insert) => void) {
       return [Suggestion<Item>({
         editor: this.editor,
         char: '/',
+        allowSpaces: true,
         items: ({ query }) => items.filter((item) => item.title.toLowerCase().includes(query.toLowerCase())),
         command: ({ editor, range, props }) => {
           editor.chain().focus().deleteRange(range).run()

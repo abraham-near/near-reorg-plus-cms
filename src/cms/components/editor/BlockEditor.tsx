@@ -10,7 +10,7 @@ import { Input } from '@/cms/components/ui/input'
 import { Label } from '@/cms/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/cms/components/ui/dialog'
 import MediaPickerModal from '@/cms/components/media/MediaPickerModal'
-import { safeUrl } from '@/cms/lib/sanitize'
+import { safeUrl, sanitizeRichHtml } from '@/cms/lib/sanitize'
 import { getExtensions } from './extensions'
 import { createSlashCommand, type Insert } from './extensions/SlashCommand'
 import { htmlForEditor } from './legacy-html'
@@ -78,8 +78,10 @@ export default function BlockEditor({ value, onChange, editable = true, placehol
     } : null,
   })
 
+  // The server sanitizes on save (it drops e.g. rel="nofollow" and table widths), so compare sanitized
+  // HTML: otherwise every save would reset the document and move the cursor.
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) editor.commands.setContent(htmlForEditor(value), { emitUpdate: false })
+    if (editor && sanitizeRichHtml(value) !== sanitizeRichHtml(editor.getHTML())) editor.commands.setContent(htmlForEditor(value), { emitUpdate: false })
   }, [editor, value])
   useEffect(() => { editor?.setEditable(editable) }, [editor, editable])
 
@@ -160,7 +162,7 @@ export default function BlockEditor({ value, onChange, editable = true, placehol
       <Dialog open={!!insertKind} onOpenChange={(open) => { if (!open) setInsertKind(null) }}>
         <DialogContent><DialogHeader><DialogTitle>{insertKind === 'embed' ? 'Insert an embed' : insertKind === 'image-alt' ? 'Image description' : 'Edit link'}</DialogTitle><DialogDescription>{insertKind === 'embed' ? 'Paste the HTTPS embed URL from an allowed provider.' : insertKind === 'image-alt' ? 'Describe the selected image. Leave blank for decorative images.' : 'Paste a web address or site path. Leave blank to remove the link.'}</DialogDescription></DialogHeader>
           <Label htmlFor={`${id}-insert`}>{insertKind === 'image-alt' ? 'Image description' : 'URL'}</Label>
-          <Input id={`${id}-insert`} value={insertValue} onChange={(event) => setInsertValue(event.target.value)} />
+          <Input id={`${id}-insert`} value={insertValue} onChange={(event) => setInsertValue(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); applyInsert() } }} />
           <Button type="button" disabled={!editable} onClick={applyInsert}>Apply</Button>
         </DialogContent>
       </Dialog>

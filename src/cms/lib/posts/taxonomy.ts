@@ -1,6 +1,7 @@
 import 'server-only'
 import { Prisma } from '@/generated/prisma/client'
 import { z } from 'zod'
+import { stripTags } from '@/cms/lib/sanitize'
 import { db } from '@/cms/lib/db'
 import { audit, diffFields } from '@/cms/lib/audit'
 import { revalidateCategories, revalidatePost } from '@/cms/lib/cache-tags'
@@ -19,7 +20,7 @@ export const taxonomySelect = {
 
 export type TaxonomyItem = Prisma.CategoryGetPayload<{ select: typeof taxonomySelect }>
 
-const nameSchema = z.string().trim().min(1).max(160)
+const nameSchema = z.string().max(160).transform(stripTags).pipe(z.string().trim().min(1))
 const slugSchema = z.string().trim().max(120).refine(isValidSlug, 'Use lowercase letters, numbers and single hyphens')
 
 export const taxonomyCreateSchema = z.object({

@@ -15,7 +15,8 @@ export const POST = route<{ params: Promise<{ id: string }> }>(async (req, { par
   const old = await db.media.findUnique({ where: { id: (await params).id }, select: mediaSelect })
   if (!old) throw new HttpError(404, 'File not found')
   const { file, replaceEverywhere } = await readMediaUpload(req)
-  const uploaded = await storeUpload(file, user.id)
+  // An image stays an image: posts embed it in <img> and as featured or social image.
+  const uploaded = await storeUpload(file, user.id, { imagesOnly: old.mimeType.startsWith('image/') })
   const fresh = await db.media.findUniqueOrThrow({ where: { id: uploaded.id }, select: mediaSelect })
   if (fresh.id === old.id) return json({ media: fresh, updated: 0, occurrences: 0, originalRetained: true })
   await audit(user, { action: 'UPLOAD', entityType: 'MEDIA', entityId: fresh.id, entityTitle: fresh.filename }, req)

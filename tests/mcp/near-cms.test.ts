@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadConfig, parseUrl } from '@/cms/mcp/config'
 import { createServer } from '@/cms/mcp/server'
 import { clearTokenCache, readToken } from '@/cms/mcp/token'
-import { prepareUpload } from '@/cms/mcp/uploads'
+import { defaultUploadDir, prepareUpload } from '@/cms/mcp/uploads'
 
 const TOKEN = `ncms_${'A1b2C3d4E5'.repeat(4)}abc`
 const ENV = { NEAR_CMS_URL: 'http://localhost:3000' }
@@ -101,7 +101,7 @@ describe('config', () => {
     expect(parseUrl('http://[::1]:3000').origin).toBe('http://[::1]:3000')
   })
   it('defaults to localhost', () => {
-    expect(loadConfig({})).toMatchObject({ ok: true, origin: 'http://localhost:3000', uploadDir: null })
+    expect(loadConfig({})).toMatchObject({ ok: true, origin: 'http://localhost:3000', uploadDir: defaultUploadDir() })
   })
 })
 

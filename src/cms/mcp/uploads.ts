@@ -7,9 +7,9 @@ export const IMAGE_TYPES: Record<string, string> = {
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif',
 }
 
-const noDir = 'Uploads are disabled: set NEAR_CMS_UPLOAD_DIR to the folder that holds the images (export it before starting Claude Code, or edit env in .mcp.json; in Claude Desktop, choose the folder in the extension settings)'
+const noDir = 'Uploads are disabled: set NEAR_CMS_UPLOAD_DIR to the folder that holds the images (export it before starting Claude Code, or edit env in .mcp.json)'
 
-/** The Claude Desktop extension's upload folder when none is chosen in its settings. */
+/** The upload folder when NEAR_CMS_UPLOAD_DIR is not set. */
 export const defaultUploadDir = () => path.join(homedir(), 'Documents', 'NEAR CMS uploads')
 
 /** The upload folder, resolved. Everything the server reads or writes stays inside it. */

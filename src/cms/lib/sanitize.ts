@@ -85,5 +85,12 @@ export function sanitizeRichHtml(html: string): string {
   })
 }
 
-/** Plain text only (titles, names): strips every tag. */
-export const stripTags = (value: string) => DOMPurify.sanitize(value, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] })
+/**
+ * Plain text only (titles, names): strips every tag and returns the text as written, not HTML-escaped
+ * ("Tom & Jerry <3" stays as typed). Callers render it as text (React) or escape it (escapeHtml).
+ */
+export function stripTags(value: string): string {
+  if (!value.includes('<')) return value
+  const fragment = DOMPurify.sanitize(value, { ALLOWED_TAGS: [], ALLOWED_ATTR: [], RETURN_DOM_FRAGMENT: true })
+  return fragment.textContent ?? ''
+}

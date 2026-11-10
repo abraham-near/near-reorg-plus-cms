@@ -105,7 +105,7 @@ describe.skipIf(!hasTestDb)('sign-in hardening', () => {
     expect((await login({ email, password: PASSWORD }, OWNER_IP)).status).toBe(200)
     const user = await db.user.findUniqueOrThrow({ where: { id: userId }, select: { lockedUntil: true, failedLogins: true } })
     expect(user).toEqual({ lockedUntil: null, failedLogins: 0 })
-  })
+  }, 20_000) // a dozen bcrypt checks at cost 12: slow on a busy machine
 
   it('slows down every IP on an address under a distributed attack', async () => {
     await setCounter(`login:fail-email:${email}`, LOGIN_LIMITS.perEmail.slowAfter)

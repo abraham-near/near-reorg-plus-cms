@@ -32,7 +32,7 @@ export const assetTools: Def[] = [
   },
   {
     name: 'update_media', title: 'Update media', annotations: { idempotentHint: true },
-    description: 'Change the alt text or filename of an uploaded image that no live content uses yet (for example one uploaded for a draft). Files used by live posts are edited in the CMS media library.',
+    description: 'Change the alt text or filename of an uploaded image. Neither changes the image URL, so posts that use it keep working.',
     shape: { id, alt: z.string().max(500).nullable().optional(), filename: z.string().min(1).max(200).optional() },
     run: async (a: { id: string; alt?: string | null; filename?: string }, { api }: Ctx) => {
       const body = { ...(a.alt !== undefined ? { alt: a.alt } : {}), ...(a.filename ? { filename: a.filename } : {}) }

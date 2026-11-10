@@ -1,5 +1,5 @@
 import type { Status } from '@/generated/prisma/client'
-import { hasBody } from './body'
+import { hasBody, prepareBody } from './body'
 import { HttpError } from '@/cms/lib/http'
 import type { PostInput } from './schema'
 import { isLive } from './visibility'
@@ -23,8 +23,11 @@ export function assertTokenPostWrite(input: PostInput, previous: Previous | unde
     }
     return
   }
-  if (previous.status === 'PUBLISHED') {
-    const where = isLive(previous, now) ? 'live' : 'scheduled'
+  // A post that has been public keeps its URL and visibility through a token even after it is taken
+  // down: otherwise unpublish → change slug → publish would move a live page.
+  const hasBeenLive = !!previous.publishedAt && previous.publishedAt <= now
+  if (previous.status === 'PUBLISHED' || hasBeenLive) {
+    const where = previous.status !== 'PUBLISHED' ? 'previously published' : isLive(previous, now) ? 'live' : 'scheduled'
     if (input.slug !== undefined && input.slug !== previous.slug) {
       throw new HttpError(403, `This post is ${where}: its URL (slug) can only change in the CMS editor.`)
     }
@@ -32,7 +35,7 @@ export function assertTokenPostWrite(input: PostInput, previous: Previous | unde
       throw new HttpError(403, `This post is ${where}: its visibility can only change in the CMS editor.`)
     }
   }
-  if (input.body !== undefined && hasBody(previous.body) && !hasBody(input.body)) {
+  if (input.body !== undefined && hasBody(previous.body) && !hasBody(prepareBody(input.body))) {
     throw new HttpError(403, 'Saving would leave the post with an empty body. API tokens cannot remove a post\'s content.')
   }
 }

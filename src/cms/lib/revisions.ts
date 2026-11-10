@@ -14,15 +14,17 @@ export async function saveRevision(
   snapshot: Prisma.InputJsonValue,
   authorId: string | null,
   message?: string,
+  // Pass the caller's transaction so a failed save leaves no revision behind.
+  tx: Prisma.TransactionClient = db,
 ) {
-  await db.revision.create({ data: { entityType, entityId, snapshot, authorId, message: message?.slice(0, 300) } })
-  const stale = await db.revision.findMany({
+  await tx.revision.create({ data: { entityType, entityId, snapshot, authorId, message: message?.slice(0, 300) } })
+  const stale = await tx.revision.findMany({
     where: { entityType, entityId },
     orderBy: { createdAt: 'desc' },
     skip: KEEP,
     select: { id: true },
   })
-  if (stale.length) await db.revision.deleteMany({ where: { id: { in: stale.map((r) => r.id) } } })
+  if (stale.length) await tx.revision.deleteMany({ where: { id: { in: stale.map((r) => r.id) } } })
 }
 
 export const listRevisions = (entityType: RevisionEntity, entityId: string, take = 50) =>

@@ -61,7 +61,7 @@ export const notifyAdminResetRequested = (target: Person, ip: string | null) =>
     const to = await activeAdminEmails()
     if (to.length) {
       await sendEmail(to, `Password reset requested for admin ${target.email}`,
-        adminResetRequestedEmail(target.email, ip, new Date(), `${cmsOrigin()}/admin/audit-log`))
+        adminResetRequestedEmail(target.email, ip, new Date(), `${cmsOrigin()}/admin/dashboard`))
     }
   })
 
@@ -73,6 +73,6 @@ export const notifySignInSpike = (failures: number) =>
     const to = await activeAdminEmails()
     if (to.length) {
       await sendEmail(to, 'Unusual number of failed sign-ins on the NEAR CMS',
-        signInSpikeEmail(limit, windowSeconds / 60, `${cmsOrigin()}/admin/audit-log`))
+        signInSpikeEmail(limit, windowSeconds / 60, `${cmsOrigin()}/admin/dashboard`))
     }
   })

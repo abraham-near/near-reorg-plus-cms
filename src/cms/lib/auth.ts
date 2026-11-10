@@ -14,7 +14,7 @@ export { getSession } from './session'
 export async function requirePagePermission(permission: Permission = 'admin:access'): Promise<CurrentSession> {
   const session = await getSession()
   if (!session) redirect('/admin/login')
-  if (!can(session.user.role, permission)) redirect('/admin?denied=1')
+  if (!can(session.user.role, permission)) redirect('/admin/dashboard?denied=1')
   return session
 }
 

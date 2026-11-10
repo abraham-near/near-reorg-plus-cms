@@ -82,14 +82,14 @@ export const newSignInEmail = (name: string, ip: string, userAgent: string | nul
     `<p>Hi ${escapeHtml(name)},</p><p>Your NEAR CMS account was signed in on ${when(at)} from an IP address it has not used before: <strong>${escapeHtml(ip)}</strong>${userAgent ? ` (${escapeHtml(userAgent.slice(0, 120))})` : ''}.</p><p>If this was you, there is nothing to do. If not, reset your password and tell an admin.</p>`,
   )
 
-export const adminResetRequestedEmail = (adminEmail: string, ip: string | null, at: Date, auditLink: string) =>
+export const adminResetRequestedEmail = (adminEmail: string, ip: string | null, at: Date, dashboardLink: string) =>
   layout(
-    `<p>A password reset was requested on ${when(at)} for the admin account <strong>${escapeHtml(adminEmail)}</strong>${ip ? ` from ${escapeHtml(ip)}` : ''}.</p><p>The link only went to that address. If its owner did not ask for it, someone may be targeting the account.</p>${button(auditLink, 'Open the audit log')}`,
+    `<p>A password reset was requested on ${when(at)} for the admin account <strong>${escapeHtml(adminEmail)}</strong>${ip ? ` from ${escapeHtml(ip)}` : ''}.</p><p>The link only went to that address. If its owner did not ask for it, someone may be targeting the account.</p>${button(dashboardLink, 'Open the CMS dashboard')}`,
   )
 
-export const signInSpikeEmail = (failures: number, windowMinutes: number, auditLink: string) =>
+export const signInSpikeEmail = (failures: number, windowMinutes: number, dashboardLink: string) =>
   layout(
-    `<p>The NEAR CMS has had more than ${failures} failed sign-ins in the last ${windowMinutes} minutes. This usually means someone is guessing passwords.</p><p>Accounts are not locked; attempts are slowed down per address and per IP. Check the audit log for the addresses being targeted.</p>${button(auditLink, 'Open the audit log')}<p>You will get at most one of these emails an hour.</p>`,
+    `<p>The NEAR CMS has had more than ${failures} failed sign-ins in the last ${windowMinutes} minutes. This usually means someone is guessing passwords.</p><p>Accounts are not locked; attempts are slowed down per address and per IP. Recent activity on the dashboard shows the addresses being targeted.</p>${button(dashboardLink, 'Open the CMS dashboard')}<p>You will get at most one of these emails an hour.</p>`,
   )
 
 export const resetEmail = (name: string, link: string) =>

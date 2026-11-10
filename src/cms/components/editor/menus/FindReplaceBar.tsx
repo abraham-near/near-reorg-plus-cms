@@ -29,8 +29,8 @@ export function FindReplaceBar({ editor, onClose }: { editor: Editor,onClose: ()
     editor.view.dispatch(transaction)
   }
   return <div className="flex flex-wrap items-center gap-2 border-b p-3" role="search" aria-label="Find and replace">
-    <Input className="w-40" aria-label="Find text" value={find} onChange={(event) => setFind(event.target.value)} placeholder="Find text" />
-    <Input className="w-40" aria-label="Replacement text" value={replace} onChange={(event) => setReplace(event.target.value)} placeholder="Replace with" />
+    <Input autoFocus onKeyDown={(event) => { if (event.key === 'Escape') onClose() }} className="w-40" aria-label="Find text" value={find} onChange={(event) => setFind(event.target.value)} placeholder="Find text" />
+    <Input onKeyDown={(event) => { if (event.key === 'Escape') onClose() }} className="w-40" aria-label="Replacement text" value={replace} onChange={(event) => setReplace(event.target.value)} placeholder="Replace with" />
     <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={matchCase} onChange={(event) => setMatchCase(event.target.checked)} />Match case</label>
     <span className="text-xs text-muted-foreground" aria-live="polite">{matches.length} matches</span>
     <Button type="button" size="sm" variant="outline" disabled={!matches.length} onClick={() => select(true)}>Previous</Button>
