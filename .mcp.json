@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "near-cms": {
+      "command": "npx",
+      "args": ["--no-install", "tsx", "src/cms/mcp/server.ts"],
+      "env": {
+        "NEAR_CMS_URL": "${NEAR_CMS_URL:-http://localhost:3000}",
+        "NEAR_CMS_UPLOAD_DIR": "${NEAR_CMS_UPLOAD_DIR:-}"
+      }
+    }
+  }
+}

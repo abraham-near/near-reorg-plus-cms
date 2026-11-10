@@ -1,0 +1,377 @@
+/* CMS admin styles. Isolated from the site: the CMS root layout imports only this file. */
+@import "tailwindcss" source(none);
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:is(.dark *));
+
+/* Tailwind scans only the CMS for class names, never the site. */
+@source "../../cms";
+@source "./";
+
+:root {
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.15 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
+  /* NEAR green #43F0AF fails WCAG on white (1.47:1); this darker shade of the same hue gives 5.3:1 with white text and 5.08:1 on the grey surfaces. */
+  --primary: #0a7b50;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.95 0 0);
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: #e6fbf3;
+  --accent-foreground: oklch(0.2 0 0);
+  --destructive: oklch(0.6188 0.2376 25.7658);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: #0a7b50;
+  --brand: #43f0af;
+  --sidebar: oklch(0.975 0 0);
+  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar-primary: #0a7b50;
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.93 0 0);
+  --sidebar-accent-foreground: oklch(0.2 0 0);
+  --sidebar-border: oklch(0.91 0 0);
+  --sidebar-ring: #0a7b50;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #0b0b0b;
+  --foreground: #f5f5f5;
+  --card: #1a1a1a;
+  --card-foreground: #f5f5f5;
+  --popover: #1a1a1a;
+  --popover-foreground: #f5f5f5;
+  /* #43F0AF as is: 13.4:1 with near-black text and on the dark background. */
+  --primary: #43f0af;
+  --primary-foreground: #0b0b0b;
+  --secondary: #272727;
+  --secondary-foreground: #f5f5f5;
+  --muted: #272727;
+  --muted-foreground: #b5b5b5;
+  --accent: #123f2f;
+  --accent-foreground: #f5f5f5;
+  --destructive: oklch(0.6188 0.2376 25.7658);
+  --destructive-foreground: oklch(1 0 0);
+  --border: #3a3a3a;
+  --input: #2a2a2a;
+  --ring: #43f0af;
+  --sidebar: #141414;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #43f0af;
+  --sidebar-primary-foreground: #0b0b0b;
+  --sidebar-accent: #272727;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #272727;
+  --sidebar-ring: #43f0af;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Mona Sans Variable", system-ui, sans-serif;
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  body { background: var(--background); color: var(--foreground); }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+}
+
+/* ── Editor (TipTap) — from near-org-cms styles/admin.css ── */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror .is-empty::before,
+.ProseMirror .is-editor-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+  opacity: 0.5;
+}
+
+/* Task list styles */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1;
+}
+
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Table styles */
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+/* Make tables scrollable horizontally on small screens */
+.ProseMirror > table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  min-width: 80px;
+  position: relative;
+}
+
+.ProseMirror table th {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+.ProseMirror table .selectedCell {
+  background: oklch(from var(--primary) l c h / 0.15);
+}
+
+.ProseMirror table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary);
+  cursor: col-resize;
+  z-index: 10;
+}
+
+/* Column layout styles */
+.ProseMirror div[data-type="column-layout"] {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.ProseMirror div[data-type="column"] {
+  border: 1px dashed transparent;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  min-height: 3rem;
+  transition: border-color 0.15s;
+}
+
+.ProseMirror div[data-type="column"]:hover {
+  border-color: var(--border);
+}
+
+.ProseMirror div[data-type="column"]:focus-within {
+  border-color: var(--primary);
+}
+
+/* Raw HTML block in editor */
+.ProseMirror div[data-type="raw-html"] {
+  margin: 1rem 0;
+}
+
+/* Drag handle */
+.drag-handle-wrapper {
+  position: fixed;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  z-index: 50;
+  user-select: none;
+}
+
+.drag-handle,
+.drag-handle-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  color: var(--muted-foreground);
+  cursor: grab;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.drag-handle:hover,
+.drag-handle-plus:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle-plus {
+  cursor: pointer;
+}
+
+/* Selected node (during drag) */
+.ProseMirror .ProseMirror-selectednode {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.ProseMirror > * {
+  position: relative;
+}
+
+/* Find & Replace highlights */
+.find-match {
+  background-color: #fef08a;
+  color: #000;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.find-match-active {
+  background-color: #facc15;
+  color: #000;
+  border-radius: 2px;
+  padding: 0 2px;
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.dark .find-match {
+  background-color: #713f12;
+  color: #fef08a;
+}
+
+.dark .find-match-active {
+  background-color: #b45309;
+  color: #fef08a;
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+/* Callout styles */
+.callout {
+  border-radius: 0.5rem;
+  border-width: 2px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.callout-info {
+  background-color: #f0f9ff;
+  border-color: #bfdbfe;
+  color: #0c4a6e;
+}
+
+.dark .callout-info {
+  background-color: #082f49;
+  border-color: #0c4a6e;
+  color: #bae6fd;
+}
+
+.callout-warning {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+  color: #713f12;
+}
+
+.dark .callout-warning {
+  background-color: #451a03;
+  border-color: #713f12;
+  color: #fef3c7;
+}
+
+.callout-success {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.dark .callout-success {
+  background-color: #052e16;
+  border-color: #15803d;
+  color: #bbf7d0;
+}
+
+.callout-error {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #9f1239;
+}
+
+.dark .callout-error {
+  background-color: #4c0519;
+  border-color: #9f1239;
+  color: #fecaca;
+}
+
+/* Footnote styles */
+.footnote-marker {
+  font-size: 0.875em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+  top: -0.4em;
+}
+
+.footnote-marker:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
