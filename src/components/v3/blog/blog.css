@@ -1,0 +1,177 @@
+/* v3's blog indexes (/blog-a, /blog-b, /blog-c): the ruled page of /home-v3 (proof-deeper/proof-deeper.css, b10's grid), ported under .bl so it never
+   depends on that file. A page of ruled rows on paper: 1 px hairlines, a + crosshair where lines meet (grid.ts), text 24 px inside its cell, photos fill
+   their cell. Motion only under .bl[data-motion] (grid.ts sets it unless reduced motion); without it every row is simply finished.
+   Each index adds its own layer: a/blog-a.css, b/blog-b.css, c/blog-c.css. */
+.bl {
+  /* b10's tokens (as .l-page) */
+  --ink: #262626; --muted: #5f6669; --graphite: #3d3e3f; --green-text: #00774f;
+  --paper-0: #f5f4f1; --paper-1: #edece8; --paper-2: #e2e1de; --emerald: #00dc8d; --emerald-deep: #00a86b;
+  --line: rgb(38 38 38 / 0.12); --line-strong: rgb(38 38 38 / 0.24); --hair: 1px; --margin: clamp(20px, 5.56vw, 96px);
+  --sans: var(--font-montreal-nav, var(--font-montreal)), ui-sans-serif, system-ui, sans-serif; --sans-display: var(--sans);
+  --text-body: clamp(1rem, 0.929rem + 0.149vw, 1.0625rem); --t-body: var(--text-body); --t-body-lh: 1.55;
+  --t-display: clamp(3rem, 1.514rem + 6.095vw, 7rem); --t-display-lh: 0.96; --t-display-tr: -0.035em;
+  --t-section: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); --t-h2s-lh: 1.04; --t-h2s-tr: -0.025em;
+  --t-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); --t-h3-lh: 1.12; --t-h3-tr: -0.015em;
+  --t-h4: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --t-h4-lh: 1.25; --t-h4-tr: -0.008em;
+  --t-body-l: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --t-body-l-lh: 1.45; --t-body-l-tr: -0.006em;
+  --t-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem); --t-small-lh: 1.45;
+  --t-ui: var(--t-small); --t-ui-lh: 1.2; --t-ui-tr: -0.003em; --t-ui-w: 500;
+  --t-label: 0.8125rem; --t-label-lh: 1.2; --t-label-tr: 0.07em;
+  --t-caption: 0.8125rem; --t-caption-lh: 1.4; --t-caption-tr: 0.01em;
+  --ease-tick: cubic-bezier(0.2, 0, 0, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --l-line: var(--line-strong);   /* rules and dividers */
+  --l-soft: var(--line);          /* lines inside a cell */
+  --l-x: var(--ink);              /* crosshairs */
+  --l-pad: 24px;                  /* text inside its cell */
+  --top: clamp(120px, 15vh, 168px);   /* the first row clears the floating header (16 px inset + 64 px bar) */
+  position: relative; z-index: 3;
+  color: var(--ink); background: var(--paper-0); font-family: var(--sans);
+  padding-bottom: clamp(64px, 10vh, 120px);
+  overflow-x: clip;   /* a bleed's frame is clipped, but its plate may reach past the page: never a horizontal scroll */
+}
+.bl .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:where(.bl) :where(p, h1, h2, h3, figure, ol, ul) { margin: 0; padding: 0; }
+:where(.bl) :where(ol, ul) { list-style: none; }
+:where(.bl) a { color: inherit; text-decoration: none; }
+.bl .bl-nb { white-space: nowrap; }
+
+/* ---------------------------------------------------------------- the geometry */
+.bl-row { position: relative; display: grid; margin: 0 var(--margin); }
+.bl-row::before { content: ""; position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: var(--hair); background: var(--l-line); transform-origin: 0 50%; pointer-events: none; }
+.bl-row::after { content: ""; position: absolute; z-index: 2; inset: 0; border-left: var(--hair) solid var(--l-line); border-right: var(--hair) solid var(--l-line); transform-origin: 50% 0; pointer-events: none; }
+.bl-row--end { border-bottom: var(--hair) solid var(--l-line); }   /* the last row closes on a rule */
+.bl-cell { position: relative; min-width: 0; padding: var(--l-pad); }
+.bl-cell + .bl-cell::before { content: ""; position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; width: var(--hair); background: var(--l-line); transform-origin: 50% 0; pointer-events: none; }
+/* the + : 9 px, ink, 1 px arms, centred on the meeting point (grid.ts places one per meeting) */
+.bl-x { position: absolute; z-index: 3; top: 0; width: 9px; height: 9px; margin: -4px 0 0 -4px; pointer-events: none;
+  background: linear-gradient(var(--l-x), var(--l-x)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 0 50% / 100% var(--hair) no-repeat; }
+
+/* ---------------------------------------------------------------- arrivals (motion only) */
+:where(.bl[data-motion]) .bl-row::before { transform: scaleX(0); }
+:where(.bl[data-motion]) .bl-row::after { transform: scaleY(0); }
+:where(.bl[data-motion]) .bl-row .bl-cell + .bl-cell::before { transform: scaleY(0); }
+:where(.bl[data-motion]) .bl-row .bl-x { opacity: 0; scale: 0.2; rotate: -90deg; }
+:where(.bl[data-motion]) .bl-row [data-rv] { opacity: 0; translate: 0 18px; }
+:where(.bl[data-motion]) .bl-row .bl-ph { clip-path: inset(0 0 100% 0); }
+:where(.bl[data-motion]) .bl-row .bl-ph > .bl-img { scale: 1.12; }
+
+:where(.bl[data-motion]) .bl-row.is-in::before { transform: none; transition: transform 0.9s var(--ease-settle); }
+:where(.bl[data-motion]) .bl-row.is-in::after { transform: none; transition: transform 1.1s var(--ease-settle) 0.05s; }
+:where(.bl[data-motion]) .bl-row.is-in .bl-cell + .bl-cell::before { transform: none; transition: transform 0.9s var(--ease-settle) 0.15s; }
+:where(.bl[data-motion]) .bl-row.is-in .bl-x { opacity: 1; scale: 1; rotate: 0deg;
+  transition: opacity 0.3s var(--ease-settle), scale 0.5s var(--ease-settle), rotate 0.5s var(--ease-settle); transition-delay: calc(0.2s + var(--xd, 0) * 0.4s); }
+:where(.bl[data-motion]) .bl-row.is-in [data-rv] { opacity: 1; translate: none;
+  transition: opacity 0.9s var(--ease-glide) var(--rv, 0.2s), translate 1.1s var(--ease-settle) var(--rv, 0.2s); }
+:where(.bl[data-motion]) .bl-row.is-in .bl-ph { clip-path: inset(0); transition: clip-path 1.4s var(--ease-settle) 0.15s; }
+:where(.bl[data-motion]) .bl-row.is-in .bl-ph > .bl-img { scale: 1; transition: scale 2s var(--ease-settle) 0.15s, filter 0.2s var(--ease-tick); }
+/* a row already above the view, or one that appears in view after a filter change: no draw (its content has its own keyframes) */
+:where(.bl[data-motion]) .bl-row.is-now::before, :where(.bl[data-motion]) .bl-row.is-now::after,
+:where(.bl[data-motion]) .bl-row.is-now *, :where(.bl[data-motion]) .bl-row.is-now .bl-cell::before { transition: none !important; }
+/* the first row of the page is always drawn: the page starts on it */
+:where(.bl[data-motion]) .bl-row[data-start]::before, :where(.bl[data-motion]) .bl-row[data-start]::after { transform: none; transition: none; }
+
+/* re-shown content (a filter change, Load more): photos open, text rises, in turn (--j) */
+@keyframes bl-open { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+@keyframes bl-zoom { from { scale: 1.1; } to { scale: 1; } }
+@keyframes bl-rise { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: none; } }
+:where(.bl[data-motion]) .is-shown .bl-ph { animation: bl-open 1.1s var(--ease-settle) both; animation-delay: calc(var(--j, 0) * 0.06s); }
+:where(.bl[data-motion]) .is-shown .bl-ph > .bl-img { animation: bl-zoom 1.6s var(--ease-settle) both; }
+:where(.bl[data-motion]) .is-shown [data-rise] { animation: bl-rise 0.7s var(--ease-settle) both; animation-delay: calc(0.1s + var(--j, 0) * 0.05s); }
+
+/* ---------------------------------------------------------------- photos: muted, their own green line is the kick */
+.bl-ph { position: relative; overflow: hidden; background: var(--paper-2); }
+.bl-img { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; display: block;
+  filter: saturate(0.8) contrast(0.97) brightness(1.01); transition: filter 0.2s var(--ease-tick); }
+
+/* ---------------------------------------------------------------- type */
+.bl-display { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.bl-h2 { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); text-wrap: balance; }
+.bl-lede { font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); max-width: 30em; text-wrap: pretty; }
+.bl .t-label { font-family: var(--sans); font-weight: 500; text-transform: uppercase; color: var(--muted); font-size: var(--t-label); line-height: var(--t-label-lh); letter-spacing: var(--t-label-tr); }
+/* the Kepler accent: Light Italic (v3's --font-acc, styles/versions.css) */
+.bl .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; font-size: var(--accent-scale, 1.18em); letter-spacing: var(--tracking-accent, -0.02em); line-height: 0; }
+.bl :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* ---------------------------------------------------------------- links and buttons (b10's .l-link / .l-btn): drawn arrows, a hairline that sweeps in, the dot */
+.bl-arr { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ease-tick); }
+.bl-ext { width: 10px; height: 10px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.2; transition: translate 0.24s var(--ease-tick); }
+.bl-link { display: inline-flex; align-items: center; gap: 10px; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); padding: 6px 0; color: var(--ink);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
+.bl-btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 24px; border: 0; border-radius: 999px; cursor: pointer;
+  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink);
+  transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick), padding 0.3s var(--ease-settle); }
+.bl-btn::before { /* the b4 dot: opens before the label on hover */
+  content: ""; position: absolute; left: 20px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
+  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+.bl-btn--ink { color: var(--paper-0); background: var(--ink); }
+.bl-btn--paper { box-shadow: none; background: var(--paper-0); }
+@media (hover: hover) {
+  .bl-btn:hover { padding-left: 38px; color: var(--paper-0); background: var(--ink); }
+  .bl-btn:hover::before { transform: scale(1); }
+  .bl-btn:hover .bl-arr { translate: 3px 0; }
+  .bl-link:hover { background-size: 100% var(--hair); }
+  .bl-link:hover .bl-arr { translate: 4px 0; }
+}
+.bl-btn:focus-visible { padding-left: 38px; color: var(--paper-0); background: var(--ink); }
+.bl-btn:focus-visible::before { transform: scale(1); }
+.bl-link:focus-visible { background-size: 100% var(--hair); }
+
+/* ---------------------------------------------------------------- the filters (b10's .l-tabs): the chosen one inks up, the green dot slides to it */
+.bl-tabs { position: relative; display: flex; flex-wrap: wrap; gap: 4px 28px; padding-left: 14px; }
+.bl-tab { display: inline-flex; align-items: baseline; gap: 6px; padding: 10px 0; border: 0; background: none; cursor: pointer;
+  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--muted); transition: color 0.2s var(--ease-tick); }
+.bl-tab[aria-selected="true"], .bl-tab:hover { color: var(--ink); }
+.bl-tab__n { font-size: var(--t-caption); font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bl-tabs__dot { position: absolute; left: 0; top: 0; width: 6px; height: 6px; translate: 0 19px; border-radius: 50%; background: var(--emerald); transition: translate 0.6s var(--ease-settle); }
+.bl .bl-tab:focus-visible { outline-offset: 2px; border-radius: 2px; }
+
+/* ---------------------------------------------------------------- a post card (A's grid, B's rows): the photo inside its cell with air on three sides,
+   the label, the title, the source; hover tones the whole cell, a green dot opens before the label, the arrow steps in */
+.bl-card { position: relative; isolation: isolate; display: flex; flex-direction: column; height: 100%; }
+.bl-card::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); opacity: 0; transition: opacity 0.25s var(--ease-tick); }
+.bl-card__a { display: flex; flex-direction: column; flex: 1 1 auto; padding: var(--l-pad) var(--l-pad) 28px; }
+.bl-card__ph { aspect-ratio: 16 / 10; }
+.bl-card__body { display: flex; flex-direction: column; flex: 1 1 auto; padding-top: 20px; }
+.bl-card__t { display: block; margin-top: 12px; max-width: 22em; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); text-wrap: balance; }
+.bl-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 16px; }
+.bl-card__src { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+.bl-card__go { flex: none; opacity: 0; translate: -6px 0; transition: opacity 0.2s var(--ease-tick), translate 0.3s var(--ease-settle); }
+.bl-card__note { padding: 0 var(--l-pad) 24px; margin-top: -8px; font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.bl-meta { display: flex; align-items: center; gap: 10px; }
+.bl-meta::before { /* hover: a green dot opens before the label (b7) */
+  content: ""; display: inline-block; flex: none; width: 0; height: 6px; margin-right: -10px; border-radius: 50%; background: var(--emerald); scale: 0;
+  transition: scale 0.3s var(--ease-settle), width 0.3s var(--ease-settle), margin 0.3s var(--ease-settle); }
+.bl-glyph { display: block; flex: none; width: 18px; height: 18px; color: var(--ink); }
+.bl-play { position: absolute; z-index: 3; left: calc(var(--l-pad) + 16px); top: calc(var(--l-pad) + 16px); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  background: rgb(245 244 241 / 0.92); color: var(--ink); transition: scale 0.3s var(--ease-settle); pointer-events: none; }
+.bl-play i { display: block; width: 20px; height: 20px; }
+.bl-play i:empty::after { content: ""; display: block; width: 0; height: 0; margin: 4px 0 0 7px; border-style: solid; border-width: 6px 0 6px 9px; border-color: transparent transparent transparent currentColor; }
+.bl-card__a:focus-visible { outline: none; }
+.bl-card:has(.bl-card__a:focus-visible) { outline: 2px solid var(--ink); outline-offset: -2px; }
+.bl-card:has(.bl-card__a:focus-visible)::before { opacity: 1; }
+.bl-card__a:focus-visible .bl-card__go { opacity: 1; translate: none; }
+@media (hover: hover) {
+  .bl-card:has(.bl-card__a:hover)::before { opacity: 1; }
+  .bl-card__a:hover .bl-img { scale: 1.035; filter: saturate(1) contrast(1); transition: scale 1s var(--ease-settle), filter 0.2s var(--ease-tick); }
+  .bl-card__a:hover .bl-meta::before { width: 6px; margin-right: 0; scale: 1; }
+  .bl-card__a:hover .bl-card__go { opacity: 1; translate: none; }
+  .bl-card__a:hover .bl-play { scale: 1.08; }
+}
+
+/* ---------------------------------------------------------------- b10's line icons (header/icons.ts draws them): hairline ink, one green element */
+:where(.bl i[data-icon]) { display: inline-block; flex: none; width: 24px; height: 24px; line-height: 0; font-style: normal; vertical-align: middle; color: inherit; }
+.bl .ic { display: block; width: 100%; height: 100%; overflow: visible; }
+.bl .ic-ln * { fill: none; stroke: currentColor; stroke-width: var(--ic-sw, 1.25); stroke-linecap: round; stroke-linejoin: round; }
+.bl .ic-dots circle, .bl .ic-f { fill: currentColor; stroke: none; }
+.bl .ic-g { fill: var(--ic-green, #00dc8d); stroke: none; transform-box: fill-box; transform-origin: center; }
+
+/* below 860: one column; cells stack, each under a soft rule instead of a divider */
+@media (max-width: 859px) {
+  .bl { --l-pad: 20px; }
+  .bl-cell + .bl-cell::before { left: 0; right: 0; bottom: auto; width: auto; height: var(--hair); background: var(--l-soft); }
+  .bl-tabs { gap: 2px 22px; }
+}
+@media (min-resolution: 2dppx) { .bl { --hair: 0.5px; } }
+@media (prefers-reduced-motion: reduce) {
+  .bl *, .bl *::before, .bl *::after { transition-duration: 0.01ms !important; animation: none !important; }
+}

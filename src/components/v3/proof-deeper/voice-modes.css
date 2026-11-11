@@ -1,0 +1,75 @@
+/* v4's options for the voices (ProofDeeper data-vmode; voice-modes.ts). v3 has no data-vmode: none of this applies to it.
+   Marquee and pins keep the section to one screen: the bleed opens and closes around them like any other photo. (A short and D deck: motion.ts.) */
+
+/* the photo as rich as in the scene (the plain bleed's veil is for stacked voices): only the soft mist at the top left */
+.l-voices__bleed.is-mode:is([data-vmode="pins"], [data-vmode="marquee"]) .l-voices__stage::before {
+  background: radial-gradient(120% 90% at 0% 0%, rgb(245 244 241 / 0.62) 0%, rgb(245 244 241 / 0.32) 38%, rgb(245 244 241 / 0) 66%); }
+
+/* ---------------------------------------------------------------- B · marquee: two rows of glass cards sliding across */
+.l-voices__bleed[data-vmode="marquee"] .l-voices__in { padding-bottom: clamp(64px, 10vh, 120px); }
+.l-mq { display: flex; flex-direction: column; gap: 16px; margin-top: clamp(40px, 7vh, 80px); margin-inline: calc(-1 * (var(--margin) + var(--l-pad))); }
+.l-mq__row { overflow: hidden; }
+.l-mq__track { display: flex; gap: 16px; width: max-content; }
+.l-mq__q { flex: none; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; width: clamp(300px, 30vw, 460px); min-height: clamp(200px, 25vh, 250px);
+  margin: 0; padding: 28px 28px 24px; background: rgb(245 244 241 / 0.74); border: 1px solid rgb(255 255 255 / 0.5);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1); backdrop-filter: blur(14px) saturate(1.1); transition: background 0.3s ease; }
+.l-mq__q blockquote p { font-family: var(--sans-display); font-weight: 400; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); color: var(--ink); text-wrap: balance; }
+@media (hover: hover) { .l-mq__q:hover { background: rgb(245 244 241 / 0.94); } }
+.is-mode .l-mq__track { will-change: transform; }
+/* no motion: the cards wrap on the grid, once */
+.l-voices__bleed:not(.is-mode) .l-mq { margin-inline: 0; }
+.l-voices__bleed:not(.is-mode) .l-mq__track { width: auto; flex-wrap: wrap; }
+.l-voices__bleed:not(.is-mode) .l-mq__q[aria-hidden] { display: none; }
+
+/* ---------------------------------------------------------------- C · pins: each voice a pin on the ridges
+   The pin on: green, its square ring fills as it plays; a line draws from it up to its words and across to the end of the caption, a green dot at the end;
+   the words come in one after another out of a blur, the caption slides in after them and its dot pops; the photo leans towards the pin.
+   Pins idle with a soft pulse; pointing at one shows its name. No motion: the pins and the line are gone, the voices stacked. */
+.l-pins, .l-pinline { display: none; }
+.l-voices__bleed.is-mode[data-vmode="pins"] { height: 100vh; height: 100svh; min-height: 620px; }
+.is-mode[data-vmode="pins"] .l-voices__in { height: 100%; padding-bottom: 0; }
+.is-mode[data-vmode="pins"] .l-voices__count { display: inline-flex; }
+.is-mode[data-vmode="pins"] .l-voices__nn { transition: transform 0.6s var(--ease-settle, cubic-bezier(.2,.7,.2,1)); }
+.is-mode[data-vmode="pins"] .l-voices__qs { display: grid; }
+.l-voices__bleed.is-mode[data-vmode="pins"] .l-vq { grid-area: 1 / 1; pointer-events: none; }
+.l-voices__bleed.is-mode[data-vmode="pins"] .l-vq[data-on] { pointer-events: auto; }
+/* the words: out of a blur, one after another (--i), then up and away when the next voice comes */
+.is-mode[data-vmode="pins"] .l-w { display: inline-block; text-indent: 0; opacity: 0; translate: 0 0.42em; filter: blur(8px);
+  transition: opacity 0.3s ease-in, translate 0.35s ease-in, filter 0.3s ease-in; }
+.is-mode[data-vmode="pins"] .l-vq[data-out] .l-w { translate: 0 -0.3em; transition-delay: calc(var(--i) * 12ms); }
+.is-mode[data-vmode="pins"] .l-vq[data-on] .l-w { opacity: 1; translate: none; filter: none;
+  transition: opacity 0.55s ease calc(0.3s + var(--i) * 55ms), translate 0.8s var(--ease-settle, cubic-bezier(.2,.7,.2,1)) calc(0.3s + var(--i) * 55ms), filter 0.6s ease calc(0.3s + var(--i) * 55ms); }
+.is-mode[data-vmode="pins"] .l-vq .l-who { opacity: 0; translate: -14px 0; transition: opacity 0.25s ease, translate 0.3s ease-in; }
+.is-mode[data-vmode="pins"] .l-vq[data-on] .l-who { opacity: 1; translate: none; transition: opacity 0.6s ease 0.85s, translate 0.8s var(--ease-settle, cubic-bezier(.2,.7,.2,1)) 0.85s; }
+.is-mode[data-vmode="pins"] .l-vq .l-who__dot { scale: 0; transition: scale 0.2s ease; }
+.is-mode[data-vmode="pins"] .l-vq[data-on] .l-who__dot { scale: 1; transition: scale 0.5s cubic-bezier(.34,1.7,.64,1) 1.05s; }
+/* the photo leans towards the pin on */
+.is-mode[data-vmode="pins"] .l-plate > .l-img { transform: translate(var(--px, 0%), var(--py, 0%)) scale(1.06); transition: transform 2.8s cubic-bezier(.2,.7,.2,1); }
+/* the pins */
+.is-mode[data-vmode="pins"] .l-pins { display: block; position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.l-pin { position: absolute; display: grid; place-items: center; width: 36px; height: 36px; translate: -50% -50%; padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto; }
+.l-pin::before { content: ""; position: absolute; inset: 11px; border: 1px solid rgb(245 244 241 / 0.85); animation: l-pin-pulse 2.8s cubic-bezier(.2,.7,.2,1) infinite; }
+.l-pin:nth-child(2n)::before { animation-delay: 1.4s; }
+.l-pin:nth-child(3n)::before { animation-delay: 0.7s; }
+@keyframes l-pin-pulse { 0% { scale: 0.7; opacity: 0.9; } 100% { scale: 2.6; opacity: 0; } }
+.l-pin__dot { width: 10px; height: 10px; background: var(--paper-0, #F5F4F1); box-shadow: 0 0 0 1px rgb(38 38 38 / 0.55);
+  transition: background 0.3s ease, scale 0.45s cubic-bezier(.34,1.7,.64,1), box-shadow 0.3s ease; }
+.l-pin[aria-current] .l-pin__dot { background: var(--emerald, #00B377); scale: 1.3; box-shadow: 0 0 0 1px rgb(38 38 38 / 0.7); }
+.l-pin[aria-current]::before { border-color: var(--emerald, #00B377); }
+.l-pin__ring { position: absolute; inset: 0; width: 36px; height: 36px; overflow: visible; opacity: 0; scale: 0.6; transition: opacity 0.3s ease, scale 0.45s cubic-bezier(.34,1.56,.64,1); }
+.l-pin__ring rect { fill: rgb(245 244 241 / 0.18); stroke: var(--paper-0, #F5F4F1); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.l-pin[aria-current] .l-pin__ring { opacity: 1; scale: 1; }
+.l-pin__tag { position: absolute; left: 50%; bottom: calc(100% + 4px); translate: -50% 6px; padding: 5px 9px; white-space: nowrap; pointer-events: none;
+  font: var(--t-ui-w) var(--t-small)/1 var(--sans); letter-spacing: var(--t-ui-tr); color: var(--ink); background: rgb(245 244 241 / 0.92); opacity: 0;
+  transition: opacity 0.2s ease, translate 0.3s var(--ease-settle, cubic-bezier(.2,.7,.2,1)); }
+@media (hover: hover) { .l-pin:hover .l-pin__tag { opacity: 1; translate: -50% 0; } .l-pin:hover .l-pin__dot { scale: 1.4; } }
+.l-pin:focus-visible { outline: none; }
+.l-pin:focus-visible .l-pin__tag { opacity: 1; translate: -50% 0; }
+.l-pin:focus-visible .l-pin__dot { box-shadow: 0 0 0 2px var(--ink); }
+/* the line from the pin on to its words */
+.is-mode[data-vmode="pins"] .l-pinline { display: block; position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.l-pinline path { fill: none; stroke: var(--ink); stroke-opacity: 0.5; stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.l-pinline.is-draw path { stroke-dashoffset: 0; transition: stroke-dashoffset 1.1s cubic-bezier(.65,0,.35,1) 0.15s; }
+.l-pinline circle { fill: var(--emerald, #00B377); scale: 0; transform-box: fill-box; transform-origin: center; }
+.l-pinline.is-draw circle { scale: 1; transition: scale 0.45s cubic-bezier(.34,1.7,.64,1) 1.2s; }
+@media (max-width: 859px) { .is-mode[data-vmode="pins"] .l-pinline { display: none; } }

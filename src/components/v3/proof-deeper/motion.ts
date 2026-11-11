@@ -5,17 +5,22 @@
 //   - photos drift a little inside their frames (parallax, ±6 % of their height), only near the view;
 //   - Go deeper: the filter tablist (click, arrows, Home / End); the green dot slides to the chosen tab, the new panel's photos open again;
 //   - the icons (b10's line icons): drawn from dots as they come into view;
-//   - the voices' full-bleed photo: its text rises once a third of it is in; the photo moves slower than the page and settles from 1.1; and (v3) it opens from
+//   - the voices (v3, desktop, motion on: gsap, one scrubbed timeline over the bleed): the stage holds for 200 vh; the frame opens to the whole screen as it
+//     arrives and closes as it leaves; the three voices take turns in the sky, line by line (splitLines, below), each drifting a little against the ridges, which
+//     settle from 1.22 and slide slower than the words (the parallax); the count and its bars follow. Phones and reduced motion: the three stacked, no hold;
+//   - any other full-bleed photo: its text rises once a third of it is in; the photo moves slower than the page and settles from 1.1; and (v3) it opens from
 //     the grid's width to the whole screen as it reaches the middle of the view, holds, and closes again as it leaves (--shut, scrubbed; reduced motion: it stays
 //     at the grid's width);
 //   - NEAR belongs to you (desktop, motion on): one scene. The bleed is 200 vh and its stage sticks for the extra 100 vh. As the stage arrives the client's
 //     lockup stands large in the sky (the N tile settles, the letters rise, once); while it holds, the lockup glides down to the headline's size and place and
 //     `belongs to you` opens out of its right edge, word by word (scrubbed). The meadow eases from 1.08 to 1 and drifts. (v3) Its frame opens from the grid's
-//     width to the whole screen as the scene arrives, stays open while it holds, and closes as it leaves. Phones and reduced motion: the finished line.
+//     width to the whole screen as the scene arrives and stays open; the newsletter arrives under the line once the words have opened, and the stage holds
+//     100 vh more while the footer rises over it from below. Phones and reduced motion: the finished line and the newsletter, no hold.
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { mountIcons } from "../header/icons";
+import { mountVoiceMode } from "./voice-modes";
 
-export function mount(root: HTMLElement, { reduced }: MotionCtx) {
+export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: MotionCtx) {
   const ac = new AbortController(), on = { signal: ac.signal }, onP = { signal: ac.signal, passive: true };
   const $$ = <T extends HTMLElement = HTMLElement>(s: string, el: ParentNode = root) => [...el.querySelectorAll<T>(s)];
   const rows = $$("[data-row]");
@@ -79,7 +84,7 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
     root.addEventListener("focusin", (e) => { const r = (e.target as Element).closest?.("[data-row]"); if (r && !r.classList.contains("is-in")) r.classList.add("is-in", "is-now"); }, on);
   }
 
-  const closeScene = { on: false };
+  const closeScene = { on: false }, voices = { on: false };
   /* ── parallax: each framed photo drifts inside its frame (the image is 116 % of the frame); a full-bleed one moves slower than the page (≈ 0.88 speed)
      and settles from 1.1 to 1 as it comes up, and its frame opens to the whole screen around the middle of the view ── */
   const ss = (a: number, b: number, x: number) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -97,9 +102,10 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
       near.forEach((p) => list.push([p, p.getBoundingClientRect()]));
       list.forEach(([p, r]) => {
         const bleed = p.closest<HTMLElement>("[data-bleed]");
-        if (bleed && bleed.hasAttribute("data-close") && closeScene.on) {   // the scene moves its own photo; its frame opens for the length of the scene
+        if (bleed && voices.on && bleed.hasAttribute("data-voices")) return;   // the voices' scene moves its own photo (gsap, below)
+        if (bleed && bleed.hasAttribute("data-close") && closeScene.on) {   // the scene moves its own photo; its frame opens as it arrives and stays open (the footer covers it)
           const b = bleed.getBoundingClientRect(), c01 = (x: number) => Math.max(0, Math.min(1, x));
-          const shut = (1 - ss(0.15, 0.75, c01((vh - b.top) / vh)) * (1 - ss(0.2, 0.8, c01((vh - b.bottom) / vh)))).toFixed(4);
+          const shut = (1 - ss(0.15, 0.75, c01((vh - b.top) / vh))).toFixed(4);
           if (memo.get(bleed) !== shut) { memo.set(bleed, shut); bleed.style.setProperty("--shut", shut); }
           return;
         }
@@ -120,12 +126,101 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
     raf = requestAnimationFrame(tick);
   }
 
+  /* ── the voices: one scene (gsap) ── */
+  const vb = root.querySelector<HTMLElement>("[data-voices]");
+  /* v4's options (data-vmode): marquee / pins play without the scene (voice-modes.ts; the photo is the plain bleed's); short and deck are the scene, shorter */
+  const vmode = vb?.dataset.vmode || "", deck = vmode === "deck", short = vmode === "short";
+  const vOff = vb && (vmode === "marquee" || vmode === "pins") ? mountVoiceMode(vb, vmode, reduced) : null;
+  let mm: gsap.MatchMedia | null = null;
+  if (vb && !reduced && !vOff) {
+    mm = gsap.matchMedia();
+    mm.add("(min-width: 860px)", () => {
+      voices.on = true; vb.classList.add("is-scene");
+      const plate = vb.querySelector<HTMLElement>(".l-plate"), top = vb.querySelector<HTMLElement>(".l-voices__top");
+      const nn = vb.querySelector<HTMLElement>(".l-voices__nn"), bars = [...vb.querySelectorAll<HTMLElement>(".l-voices__bars b")];
+      const qs = [...vb.querySelectorAll<HTMLElement>(".l-vq")];
+      // the timeline in vh of scroll: 0–100 the stage comes up, 100–300 it holds, 300–400 it leaves (three voices, v3's values).
+      // More voices (v4: six): the hold grows 85 vh a voice (--scene-h), each comes in evenly and goes 20 vh before the next.
+      // short (v4 A): the same scene in 340 vh (v4's six in the long one: 655), a voice every 36 vh, its moves at 0.6 of the time.
+      // deck (v4 D): 280 vh, a voice every 24 vh, each sliding in from the right as the last slides out to the left.
+      const n = qs.length, T = deck ? 280 : short ? 340 : n === 3 ? 400 : 400 + (n - 3) * 85, END = T - 100, K = deck ? 0.5 : short ? 0.6 : 1;
+      const IN = deck || short ? qs.map((_, i) => Math.round(54 + (i * (T - 105 - 54)) / Math.max(1, n - 1)))
+        : n === 3 ? [58, 158, 236] : qs.map((_, i) => Math.round(58 + (i * (T - 222)) / Math.max(1, n - 1)));
+      const OUT = deck ? IN.slice(1).map((v) => v - 6) : short ? IN.slice(1).map((v) => v - 12) : n === 3 ? [138, 218] : IN.slice(1).map((v) => v - 20);
+      if (n !== 3 || deck || short) vb.style.setProperty("--scene-h", `${END}vh`);
+      let tl: gsap.core.Timeline | null = null;
+      const build = () => {
+        if (tl) { tl.scrollTrigger?.kill(); tl.revert(); }
+        tl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: vb, start: "top bottom", end: "bottom top", scrub: 0.7, invalidateOnRefresh: true } });
+        tl.set({}, {}, T);
+        // the frame: grid width → the whole screen as it arrives, back as it leaves
+        tl.fromTo(vb, { "--shut": 1 }, { "--shut": 0, duration: 55, ease: "power2.inOut" }, 18).to(vb, { "--shut": 1, duration: 55, ease: "power2.inOut" }, T - 72);
+        // the ridges: slower than the words, settling as they go
+        if (plate) tl.fromTo(plate, { yPercent: 7, xPercent: 1.5, scale: 1.22 }, { yPercent: -7, xPercent: -1.5, scale: 1.04, duration: T }, 0);
+        if (top) tl.fromTo(top, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 30, ease: "power2.out" }, 46);
+        // the count: 01 → 02 → 03…, each bar fills through its voice
+        if (nn) OUT.forEach((o, k) => tl!.to(nn, { yPercent: (-100 * (k + 1)) / n, duration: 18 * K, ease: "power2.inOut" }, o + 10 * K));
+        bars.forEach((b, i) => tl!.fromTo(b, { scaleX: 0 }, { scaleX: 1, duration: (OUT[i] ?? END) - IN[i] }, IN[i]));
+        // the voices, line by line; each drifts against the photo while it is on
+        qs.forEach((q, i) => {
+          const lines = q.querySelectorAll(".l-vl"), who = q.querySelector(".l-who"), a = IN[i], o = OUT[i];
+          // the hidden state at 0 (a staggered fromTo only renders its first target's start)
+          if (deck) {
+            // deck: the lines come in from the right one after another and leave to the left the same way; the first is on as the stage comes up
+            tl!.set(lines, { x: 120, autoAlpha: 0 }, 0);
+            if (who) tl!.set(who, { x: 60, autoAlpha: 0 }, 0);
+            tl!.to(lines, { x: 0, autoAlpha: 1, duration: 14, stagger: 2, ease: "power3.out" }, a);
+            if (who) tl!.to(who, { x: 0, autoAlpha: 1, duration: 10, ease: "power2.out" }, a + 6);
+            if (o !== undefined) {
+              tl!.to(lines, { x: -120, autoAlpha: 0, duration: 9, stagger: 1.5, ease: "power2.in" }, o);
+              if (who) tl!.to(who, { x: -60, autoAlpha: 0, duration: 7, ease: "power1.in" }, o);
+            }
+            return;
+          }
+          tl!.set(lines, { yPercent: 70, autoAlpha: 0 }, 0);
+          if (who) tl!.set(who, { y: 16, autoAlpha: 0 }, 0);
+          tl!.to(lines, { yPercent: 0, autoAlpha: 1, duration: 30 * K, stagger: 5 * K, ease: "power3.out" }, a);
+          if (who) tl!.to(who, { y: 0, autoAlpha: 1, duration: 20 * K, ease: "power2.out" }, a + 20 * K);
+          tl!.fromTo(q, { y: 40 }, { y: o === undefined ? 0 : -40, duration: (o === undefined ? END : o + 24 * K) - a }, a);
+          if (o !== undefined) {
+            tl!.to(lines, { yPercent: -50, autoAlpha: 0, duration: 20 * K, stagger: 3 * K, ease: "power2.in" }, o);
+            if (who) tl!.to(who, { y: -10, autoAlpha: 0, duration: 14 * K, ease: "power1.in" }, o);
+          }
+        });
+      };
+      // split into lines once the fonts are in, and again when the width changes (the old timeline goes first, then the old lines)
+      const ps = qs.map((q) => q.querySelector("p")!);
+      let unsplit: (() => void)[] = [], w = 0, vt = 0, live = true;
+      const resplit = () => {
+        if (!live) return;
+        if (tl) { tl.scrollTrigger?.kill(); tl.revert(); tl = null; }
+        unsplit.forEach((f) => f()); w = innerWidth;
+        unsplit = ps.map(splitLines);
+        build(); ScrollTrigger.refresh();
+      };
+      const onRz = () => { clearTimeout(vt); vt = window.setTimeout(() => { if (innerWidth !== w) resplit(); }, 160); };
+      const onFont = () => { clearTimeout(vt); vt = window.setTimeout(resplit, 60); };   // a face that lands late (the header's) changes the line breaks
+      resplit();
+      document.fonts?.ready.then(onFont);
+      document.fonts?.addEventListener("loadingdone", onFont);
+      addEventListener("resize", onRz);
+      return () => {
+        live = false; clearTimeout(vt); removeEventListener("resize", onRz); document.fonts?.removeEventListener("loadingdone", onFont);
+        if (tl) { tl.scrollTrigger?.kill(); tl.revert(); tl = null; }
+        unsplit.forEach((f) => f()); unsplit = []; vb.classList.remove("is-scene"); vb.style.removeProperty("--shut"); vb.style.removeProperty("--scene-h"); voices.on = false;
+        if (plate) memo.delete(plate);
+        memo.delete(vb);
+      };
+    });
+  }
+
   /* ── NEAR belongs to you: the scene ── */
   const sc = root.querySelector<HTMLElement>("[data-close]");
   let sraf = 0;
   if (sc) {
     const stage = sc.querySelector<HTMLElement>(".l-close__stage")!, plate = sc.querySelector<HTMLElement>(".l-plate"), line = sc.querySelector<HTMLElement>(".l-close__h")!;
     const logo = sc.querySelector<HTMLElement>(".l-close__logo")!, rest = sc.querySelector<HTMLElement>(".l-close__rest")!, words = [...sc.querySelectorAll<HTMLElement>(".l-close__w")];
+    const nl = sc.querySelector<HTMLElement>(".l-close__nl");
     const c01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v), io3 = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), o3 = (t: number) => 1 - Math.pow(1 - t, 3);
     let g: { k: number; w: number; h: number; gap: number; rw: number; dx: number; dy: number } | null = null, last = "", init = false;
     const measure = () => {   // the lockup's start, measured untransformed
@@ -139,6 +234,8 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
     const want = () => !reduced && innerWidth >= 860;
     const setOn = (v: boolean) => {
       closeScene.on = v; sc.classList.toggle("is-scene", v);
+      document.documentElement.toggleAttribute("data-close-cover", v);   // the footer rises over the held stage (footer.css)
+      if (nl) { nl.inert = false; sc.style.removeProperty("--nl"); }
       if (!v) {
         logo.style.transform = ""; line.style.transform = ""; rest.style.transform = ""; rest.style.maskImage = rest.style.webkitMaskImage = "";
         words.forEach((w) => { w.style.transform = ""; }); if (plate) plate.style.transform = "";
@@ -149,7 +246,7 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
       if (!closeScene.on || !g) return;
       const vh = innerHeight, r = sc.getBoundingClientRect();
       if (r.bottom < -vh * 0.2 || r.top > vh * 1.2) return;
-      const hold = Math.max(1, r.height - stage.offsetHeight), p = c01(-r.top / hold), T = c01((vh - r.top) / (r.height + vh));
+      const hold = Math.max(1, stage.offsetHeight), p = c01(-r.top / hold), T = c01((vh - r.top) / (r.height + vh));   // the line's hold: the first 100 vh (the rest is the footer's cover)
       if (!sc.classList.contains("is-lit") && r.top < vh * 0.55) sc.classList.add("is-lit");
       const e = io3(c01(p / 0.5)), u = 1 - e, k = 1 + (g.k - 1) * u;
       const rv = o3(c01((p - 0.28) / 0.34));
@@ -164,6 +261,8 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
       const m = rv >= 0.999 ? "" : `linear-gradient(90deg, #000 calc(${(rv * 100).toFixed(2)}% - 1.2em), transparent ${(rv * 100).toFixed(2)}%)`;   // a soft edge
       rest.style.maskImage = rest.style.webkitMaskImage = m;
       words.forEach((w, i) => { const t = o3(c01((p - 0.3 - i * 0.07) / 0.26)); w.style.transform = t >= 0.999 ? "" : `translate3d(${((t - 1) * 0.14).toFixed(3)}em, 0, 0)`; });
+      // v3: the newsletter arrives under the line once the words have opened
+      if (nl) { const n = o3(c01((p - 0.62) / 0.3)); sc.style.setProperty("--nl", n.toFixed(4)); nl.inert = n < 0.5; }
       line.style.transform = `translate3d(0, ${((0.5 - T) * vh * 0.07).toFixed(1)}px, 0)`;
       // the meadow keeps moving through the hold (≈ 1.06 → 1.01 while pinned)
       if (plate) plate.style.transform = `translate3d(0, ${((0.5 - T) * vh * 0.14).toFixed(1)}px, 0) scale(${(1 + 0.08 * (1 - c01((T - 0.2) / 0.55))).toFixed(4)})`;
@@ -206,9 +305,11 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
   place();
 
   return () => {
-    dead = true; ac.abort(); cancelAnimationFrame(raf); cancelAnimationFrame(sraf);
+    dead = true; ac.abort(); cancelAnimationFrame(raf); cancelAnimationFrame(sraf); mm?.revert(); vOff?.();
     if (sc) {
-      sc.classList.remove("is-scene", "is-lit");
+      sc.classList.remove("is-scene", "is-lit"); sc.style.removeProperty("--nl");
+      document.documentElement.removeAttribute("data-close-cover");
+      const nl = sc.querySelector<HTMLElement>(".l-close__nl"); if (nl) nl.inert = false;
       sc.querySelectorAll<HTMLElement>(".l-close__logo, .l-close__h, .l-close__rest, .l-close__w, .l-plate").forEach((el) => { el.style.transform = ""; el.style.maskImage = el.style.webkitMaskImage = ""; });
     } clearTimeout(rz); timers.forEach(clearTimeout);
     io?.disconnect(); bio?.disconnect(); dio.disconnect(); pio.disconnect(); icons.dispose();
@@ -218,4 +319,28 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
     bleeds.forEach((b) => b.style.removeProperty("--shut"));
     $$("[data-ph]").forEach((p) => { const f = p.firstElementChild as HTMLElement; f.style.translate = ""; f.style.transform = ""; });
   };
+}
+
+/** the lines of a short text, as the browser broke them: each word (or a no-break group) measured in place, then one block span per line (.l-vl).
+ *  Returns the undo. (gsap's SplitText mis-grouped these balanced, hanging quotes.) */
+function splitLines(p: HTMLElement): () => void {
+  const html = p.innerHTML, words: HTMLElement[] = [], frag = document.createDocumentFragment();
+  [...p.childNodes].forEach((n) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      (n.textContent || "").split(/(\s+)/).forEach((t) => {
+        if (!t) return;
+        if (/^\s+$/.test(t)) { frag.append(" "); return; }
+        const s = document.createElement("span"); s.textContent = t; words.push(s); frag.append(s);
+      });
+    } else { const s = document.createElement("span"); s.append(n.cloneNode(true)); words.push(s); frag.append(s); }
+  });
+  p.replaceChildren(frag);
+  const lines: HTMLElement[][] = []; let top = -1e9;
+  words.forEach((w) => { const t = w.offsetTop; if (t > top + 2) { lines.push([]); top = t; } lines[lines.length - 1].push(w); });
+  p.replaceChildren(...lines.map((l) => {
+    const d = document.createElement("span"); d.className = "l-vl";
+    l.forEach((w, i) => { if (i) d.append(" "); d.append(...w.childNodes); });
+    return d;
+  }));
+  return () => { p.innerHTML = html; };
 }

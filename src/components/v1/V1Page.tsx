@@ -20,8 +20,11 @@ import { V1Boot } from "./V1Boot";
 import { V1Gate } from "./V1Gate";
 import { HEAD } from "./world/head";
 
-/** v, header, afterStack and footer: v3 is this page in its own values (data-version="v3") with its own header and its own proof strip, Go deeper, Origin, voices, Get into NEAR and Close, and its own footer (components/v3) */
-export function V1Page({ v = "v1", header, afterStack, footer }: { v?: Version; header?: ReactNode; afterStack?: ReactNode; footer?: ReactNode }) {
+/** v, header, afterStack and footer: v3 is this page in its own values (data-version="v3") with its own header and its own proof strip, Go deeper, Origin, voices, Get into NEAR and Close, and its own footer (components/v3).
+ *  world, rail and stack: the same pieces with other copy (v4: components/v4), same classes, so boot / rail / stack motion run on them unchanged. */
+export function V1Page({ v = "v1", header, afterStack, footer, world, rail, stack }: {
+  v?: Version; header?: ReactNode; afterStack?: ReactNode; footer?: ReactNode; world?: ReactNode; rail?: ReactNode; stack?: ReactNode;
+}) {
   return (
     <>
       <FixVersion v={v} />
@@ -29,9 +32,9 @@ export function V1Page({ v = "v1", header, afterStack, footer }: { v?: Version; 
       {header ?? <Header home="/home-v1" />}
       <V1Gate>
         <main id="main">
-          <World />
-          <Rail />
-          <Stack />
+          {world ?? <World />}
+          {rail ?? <Rail />}
+          {stack ?? <Stack />}
           {afterStack ?? (
             <>
               <ProofStrip />

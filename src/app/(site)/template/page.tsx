@@ -4,6 +4,7 @@ import { V3Header } from "@/components/v3/header/Header";
 import "@/components/v3/buttons.css";   // v3's buttons (they apply under html[data-version="v3"] only)
 import { Footer } from "@/components/shared/footer/Footer";
 import { VersionSwitch } from "@/components/shared/VersionSwitch";
+import { ExtraChip } from "@/components/ExtraChip";
 import { ProofStrip } from "@/components/shared/proof/ProofStrip";
 import { GoDeeper } from "@/components/shared/go-deeper/GoDeeper";
 import { Origin } from "@/components/shared/origin/Origin";
@@ -31,6 +32,7 @@ export default function Template() {
       </main>
       <Footer />
       <VersionSwitch />
+      <ExtraChip />{/* temporary way back to /extra: remove this line to drop it */}
     </>
   );
 }

@@ -1,0 +1,23 @@
+/* /extra on top of the selector's styles (../Selector.module.css): group heads, the jump links, a smaller card title. */
+.intro { margin-top: 48px; }
+.jump { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.jump a { display: inline-flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); color: var(--ink); text-decoration: none;
+  font-family: var(--font-mono); font-size: 11.5px; line-height: 1.2; letter-spacing: .04em; text-transform: uppercase; transition: background-color .3s var(--ease), color .3s var(--ease); }
+.jump a span { color: var(--ink-2); transition: color .3s var(--ease); }
+.jump a:hover, .jump a:focus-visible { background: var(--ink); color: var(--paper); }
+.jump a:hover span, .jump a:focus-visible span { color: var(--paper); }
+
+.group { display: flex; flex-direction: column; gap: 28px; padding-top: 24px; border-top: 1px solid var(--ink); scroll-margin-top: 24px; }
+.head { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: baseline; gap: 12px 64px; }
+.h2 { margin: 0; font-family: var(--font-montreal); font-weight: 400; font-size: clamp(26px, calc(2 * var(--u)), 36px); line-height: 1.05; letter-spacing: -.03em; }
+.gnote { margin: 0; max-width: 46ch; justify-self: end; font-size: 15px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
+.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 56px; }   /* the selector's grid has four; groups here read in threes */
+.name { font-size: clamp(24px, calc(1.9 * var(--u)), 34px); }
+
+@media (max-width: 900px) {
+  .head { grid-template-columns: 1fr; }
+  .gnote { justify-self: start; }
+  .jump { justify-content: flex-start; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 901px) and (max-width: 1200px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

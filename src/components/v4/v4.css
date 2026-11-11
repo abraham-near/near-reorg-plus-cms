@@ -1,0 +1,13 @@
+/* v4's own styles. For copy longer than v1's: The intro (statement): seven staggered lines in a smaller size; phones re-wrap as in v1 (world.css). */
+.statement--v4 {
+  --st: calc(4.1 * var(--u));
+  --in1: 0px; --in2: calc(7 * var(--u)); --in3: calc(2.5 * var(--u)); --in4: calc(10 * var(--u)); --in5: calc(18 * var(--u)); --in6: calc(28 * var(--u)); --in7: calc(36 * var(--u));
+}
+.statement--v4 .st__l:nth-child(6) { padding-left: var(--in6); }
+.statement--v4 .st__l:nth-child(7) { padding-left: var(--in7); }
+
+/* the rail (v4): no green on the line yet. The meeting node and the stations' tiles are black with the N in white (the line itself is drawn in ink: rail/layer.ts data-line="ink") */
+.layer--v4 .rs__point, .layer--v4 .rs__dot { background: var(--color-ink, #262626); }
+.layer--v4 .rs__point img, .layer--v4 .rs__dot img { filter: invert(1); }
+/* steps on the line: no N tiles (the line marks the steps, layer.ts drawSteps) */
+.layer--v4[data-steps="line"] :is(.rs__dot, .rs__play) { visibility: hidden !important; }

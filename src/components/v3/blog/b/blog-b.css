@@ -1,0 +1,91 @@
+/* Blog B · Magazine (BlogB.tsx, motion.ts), on blog.css's grid.
+   The full-bleed photo (as /home-v3's .l-bleed): at rest it is cut to the grid's width (the frame lines); motion.ts writes --shut (1 = the grid's width,
+   0 = the whole screen). The copy stays on the grid throughout. */
+.bl-bleed-wrap { position: relative; }
+.bl-bleed-wrap::before { /* the grid's top rule over the bleed's top edge (outside its clip: it stays at the grid's width while the photo opens) */
+  content: ""; position: absolute; z-index: 3; top: 0; left: var(--margin); right: var(--margin); height: var(--hair); background: var(--l-line); pointer-events: none; }
+.bl-bleed { --shut: 1; position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: var(--paper-2); isolation: isolate;
+  clip-path: inset(0 calc(var(--margin) * var(--shut)) 0 calc(var(--margin) * var(--shut))); }
+.bl-bleed__stage { position: relative; height: 100%; overflow: hidden; }
+.bl-bleed__ph { position: absolute; inset: 0; }
+.bl-plate { position: absolute; left: 0; right: 0; top: -12%; height: 124%; transform-origin: 50% 50%; will-change: transform; }
+.bl-plate > .bl-img { top: 0; height: 100%; filter: saturate(0.72) contrast(0.96) brightness(1.02); }
+.bl-bleed__stage::before { /* a soft veil of paper in the sky, so the ink reads at rest */
+  content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 0% 0%, rgb(245 244 241 / 0.66) 0%, rgb(245 244 241 / 0.34) 40%, rgb(245 244 241 / 0) 68%); }
+.bl-bleed__in { position: relative; z-index: 2; height: 100%; margin: 0 var(--margin); padding: clamp(80px, 13vh, 140px) var(--l-pad) 0; display: flex; flex-direction: column; align-items: flex-start; }
+/* the text rises once as the photo arrives (grid.ts adds is-in) */
+:where(.bl[data-motion]) .bl-bleed [data-rv] { opacity: 0; translate: 0 22px; }
+:where(.bl[data-motion]) .bl-bleed.is-in [data-rv] { opacity: 1; translate: none;
+  transition: opacity 1s var(--ease-glide) var(--rv, 0.1s), translate 1.3s var(--ease-settle) var(--rv, 0.1s); }
+:where(.bl[data-motion]) .bl-bleed.is-now [data-rv] { transition: none; }
+/* the cover's scene (desktop, motion on): the bleed grows to 200 vh and its stage holds for the extra 100 vh */
+.bl-b__cover.is-scene { height: 200vh; min-height: 0; overflow: visible; }
+.bl-b__cover.is-scene .bl-bleed__stage { position: sticky; top: 0; height: 100vh; min-height: 620px; }
+
+/* ---------------------------------------------------------------- the opening */
+.bl-b__top { grid-template-columns: 8fr 4fr; }
+.bl-b__title { display: flex; align-items: flex-end; padding: var(--top) var(--l-pad) 36px; }
+.bl-b__h1 { font-size: clamp(2.75rem, 1.2rem + 5.2vw, 5rem); }
+.bl-b__toc { display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; padding-bottom: 32px; }
+.bl-b__toc ol { display: flex; flex-direction: column; align-items: flex-start; counter-reset: toc; }
+.bl-b__toc li { counter-increment: toc; display: flex; align-items: baseline; gap: 12px; }
+.bl-b__toc li::before { content: counter(toc, decimal-leading-zero); font-size: var(--t-caption); color: var(--muted); font-variant-numeric: tabular-nums; }
+.bl-b__toc .bl-link { padding: 4px 0; }
+
+.bl-b__kicker { color: var(--graphite); }
+.bl-b__cover-t { margin-top: 20px; max-width: 11em; font-size: clamp(2.5rem, 1rem + 4.6vw, 5.5rem); }
+.bl-b__line { padding-bottom: 0.06em; margin-bottom: -0.06em; }
+.bl-b__cover-src { margin-top: 20px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--graphite); }
+.bl-b__cover-go { margin-top: 32px; }
+.bl-b__cover .bl-btn--ink:hover, .bl-b__cover .bl-btn--ink:focus-visible { background: var(--ink); }
+
+/* ---------------------------------------------------------------- the sections */
+.bl-b__head-cell { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--l-pad); padding: 56px var(--l-pad) 28px; }
+.bl-b__cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bl-b__cell { padding: 0; }
+.bl-b__cards .bl-card__ph { aspect-ratio: 4 / 3; }
+.bl-b__briefs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bl-b__brief { position: relative; isolation: isolate; padding: 0; }
+.bl-b__brief-a { position: relative; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: 16px; align-items: start; height: 100%; padding: 20px var(--l-pad) 22px; }
+.bl-b__brief-a::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.45s var(--ease-settle); }
+.bl-b__brief-ph { aspect-ratio: 4 / 3; }
+.bl-b__brief-tx { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.bl-b__brief-t { font-weight: 500; font-size: var(--text-body); line-height: 1.3; letter-spacing: -0.005em; text-wrap: balance; }
+.bl-b__brief-src { font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+.bl-b__brief-go { position: absolute; right: var(--l-pad); bottom: 20px; opacity: 0; translate: -6px 0; transition: opacity 0.2s var(--ease-tick), translate 0.3s var(--ease-settle); }
+.bl-b__brief-note { padding: 0 var(--l-pad) 20px; margin-top: -8px; font-size: var(--t-caption); line-height: var(--t-caption-lh); color: var(--muted); }
+.bl-b__brief--all { display: flex; align-items: flex-end; justify-content: flex-end; padding: var(--l-pad); }
+.bl-b__brief-a:focus-visible { outline-offset: -2px; }
+.bl-b__brief-a:focus-visible::before { transform: none; }
+.bl-b__brief-a:focus-visible .bl-b__brief-go { opacity: 1; translate: none; }
+@media (hover: hover) {
+  .bl-b__brief-a:hover::before { transform: none; }
+  .bl-b__brief-a:hover .bl-b__brief-go { opacity: 1; translate: none; }
+  .bl-b__brief-a:hover .bl-meta::before { width: 6px; margin-right: 0; scale: 1; }
+  .bl-b__brief-a:hover .bl-img { filter: saturate(1) contrast(1); }
+}
+
+/* Inside NEAR: its own bleed over the ridges */
+.bl-b__spacer .bl-cell { height: 64px; padding: 0; }
+.bl-b__talks .bl-img { object-position: 50% 50%; }
+.bl-b__talks-t { margin-top: 16px; }
+.bl-b__talks-l { margin-top: 24px; max-width: 24em; color: var(--ink); }
+
+/* the end */
+.bl-b__end-cell { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 24px; padding: 72px var(--l-pad) 40px; }
+
+@media (max-width: 1099px) {
+  .bl-b__brief-a { grid-template-columns: minmax(0, 1fr); row-gap: 16px; }
+}
+@media (max-width: 859px) {
+  .bl-b__top, .bl-b__cards, .bl-b__briefs { grid-template-columns: minmax(0, 1fr); }
+  .bl-b__title { padding-bottom: 20px; }
+  .bl-b__toc { padding-top: 20px; }
+  .bl-b__head-cell { flex-direction: column; align-items: flex-start; padding-top: 44px; }
+  .bl-b__brief-a { grid-template-columns: 112px minmax(0, 1fr); }
+  .bl-b__brief--all { justify-content: flex-start; }
+  .bl-bleed { min-height: 520px; }
+  .bl-bleed__in { padding-top: 64px; }
+  .bl-b__end-cell { padding-top: 48px; }
+}

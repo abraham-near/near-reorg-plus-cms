@@ -2,6 +2,7 @@
 @import "../styles/tokens.css";
 @import "../styles/versions.css";
 @source not "../cms"; /* the CMS (src/cms, src/app/(cms)) has its own stylesheet */
+@source not "./(cms)";
 
 /* Shared by every route: Tailwind, the brand tokens, the per-version variables (styles/versions.css), the page base, and the helpers the shared
    sections use. Anything only one version uses lives with it (components/v1/*, components/v2/v2.css). */

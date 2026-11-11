@@ -10,6 +10,13 @@
  *   leave a 1 -> 2    quicker, top first: the tag goes (1.00-1.14), the bubble, the keyhole plate and the receipt lift and fade in turn
  *                     (1.04-1.34, 1.12-1.42, 1.20-1.50), the grid un-draws (1.30-1.62), then the edges and the floor (1.40-1.72).
  *   idle(t, w)        the three plates breathe 1 px up, out of phase (4.6 s); the "..." types (2.4 s); a paper glint crosses the seal every 4.2 s.
+ *   idle, v4 only     (LIVE: the host sits in .layer--v4, where idle runs whenever the station rests on screen, scroll or not) the drawing "thinks":
+ *                     the plates hover apart, each up only, receipt 1.6 / keyhole plate 2.6 / bubble 3.4 css px over 6.4 / 5.2 / 4.4 s, out of phase;
+ *                     the request loop (5.6 s): the keyhole dims as it lets a request through, an ink square drops out from under the plate down a
+ *                     dashed hairline onto the seal, the seal stamps (a green ring spreads over the receipt from its foot), a green square (the proof)
+ *                     rises back up into the plate, the tag's dot blinks twice; a green scan line crosses the keyhole plate along its iso axis
+ *                     (2.4 s sweep every 7.4 s). The "..." and the glint run as above. Its marks (hairline, squares, ring, scan) exist only in v4
+ *                     and are hidden by set(); at w = 0 the DOM is set(a)'s. v1/v3 (not LIVE) get exactly the idle above.
  * set() writes only transforms, opacity and stroke-dashoffset (plus, on state change only, toggling the grid's draw mask and a drawn line's dasharray). */
 import type { Vignette } from "./index";
 import { mountArt, liveTf, q } from "./art";
@@ -30,9 +37,10 @@ type Observe = (target: Element, cb: (w: number, h: number) => void) => void;
 
 export function create(host: HTMLElement): Vignette {
   let a = 0, R: Rig | null = null;
+  const LIVE = !!host.closest(".layer--v4");          /* v4: the richer "alive while seen" idle; v1/v3 keep theirs untouched */
   const art = mountArt("intelligence", host, (svg) => {
     svg.removeAttribute("width"); svg.removeAttribute("height"); svg.setAttribute("preserveAspectRatio", "xMidYMax meet");
-    R = build(svg, art.observe); R.set(a);
+    R = build(svg, art.observe, LIVE); R.set(a);
   });
   return {
     el: art.el,
@@ -42,7 +50,7 @@ export function create(host: HTMLElement): Vignette {
   };
 }
 
-function build(svg: SVGSVGElement, observe: Observe): Rig {
+function build(svg: SVGSVGElement, observe: Observe, LIVE: boolean): Rig {
   const u = ++UID, id = (n: string) => `v2i${u}-${n}`;
   const { $, $$ } = q(svg);
   const MX = svg.createSVGMatrix();
@@ -128,6 +136,37 @@ function build(svg: SVGSVGElement, observe: Observe): Rig {
   /* ── the tag ── */
   const tag = $(".tag"), tagTf = live(tag), tagDot = $(".tag-dot"), sTg = slot(), sTd = slot();
   const TOX = 269.586, TOY = 209.283;
+  let tdS = 1;                                         /* set()'s tag-dot opacity: idle's blink multiplies it */
+
+  /* ── v4 only (LIVE): the request loop's marks, hidden by set(), shown by idle(t, w > 0) ── */
+  const BX = 203.04, CTY = 196.65, FDY = 8.62, BTOP = 148, BBOT = 190;   /* the seal: centre x, top face centre y, its foot's drop; the hairline's ends */
+  let LV: null | {
+    beam: Element; beamTf: SVGTransform; pDn: Element; pDnTf: SVGTransform; pUp: Element; pUpTf: SVGTransform;
+    ring: Element; ringTf: SVGTransform; scan: Element; scanTf: SVGTransform;
+    sBm: number; sDn: number; sUp: number; sRg: number; sSc: number; sKO: number;
+  } = null;
+  const OFF = new Float64Array(3);
+  if (LIVE) {
+    const p3 = plates[0].g, p2 = plates[1].g;
+    /* the stamp: a copy of the seal's top ellipse dropped to its foot, under the coin (which hides its back half) */
+    const ring = node<SVGPathElement>("path", { d: cd, fill: "none", stroke: "#00DC8D", "stroke-width": 0.9, "vector-effect": "non-scaling-stroke", opacity: 0 });
+    p3.insertBefore(ring, $(".coin"));
+    /* the hairline from under the keyhole plate down to the seal, and its two squares (flat iso squares): between the receipt and the plate in paint order */
+    const beam = node("g", { opacity: 0 }); p3.parentNode!.insertBefore(beam, p2);
+    node("path", { d: `M${BX} ${BTOP}V${BBOT}`, stroke: "#111111", "stroke-opacity": 0.6, "stroke-width": 0.500261, "stroke-linecap": "round", "stroke-dasharray": "1 3" }, beam);
+    const SQ = "M-4 0L0 -2.31L4 0L0 2.31Z";
+    const pDn = node<SVGPathElement>("path", { d: SQ, fill: "#111111", opacity: 0 }, beam);
+    const pUp = node<SVGPathElement>("path", { d: SQ, fill: "#00DC8D", stroke: "#111111", "stroke-width": 0.6, "stroke-linejoin": "round", opacity: 0 }, beam);
+    /* the scan: the plate's back-left edge, slid along its other axis across the face (its ends ride the plate's two edges), under the lines and the keyhole */
+    const scan = node<SVGPathElement>("path", { d: "M212.369 45.8234L99.9531 110.751", stroke: "#00DC8D", "stroke-width": 0.9, opacity: 0 });
+    p2.insertBefore(scan, svg.querySelector(".p2 .ln"));
+    LV = {
+      beam, beamTf: live(beam as SVGGraphicsElement), pDn, pDnTf: live(pDn), pUp, pUpTf: live(pUp), ring, ringTf: live(ring), scan, scanTf: live(scan),
+      sBm: slot(), sDn: slot(), sUp: slot(), sRg: slot(), sSc: slot(), sKO: slot(),
+    };
+  }
+  const SCX = 297.792 - 212.369, SCY = 95.1279 - 45.8234;   /* the scan's travel: the plate's back-right edge */
+  const HOV = [1.6, 2.6, 3.4], HOP = [6.4, 5.2, 4.4], HOF = [0, 1.3, 2.5];   /* v4 hover: css px, period s, phase */
 
   let SPU = 1;                                         /* svg units per css px (contained: the smaller scale) */
   const fit = (w: number, h: number) => { if (w > 0 && h > 0) SPU = 1 / Math.min(w / VW, h / VH); };
@@ -175,16 +214,19 @@ function build(svg: SVGSVGElement, observe: Observe): Rig {
     keyW(kw); coinW(cw); W(sCB, coinB, "opacity", cw < 1 ? 1 : 0);
     bandTf.setTranslate(GX0 + (GX1 - GX0) * glK, 0); W(sGl, band, "opacity", glO);
     /* tag */
-    W(sTg, tag, "opacity", tg); scaleAbout(tagTf, dB ? 1 - 0.04 * (1 - tg) : 0.9 + 0.1 * tg, TOX, TOY); W(sTd, tagDot, "opacity", td);
+    W(sTg, tag, "opacity", tg); scaleAbout(tagTf, dB ? 1 - 0.04 * (1 - tg) : 0.9 + 0.1 * tg, TOX, TOY); W(sTd, tagDot, "opacity", td); tdS = td;
+    /* v4: the request loop's marks rest hidden (idle shows them), the keyhole whole */
+    if (LV) { LV.beamTf.setTranslate(0, y3); W(LV.sBm, LV.beam, "opacity", 0); W(LV.sRg, LV.ring, "opacity", 0); W(LV.sSc, LV.scan, "opacity", 0); W(LV.sKO, keyG, "opacity", 1); }
     idleDirty = 1;
   }
 
   function idle(t: number, w: number) {
     w = +w; w = w > 0 ? (w > 1 ? 1 : w) : 0; t = +t || 0;
     if (w === 0 && idleOff && !idleDirty) return;
-    /* the plates breathe up (away from the floor) about 1 px, each a little out of phase */
+    /* the plates breathe up (away from the floor) about 1 px, each a little out of phase; v4: they hover apart, more the higher, each on its own period */
     const A = SPU * w;
-    for (let k = 0; k < 3; k++) { const P = plates[k], o = A * (0.5 - 0.5 * Math.cos(TAU * t / 4.6 + k * 1.1)); P.tf.setTranslate(0, P.y - o); }
+    if (LV) for (let k = 0; k < 3; k++) { const P = plates[k], o = A * HOV[k] * (0.5 - 0.5 * Math.cos(TAU * t / HOP[k] + HOF[k])); OFF[k] = o; P.tf.setTranslate(0, P.y - o); }
+    else for (let k = 0; k < 3; k++) { const P = plates[k], o = A * (0.5 - 0.5 * Math.cos(TAU * t / 4.6 + k * 1.1)); P.tf.setTranslate(0, P.y - o); }
     /* the "..." types: the dots come in one by one, hold, clear (2.4 s) */
     const c = t / 2.4 - Math.floor(t / 2.4);
     for (let q = 0; q < dots.length; q++) { const d = dots[q], on = c > 0.12 + 0.16 * q && c < 0.86 ? 1 : 0.22; W(d.s, d.e, "opacity", d.b * (1 - (1 - on) * w)); }
@@ -192,6 +234,27 @@ function build(svg: SVGSVGElement, observe: Observe): Rig {
     const g = (t + 1.3) % 4.2, k = g < 0.9 ? g / 0.9 : 1, on = g < 0.9 ? Math.sin(Math.PI * k) : 0;
     const kk = w > 0 && on > 0 ? k : glK;
     bandTf.setTranslate(GX0 + (GX1 - GX0) * kk, 0); W(sGl, band, "opacity", glO * (1 - w) + 0.45 * on * w);
+    if (LV) {
+      /* the request loop (5.6 s): .00-.12 the keyhole dims (the request goes through), .04-.30 an ink square drops from under the plate onto the seal,
+         .28-.62 the stamp ring spreads from the seal's foot, .50-.80 the green proof rises back into the plate, .80-.94 the tag's dot blinks twice */
+      const c = ((t + 0.4) % 5.6) / 5.6;
+      LV.beamTf.setTranslate(0, plates[0].y - OFF[0]);
+      W(LV.sBm, LV.beam, "opacity", w);
+      const kd = seg(c, 0, 0.12), kDip = kd > 0 && kd < 1 ? Math.sin(Math.PI * kd) : 0;
+      W(LV.sKO, keyG, "opacity", 1 - 0.45 * kDip * w);
+      const dn = seg(c, 0.04, 0.30);
+      LV.pDnTf.setTranslate(BX, BTOP + (CTY - BTOP) * in2(dn)); W(LV.sDn, LV.pDn, "opacity", dn > 0 && dn < 1 ? cl((1 - dn) / 0.18) : 0);
+      const r = seg(c, 0.28, 0.62), s = 1 + 0.6 * out3(r);
+      MX.a = s; MX.b = 0; MX.c = 0; MX.d = s; MX.e = BX * (1 - s); MX.f = CTY * (1 - s) + FDY; LV.ringTf.setMatrix(MX);
+      W(LV.sRg, LV.ring, "opacity", r > 0 && r < 1 ? 0.9 * (1 - r) * w : 0);
+      const up = seg(c, 0.50, 0.80);
+      LV.pUpTf.setTranslate(BX, CTY - (CTY - BTOP) * io(up)); W(LV.sUp, LV.pUp, "opacity", up > 0 && up < 1 ? cl(up / 0.15) : 0);
+      const b = seg(c, 0.80, 0.94), bl = b > 0 && b < 1 ? Math.sin(TAU * b) : 0;
+      W(sTd, tagDot, "opacity", tdS * (1 - 0.75 * bl * bl * w));
+      /* the scan: a green hairline crosses the keyhole plate every 7.4 s, over 2.4 s */
+      const sg = (t + 2.9) % 7.4, sk = sg < 2.4 ? sg / 2.4 : -1, sp = 0.04 + 0.92 * io(sk < 0 ? 0 : sk);
+      LV.scanTf.setTranslate(SCX * sp, SCY * sp); W(LV.sSc, LV.scan, "opacity", sk >= 0 ? 0.85 * Math.sin(Math.PI * sk) * w : 0);
+    }
     idleDirty = 0; idleOff = w === 0 ? 1 : 0;
   }
 

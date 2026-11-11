@@ -1,0 +1,58 @@
+/* Blog A · Editorial index (BlogA.tsx), on blog.css's grid.
+   The heading row (8 / 4: the display heading, the lede at its foot), the filter bar, the lead (7 / 5: the photo edge to edge in its cell, the copy and
+   its button on the right), the cards three to a row, the foot with Load more. Below 860: one column. */
+.bl-a__head { grid-template-columns: 8fr 4fr; }
+.bl-a__title { padding: var(--top) var(--l-pad) 40px; }
+.bl-a__h1 { max-width: 9em; }
+.bl-a__w { padding-bottom: 0.08em; margin-bottom: -0.08em; }   /* SplitText's word masks: room for the descenders and the accent */
+/* the accent sets line-height 0 (it never pushes the line): its word and mask take a line of their own height, or the mask would clip it away */
+.bl-a__h1 .accent [class^="bl-a__w"] { line-height: 0.92; padding-top: 0.06em; margin-top: -0.06em; }
+.bl-a__intro { display: flex; align-items: flex-end; padding-bottom: 44px; }
+
+.bl-a__bar-cell { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
+.bl-a__count { font-variant-numeric: tabular-nums; }
+
+/* the lead: one object, the two cells answer the pointer together */
+.bl-a__lead { grid-template-columns: 7fr 5fr; min-height: clamp(460px, 66vh, 700px); }
+.bl-a__lead-ph { padding: 0; }
+.bl-a__lead-pa { position: absolute; inset: 0; display: block; }
+.bl-a__ph { position: absolute; inset: 0; }
+.bl-a__lead-ph .bl-play { left: 24px; top: 24px; }
+.bl-a__lead-body { position: relative; isolation: isolate; display: flex; flex-direction: column; padding: 40px var(--l-pad) var(--l-pad) calc(var(--l-pad) * 1.5); }
+.bl-a__lead-body::after { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); opacity: 0; transition: opacity 0.25s var(--ease-tick); }
+.bl-a__lead-a { display: flex; flex-direction: column; align-items: flex-start; flex: 1 1 auto; }
+.bl-a__lead-a:focus-visible { outline-offset: 8px; }
+.bl-a__lead-t { margin-top: 20px; max-width: 12em; }
+.bl-a__lead-src { margin: 18px 0 40px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+.bl-a__lead-go { margin-top: auto; }   /* the button sits at the cell's foot */
+.bl-a__note { margin-top: 20px; padding-top: 14px; border-top: var(--hair) solid var(--l-soft); font-size: var(--t-caption); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-tr); color: var(--muted); }
+@media (hover: hover) {
+  .bl-a__lead:has(.bl-a__lead-a:hover, .bl-a__lead-pa:hover) .bl-a__lead-body::after { opacity: 1; }
+  .bl-a__lead:has(.bl-a__lead-a:hover, .bl-a__lead-pa:hover) .bl-img { scale: 1.03; filter: saturate(1) contrast(1); transition: scale 1.2s var(--ease-settle), filter 0.2s var(--ease-tick); }
+  .bl-a__lead:has(.bl-a__lead-a:hover, .bl-a__lead-pa:hover) .bl-meta::before { width: 6px; margin-right: 0; scale: 1; }
+  .bl-a__lead:has(.bl-a__lead-a:hover, .bl-a__lead-pa:hover) .bl-a__lead-go { padding-left: 38px; color: var(--paper-0); background: var(--ink); }
+  .bl-a__lead:has(.bl-a__lead-a:hover, .bl-a__lead-pa:hover) .bl-a__lead-go::before { transform: scale(1); }
+  .bl-a__lead:has(.bl-a__lead-a:hover, .bl-a__lead-pa:hover) .bl-a__lead-go .bl-arr { translate: 3px 0; }
+}
+.bl-a__lead:has(.bl-a__lead-a:focus-visible) .bl-a__lead-body::after { opacity: 1; }
+.bl-a__lead:has(.bl-a__lead-a:focus-visible) .bl-a__lead-go { padding-left: 38px; color: var(--paper-0); background: var(--ink); }
+.bl-a__lead:has(.bl-a__lead-a:focus-visible) .bl-a__lead-go::before { transform: scale(1); }
+
+/* the cards */
+.bl-a__cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bl-a__cell { padding: 0; }
+
+/* the foot */
+.bl-a__more-cell { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; padding-top: 20px; padding-bottom: 20px; }
+.bl-a__more-n { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+
+@media (max-width: 859px) {
+  .bl-a__head, .bl-a__lead, .bl-a__cards { grid-template-columns: minmax(0, 1fr); }
+  .bl-a__cell--empty { display: none; }
+  .bl-a__title { padding-bottom: 24px; }
+  .bl-a__intro { padding-top: 20px; padding-bottom: 32px; }
+  .bl-a__lead { min-height: 0; }
+  .bl-a__lead-ph { aspect-ratio: 16 / 10; }
+  .bl-a__lead-body { padding: 28px var(--l-pad) var(--l-pad); }
+  .bl-a__lead-src { margin-bottom: 28px; }
+}

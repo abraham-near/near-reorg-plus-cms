@@ -14,6 +14,12 @@
  *                     the guides retract to the floor 1.22-1.52 · the cubes lift 14 px + fade, front first, 1.30-1.66 · the floor sinks + fades 1.50-1.80.
  *   idle (t, w):      the coin hovers 1 px (2.8 s), the plate breathes 1.2 px (4.6 s, out of phase), a small green bead runs down the upper arrow,
  *                     vanishes into the coin and comes out down the lower arrow into the middle cube (2.9 s of every 4.2 s). Additive; at w = 0 the dom is set(a)'s.
+ *   v4 (LIVE: the host is inside .layer--v4; idle then runs whenever the drawing is seen at rest): the same loops, stronger, plus more of them, out of phase:
+ *                     the coin hovers 3.5 px (3.4 s) · the plate floats 3 px (5.6 s) · the bead is 1.5x and, every other run, the grey field's line on the plate
+ *                     erases and re-types itself just before it drops (8.4 s) · the dashed guides flow down, floor-ward (continuous, ~6 u/s) · a glint sweeps the
+ *                     coin's green face along an iso axis (0.9 s of every 6.6 s) · the middle cube's tag lights green as the bead lands in it (4.2 s, synced) ·
+ *                     the back cube's tag double-blinks like a status light (5 s). Floats are upward only (the rest pose is the trough, nothing sinks into an arrow).
+ *                     LIVE-only DOM: a face clip + a glint group in the coin, a green copy of each cube tag's top face. Off v4 nothing is added and idle is as before.
  */
 import type { Vignette } from "./index";
 import { mountArt, liveTf, q } from "./art";
@@ -25,6 +31,16 @@ const in2 = (t: number) => t * t;
 const io2 = (t: number) => (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
 const TAU = Math.PI * 2;
 let UID = 0;
+const SVGNS = "http://www.w3.org/2000/svg";
+/* v4's extras */
+const GUIDE_P = 5.12;   /* the guides' dash period (1.92 + 3.2) */
+const flash = (x: number, s: number, d: number) => (x >= s && x <= s + d ? Math.sin((Math.PI * (x - s)) / d) : 0);
+/** a band on the coin's face: edges along the iso axis (0.866, 0.5), u0..u1 across it along (0.866, -0.5), about the face's centre */
+function band(u0: number, u1: number) {
+  const cx = 320.305, cy = 321.458, L = 90, ax = 0.866, ay = 0.5, bx = 0.866, by = -0.5;
+  const P = (u: number, l: number) => `${(cx + u * bx + l * ax).toFixed(2)} ${(cy + u * by + l * ay).toFixed(2)}`;
+  return `M${P(u0, -L)}L${P(u0, L)}L${P(u1, L)}L${P(u1, -L)}Z`;
+}
 
 /** a part: translate (+ optional scale about cx, cy) and opacity, each written only on change */
 type Part = { node: SVGGraphicsElement; tf: SVGTransform; cx: number; cy: number; x: number; y: number; s: number; o: number };
@@ -32,7 +48,11 @@ type Draw = { node: SVGGraphicsElement; d: number; o: number };
 
 export function create(host: HTMLElement): Vignette {
   const uid = ++UID;
+  const LIVE = !!host.closest(".layer--v4");
   let a = 0, ready = false;
+  /* LIVE idle state: the field's line (1 = drawn), the leds, the glint (position, opacity), the guides' flow */
+  let iType = 1, iLedA = 0, iLedB = 0, iGlU = -70, iGlO = 0, iFlow = 0, iLastT = -1, iPrevW = 0, flowW = NaN;
+  let X: { leds: Part[]; glint: Part; guidesG: SVGGraphicsElement } | null = null;
   /* idle offsets (added on top of set's base) */
   let iCoin = 0, iPlate = 0, iPh = -1, iW = 0;
   let N: {
@@ -62,8 +82,28 @@ export function create(host: HTMLElement): Vignette {
       uitag: part($(".pb-uitag"), 437.8, 158.2),
       al: $$(".pb-al").map(draw),            /* [lower arrow line, upper arrow line] (paint order) */
       ah: $$(".pb-ah").map((g) => part(g)),
-      pulse: part($(".pb-pulse")),
+      pulse: part($(".pb-pulse"), 320.305, 0),   /* scale about the bead's own centre (cx 320.305, cy 0 + its translate) */
     };
+    if (LIVE) {
+      /* a green copy of each cube tag's top face (inside the tag, so it rides its scale and fade) */
+      const leds = $$(".pb-cube .pb-tag").map((g) => {
+        const top = g.lastElementChild as SVGGraphicsElement, led = top.cloneNode(false) as SVGGraphicsElement;
+        led.setAttribute("fill", "#00DC8D"); led.setAttribute("stroke", "#00DC8D"); led.setAttribute("class", "pb-led"); led.style.opacity = "0";
+        g.appendChild(led); return part(led);
+      });
+      /* the glint: two white bands clipped to the coin's face, painted over the green and under the face's outline */
+      const face = $<SVGPathElement>(".pb-green path").getAttribute("d") || "";
+      const defs = svg.querySelector("defs") || svg.insertBefore(document.createElementNS(SVGNS, "defs"), svg.firstChild);
+      const cp = document.createElementNS(SVGNS, "clipPath"); cp.setAttribute("id", `pb-clip-face-${uid}`); cp.setAttribute("clipPathUnits", "userSpaceOnUse");
+      const cpp = document.createElementNS(SVGNS, "path"); cpp.setAttribute("d", face); cp.appendChild(cpp); defs.appendChild(cp);
+      const wrap = document.createElementNS(SVGNS, "g"); wrap.setAttribute("clip-path", `url(#pb-clip-face-${uid})`);
+      const gl = document.createElementNS(SVGNS, "g") as SVGGraphicsElement; gl.setAttribute("class", "pb-glint"); gl.setAttribute("fill", "#FFFFFF"); gl.style.opacity = "0";
+      for (const [u0, u1] of [[-4.5, 4.5], [8, 10.5]]) { const b = document.createElementNS(SVGNS, "path"); b.setAttribute("d", band(u0, u1)); gl.appendChild(b); }
+      wrap.appendChild(gl);
+      const greenClip = $(".pb-green").parentNode as SVGGElement;
+      greenClip.parentNode!.insertBefore(wrap, greenClip.nextSibling);
+      X = { leds, glint: part(gl), guidesG: N.guides.node };
+    }
   }
 
   const wT = (p: Part, x: number, y: number, s = 1) => {
@@ -118,7 +158,11 @@ export function create(host: HTMLElement): Vignette {
       const s = seg(A, 0.50 + k * 0.04, 0.62 + k * 0.04), i = out3(s);
       wT(N.ui[k], -6.06 * (1 - i), 3.5 * (1 - i)); wO(N.ui[k], s);
     }
-    for (let k = 0; k < 3; k++) drawq(N.uls[k], io2(seg(A, 0.52 + k * 0.05, 0.68 + k * 0.05)), 0);
+    for (let k = 0; k < 3; k++) {
+      let q = io2(seg(A, 0.52 + k * 0.05, 0.68 + k * 0.05));
+      if (k === 2 && iType < 1) q *= 1 - (1 - iType) * iW;   /* LIVE: the grey field re-types (iType stays 1 off v4) */
+      drawq(N.uls[k], q, 0);
+    }
     /* the coin comes down; its inner ring draws; the green wipes across (edge along the iso vertical, left -> right); reverse on leave */
     { const i = out3(seg(A, 0.42, 0.66)), l = seg(L, 0.18, 0.46);
       wT(N.coin, 0, -26 * (1 - i) - 20 * in2(l) + iCoin); wO(N.coin, seg(A, 0.42, 0.56) * (1 - l));
@@ -141,7 +185,14 @@ export function create(host: HTMLElement): Vignette {
         else if (iPh >= 0.5) { const s = (iPh - 0.5) / 0.5; y = 354 + iCoin * (1 - s) + 50 * s; o = Math.sin(Math.PI * s); }
         o *= iW * restK;
       }
-      wO(p, o); wT(p, 0, y); }
+      wO(p, o); wT(p, 0, y, LIVE && iW > 0 ? 1.5 : 1); }
+    /* LIVE extras (absent off v4) */
+    if (X) {
+      wO(X.leds[0], iLedA * iW); wO(X.leds[1], iLedB * iW);
+      wO(X.glint, iGlO * iW); wT(X.glint, iGlU * 0.866, -iGlU * 0.5);
+      const f = iW > 0 ? iFlow : NaN;
+      if (!(f === flowW || (f !== f && flowW !== flowW))) { flowW = f; X.guidesG.style.strokeDashoffset = f === f ? f.toFixed(3) : ""; }
+    }
   }
 
   /* the clip ids get a per-instance suffix (two problems on one page must not share a clip) */
@@ -151,12 +202,44 @@ export function create(host: HTMLElement): Vignette {
     build(s); ready = true; apply();
   }, (t) => t.replace(/pb-clip-(\w+)/g, `pb-clip-$1-${uid}`));
 
+  /* v4: the drawing is alive while it is seen. Every loop is additive and scaled by w; at w = 0 everything is reset and the dom is set(a)'s. */
+  function liveIdle(t: number, w: number) {
+    if (w === 0) {
+      if (iW === 0 && iCoin === 0 && iPlate === 0 && iLastT < 0) return;
+      iW = 0; iCoin = 0; iPlate = 0; iPh = -1; iType = 1; iLedA = 0; iLedB = 0; iGlU = -70; iGlO = 0; iFlow = 0; iLastT = -1; iPrevW = 0;
+      apply(); return;
+    }
+    iW = w;
+    iCoin = -3.5 * w * (0.5 - 0.5 * Math.cos(TAU * t / 3.4));
+    iPlate = -3.0 * w * (0.5 - 0.5 * Math.cos(TAU * t / 5.6 + 2.1));
+    const t42 = t % 4.2, u = t42 / 4.2;
+    iPh = u < 0.69 ? u / 0.69 : -1;
+    /* the grey field erases (6.4-6.8) then types back in 12 keystrokes (6.95-8.15) of every 8.4 s, done just before the bead leaves the plate */
+    const t84 = t % 8.4;
+    iType = t84 < 6.4 ? 1 : t84 < 6.8 ? 1 - in2((t84 - 6.4) / 0.4) : t84 < 6.95 ? 0 : t84 < 8.15 ? Math.floor(((t84 - 6.95) / 1.2) * 12) / 12 : 1;
+    /* the middle cube's tag lights as the bead lands (the bead's run ends at 2.9 s of 4.2) · the back cube's tag double-blinks every 5 s */
+    iLedB = flash(t42, 2.72, 0.55);
+    const t5 = (t + 1.3) % 5.0;
+    iLedA = 0.9 * (flash(t5, 0, 0.22) + flash(t5, 0.34, 0.22));
+    /* the glint: 0.9 s sweep of every 6.6 s, across the face along the iso axis */
+    const tg = (t + 3.1) % 6.6;
+    if (tg < 0.9) { const s = tg / 0.9; iGlU = -70 + 140 * io2(s); iGlO = 0.55 * Math.sin(Math.PI * s); } else { iGlU = -70; iGlO = 0; }
+    /* the guides flow down (dashoffset grows toward the path starts at the floor); fading out, the phase eases onto a whole period so w = 0 doesn't jump */
+    const dt = iLastT < 0 ? 0 : Math.min(0.1, Math.max(0, t - iLastT)); iLastT = t;
+    iFlow += 6 * w * dt;
+    if (iFlow >= GUIDE_P * 64) iFlow -= GUIDE_P * 64;
+    if (w < iPrevW && iPrevW > 0) { const n = Math.round(iFlow / GUIDE_P) * GUIDE_P; iFlow = n + (iFlow - n) * (w / iPrevW); }
+    iPrevW = w;
+    apply();
+  }
+
   return {
     el: art.el,
     set(v) { if (art.dead()) return; a = v < 0 ? 0 : v > 2 ? 2 : v; apply(); },
     idle(t, w) {
       w = w > 0 ? (w > 1 ? 1 : w) : 0;
       if (!ready || art.dead()) return;
+      if (LIVE) { liveIdle(t, w); return; }
       if (w === 0) { if (iW === 0 && iCoin === 0 && iPlate === 0) return; iW = 0; iCoin = 0; iPlate = 0; iPh = -1; apply(); return; }
       iW = w;
       iCoin = -1.0 * w * (0.5 - 0.5 * Math.cos(TAU * t / 2.8));

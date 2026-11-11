@@ -216,6 +216,14 @@
 .l-origin__ph { padding: 0; }
 .l-origin__body { display: flex; flex-direction: column; padding: 88px var(--l-pad) 0 calc(var(--l-pad) * 2); border-bottom: var(--hair) solid var(--l-line); } /* the text cell closes on a rule (the photo's edge is its own line) */
 .l-origin__text { margin-top: 40px; }
+/* v4: the photo at a set shape (data-ratio); the row takes the photo's height, the text closer to the top */
+.l-origin[data-ratio] .l-origin__row { min-height: 0; }
+.l-origin[data-ratio="4/3"] .l-origin__ph { aspect-ratio: 4 / 3; }
+.l-origin[data-ratio="16/9"] .l-origin__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.l-origin[data-ratio="16/9"] .l-origin__ph { aspect-ratio: 16 / 9; }
+.l-origin[data-ratio="16/9"] .l-origin__ph .l-img { object-position: 50% 82%; }   /* keep the beam's point (it sits low in the photo) */
+.l-origin[data-ratio] .l-origin__body { padding-top: clamp(40px, 6vh, 64px); }
+.l-origin[data-ratio] .l-origin__text { margin-top: 24px; }
 .l-mark { font-size: max(13px, 0.6em); line-height: 0; margin-left: 1px; }
 .l-mark a { color: var(--green-text); }
 .l-cta { margin-top: 36px; }
@@ -243,28 +251,51 @@
   transition: opacity 1s var(--ease-glide) var(--rv, 0.1s), translate 1.3s var(--ease-settle) var(--rv, 0.1s); }
 :where(.l-page[data-motion]) .l-bleed.is-now [data-rv] { transition: none; }
 
-/* ---------------------------------------------------------------- 4 · voices: the lead quote in the mist, two voices on paper */
+/* ---------------------------------------------------------------- 4 · voices: the three voices in the mist
+   v3: one scene (desktop, motion on; motion.ts, gsap): the bleed is 300 vh and its stage sticks for 200 vh. The frame opens to the whole screen as it
+   arrives; the voices take turns in the sky, line by line, while the ridges drift and settle under them (slower than the words: the parallax); the count
+   follows. Phones and reduced motion: the three voices stacked over the photo, no hold. */
 .l-spacer .l-cell { height: 64px; padding: 0; } /* v3: the band of paper between the dark origin photo and the bleed is an empty cell of the grid (b10: a bare 64 px margin) */
 .l-voices__bleed .l-img { object-position: 50% 50%; }
-.l-voices__bleed::before { /* a soft veil of paper in the top left mist, so the ink reads at rest */
+.l-voices__stage { position: relative; height: 100%; overflow: hidden; }
+.l-voices__stage::before { /* a soft veil of paper in the top left mist, so the ink reads at rest */
   content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none;
   background: radial-gradient(120% 90% at 0% 0%, rgb(245 244 241 / 0.62) 0%, rgb(245 244 241 / 0.32) 38%, rgb(245 244 241 / 0) 66%); }
 .l-voices__in { display: flex; flex-direction: column; justify-content: flex-start; padding-top: clamp(96px, 15vh, 160px); }
+.l-voices__top { display: flex; align-items: center; gap: 28px; }
 .l-kicker { font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--graphite); }
+.l-voices__count { display: none; align-items: center; gap: 6px; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--graphite); font-variant-numeric: tabular-nums; }
+.l-voices__n { display: inline-block; height: calc(var(--t-ui-lh) * 1em); overflow: hidden; color: var(--ink); }
+.l-voices__n, .l-voices__nn > span { line-height: var(--t-ui-lh); }
+.l-voices__nn { display: flex; flex-direction: column; }
+.l-voices__bars { display: inline-flex; gap: 4px; margin-left: 14px; }
+.l-voices__bars i { position: relative; width: 28px; height: 1px; background: rgb(38 38 38 / 0.18); overflow: hidden; }
+.l-voices__bars b { position: absolute; inset: 0; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; }
 .l-page .hang { text-indent: -0.42em; } /* the opening quote hangs */
 .l-q blockquote p { position: relative; text-wrap: pretty; }
-.l-q--main { margin-top: clamp(32px, 5vh, 56px); }
-.l-q--main blockquote p { max-width: 16ch; font-family: var(--sans-display); font-weight: 400; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--ink); text-wrap: balance; }
+.l-voices__qs { display: flex; flex-direction: column; gap: clamp(48px, 7vh, 72px); margin-top: clamp(32px, 5vh, 56px); }
+.l-q--main blockquote p { max-width: 17ch; font-family: var(--sans-display); font-weight: 400; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--ink); text-wrap: balance; }
 .l-q--main .l-who { margin-top: 36px; }
-.l-voices__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.l-voices__row .l-cell { padding: 40px var(--l-pad) 48px; }
-.l-voices__row .l-q blockquote p { max-width: 26ch; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); }
 .l-who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: var(--t-small); line-height: var(--t-small-lh); letter-spacing: var(--t-small-tr); }
-.l-voices__row .l-who { margin-top: 20px; }
 .l-who__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
 .l-who__n { font-weight: var(--t-ui-w); letter-spacing: var(--t-ui-tr); color: var(--ink); }
 .l-who__r { color: var(--graphite); }
-.l-voices__row .l-who__r { color: var(--muted); }
+/* no scene: the bleed grows with the three voices; the veil reaches down so the later ones read over the ridges */
+.l-voices__bleed:not(.is-scene) { height: auto; min-height: 100svh; }
+.l-voices__bleed:not(.is-scene) .l-voices__stage { min-height: inherit; }
+.l-voices__bleed:not(.is-scene) .l-voices__in { height: auto; padding-bottom: clamp(96px, 14vh, 160px); }
+.l-voices__bleed:not(.is-scene) .l-voices__stage::before { background: linear-gradient(180deg, rgb(245 244 241 / 0.6) 0%, rgb(245 244 241 / 0.72) 55%, rgb(245 244 241 / 0.8) 100%); }
+/* the scene: the bleed grows and its stage holds (overflow visible, so the stage can stick); the voices share one place; gsap moves them (no CSS arrival) */
+.l-voices__bleed.is-scene { height: var(--scene-h, 300vh); min-height: 0; overflow: visible; }
+.l-voices__bleed.is-scene .l-voices__stage { position: sticky; top: 0; height: 100vh; min-height: 620px; }
+.l-voices__bleed.is-scene .l-voices__count { display: inline-flex; }
+.l-voices__bleed.is-scene .l-voices__qs { display: grid; }
+.l-voices__bleed.is-scene .l-vq { grid-area: 1 / 1; }
+.l-voices__bleed.is-scene :is(.l-vq, .l-voices__top)[data-rv] { opacity: 1; translate: none; transition: none; }
+.l-voices__bleed.is-scene :is(.l-vq, .l-vl, .l-who, .l-plate) { will-change: transform, opacity; }
+/* split lines (motion.ts): one block per line; the first one keeps the hanging quote */
+.l-vq .l-vl { display: block; text-indent: 0; }
+.l-vq .l-vl:first-child { text-indent: -0.42em; }
 
 /* ---------------------------------------------------------------- 5 · Get into NEAR (ours: shared/get-into), on the grid
    The heading in its row; then the three paths in one cell (rules between them, text 24 px inside) and the preview photo edge to edge in the next, its caption
@@ -272,8 +303,10 @@
    switches to that path and stays on the last one pointed. Below 1100 px each path carries its own thumbnail instead of the preview. */
 .l-gi__row { grid-template-columns: 7fr 5fr; }
 .l-gi__list, .l-gi__pv { padding: 0; }
-.l-gi__item { position: relative; isolation: isolate; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; column-gap: 14px; align-items: start;
-  padding: 28px var(--l-pad) 30px; color: var(--ink); transition: color 0.35s var(--ease-settle); }
+/* the three paths share the row's height (set by the 4:3 preview), each a taller band with more air (was 28 / 30) */
+.l-gi__list ul { display: flex; flex-direction: column; height: 100%; }
+.l-gi__item { position: relative; isolation: isolate; flex: 1 1 0; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; column-gap: 14px; align-items: start;
+  padding: 40px var(--l-pad) 44px; color: var(--ink); transition: color 0.35s var(--ease-settle); }
 .l-gi__item + .l-gi__item { border-top: var(--hair) solid var(--l-soft); }
 .l-gi__item::after { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ink); transform: scaleY(0); transform-origin: 50% 100%; transition: transform 0.5s var(--ease-settle); }
 .l-gi__idx { padding-top: 0.55em; font-size: var(--t-caption); line-height: 1; letter-spacing: var(--t-caption-tr); font-variant-numeric: tabular-nums; color: var(--muted); transition: color 0.35s var(--ease-settle); }
@@ -302,7 +335,7 @@
 .l-gi__item:has(.l-gi__a:focus-visible) .l-gi__label { background-size: 100% var(--hair); }
 /* the preview: the photo fills its cell, the caption sits on a strip under it */
 .l-gi__pv { display: flex; flex-direction: column; }
-.l-gi__frame { position: relative; flex: 1; min-height: 300px; overflow: hidden; background: var(--paper-2); }
+.l-gi__frame { position: relative; flex: none; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-2); }   /* ~4:3 (was the row's height) */
 .l-gi__img { position: absolute; inset: 0; opacity: 0; transition: opacity 0.55s var(--ease-settle); }
 .l-gi__img img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); transition: transform 1.1s var(--ease-settle); }
 .l-gi__cap { position: relative; flex: none; height: 52px; border-top: var(--hair) solid var(--l-soft); font-size: var(--t-caption); letter-spacing: var(--t-caption-tr); color: var(--muted); }
@@ -332,11 +365,24 @@
 /* ---------------------------------------------------------------- 6 · NEAR belongs to you + the newsletter (b10 r26)
    The line: the client's lockup is the word NEAR, centred in the sky; `belongs to you` opens out of it (motion.ts). The scene (desktop, motion on): the bleed is
    200 vh and its stage sticks for the extra 100 vh; the lockup stands large, then glides to the headline's size while the words open. v3: like the voices'
-   photo, it starts at the grid's width and opens to the whole screen (here for the length of the scene), then closes as it leaves. */
+   photo, it starts at the grid's width and opens to the whole screen, and stays: the newsletter arrives under the line and the footer rises over it. */
 .l-display { font-family: var(--sans-display); font-weight: var(--t-display-w); font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
 .l-close__bleed .l-img { object-position: 50% 70%; }
 .l-close__stage { position: relative; height: 100%; overflow: hidden; }
-.l-close__in { display: flex; justify-content: center; align-items: flex-start; padding-top: clamp(150px, 25vh, 260px); }
+.l-close__in { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: clamp(150px, 25vh, 260px); }
+/* v3: the newsletter in the scene, under the line (it arrives once the words have opened: --nl, motion.ts) */
+.l-close__nl { width: min(560px, 100%); margin-top: clamp(40px, 7vh, 88px); }
+.l-close__nl .l-lede { max-width: 26em; margin-bottom: 28px; color: var(--ink); }
+.l-close__bleed.is-scene .l-close__nl { opacity: var(--nl, 0); translate: 0 calc((1 - var(--nl, 0)) * 16px); }
+/* the field in the scene: bigger than b10's (56 px tall, the lede's 21 px input, the UI's 15 px button) */
+.l-close__nl { width: min(640px, 100%); }
+.l-close__nl .l-field { height: 76px; }
+.l-close__nl .l-field input { font-size: clamp(1.375rem, 1.1rem + 0.7vw, 1.75rem); }   /* 22 → 28 */
+.l-close__nl .l-field__btn { gap: 12px; font-size: clamp(1.0625rem, 0.95rem + 0.3vw, 1.25rem); }   /* 17 → 20 */
+.l-close__nl .l-field__btn .l-arr { width: 20px; height: 20px; }
+/* the placeholder: a sample address (the label names the field); a darker grey so it reads on the sky (b10: muted at 70 %), it fades out as you type */
+.l-close__nl .l-field input::placeholder { color: var(--graphite); opacity: 0.62; letter-spacing: -0.01em; transition: opacity 0.2s var(--ease-tick); }
+.l-close__nl .l-field input:focus::placeholder { opacity: 0.32; }
 .l-close__h { margin: 0; white-space: nowrap; text-align: center; }
 .l-close__logo { --lk: 0.795em; display: inline-block; position: relative; height: var(--lk); vertical-align: calc(var(--lk) * -0.1556 + 0.03em); margin-right: 0.26em; transform-origin: 50% 50%; }
 .l-close__svg { display: block; height: 100%; width: auto; overflow: visible; fill: currentColor; }
@@ -344,8 +390,9 @@
 .l-close__bleed.is-scene .l-close__rest { padding: 0.3em 0.3em 0.3em 0; margin: -0.3em -0.3em -0.3em 0; } /* room for the soft mask */
 .l-close__bleed.is-scene :is(.l-close__h, .l-close__logo, .l-close__rest, .l-close__w) { will-change: transform; }
 .l-close__w { display: inline-block; }
-/* the scene: the bleed grows to 200 vh and its stage holds for the extra 100 vh (overflow visible, so the stage can stick) */
-.l-close__bleed.is-scene { height: 200vh; min-height: 0; overflow: visible; }
+/* the scene: the bleed grows and its stage holds (overflow visible, so the stage can stick): 100 vh for the line (b10: 200 vh in all), then (v3)
+   100 vh more while the footer rises over the held stage from below (the footer pulls itself up 100 vh: footer.css, html[data-close-cover]) */
+.l-close__bleed.is-scene { height: 300vh; min-height: 0; overflow: visible; }
 .l-close__bleed.is-scene .l-close__stage { position: sticky; top: 0; height: 100vh; min-height: 620px; }
 /* arrival, once: the tile settles, the letters rise out of their baseline one by one */
 .l-close__m, .l-close__c { transform-box: fill-box; transform-origin: 50% 50%; }
@@ -355,10 +402,6 @@
 :where(.l-page[data-motion]) .l-close__bleed.is-lit .l-close__c { transition: transform 1.2s var(--ease-settle) calc(0.18s + var(--c) * 0.08s); }
 :where(.l-page[data-motion]) .l-close__bleed:not(.is-scene):not(.is-lit) .l-close__rest { opacity: 0; translate: 0 18px; }
 :where(.l-page[data-motion]) .l-close__bleed:not(.is-scene).is-lit .l-close__rest { transition: opacity 1s var(--ease-glide) 0.5s, translate 1.3s var(--ease-settle) 0.5s; }
-.l-close__row { grid-template-columns: 5fr 7fr; }
-.l-close__row .l-cell { padding: 48px var(--l-pad) 80px; }
-.l-close__form { padding-left: calc(var(--l-pad) * 2) !important; }
-.l-close__lede .l-lede { max-width: 22em; }
 /* the field: a visible label, one hairline, Montreal at body size, the button on the same line */
 .l-form { max-width: none; }
 .l-form__label { display: flex; align-items: center; gap: 10px; height: 16px; color: var(--muted); cursor: pointer; }
@@ -400,7 +443,7 @@
 
 /* below 860 */
 @media (max-width: 859px) {
-  .l-proof__row, .l-panel, .l-origin__row, .l-voices__row, .l-gi__row, .l-close__row { grid-template-columns: minmax(0, 1fr); }
+  .l-proof__row, .l-panel, .l-origin__row, .l-gi__row { grid-template-columns: minmax(0, 1fr); }
   .l-close__in .l-display { font-size: 44px; }
   .l-close__h { white-space: normal; }
   .l-origin__ph { min-height: 320px; }
@@ -429,3 +472,5 @@
   .l-feat__body { grid-row: 2; }
   .l-feat__note { grid-row: 3; }
 }
+/* v4's Origin shapes on phones: one column, the photo keeps its shape */
+@media (max-width: 859px) { .l-origin[data-ratio] .l-origin__row { grid-template-columns: minmax(0, 1fr); } .l-origin[data-ratio] .l-origin__ph { min-height: 0; } }

@@ -1,0 +1,96 @@
+/* near.org/foundation (Foundation.tsx) on v3's ruled page (proof-deeper.css): only what the page adds. */
+.f-page { background: var(--paper-0); overflow-x: clip; }
+
+/* ---------------------------------------------------------------- 1 · hero */
+.f-hero { padding-top: clamp(112px, 14vh, 156px); }   /* clears the floating header */
+.f-hero__top { grid-template-columns: minmax(0, 1fr); }
+.f-hero__k { display: flex; align-items: center; gap: 10px; padding-block: 14px; }
+.f-hero__k .l-ic { color: var(--ink); }
+.f-hero__h { grid-template-columns: minmax(0, 1fr); }
+.f-hero__h .l-cell { padding: clamp(40px, 7vh, 88px) var(--l-pad) clamp(40px, 6vh, 72px); }
+.f-h1 { max-width: 13.5em; text-wrap: balance; font-size: clamp(2.75rem, 1.2rem + 5vw, 6.25rem); }
+.f-hero__b { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.f-hero__sub { padding: 32px var(--l-pad) 56px; }
+.f-hero__sub .l-lede { max-width: 34em; color: var(--ink); }
+.f-toc { padding: 32px var(--l-pad) 40px calc(var(--l-pad) * 1.5); }
+.f-toc ol { margin-top: 14px !important; }
+.f-toc a { display: flex; align-items: center; gap: 14px; padding: 9px 0; border-top: var(--hair) solid var(--l-soft); font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); color: var(--graphite); transition: color 0.2s var(--ease-tick); }
+.f-toc li:last-child a { border-bottom: var(--hair) solid var(--l-soft); }
+.f-toc a .l-arr { margin-left: auto; opacity: 0; translate: -6px 0; transition: opacity 0.2s var(--ease-tick), translate 0.24s var(--ease-tick); }
+.f-toc__n { min-width: 2ch; font-variant-numeric: tabular-nums; color: var(--muted); }
+@media (hover: hover) { .f-toc a:hover { color: var(--ink); } .f-toc a:hover .l-arr { opacity: 1; translate: none; } }
+.f-page [id^="f-"] { scroll-margin-top: 96px; }
+
+/* ---------------------------------------------------------------- cards (the pillars, the three activities) */
+.f-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.f-card { display: flex; flex-direction: column; padding: 44px calc(var(--l-pad) * 1.5) 52px var(--l-pad); min-height: clamp(280px, 32vh, 340px); }
+.f-card__n { font: var(--t-ui-w) var(--t-label)/1 var(--sans); letter-spacing: var(--t-label-tr); color: var(--muted); font-variant-numeric: tabular-nums; }
+.f-h3 { margin-top: clamp(56px, 9vh, 96px) !important; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); }
+.f-card__b { margin-top: 16px !important; max-width: 26em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+
+/* ---------------------------------------------------------------- 3 · the devolution: heading and text | the figure */
+.f-split { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+.f-split__txt { display: flex; flex-direction: column; padding: 96px calc(var(--l-pad) * 2) 88px var(--l-pad); }
+.f-body { margin-top: 40px !important; max-width: 32em; }
+.f-split__fig { display: grid; place-items: center; padding: 48px var(--l-pad); background: var(--paper-1); }
+.f-dev { position: relative; width: min(100%, 520px); margin: 0; --p: 0; }
+.f-dev svg { display: block; width: 100%; height: auto; overflow: visible; }
+.f-dev__lat circle { fill: var(--ink); opacity: calc(0.12 + 0.2 * var(--p)); }
+.f-dev__core { fill: var(--ink); transform-box: fill-box; transform-origin: 50% 50%; transform: scale(calc(1 - 0.62 * var(--p))); }
+.f-dev__ps rect { fill: var(--ink); --t: clamp(0, calc((var(--p) - var(--d) * 0.3) / 0.7), 1);
+  transform: translate(calc(var(--dx) * var(--t) * 1px), calc(var(--dy) * var(--t) * 1px)); opacity: clamp(0, calc(var(--t) * 6), 1); }
+.f-dev__ps rect.is-g { fill: var(--emerald); }
+.f-dev__cap { display: flex; align-items: center; gap: 12px; margin-top: 28px; }
+.f-dev__arr { flex: 1; height: var(--hair); background: linear-gradient(90deg, var(--ink) calc(var(--p) * 100%), var(--line-strong) 0); }
+
+/* ---------------------------------------------------------------- 4 · transparency (Origin's row) */
+.f-transparency .l-origin__body { padding-bottom: 64px; }
+
+/* ---------------------------------------------------------------- 5 · the Council: the Stack's dark, the grid's tokens for it */
+.f-council {
+  background: var(--ink); color: var(--paper-0);
+  --l-line: rgb(245 244 241 / 0.18); --l-soft: rgb(245 244 241 / 0.12); --l-x: rgb(245 244 241 / 0.7);
+  --graphite: rgb(245 244 241 / 0.74); --muted: rgb(245 244 241 / 0.56);
+}
+.f-council .l-ic { color: var(--paper-0); }
+.f-council__row { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+.f-council__h { padding: 104px var(--l-pad) 96px; }
+.f-council__b { display: flex; flex-direction: column; justify-content: flex-end; gap: 48px; padding: 104px var(--l-pad) 56px calc(var(--l-pad) * 1.5); }
+.f-council__b .l-lede { color: var(--paper-0); max-width: 31em; }
+.f-chain li { display: grid; grid-template-columns: 11em 1fr; gap: 16px; align-items: baseline; padding: 16px 0; border-top: var(--hair) solid var(--l-soft); position: relative; }
+.f-chain li:last-child { border-bottom: var(--hair) solid var(--l-soft); }
+.f-chain__n { display: flex; align-items: center; gap: 10px; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); }
+.f-chain__n::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--emerald); }
+.f-chain li + li .f-chain__n::before { background: transparent; box-shadow: inset 0 0 0 1px var(--paper-0); }
+.f-chain__r { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+.f-council + .f-operates > .l-row:first-child::before { background: var(--l-line); }
+
+/* ---------------------------------------------------------------- 6 / 7 · heading rows */
+.f-split--head .l-cell { padding: 96px var(--l-pad) 48px; }
+.f-split--head .f-split__end { display: flex; flex-direction: column; justify-content: flex-end; padding-left: calc(var(--l-pad) * 1.5); }
+.f-link { margin-top: 28px !important; }
+
+/* ---------------------------------------------------------------- 7 · the dApps grid */
+.f-logos { grid-template-columns: minmax(0, 1fr); }
+.f-logos__cell { display: grid; place-items: center; padding: clamp(40px, 7vh, 88px) var(--l-pad); background: var(--paper-1); }
+.f-logos__cell img { display: block; width: min(100%, 1040px); height: auto; }
+
+/* ---------------------------------------------------------------- 8 · the close: the doc's subhead and two buttons in the newsletter's place */
+.f-close__nl { text-align: center; }
+.f-close__nl .l-lede { margin-inline: auto; }
+.f-close__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.f-btn--fill { color: var(--paper-0); background: var(--ink); }
+@media (hover: hover) { .f-btn--fill:hover { background: #000; } }
+
+/* ---------------------------------------------------------------- phones */
+@media (max-width: 859px) {
+  .f-hero__b, .f-cards, .f-split, .f-council__row { grid-template-columns: minmax(0, 1fr); }
+  .f-cards > .l-cell + .l-cell::before, .f-split > .l-cell + .l-cell::before, .f-council__row > .l-cell + .l-cell::before, .f-hero__b > .l-cell + .l-cell::before { display: none; }
+  .f-cards > .l-cell + .l-cell, .f-split > .l-cell + .l-cell, .f-council__row > .l-cell + .l-cell, .f-hero__b > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .f-card { min-height: 0; padding: 36px var(--l-pad) 40px; }
+  .f-h3 { margin-top: 28px !important; }
+  .f-split__txt, .f-split--head .l-cell, .f-council__h, .f-council__b { padding: 56px var(--l-pad) 40px; }
+  .f-split--head .f-split__end { padding-top: 0; border-top: 0 !important; }
+  .f-council__b { padding-top: 0; border-top: 0 !important; }
+  .f-chain li { grid-template-columns: 1fr; gap: 6px; }
+}
