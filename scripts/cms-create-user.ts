@@ -34,13 +34,28 @@ function promptHidden(question: string): Promise<string> {
   })
 }
 
+/** Asks twice, so a typo can't become the password. Three tries, then it gives up. */
+async function askPassword(): Promise<string> {
+  for (let tries = 0; tries < 3; tries++) {
+    const password = await promptHidden('Password (12+ characters): ')
+    const check = passwordSchema.safeParse(password)
+    if (!check.success) {
+      console.error(check.error.issues[0]?.message ?? 'Invalid password')
+      continue
+    }
+    if ((await promptHidden('Confirm password: ')) === password) return password
+    console.error('The passwords do not match. Try again.')
+  }
+  throw new Error('No password set: too many tries.')
+}
+
 async function main() {
   const email = normalizeEmail(arg('email') ?? '')
   const name = arg('name') ?? email.split('@')[0]
   const role = (arg('role') ?? 'ADMIN').toUpperCase() as Role
   if (!ROLES.includes(role)) throw new Error(`--role must be one of ${ROLES.join(', ')}`)
   if (!isAllowedEmail(email)) throw new Error(`--email must use an allowed domain (${allowedEmailDomains().join(',')})`)
-  const password = process.env.CMS_USER_PASSWORD || (await promptHidden('Password (12+ characters): '))
+  const password = process.env.CMS_USER_PASSWORD || (await askPassword())
   passwordSchema.parse(password)
 
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
