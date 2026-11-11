@@ -1,0 +1,145 @@
+/* Revenue option D · "Scroll story". The finished state (the markup, phones, reduced motion) is a paper bento on the figures' five columns, so its dividers
+   run on into the strip below; its foot is the strip's first rule. .is-scene (motion.ts, desktop): the section grows, its stage sticks, the ground starts as
+   the Stack's ink and turns to paper on a rising edge (--edge, px from the stage's top); text on screen through the swap is coloured on each side of it (--e). */
+.rvd {
+  position: relative; background: var(--paper-0); color: var(--ink);
+  --rvd-dl: rgb(245 244 241 / 0.18);   /* a line on the ink */
+}
+/* the band's foot is the figures' first rule: no gap */
+.rvd + .l-proof { padding-top: 0; }
+
+.rvd-stage { position: relative; }
+.rvd-paper, .rvd-edge { display: none; }
+
+/* ---------------------------------------------------------------- the bento: h h l l l / t t c c c / g d c c c */
+.rvd-bento {
+  position: relative; margin: 0 var(--margin); display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: auto auto 1fr;
+  grid-template-areas: "h h l l l" "t t c c c" "g d c c c";
+}
+.rvd-h { grid-area: h; } .rvd-l { grid-area: l; } .rvd-t { grid-area: t; } .rvd-c { grid-area: c; } .rvd-g8 { grid-area: g; } .rvd-d { grid-area: d; }
+
+/* the lines: the frame (two verticals), each cell's top rule with a + at each end, and its left divider */
+.rvd-fl, .rvd-fr { position: absolute; z-index: 2; top: 0; bottom: 0; width: var(--hair); pointer-events: none; transform-origin: 50% 0;
+  background: linear-gradient(180deg, var(--rvd-dl) 0 var(--edge, 0px), var(--l-line) var(--edge, 0px)); }
+.rvd-fl { left: 0; }
+.rvd-fr { right: 0; }
+.rvd-cell { position: relative; min-width: 0; padding: var(--l-pad); }
+.rvd-hr { position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: var(--hair); background: var(--l-line); transform-origin: 0 50%; pointer-events: none; }
+.rvd-vr { position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; width: var(--hair); background: var(--l-line); transform-origin: 50% 0; pointer-events: none; }
+.rvd-x { position: absolute; z-index: 3; top: 0; width: 9px; height: 9px; margin: -4px 0 0 -4px; pointer-events: none;
+  background: linear-gradient(var(--l-x), var(--l-x)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 0 50% / 100% var(--hair) no-repeat; }
+.rvd-x--l { left: 0; }
+.rvd-x--r { left: 100%; }
+
+/* ---------------------------------------------------------------- the heading row */
+.rvd-h, .rvd-l { padding-top: clamp(32px, 4.6vh, 48px); padding-bottom: clamp(28px, 4vh, 40px); }
+.rvd-h2 { text-wrap: balance; }
+.rvd-lede { max-width: 36em; }
+
+/* ---------------------------------------------------------------- the total */
+.rvd-t .rvd-in { display: flex; flex-direction: column; gap: 16px; transform-origin: 50% 50%; }
+.rvd-kick { font-size: var(--t-body-l); line-height: 1.3; color: var(--graphite); }
+.rvd-g { display: inline-block; color: var(--green-text); }
+.rvd-big { font-family: var(--sans-display); font-weight: 400; font-size: clamp(3rem, 1.2rem + 4.4vw, 5.25rem); line-height: 0.95; letter-spacing: -0.045em;
+  white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rvd-unit { display: inline-block; font-size: 0.42em; letter-spacing: -0.01em; color: var(--green-text); }
+.rvd-note { max-width: 30em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+
+/* ---------------------------------------------------------------- the chart: the bars' scale, the plot, the line's scale; the button at its foot */
+.rvd-c { display: flex; flex-direction: column; gap: 18px; }
+.rvd-c__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.rvd-h3 { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); }
+.rvd-chip { padding: 5px 9px 4px; font-size: var(--t-caption); line-height: 1; color: var(--muted); box-shadow: inset 0 0 0 var(--hair) var(--l-line); }
+/* the iso chart (./iso.ts): it keeps its proportions inside whatever room the cell gives it (a size container), the scales and the tag as HTML over it */
+.rvd-fig { position: relative; flex: 1 1 auto; min-height: clamp(260px, 34vh, 400px); margin: 0; container-type: size; display: flex; align-items: center; justify-content: center; }
+.rvd-iso { position: relative; width: min(100cqw - 24px, (100cqh - 24px) * var(--ar)); aspect-ratio: var(--ar); }
+.rvd-iso svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.rvd-iso path, .rvd-iso circle { vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+.rvd-wall { fill: none; stroke: #111; stroke-opacity: 0.35; stroke-width: 0.75; }
+.rvd-wall-t { fill: none; stroke: #111; stroke-opacity: 0.35; stroke-width: 0.55; stroke-dasharray: 1.1 3.3; }
+.rvd-floor { fill: #f5f5f5; stroke: #111; stroke-width: 0.77; }
+.rvd-floor-g { fill: none; stroke: #111; stroke-opacity: 0.6; stroke-width: 0.55; stroke-dasharray: 1.1 3.3; }
+.rvd-col-l { fill: #f5f5f5; stroke: #111; stroke-width: 0.9; }
+.rvd-col-r { fill: #ececec; stroke: #111; stroke-width: 0.9; }
+.rvd-col-t { fill: #fff; stroke: #111; stroke-width: 0.9; }
+.rvd-run { fill: none; stroke: #00dc8d; stroke-width: 2.25; }
+.rvd-head { fill: #00dc8d; stroke: #111; stroke-width: 0.8; }
+.rvd-ticks { position: absolute; inset: 0; pointer-events: none; }
+.rvd-tick { position: absolute; font-size: 0.6875rem; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; translate: 0 -50%; }
+.rvd-tick--l { translate: calc(-100% - 8px) -50%; color: var(--muted); }
+.rvd-tick--r { translate: 14px -50%; color: var(--green-text); }
+/* the tag: the rail's black chip with its green dot, mono, at the line's end */
+.rvd-tag { position: absolute; width: 0; height: 0; }
+.rvd-tag > b { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 7px; height: 22px; padding: 0 9px 0 8px; font-weight: 400;
+  background: #111; color: #fff; font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase;
+  white-space: nowrap; transform-origin: 100% 100%; }
+.rvd-tag i { width: 7px; height: 7px; border-radius: 50%; background: #00dc8d; flex: none; }
+/* the viewfinder's corners (the rail's .rs__fin) */
+.rvd-fin { position: absolute; inset: -12px; pointer-events: none; }
+.rvd-fin i { position: absolute; width: 14px; height: 14px; border: 0 solid var(--ink); }
+.rvd-fin .tl { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; } .rvd-fin .tr { right: 0; top: 0; border-right-width: 1px; border-top-width: 1px; }
+.rvd-fin .bl { left: 0; bottom: 0; border-left-width: 1px; border-bottom-width: 1px; } .rvd-fin .br { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+.rvd-cta { padding-top: 4px; }
+
+/* ---------------------------------------------------------------- the gauge (square ends) */
+.rvd-g8 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
+.rvd-gauge { position: relative; width: clamp(120px, 19vh, 176px); max-width: 100%; aspect-ratio: 1; }
+.rvd-gauge svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.rvd-gauge__track, .rvd-gauge__val { fill: none; stroke-width: 12; stroke-linecap: butt; }
+.rvd-gauge__track { stroke: rgb(38 38 38 / 0.08); }
+.rvd-gauge__val { stroke: var(--emerald); }
+.rvd-gauge__v { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--sans-display); font-weight: 500; font-size: clamp(1.75rem, 1.3rem + 1.2vw, 2.375rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.rvd-gauge__l { font-family: var(--sans); font-weight: 500; font-size: 0.6875rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.rvd-gauge__c { max-width: 15em; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--graphite); text-wrap: balance; }
+
+/* ---------------------------------------------------------------- the last 30 days */
+.rvd-d { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+.rvd-d__h { font-size: var(--t-body-l); line-height: 1.3; color: var(--graphite); }
+.rvd-d__figs { display: grid; gap: 20px; margin: 0; }
+.rvd-d__figs > div { padding-top: 14px; border-top: var(--hair) solid var(--l-soft); }
+.rvd-d__figs dt { font-size: var(--t-label); line-height: var(--t-label-lh); letter-spacing: var(--t-label-tr); text-transform: uppercase; color: var(--muted); }
+.rvd-d__figs dd { margin: 10px 0 0; white-space: nowrap; font-family: var(--sans-display); font-weight: 500; font-size: clamp(1.75rem, 1.1rem + 1.4vw, 2.5rem); line-height: 1;
+  letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+.rvd-d__u { font-size: 0.42em; letter-spacing: 0; color: var(--muted); }
+
+/* ---------------------------------------------------------------- the scene (desktop, motion on) */
+.rvd.is-scene { height: var(--rvd-h, 350vh); background: transparent; }
+.rvd.is-scene .rvd-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: var(--ink); --edge: 100vh; }
+.rvd.is-scene .rvd-bento { height: 100%; }
+.rvd.is-scene .rvd-paper { display: block; position: absolute; inset: 0; background: var(--paper-0); clip-path: inset(var(--edge) 0 0 0); }
+.rvd.is-scene .rvd-edge { display: block; position: absolute; z-index: 4; left: 0; right: 0; top: var(--edge); height: var(--hair); margin-top: -0.5px; background: var(--emerald); opacity: 0; pointer-events: none; }
+/* the texts on screen through the swap: the dark ground's colour above the edge, the paper's below (a background clipped to the glyphs) */
+.rvd.is-scene .rvd-ink {
+  color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(180deg, var(--c-d) 0 var(--e, 99999px), var(--c-l) var(--e, 99999px));
+  padding-block: 0.14em; margin-block: -0.14em;   /* room for the glyphs that overhang their line box (the clip paints inside the box) */
+  --c-d: rgb(245 244 241 / 0.72); --c-l: var(--graphite);
+}
+.rvd.is-scene .rvd-h2, .rvd.is-scene .rvd-big { --c-d: var(--paper-0); --c-l: var(--ink); }
+.rvd.is-scene :is(.rvd-g, .rvd-unit) { --c-d: var(--emerald); --c-l: var(--green-text); padding-block: 0; margin-block: 0; }
+.rvd.is-scene :is(.rvd-h .rvd-in, .rvd-l .rvd-in, .rvd-t .rvd-in, .rvd-hr, .rvd-vr, .rvd-x) { will-change: transform; }
+
+/* ---------------------------------------------------------------- phones: one column, the gauge and the 30 days side by side */
+@media (max-width: 859.98px) {
+  .rvd-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-template-areas: "h h" "l l" "t t" "g d" "c c"; }
+  .rvd-h { padding: 56px var(--l-pad) 0; }
+  .rvd-l { padding: 16px var(--l-pad) 40px; }
+  .rvd-l > :is(.rvd-hr, .rvd-x, .rvd-vr), .rvd-c > .rvd-vr { display: none; }
+  .rvd-t { padding-block: 32px; }
+  .rvd-big { font-size: clamp(2.75rem, 0.8rem + 10vw, 4.25rem); }
+  .rvd-g8, .rvd-d { padding-block: 28px; }
+  .rvd-gauge { width: min(150px, 100%); }
+  .rvd-d__figs dd { font-size: clamp(1.5rem, 1rem + 2.4vw, 2rem); }
+  .rvd-c { padding-block: 28px 36px; }
+  .rvd-fig { min-height: 0; height: clamp(230px, 66vw, 420px); }
+  .rvd-tick { font-size: 0.625rem; }
+}
+/* narrow charts: every other tick (the wall keeps its lines), so the labels never touch */
+@media (max-width: 560px) {
+  .rvd-tick--l:nth-child(odd), .rvd-tick--r:nth-child(odd of .rvd-tick--r) { display: none; }
+}
+@media (max-width: 380px) {
+  .rvd-d__figs dd { font-size: 1.375rem; }
+}

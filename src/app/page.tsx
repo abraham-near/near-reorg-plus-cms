@@ -1,4 +1,7 @@
 import styles from "./Selector.module.css";
+import { COUNT, GROUPS } from "./extra/pages";
+
+const EXTRA_LINE = GROUPS.map((g) => `${g.title} (${g.pages.length})`).join(" · ");
 
 // The index: a choice between the homepage directions. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
 const VERSIONS = [
@@ -26,6 +29,14 @@ const VERSIONS = [
     tags: ["Dot globe", "Pill nav", "b10 buttons"],
     img: "/selector-v3.webp",
   },
+  {
+    href: "/home-v4",
+    n: "04",
+    name: "New copy",
+    note: "Flat + b10 with the October 2026 copy: a new intro, rail and Stack, a revenue row, updated figures and six voices.",
+    tags: ["Oct 2026 copy", "Revenue row", "Six voices"],
+    img: "/selector-v4.webp",
+  },
 ];
 
 export default function Selector() {
@@ -33,12 +44,15 @@ export default function Selector() {
     <main className={styles.page}>
       <header className={styles.top}>
         <img className={styles.logo} src="/brand/logo.svg" alt="NEAR" width={88} height={23} />
-        <p className={styles.label}>Homepage directions</p>
+        <div className={styles.topr}>
+          <p className={styles.label}>Homepage directions</p>
+          <a className={styles.toplink} href="/extra">Extra pages <span aria-hidden="true">→</span></a>
+        </div>
       </header>
 
       <div className={styles.intro}>
-        <h1 className={styles.h}>Three directions for the homepage<span className={styles.sq} aria-hidden="true" /></h1>
-        <p className={styles.sub}>Same story, same copy. Drawn in dots and lines, rendered in 3D, or flat with b10’s navigation and buttons.</p>
+        <h1 className={styles.h}>Four versions of the homepage<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>Drawn in dots and lines, rendered in 3D, or flat with b10’s navigation and buttons; and that last one again with the October 2026 copy.</p>
       </div>
 
       <ul className={styles.grid}>
@@ -66,6 +80,16 @@ export default function Selector() {
           </li>
         ))}
       </ul>
+
+      {/* the way into /extra (src/app/extra/pages.ts) */}
+      <a className={styles.extra} href="/extra">
+        <span className={styles.n}>Extra pages</span>
+        <span className={styles.extraName}>{EXTRA_LINE}</span>
+        <span className={styles.path}>/extra · {COUNT} pages</span>
+        <span className={styles.go} aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
+        </span>
+      </a>
     </main>
   );
 }

@@ -1,0 +1,158 @@
+/* Revenue option B, "Screen" (RevenueB.tsx). Inside .l-page: its tokens (--margin, --l-pad, --ink, --paper-0, the type scale) are the grid's.
+   Settled (the static state: phones, short screens, reduced motion, and the end of the desktop scrub): the heading on paper inside the frame lines, then a dark
+   screen at the grid's width with crosshairs on its corners, then the figures strip on the same frame lines.
+   Desktop (.is-pin, set by motion.ts): the stage sticks for 100 vh more; .rvb-dark (the Stack's ground) starts full bleed and contracts to the screen (--rvb-k). */
+.rvb {
+  --rvb-on: var(--paper-0);
+  --rvb-on-2: rgb(245 244 241 / 0.72);   /* secondary text on the dark */
+  --rvb-on-3: rgb(245 244 241 / 0.5);    /* labels, axes */
+  --rvb-rule: rgb(245 244 241 / 0.16);   /* lines on the dark */
+  --rvb-soft: rgb(245 244 241 / 0.09);
+  --rvb-pt: clamp(56px, 10vh, 104px);     /* the heading's top: clear of the header pill */
+  --rvb-pb: clamp(24px, 4vh, 36px);
+  --rvb-cy: clamp(18px, 3.2vh, 28px);     /* a cell's top and bottom inside the screen */
+  --rvb-gap: 48px;                        /* paper under the screen, down to the figures strip's rule */
+  --rvb-col: 58.3333%;                    /* the screen's divider: seven twelfths, as the heading's */
+  --rvb-k: 1;                             /* 0: full bleed, 1: settled */
+  --rvb-r1: 50px; --rvb-r2: 50%;          /* the screen's row lines (motion.ts measures them) */
+  position: relative;
+}
+/* the figures strip starts on the stage's last line (the frame lines run on into it) */
+#revenue.rvb + .l-proof { padding-top: 0; }
+
+.rvb-stage { position: relative; padding-bottom: var(--rvb-gap); }
+/* the grid's frame lines, the whole height of the stage (on the paper; the dark covers them while it is full bleed) */
+.rvb-stage::before, .rvb-stage::after { content: ""; position: absolute; z-index: 0; top: 0; bottom: 0; width: var(--hair); background: var(--l-line); pointer-events: none; }
+.rvb-stage::before { left: var(--margin); }
+.rvb-stage::after { right: var(--margin); }
+
+/* ---------------------------------------------------------------- the heading row (real on paper; the ghost is the dark's copy) */
+.rvb-head { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); margin: 0 var(--margin); }
+.rvb-head__h { padding: var(--rvb-pt) var(--l-pad) var(--rvb-pb); }
+.rvb-head__b { position: relative; display: flex; align-items: flex-end; padding: var(--rvb-pt) var(--l-pad) var(--rvb-pb) calc(var(--l-pad) * 1.5); }
+.rvb-head__b::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--hair); background: var(--l-line); }
+.rvb-head .l-h2 { white-space: nowrap; }
+.rvb-cta { margin-top: clamp(20px, 3.4vh, 32px); }
+.rvb-head__b .l-lede { max-width: 28em; }
+
+.rvb-head--ghost { position: absolute; top: 0; left: 0; right: 0; color: var(--rvb-on); --l-line: var(--rvb-rule); pointer-events: none; }
+.rvb-head--ghost .l-lede { color: var(--rvb-on-2); }
+.rvb-head--ghost .l-btn { color: var(--rvb-on); box-shadow: inset 0 0 0 1px rgb(245 244 241 / 0.6); }
+/* the real button sits under the dark while it covers it: the copy mirrors its hover and focus */
+@media (hover: hover) {
+  .rvb:has(.rvb-head:not(.rvb-head--ghost) .l-btn:hover) .rvb-head--ghost .l-btn { padding-left: 38px; color: var(--ink); background: var(--rvb-on); box-shadow: inset 0 0 0 1px var(--rvb-on); }
+  .rvb:has(.rvb-head:not(.rvb-head--ghost) .l-btn:hover) .rvb-head--ghost .l-btn::before { transform: scale(1); }
+}
+.rvb:has(.rvb-head:not(.rvb-head--ghost) .l-btn:focus-visible) .rvb-head--ghost .l-btn { outline: 2px solid var(--rvb-on); outline-offset: 3px; }
+
+/* ---------------------------------------------------------------- the dark: only on the desktop scrub */
+.rvb-dark { display: none; }
+.rvb.is-pin .rvb-dark { display: block; position: absolute; z-index: 2; inset: 0; background: var(--ink); pointer-events: none; will-change: clip-path; }
+
+/* ---------------------------------------------------------------- the screen */
+.rvb-screen { position: relative; z-index: 3; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-rows: auto auto auto;
+  margin: 0 var(--margin); background: var(--ink); color: var(--rvb-on); }
+.rvb-bar { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 15px var(--l-pad) 14px; border-bottom: var(--hair) solid var(--rvb-rule);
+  font-size: var(--t-small); line-height: 1.3; color: var(--rvb-on-2); }
+.rvb-g { color: var(--emerald); }
+.rvb-live { position: relative; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+.rvb-live::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid var(--emerald); opacity: 0; animation: rvb-ping 2.4s var(--ease-glide) infinite; }
+@keyframes rvb-ping { 0% { opacity: 0.7; scale: 0.4; } 70%, 100% { opacity: 0; scale: 1.4; } }
+
+.rvb-c { position: relative; min-width: 0; padding: var(--rvb-cy) var(--l-pad); }
+.rvb-gauge, .rvb-30 { border-left: var(--hair) solid var(--rvb-rule); }
+.rvb-chart, .rvb-30 { border-top: var(--hair) solid var(--rvb-rule); }
+
+/* the total */
+.rvb-total { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+.rvb-big { font-family: var(--sans-display); font-weight: 400; font-size: clamp(3.25rem, min(8.2vw, 11vh), 8.25rem); line-height: 0.9; letter-spacing: -0.045em;
+  white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rvb-unit { color: var(--emerald); font-size: 0.42em; letter-spacing: -0.01em; }
+.rvb-unit--s { color: var(--rvb-on-3); font-size: 0.4em; letter-spacing: 0; }
+.rvb-note { max-width: 30em; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--rvb-on-2); text-wrap: pretty; }
+
+/* the gauge: an instrument, square-ended, ticked */
+.rvb-gauge { display: flex; align-items: center; gap: clamp(20px, 2.4vw, 36px); }
+.rvb-dial { position: relative; flex: none; width: clamp(128px, min(12vw, 19vh), 184px); aspect-ratio: 1; }
+.rvb-dial svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.rvb-dial__track, .rvb-dial__val { fill: none; stroke-width: 9; stroke-linecap: butt; }
+.rvb-dial__track { stroke: var(--rvb-soft); }
+.rvb-dial__val { stroke: var(--emerald); }
+.rvb-dial__mark { stroke: var(--emerald); stroke-width: 1.5; }
+.rvb-tick { stroke: var(--rvb-on-3); stroke-width: 1; opacity: 0.55; }
+.rvb-tick--m { opacity: 1; }
+.rvb-dial__v { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding-bottom: 4%;
+  font-family: var(--sans-display); font-weight: 400; font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.5rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.rvb-lbl { font-family: var(--sans); font-weight: 500; font-size: 0.6875rem; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rvb-on-3); }
+.rvb-cap { max-width: 16em; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--rvb-on-2); text-wrap: pretty; }
+
+/* the chart: the left scale (the bars, monthly), the plot, the right scale (the line, cumulative) */
+.rvb-chart { display: flex; flex-direction: column; gap: clamp(12px, 2vh, 18px); }
+.rvb-chart__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.rvb-h3 { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); }
+.rvb-chip { padding: 5px 9px 4px; box-shadow: inset 0 0 0 1px var(--rvb-rule); font-size: var(--t-caption); line-height: 1.2; color: var(--rvb-on-2); white-space: nowrap; }
+.rvb-fig { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; height: clamp(200px, 26vh, 280px); margin: 0; }
+.rvb-plot { position: relative; min-width: 0; border-bottom: var(--hair) solid var(--rvb-rule); }
+.rvb-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.rvb-grid { stroke: var(--rvb-rule); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 1 4; }
+.rvb-bar-m { fill: rgb(245 244 241 / 0.13); }
+.rvb-area { fill: var(--emerald); fill-opacity: 0.07; }
+.rvb-line { fill: none; stroke: var(--emerald); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: square; }
+.rvb-end { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: var(--emerald); box-shadow: 0 0 0 3px var(--ink); }
+.rvb-ax { position: relative; font-size: 0.6875rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--rvb-on-3); }
+.rvb-ax span { position: absolute; translate: 0 -50%; white-space: nowrap; }
+.rvb-ax--l span { left: 0; }
+.rvb-ax--r span { right: 0; color: var(--emerald); }
+
+/* the last 30 days */
+.rvb-30 { display: flex; flex-direction: column; justify-content: space-between; gap: clamp(14px, 2.4vh, 24px); }
+.rvb-30__h { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); }
+.rvb-30__figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--l-pad); margin: 0; }
+.rvb-30__figs > div { padding-top: 14px; border-top: var(--hair) solid var(--rvb-rule); }
+.rvb-30__figs dd { margin: 12px 0 0; font-family: var(--sans-display); font-weight: 400; font-size: clamp(2rem, 1rem + 2.3vw, 3.25rem); line-height: 1; letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rvb-30__body { display: flex; flex-direction: column; gap: clamp(14px, 2.4vh, 22px); }
+.rvb-ratio { height: 4px; background: var(--rvb-soft); }
+.rvb-ratio i { display: block; height: 100%; background: var(--emerald); transform-origin: 0 50%; }
+
+/* crosshairs (the grid's +): paper on the dark where the screen's lines meet; ink on the paper at its corners (they land as it settles) */
+.rvb-x { position: absolute; z-index: 4; width: 9px; height: 9px; margin: -4px 0 0 -4px; pointer-events: none;
+  background: linear-gradient(var(--xc), var(--xc)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--xc), var(--xc)) 0 50% / 100% var(--hair) no-repeat; }
+.rvb-x--in { --xc: rgb(245 244 241 / 0.6); }
+.rvb-x--out { --xc: var(--ink); }
+.rvb.is-pin .rvb-x--out { --t: clamp(0, (var(--rvb-k) - 0.82) * 5.6, 1); opacity: var(--t); scale: calc(0.2 + 0.8 * var(--t)); rotate: calc((1 - var(--t)) * -90deg); }
+
+/* ---------------------------------------------------------------- desktop: the stage holds while the dark contracts (motion.ts sets .is-pin) */
+.rvb.is-pin .rvb-track { height: calc(100vh + var(--rvb-hold, 100vh)); }
+.rvb.is-pin .rvb-stage { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding-bottom: 0; overflow: clip; }
+.rvb.is-pin { --rvb-gap: clamp(28px, 4.6vh, 48px); }
+.rvb.is-pin .rvb-screen { flex: 1 1 0; min-height: 0; margin-bottom: var(--rvb-gap); background: transparent; grid-template-rows: auto auto minmax(0, 1fr); }
+.rvb.is-pin .rvb-chart { min-height: 0; }
+.rvb.is-pin .rvb-fig { flex: 1 1 0; height: auto; min-height: 90px; }
+
+/* ---------------------------------------------------------------- phones: stacked, no hold */
+@media (max-width: 859px) {
+  .rvb-head { display: flex; flex-direction: column; padding: 64px var(--l-pad) 36px; }
+  .rvb-head__h { display: contents; }
+  .rvb-head .l-h2 { order: 0; white-space: normal; }
+  .rvb-head__b { order: 1; padding: 20px 0 0; }
+  .rvb-head__b::before { display: none; }
+  .rvb-cta { order: 2; margin-top: 28px; }
+  .rvb-screen { grid-template-columns: minmax(0, 1fr); }
+  .rvb-gauge, .rvb-30 { border-left: 0; }
+  .rvb-gauge, .rvb-chart, .rvb-30 { border-top: var(--hair) solid var(--rvb-rule); }
+  .rvb-c { padding: 24px var(--l-pad) 28px; }
+  .rvb-total { gap: 20px; }
+  .rvb-gauge { padding-block: 28px; }
+  .rvb-fig { grid-template-columns: 42px minmax(0, 1fr) 42px; height: 210px; }
+  .rvb-30__figs { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .rvb-x--in, .rvb-x--c { display: none; }
+}
+@media (max-width: 420px) {
+  .rvb-gauge { gap: 20px; }
+  .rvb-dial { width: 128px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rvb-live::after { animation: none; }
+}

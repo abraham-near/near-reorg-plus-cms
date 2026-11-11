@@ -13,7 +13,7 @@
 .sq { display: inline-block; width: .16em; height: .16em; margin-left: .06em; background: var(--green); vertical-align: baseline; }
 .sub { margin: 0; max-width: 40ch; justify-self: end; font-size: 17px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
 
-.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
 .card { display: flex; flex-direction: column; gap: 12px; color: inherit; text-decoration: none; }
 .frame { position: relative; display: block; overflow: hidden; aspect-ratio: 16 / 9; background: var(--panel); outline: 1px solid var(--line); outline-offset: -1px; }
 .frame::after { content: ""; position: absolute; inset: 0; outline: 1px solid transparent; outline-offset: -1px; transition: outline-color .35s var(--ease); }
@@ -31,12 +31,28 @@
 .tag { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--line); color: var(--ink-2); }
 .tag::before { content: ""; width: 6px; height: 6px; background: var(--green); }
 
+/* the top right: the label and the link to /extra */
+.topr { display: flex; align-items: center; gap: 24px; }
+.toplink { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); color: var(--ink); text-decoration: none;
+  font-family: var(--font-mono); font-size: 11.5px; line-height: 1.2; letter-spacing: .04em; text-transform: uppercase; transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease); }
+.toplink:hover, .toplink:focus-visible { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+/* the strip under the cards: the way into /extra */
+.extra { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 16px 32px; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  color: inherit; text-decoration: none; transition: padding .35s var(--ease); }
+.extraName { font-family: var(--font-montreal); font-size: clamp(20px, calc(1.5 * var(--u)), 28px); line-height: 1.1; letter-spacing: -.025em; }
+.extra:hover, .extra:focus-visible { padding-inline: 16px; }
+.extra:hover .go, .extra:focus-visible .go { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.extra:hover .go svg, .extra:focus-visible .go svg { transform: translateX(3px); }
+.extra:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
 .card:hover .img, .card:focus-visible .img { transform: scale(1.03); }
 .card:hover .frame::after, .card:focus-visible .frame::after { outline-color: var(--ink); }
 .card:hover .go, .card:focus-visible .go { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .card:hover .go svg, .card:focus-visible .go svg { transform: translateX(3px); }
 .card:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
 
+@media (max-width: 1200px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 48px; } }
 @media (max-width: 900px) {
   .intro { grid-template-columns: 1fr; }
   .sub { justify-self: start; }
@@ -45,5 +61,9 @@
 @media (max-width: 640px) {
   .page { gap: 40px; padding-block: 24px 64px; }
   .go { width: 40px; height: 40px; }
+  .topr .label { display: none; }
+  .extra { grid-template-columns: minmax(0, 1fr) auto; }
+  .extra .path { grid-column: 1; }
+  .extra .go { grid-column: 2; grid-row: 1 / span 3; }
 }
-@media (prefers-reduced-motion: reduce) { .img, .go, .go svg, .frame::after { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .img, .go, .go svg, .frame::after, .toplink, .extra { transition: none; } }

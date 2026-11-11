@@ -1,0 +1,8 @@
+/* the options switch: a small ink pill, bottom left, over everything */
+.rv-sw { position: fixed; z-index: 1000; left: 16px; bottom: 16px; display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 999px;
+  background: #262626; color: #f5f4f1; box-shadow: 0 6px 24px rgb(0 0 0 / .18), inset 0 0 0 1px rgb(255 255 255 / .14); font: 500 12px/1 var(--font-text, system-ui); }
+.rv-sw__l { padding: 0 10px 0 12px; opacity: .6; letter-spacing: .04em; text-transform: uppercase; font-size: 11px; }
+.rv-sw__a { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: inherit; text-decoration: none; transition: background-color .2s; }
+.rv-sw__a:hover { background: rgb(255 255 255 / .12); }
+.rv-sw__a[aria-current="true"] { background: #00dc8d; color: #262626; }
+.rv-sw__a:focus-visible { outline: 2px solid #00dc8d; outline-offset: 2px; }

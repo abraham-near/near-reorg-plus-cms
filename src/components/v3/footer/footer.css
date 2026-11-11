@@ -22,8 +22,7 @@
   --f-line: var(--line-dark); --f-line-s: var(--line-dark-strong); --f-cross: rgb(245 244 241 / 0.5);
   --f-green: var(--emerald); --f-tint: rgb(245 244 241 / 0.035);
   --f-cta-bg: var(--on-dark); --f-cta-fg: var(--ink);
-  --fw-face: #f5f4f1;                                  /* the big word's face; motion.ts reads these */
-  --fw-side-a: #a5a5a4; --fw-side-b: #333333;          /* its depth: a little darker than the face → the ground at the back (b10: → forest) */
+  --fw-face: #f5f4f1;                                  /* the big word's colour; motion.ts reads it */
 
   position: relative; z-index: 5; overflow: hidden; color: var(--f-fg); font-family: var(--sans); -webkit-font-smoothing: antialiased;
   /* the side rules belong to the footer's own index: they start at the Products / Stack labels (--f-rail, measured in motion.ts) after a short fade */
@@ -33,6 +32,8 @@
     var(--f-bg);
 }
 @media (min-resolution: 2dppx) { .b10f { --hair: 0.5px; } }
+/* v3: after NEAR belongs to you, the footer rises over its held stage from below (the scene keeps 100 vh for it: proof-deeper.css, motion.ts sets the flag) */
+html[data-close-cover] .b10f { margin-top: -100vh; }
 @media (max-width: 859px) { .b10f { --gutter: 16px; } }
 .b10f .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 :where(.b10f) :where(p, ul) { margin: 0; padding: 0; }
@@ -143,7 +144,7 @@
 .b10f-word { position: relative; width: 100%; aspect-ratio: 363 / 73.32; margin-top: var(--s72); overflow: visible; color: var(--fw-face); user-select: none; -webkit-user-select: none; }
 .b10f-word svg { position: absolute; left: 0; top: 0; display: block; width: 100%; height: auto; }
 .b10f-word path { fill: currentColor; }
-.b10f-word canvas { position: absolute; left: 0; top: -200px; width: 100%; height: calc(100% + 200px); display: block; pointer-events: none; } /* room above the word for its rise and depth */
+.b10f-word canvas { position: absolute; left: 0; top: -24px; width: 100%; height: calc(100% + 24px); display: block; pointer-events: none; } /* room above the word for its rise */
 .b10f-word.is-live svg { visibility: hidden; }
 
 /* ---------------------------------------------------------------- arrival, in sequence (motion only)
