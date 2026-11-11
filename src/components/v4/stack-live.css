@@ -1,0 +1,25 @@
+/* Home v4 · the Stack's drawing, alive (stack-live.ts). Only the v4 band (.stk--v4); v1's drawing never gets these elements. Brand Direction A: the band's own green, ink and
+   on-dark, no new colours. The effects fade in once the build-in has settled (.stk-live-on) and belong to their layer: a highlighted layer (data-hl) keeps its effects, the dimmed ones lose theirs. */
+.stk--v4 .stk-live-fx { opacity: 0; pointer-events: none; transition: opacity var(--dur-4) var(--ease-out); }
+.stk--v4.stk-live-on .stk-live-fx { opacity: 1; }
+.stk--v4[data-hl="protocol"] .stk-c:not([data-tone="protocol"]) .stk-live-fx,
+.stk--v4[data-hl="intents"] .stk-c:not([data-tone="intents"]) .stk-live-fx,
+.stk--v4[data-hl="ai"] .stk-c:not([data-tone="ai"]) .stk-live-fx,
+.stk--v4[data-hl="com"] .stk-c:not([data-tone="com"]) .stk-live-fx { opacity: 0; }
+
+/* packets: green iso squares with an ink hairline (on-dark on the AI ring, whose top is the green's own value) and a smaller echo behind */
+.stk--v4 .stk-live-pk { fill: var(--color-green); stroke: var(--color-ink); stroke-width: 0.6; stroke-linejoin: miter; transition: none; }
+.stk--v4 .stk-c[data-tone="ai"] .stk-live-pk { fill: var(--color-on-dark); }
+.stk--v4 .stk-live-pk--echo { opacity: 0.55; stroke: none; }
+
+/* the pillar's rising bands: a hairline with a faint halo */
+.stk--v4 .stk-live-pulse polyline { fill: none; stroke: var(--color-on-dark); stroke-linejoin: round; stroke-linecap: round; }
+.stk--v4 .stk-live-pulse-line { stroke-width: 1.3; opacity: 0.85; }
+.stk--v4 .stk-live-pulse-glow { stroke-width: 7; opacity: 0.16; }
+.stk--v4 .stk-live-pulse--b .stk-live-pulse-line { stroke-width: 0.9; opacity: 0.5; }
+.stk--v4 .stk-live-pulse--b .stk-live-pulse-glow { opacity: 0.08; }
+.stk--v4 .stk-live-flash { fill: var(--color-on-dark); stroke: none; transition: none; }
+
+/* the glint across the top faces */
+.stk--v4 .stk-live-stop { stop-color: var(--color-on-dark); }
+.stk--v4 .stk-live-glint { stroke: none; transition: none; }

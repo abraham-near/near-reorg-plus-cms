@@ -216,6 +216,14 @@
 .l-origin__ph { padding: 0; }
 .l-origin__body { display: flex; flex-direction: column; padding: 88px var(--l-pad) 0 calc(var(--l-pad) * 2); border-bottom: var(--hair) solid var(--l-line); } /* the text cell closes on a rule (the photo's edge is its own line) */
 .l-origin__text { margin-top: 40px; }
+/* v4: the photo at a set shape (data-ratio); the row takes the photo's height, the text closer to the top */
+.l-origin[data-ratio] .l-origin__row { min-height: 0; }
+.l-origin[data-ratio="4/3"] .l-origin__ph { aspect-ratio: 4 / 3; }
+.l-origin[data-ratio="16/9"] .l-origin__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.l-origin[data-ratio="16/9"] .l-origin__ph { aspect-ratio: 16 / 9; }
+.l-origin[data-ratio="16/9"] .l-origin__ph .l-img { object-position: 50% 82%; }   /* keep the beam's point (it sits low in the photo) */
+.l-origin[data-ratio] .l-origin__body { padding-top: clamp(40px, 6vh, 64px); }
+.l-origin[data-ratio] .l-origin__text { margin-top: 24px; }
 .l-mark { font-size: max(13px, 0.6em); line-height: 0; margin-left: 1px; }
 .l-mark a { color: var(--green-text); }
 .l-cta { margin-top: 36px; }
@@ -464,3 +472,5 @@
   .l-feat__body { grid-row: 2; }
   .l-feat__note { grid-row: 3; }
 }
+/* v4's Origin shapes on phones: one column, the photo keeps its shape */
+@media (max-width: 859px) { .l-origin[data-ratio] .l-origin__row { grid-template-columns: minmax(0, 1fr); } .l-origin[data-ratio] .l-origin__ph { min-height: 0; } }

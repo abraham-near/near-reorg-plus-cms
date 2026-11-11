@@ -1,0 +1,263 @@
+/* near.org/foundation, version D (FoundationD.tsx): home v4's paper, ink and one green, the rail's isometric hand, open layouts.
+   Rides on .l-page's tokens (v3's proof-deeper.css, also used for the close scene). Motion states only under .fd[data-motion] (set by v3's grid
+   motion unless reduced motion); without it every block is simply finished. The hero's intro is CSS (html[data-js], no flash). */
+.fd { background: var(--paper-0); overflow-x: clip; }
+.fd :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.fd .fd-co :focus-visible { outline-color: var(--paper-0); }
+
+/* the chip: the rail's tag (a dark block, a green dot, mono caps) */
+.fd-chip { display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 10px 0 8px; background: #111; color: #f5f5f5;
+  font: 400 11.5px/1 var(--font-mono, ui-monospace, monospace); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.fd-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); flex: none; }
+
+/* ================================================================ 1 · the world */
+.fd-hero { position: relative; height: 150vh; }
+.fd-hero__stage { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 640px; overflow: hidden; }
+.fd-hero__cv { position: absolute; inset: 0; display: block; }
+.fd-hero__chips { position: absolute; inset: 0; pointer-events: none; }
+.fd-hero__chips .fd-chip { position: absolute; left: 0; top: 0; opacity: 0; transform-origin: 0 100%; will-change: transform, opacity; }
+.fd-hero__chips .fd-chip--f { background: var(--ink); }
+.fd-hero__copy { position: relative; z-index: 2; padding: clamp(120px, 17vh, 168px) var(--margin) 0; pointer-events: none; }
+.fd-hero__copy a, .fd-hero__copy p, .fd-hero__copy h1 { pointer-events: auto; }
+.fd-kicker { display: flex; align-items: center; gap: 10px; margin-bottom: clamp(20px, 3.4vh, 32px) !important;
+  font: 500 var(--t-label)/var(--t-label-lh) var(--sans); letter-spacing: var(--t-label-tr); text-transform: uppercase; color: var(--muted); }
+.fd-kicker__dot { width: 7px; height: 7px; background: var(--emerald); }
+.fd-h1 { font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.5rem, 0.4rem + 5vw, 5.25rem); line-height: 0.98; letter-spacing: -0.037em; color: var(--ink); }
+.fd-ln { display: block; }
+.fd-ln > span { display: inline-block; }
+.fd-h1 .accent { --accent-scale: 1.14em; }
+.fd-sq { display: inline-block; width: 0.15em; height: 0.15em; margin-left: 0.05em; background: var(--emerald); }
+.fd-hero__sub { max-width: 33em; margin-top: clamp(20px, 3.6vh, 32px) !important; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
+/* wide screens: the subhead tucks in beside the headline's short last line */
+@media (min-width: 1280px) {
+  .fd-hero__sub { max-width: 31em; margin: calc(-0.98 * clamp(2.5rem, 0.4rem + 5vw, 5.25rem) + 0.3em) 0 0 auto !important; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-js] .fd-ln > span, html[data-js] .fd-kicker, html[data-js] .fd-hero__sub { animation: fd-rise 1.3s var(--ease-settle) both; }
+  html[data-js] .fd-kicker { animation-delay: 0.1s; }
+  html[data-js] .fd-ln:nth-child(1) > span { animation-delay: 0.18s; }
+  html[data-js] .fd-ln:nth-child(2) > span { animation-delay: 0.27s; }
+  html[data-js] .fd-ln:nth-child(3) > span { animation-delay: 0.36s; }
+  html[data-js] .fd-hero__sub { animation-delay: 0.52s; }
+  html[data-js] .fd-sq { animation: fd-pop 0.7s var(--ease-settle) 1.1s both; }
+}
+@keyframes fd-rise { from { opacity: 0; translate: 0 0.5em; } to { opacity: 1; translate: none; } }
+@keyframes fd-pop { from { scale: 0; } to { scale: 1; } }
+
+/* ================================================================ arrivals */
+:where(.fd[data-motion]) [data-fd]:not(.is-in) { opacity: 0; translate: 0 28px; }
+:where(.fd[data-motion]) [data-fd].is-in { transition: opacity 1s var(--ease-glide) calc(var(--i, 0) * 0.09s), translate 1.2s var(--ease-settle) calc(var(--i, 0) * 0.09s); }
+
+/* ================================================================ type shared by the cards */
+.fd-card__n { display: block; font: 400 12px/1 var(--font-mono, ui-monospace, monospace); letter-spacing: 0.06em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fd-h3 { margin-top: 16px !important; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); }
+.fd-card__b { margin-top: 12px !important; max-width: 28em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+
+/* ================================================================ 2 · three pillars: tall cards that tilt */
+.fd-sec { padding: clamp(80px, 12vh, 140px) var(--margin); }
+.fd-pillars { padding-top: clamp(24px, 4vh, 48px); }
+.fd-pillars__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); list-style: none; }
+.fd-card { perspective: 1100px; }
+.fd-card__in { --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 0%; position: relative; display: flex; flex-direction: column; height: 100%;
+  background: var(--paper-1); box-shadow: inset 0 0 0 1px var(--line); transform: rotateX(var(--rx)) rotateY(var(--ry)); transform-style: preserve-3d;
+  transition: transform 0.7s var(--ease-settle), background-color 0.4s var(--ease-tick); }
+.fd-card__in::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.4s var(--ease-tick);
+  background: radial-gradient(60% 50% at var(--mx) var(--my), rgb(255 255 255 / 0.55), rgb(255 255 255 / 0) 70%); }
+.fd-card__art { flex: none; height: clamp(300px, 44vh, 440px); display: grid; place-items: center; padding: clamp(28px, 3vw, 44px) clamp(20px, 2.4vw, 36px) 12px; }
+.fd-card__art .fd-iso { width: 100%; max-width: 380px; max-height: 330px; }
+.fd-card__body { flex: 1; padding: 24px clamp(20px, 2vw, 32px) clamp(28px, 3vw, 36px); box-shadow: inset 0 1px 0 var(--line); }
+@media (hover: hover) {
+  .fd-card:hover .fd-card__in::after { opacity: 1; }
+  .fd-card:hover .fd-card__in { background: #f0efeb; }
+}
+
+/* ================================================================ 3 · the devolution: a sticky split */
+.fd-dev { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.fd-dev::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: var(--hair); background: var(--line); }
+.fd-dev__fig { position: relative; }
+.fd-dev__stage { --dp: 0; position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 600px; overflow: hidden; }
+.fd-dev__cvbox { position: absolute; inset: 72px 0 96px; }
+.fd-dev__cv { position: absolute; left: 0; top: 0; display: block; }
+.fd-dev__chip { position: absolute; left: 0; top: 72px; will-change: transform; }
+.fd-dev__chip.fd-chip--f { background: var(--ink); }
+.fd-dev__meter { position: absolute; left: var(--margin); right: clamp(24px, 3vw, 48px); bottom: 44px; display: flex; align-items: center; gap: 14px;
+  font: 400 11.5px/1 var(--font-mono, ui-monospace, monospace); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.fd-dev__meter b { position: relative; flex: 1; height: 1px; background: var(--line-strong); }
+.fd-dev__meter i { position: absolute; inset: 0; background: var(--ink); transform: scaleX(var(--dp)); transform-origin: 0 50%; }
+.fd-dev__meter i::after { content: ""; position: absolute; right: -4px; top: -3.5px; width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); transform: scaleX(calc(1 / max(var(--dp), 0.001))); transform-origin: 50% 50%; }
+.fd-dev__txt { padding: 0 var(--margin) 0 clamp(32px, 5vw, 96px); }
+.fd-dev__h { padding-top: clamp(120px, 24vh, 240px); max-width: 8.5em; text-wrap: balance; }
+.fd-dev__steps { padding: 6vh 0 26vh; }
+.fd-step { position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 64vh; max-width: 17em;
+  font-family: var(--sans-display); font-weight: 400; font-size: var(--t-statement); line-height: 1.2; letter-spacing: -0.022em; text-wrap: pretty; color: var(--ink);
+  transition: opacity 0.6s var(--ease-tick); }
+.fd-step__n { display: block; margin-bottom: 18px; font: 400 12px/1 var(--font-mono, ui-monospace, monospace); letter-spacing: 0.06em; color: var(--muted); }
+:where(.fd[data-motion]) .fd-step { opacity: 0.16; }
+:where(.fd[data-motion]) .fd-step.is-on, :where(.fd[data-motion]) .fd-step.is-done { opacity: 1; }
+
+/* ================================================================ 4 · transparency: the ridges, a card over them */
+.fd-tr { position: relative; display: flex; align-items: flex-end; min-height: 115vh; overflow: hidden; background: var(--paper-2); isolation: isolate; }
+.fd-tr__ph { position: absolute; inset: 0; z-index: -1; }
+.fd-tr__ph::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, var(--paper-0) 0%, rgb(245 244 241 / 0) 22%), linear-gradient(0deg, rgb(20 24 26 / 0.28) 0%, rgb(20 24 26 / 0) 45%); }
+.fd-tr__img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; display: block; filter: saturate(0.78) contrast(0.97); will-change: transform; }
+.fd-tr__in { position: relative; width: 100%; padding: 0 var(--margin) clamp(64px, 11vh, 128px); }
+.fd-tr__card { position: relative; max-width: 660px; padding: clamp(32px, 4vw, 56px) clamp(24px, 3.6vw, 52px) clamp(32px, 3.6vw, 52px);
+  background: rgb(245 244 241 / 0.94); box-shadow: 0 30px 80px -40px rgb(10 20 24 / 0.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.fd-tr__chip { margin-bottom: 28px; }
+.fd-tr__h { max-width: 9.5em; text-wrap: balance; }
+.fd-tr__b { margin-top: 28px !important; max-width: 30em; color: var(--ink); }
+/* + crosshairs at the card's corners (the brand's meeting points) */
+.fd-x { position: absolute; width: 11px; height: 11px; pointer-events: none;
+  background: linear-gradient(var(--ink), var(--ink)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 100% 1px no-repeat; }
+.fd-x--tl { left: -5px; top: -5px; } .fd-x--tr { right: -5px; top: -5px; } .fd-x--bl { left: -5px; bottom: -5px; } .fd-x--br { right: -5px; bottom: -5px; }
+
+/* ================================================================ 5 · the Council, on ink */
+.fd-co { background: var(--ink); color: var(--paper-0); --graphite: rgb(245 244 241 / 0.76); --muted: rgb(245 244 241 / 0.56); }
+.fd-co__in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 96px); align-items: center; padding: clamp(96px, 15vh, 168px) var(--margin); }
+.fd-co__h { max-width: 8em; }
+.fd-co__b { margin-top: 32px !important; color: var(--paper-0); max-width: 28em; }
+.fd-co__fig { margin: 0; }
+.fd-co__fig .fd-iso { width: 100%; max-height: 74vh; }
+
+/* ================================================================ 6 · how the Foundation operates: a horizontal track */
+.fd-op { position: relative; }
+.fd-op__pin { padding: clamp(80px, 12vh, 140px) 0; }
+.fd-op__track { display: flex; flex-direction: column; gap: 56px; padding: 0 var(--margin); }
+.fd-op__intro .fd-op__h { max-width: 8em; }
+.fd-op__intro .l-lede { margin-top: 28px !important; max-width: 27em; }
+.fd-op__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); list-style: none; }
+.fd-op__card { display: flex; flex-direction: column; background: var(--paper-1); box-shadow: inset 0 0 0 1px var(--line); }
+.fd-op__art { display: grid; place-items: center; padding: clamp(28px, 3vw, 48px); min-height: 0; }
+.fd-op__art .fd-iso { width: 100%; height: 100%; max-height: 380px; }
+.fd-op__body { padding: 24px clamp(20px, 2.4vw, 36px) clamp(28px, 3vw, 40px); box-shadow: inset 0 1px 0 var(--line); }
+.fd-op.is-track .fd-op__body { min-height: 236px; }
+.fd-op__of { color: var(--line-strong); }
+.fd-op__bar { display: none; }
+/* desktop with motion: one sticky stage; the section is as tall as the track is wide (motion.ts) */
+.fd-op.is-track .fd-op__pin { position: sticky; top: 0; height: 100vh; height: 100svh; padding: 0; display: flex; align-items: center; overflow: hidden; }
+.fd-op.is-track .fd-op__track { flex-direction: row; align-items: center; gap: clamp(20px, 2vw, 32px); width: max-content; padding-right: var(--margin); will-change: transform; }
+.fd-op.is-track .fd-op__intro { flex: none; width: min(560px, 38vw); padding-right: clamp(24px, 4vw, 72px); }
+.fd-op.is-track .fd-op__list { display: flex; gap: clamp(20px, 2vw, 32px); }
+.fd-op.is-track .fd-op__card { flex: none; width: min(620px, 44vw); height: min(74vh, 700px); }
+.fd-op.is-track .fd-op__art { flex: 1; }
+.fd-op.is-track .fd-op__bar { display: block; position: absolute; left: var(--margin); right: var(--margin); bottom: clamp(24px, 5vh, 48px); height: 1px; background: var(--line-strong); }
+.fd-op.is-track .fd-op__bar b { position: absolute; inset: 0; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; }
+
+/* ================================================================ 7 · the ecosystem: big type, the dApps strip as a marquee */
+.fd-eco { padding: clamp(112px, 17vh, 200px) 0 clamp(96px, 14vh, 160px); text-align: center; }
+.fd-eco__h { max-width: 12.5em; margin: 0 auto !important; padding: 0 var(--margin); font-family: var(--sans-display); font-weight: 500;
+  font-size: clamp(2.75rem, 0.9rem + 5.2vw, 6.25rem); line-height: 0.98; letter-spacing: -0.035em; text-wrap: balance; }
+.fd-eco__mq { margin-top: clamp(48px, 8vh, 88px); overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.fd-eco__track { display: flex; width: max-content; -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent); mask-image: linear-gradient(180deg, #000 78%, transparent); }
+/* one tile: the strip cropped to ten whole columns (its column pitch is 132.73 of 1440; the outer, cut columns are left out), so tiles repeat seamlessly */
+.fd-eco__tile { --mh: clamp(150px, 17.3vw, 249px); position: relative; flex: none; height: var(--mh); width: calc(var(--mh) * 1327.27 / 249); overflow: hidden; }
+.fd-eco__tile img { position: absolute; top: 0; left: calc(var(--mh) * -56.36 / 249); height: 100%; width: auto; max-width: none; display: block; }
+:where(.fd[data-motion]) .fd-eco__track { animation: fd-mq 90s linear infinite; }
+@media (hover: hover) { :where(.fd[data-motion]) .fd-eco__mq:hover .fd-eco__track { animation-play-state: paused; } }
+@keyframes fd-mq { to { transform: translateX(-50%); } }
+.fd-eco__foot { display: flex; flex-direction: column; align-items: center; gap: 24px; max-width: 640px; margin: clamp(40px, 6vh, 64px) auto 0 !important; padding: 0 var(--margin); }
+.fd-eco__foot .l-lede { color: var(--ink); }
+
+/* ================================================================ 8 · the close: the doc's subhead and two buttons in the newsletter's place */
+.fd-close__nl { text-align: center; }
+.fd-close__nl .l-lede { margin-inline: auto; }
+.fd-close__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.fd-btn--fill { color: var(--paper-0); background: var(--ink); }
+@media (hover: hover) { .fd-btn--fill:hover { background: #000; } }
+
+/* ================================================================ the isometric drawings (iso.tsx, illos.tsx) */
+.fd-iso { --i-top: #ffffff; --i-l: #f5f5f5; --i-r: #ececec; --i-ink: #111111; --i-fl: #f5f5f5; display: block; width: 100%; height: auto; overflow: visible; }
+.fd-iso :is(polygon, path, ellipse, circle, rect) { vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.fd-iso .i-t { fill: var(--i-top); stroke: var(--i-ink); stroke-width: 1; }
+.fd-iso .i-l { fill: var(--i-l); stroke: var(--i-ink); stroke-width: 1; }
+.fd-iso .i-r { fill: var(--i-r); stroke: var(--i-ink); stroke-width: 1; }
+.fd-iso .i-box--ink { --i-top: #2e2e2e; --i-l: #1c1c1c; --i-r: #161616; }
+.fd-iso :is(.i-box--green, .i-coin--green) > .i-t { fill: var(--emerald); }
+.fd-iso .i-g { fill: var(--emerald); stroke: var(--i-ink); stroke-width: 1; }
+.fd-iso .i-ln { fill: none; stroke: var(--i-ink); stroke-width: 1; }
+.fd-iso .i-fl { fill: var(--i-fl); }
+.fd-iso .i-grid { fill: none; stroke: var(--i-ink); stroke-opacity: 0.55; stroke-width: 0.6; stroke-dasharray: 1.1 3.3; }
+.fd-iso .i-edge { fill: none; stroke: var(--i-ink); stroke-width: 0.8; }
+.fd-iso .i-ghost path { fill: none; stroke: var(--i-ink); stroke-opacity: 0.6; stroke-width: 0.9; stroke-dasharray: 3 3; }
+.fd-iso .i-arc { fill: none; stroke: var(--i-ink); stroke-width: 1; stroke-dasharray: 3 3; }
+.fd-iso .i-link { fill: none; stroke: var(--i-ink); stroke-opacity: 0.6; stroke-width: 0.9; stroke-dasharray: 2 3; }
+.fd-iso .i-guide { fill: none; stroke: var(--i-ink); stroke-opacity: 0.55; stroke-width: 0.8; stroke-dasharray: 1.1 3.3; }
+.fd-iso .i-socket { fill: rgb(17 17 17 / 0.04); stroke: var(--i-ink); stroke-width: 1; stroke-dasharray: 3 3; }
+.fd-iso :is(.i-slot, .i-inkdot) { fill: var(--i-ink); }
+.fd-iso .i-dots circle { fill: var(--i-ink); opacity: 0.32; }
+.fd-iso .i-chip__bg { fill: #111111; }
+.fd-iso .i-chip__dot { fill: var(--emerald); }
+.fd-iso .i-chip__t { fill: #f5f5f5; font-family: var(--font-mono, ui-monospace, monospace); font-size: 11.5px; letter-spacing: 0.06em; }
+.fd-iso .i-note { fill: var(--i-ink); font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; letter-spacing: 0.08em; opacity: 0.7; }
+/* on ink (the Council) */
+.fd-iso--co { --i-top: #333333; --i-l: #2b2b2b; --i-r: #222222; --i-ink: rgb(245 244 241 / 0.86); }
+.fd-iso--co .i-chip__bg { fill: var(--paper-0); }
+.fd-iso--co .i-chip__t { fill: #111111; }
+.fd-iso--co .i-g, .fd-iso--co :is(.i-box--green, .i-coin--green) > .i-t { stroke: rgb(17 17 17 / 0.9); }
+.fd-iso--co .i-box--green > .i-t { stroke: var(--i-ink); }
+.fd-iso .i-g--soft { stroke: none; opacity: 0.9; }
+.fd-iso--co .fd-co__council .i-t { fill: #3d3d3d; }
+.fd-iso .i-flow { fill: none; stroke-width: 1.3; stroke-dasharray: 4 4; }
+.fd-iso .i-flow--dn { stroke: var(--emerald); }
+.fd-iso .i-flow--up { stroke: var(--i-ink); }
+.fd-iso .i-head { fill: none; stroke-width: 1.3; }
+.fd-iso .i-head--dn { stroke: var(--emerald); }
+.fd-iso .i-head--up { stroke: var(--i-ink); }
+.fd-iso .i-guide--soft { stroke-opacity: 0.25; }
+
+/* the drawings' motion (never with reduced motion: .fd[data-motion] is not set then) */
+:where(.fd[data-motion]) .fd-flow { animation: fd-dash 1.4s linear infinite; }
+:where(.fd[data-motion]) .i-flow { animation: fd-dash8 1.1s linear infinite; }
+:where(.fd[data-motion]) .fd-fn__mod { animation: fd-bob 3.4s ease-in-out infinite; }
+:where(.fd[data-motion]) .fd-ch__fly { animation: fd-bob 2.8s ease-in-out infinite; animation-delay: calc(var(--i) * -0.9s); }
+:where(.fd[data-motion]) .fd-al__r .i-coin { animation: fd-bob 3s ease-in-out infinite; animation-delay: calc(var(--i) * -1s); }
+:where(.fd[data-motion]) .fd-co__council { animation: fd-float 5s ease-in-out infinite; }
+@keyframes fd-dash { to { stroke-dashoffset: -12; } }
+@keyframes fd-dash8 { to { stroke-dashoffset: -16; } }
+@keyframes fd-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes fd-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+/* the pillars' hover: the parts lift */
+.fd-card :is(.fd-np__sheet, .fd-np__seal, .fd-np__p, .fd-gr__t, .fd-dc__n) { transition: transform 0.7s var(--ease-settle); }
+.fd-card .fd-np__glass path { transition: stroke-opacity 0.4s var(--ease-tick); }
+@media (hover: hover) {
+  .fd-card:hover .fd-np__sheet { transform: translateY(-9px); }
+  .fd-card:hover .fd-np__seal { transform: translateY(-4px); transition-delay: 0.06s; }
+  .fd-card:hover .fd-np__glass path { stroke-opacity: 1; }
+  .fd-card:hover .fd-gr__t { transform: translateY(calc(-5px - var(--i) * 2px)); transition-delay: calc(var(--i) * 0.05s); }
+  .fd-card:hover .fd-dc__n { transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)); transition-delay: calc(var(--i) * 0.03s); }
+}
+
+/* ================================================================ tablets */
+@media (max-width: 1100px) and (min-width: 860px) {
+  .fd-card__art { height: clamp(240px, 34vh, 320px); }
+}
+/* ================================================================ phones */
+@media (max-width: 859px) {
+  .fd-hero { height: auto; }
+  .fd-hero__stage { position: relative; height: 100svh; min-height: 720px; }
+  .fd-hero__copy { padding-top: 112px; }
+  .fd-ln { display: inline; }
+  .fd-ln > span { display: inline; }
+  .fd-pillars__list, .fd-op__list { grid-template-columns: minmax(0, 1fr); }
+  .fd-card__art { height: auto; padding-top: 28px; }
+  .fd-card__art .fd-iso { max-height: 260px; }
+  .fd-dev { display: block; }
+  .fd-dev::before { display: none; }
+  .fd-dev__fig { position: sticky; top: 0; z-index: 1; height: 52svh; background: linear-gradient(var(--paper-0) 88%, rgb(245 244 241 / 0)); }
+  .fd-dev__stage { position: absolute; inset: 0; height: auto; min-height: 0; }
+  .fd-dev__cvbox { inset: 64px 0 52px; }
+  .fd-dev__meter { bottom: 22px; left: var(--margin); right: var(--margin); }
+  .fd-dev__txt { position: relative; padding: 0 var(--margin); }
+  .fd-dev__h { padding-top: 40px; }
+  .fd-step { min-height: 46svh; font-size: 1.5rem; }
+  .fd-dev__steps { padding-bottom: 16svh; }
+  .fd-tr { min-height: 100svh; }
+  .fd-tr__in { padding-bottom: 24px; padding-inline: 16px; }
+  .fd-co__in { grid-template-columns: minmax(0, 1fr); }
+  .fd-op__card { min-height: 0; }
+  .fd-op__art .fd-iso { max-height: 280px; }
+  .fd-eco__tile { --mh: 150px; }
+}
+/* reduced motion: no pull-back, so the hero needs no extra scroll */
+@media (prefers-reduced-motion: reduce) { .fd-hero { height: auto; } }

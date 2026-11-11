@@ -10,7 +10,7 @@ import { WorldV4 } from "./World";
 import { RailV4 } from "./Rail";
 import { StackV4 } from "./Stack";
 import { V4_DEEPER } from "./content";
-import { RAIL_EXIT, RAIL_STEPS, REV_VARIANTS, type RevKey } from "./revenue/variants";
+import { RAIL_EXIT, RAIL_STEPS, REV_VARIANTS, VOICES_MODE, ORIGIN_RATIO, type RevKey } from "./revenue/variants";
 import { RevSwitch } from "./revenue/RevSwitch";
 import "../v3/buttons.css";
 import "../v3/globe.css";
@@ -22,7 +22,7 @@ export function V4Page({ rev = "a" }: { rev?: RevKey }) {
     <>
       <InlineScript html="document.documentElement.setAttribute('data-world-spin','')" />
       <V1Page v="v3" header={<V3Header home="/home-v4" />} world={<WorldV4 />} rail={<RailV4 exit={RAIL_EXIT[rev]} steps={RAIL_STEPS[rev]} />} stack={<StackV4 />}
-        afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <Lead key={rev} /> }} />} footer={<V3Footer />} />
+        afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <Lead key={rev} />, voicesMode: VOICES_MODE[rev], originRatio: ORIGIN_RATIO[rev] }} />} footer={<V3Footer />} />
       <RevSwitch on={rev} />
     </>
   );

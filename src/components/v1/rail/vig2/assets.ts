@@ -14,6 +14,15 @@
  *                    lifts (1.14-1.36), the slabs fold back into one (1.14-1.46), the slab lifts and fades (1.36-1.64), the floor fades (1.42-1.72).
  *   idle(t, w)       the two upper slabs breathe 1 px along the stacking axis (4.6 s, out of phase); the green coin hovers 1 px (2.8 s); the arc's dashes flow
  *                    from the grey coin to the green one (one dash period every 1.6 s). Additive on set(a)'s state; at w = 0 the dom is exactly set(a)'s.
+ *   idle, v4 (LIVE: the host sits in .layer--v4, where idle runs whenever the station is at rest on screen, scroll or not): "alive while seen", several
+ *                    out-of-phase loops, amplitudes in screen px (x w), all along iso axes:
+ *                    the slabs breathe up the stacking axis (p2 2.5 px / 5.3 s, p3 3.5 px / 4.6 s, upward only so they never meet); the green coin hovers 3 px
+ *                    (2.8 s), the grey one 2 px (3.7 s); the arc's dashes flow (1.6 s) and two value beads (tiny green iso tokens, ink sides) ride it from the
+ *                    grey coin to the green one (2.4 s each, half a period apart, eased like a toss, fading at both ends); a white glint band sweeps across
+ *                    the green face along the iso axis (1.1 s every 5.2 s, clipped to the face); a green status ring pulses out of the tag's dot (1.5 s every
+ *                    3 s); the tag floats 2 px (7.4 s); the floor's dotted grid drifts forward from its back edges (one dash period every 4.4 s).
+ *                    The added nodes (beads after the arc, the glint inside the green coin, the ring in the tag) exist only when LIVE and are display:none
+ *                    at w = 0; v1 / v3 get none of this (their idle is the one above, unchanged).
  * set(a) is allocation free: cached refs and SVGTransforms, a write cache, only transforms, opacity and stroke-dashoffset (masks / clip are attached only
  * while something is mid-draw: a state change, not a per-frame write). */
 import type { Vignette } from "./index";
@@ -34,9 +43,19 @@ let UID = 0;
 
 type Stroke = { e: SVGPathElement; len: number; da: string; s: number; k?: number };
 type Mover = { e: SVGGraphicsElement; tf: SVGTransform; bx: number; by: number };
+/* v4's extra nodes: the beads riding the arc (its polyline, cumulative lengths), the glint band over the green face, the tag's status ring */
+type Live = {
+  beads: { g: SVGGElement; tf: SVGTransform }[]; bx: Float64Array; by: Float64Array; bl: Float64Array; blen: number;
+  hide: SVGElement[]; stripe: SVGTransform; ring: SVGCircleElement; on: number;
+};
+const IV = 0.8660254, IW = 0.5;                                            /* the iso plane's axes: u = (IV, -IW) rising, v = (IV, IW) falling */
+const COIN_CX = 274.87, COIN_CY = 39.19;                                   /* the green face's centre */
+const DOT_CX = 314.92, DOT_CY = 18.95;                                     /* the tag dot's centre (r 4.98) */
+const GRID_P = 4.39;                                                       /* the grid's dash period (1.1 + 3.29) */
 
 export function create(host: HTMLElement): Vignette {
   const u = ++UID;
+  const LIVE = !!host.closest(".layer--v4");
   let a = 0, SPU = 1;
   let R: {
     svg: SVGSVGElement; M: DOMMatrix;
@@ -45,6 +64,8 @@ export function create(host: HTMLElement): Vignette {
     dot: SVGGraphicsElement; green: SVGGraphicsElement; base: SVGGraphicsElement; crt: SVGTransform; cpUrl: string; cOn: number;
     arc: SVGPathElement; amp: Stroke; amUrl: string; aOn: number;
     vis: number; idleOn: number; dashOn: number;
+    /* set(a)'s bases the v4 idle builds on: the tag's scale / lift, the arc's drawn fraction, the dot's opacity, the green face lit */
+    tz: number; tf: number; ad: number; dotO: number; gFull: number; X: Live | null;
   } | null = null;
 
   function build(svg: SVGSVGElement) {
@@ -78,7 +99,41 @@ export function create(host: HTMLElement): Vignette {
       dot: $(".a-tag-dot"), green: $(".a-green"), base: $(".a-green-base"), crt: liveTf(svg, cr), cpUrl: `url(#v2a${u}c)`, cOn: -1,
       arc, amp, amUrl: `url(#v2a${u}a)`, aOn: -1,
       vis: -1, idleOn: 0, dashOn: 0,
+      tz: 1, tf: 0, ad: 0, dotO: 0, gFull: 0, X: null,
     };
+    if (LIVE) R.X = buildLive(svg, defs, $, arc);
+  }
+
+  /* v4 only: the beads, the glint and the ring (hidden: display none until the idle shows them) */
+  function buildLive(svg: SVGSVGElement, defs: SVGDefsElement | SVGElement, $: <T extends SVGElement = SVGGraphicsElement>(s: string) => T, arc: SVGPathElement): Live {
+    const mk = <K extends keyof SVGElementTagNameMap>(tag: K, at: Record<string, string>, parent: Node, before: Node | null = null) => {
+      const e = document.createElementNS(NS, tag) as SVGElementTagNameMap[K]; for (const k in at) e.setAttribute(k, at[k]); parent.insertBefore(e, before); return e;
+    };
+    /* the beads ride the arc: its polyline and cumulative lengths */
+    const n = arc.getAttribute("d")!.match(/-?[\d.]+(?:e-?\d+)?/g)!.map(Number), m = n.length >> 1;
+    const bx = new Float64Array(m), by = new Float64Array(m), bl = new Float64Array(m);
+    for (let i = 0; i < m; i++) { bx[i] = n[2 * i]; by[i] = n[2 * i + 1]; bl[i] = i ? bl[i - 1] + Math.hypot(bx[i] - bx[i - 1], by[i] - by[i - 1]) : 0; }
+    const bg = mk("g", { class: "a-live-beads", display: "none" }, arc.parentNode!, arc.nextSibling);   /* over the arc, under the grey coin (they rise out of it) */
+    const beads: Live["beads"] = [];
+    for (let k = 0; k < 2; k++) {
+      const g = mk("g", { opacity: "0" }, bg);
+      mk("path", { d: "M-4 0L0 2.31L4 0V1.4L0 3.71L-4 1.4Z", fill: "#111111" }, g);                                             /* its ink sides */
+      mk("path", { d: "M-4 0L0 -2.31L4 0L0 2.31Z", fill: "#00DC8D", stroke: "#111111", "stroke-width": "0.55", "stroke-linejoin": "round" }, g);   /* its green top */
+      beads.push({ g, tf: liveTf(svg, g) });
+    }
+    /* the glint: two bands along the iso rising axis u, clipped to the green face, swept along v (the band itself moves, its group holds the clip) */
+    const green = $(".a-green"), cp = mk("clipPath", { id: `v2a${u}gl`, clipPathUnits: "userSpaceOnUse" }, defs);
+    mk("path", { d: green.getAttribute("d")! }, cp);
+    const band = (o: number, h: number) => {   /* o: its offset along v, h: its half width along v; 30 either way along u */
+      const pt = (su: number, sv: number) => { const x = COIN_CX + IV * su + IV * (sv + o), y = COIN_CY - IW * su + IW * (sv + o); return `${x.toFixed(2)} ${y.toFixed(2)}`; };
+      return `M${pt(-30, -h)}L${pt(30, -h)}L${pt(30, h)}L${pt(-30, h)}Z`;
+    };
+    const gg = mk("g", { "clip-path": `url(#v2a${u}gl)`, display: "none" }, green.parentNode!, green.nextSibling);   /* under the face's inner ring */
+    const stripe = mk("path", { d: band(0, 2.6) + band(-5.5, 0.9), fill: "#FFFFFF", opacity: "0.55" }, gg);
+    /* the status ring: out of the tag's green dot */
+    const dot = $(".a-tag-dot");
+    const ring = mk("circle", { cx: String(DOT_CX), cy: String(DOT_CY), r: "5", fill: "none", stroke: "#00DC8D", "stroke-width": "0.9", opacity: "0", display: "none" }, dot.parentNode!, dot.nextSibling);
+    return { beads, bx, by, bl, blen: bl[m - 1], hide: [bg, gg, ring], stripe: liveTf(svg, stripe), ring, on: 0 };
   }
 
   /* ── writes (cached: nothing is written when the value has not moved) ── */
@@ -133,12 +188,14 @@ export function create(host: HTMLElement): Vignette {
     const tp = out3(seg(A, 0.8, 0.93)), tl = seg(L, 0, 0.2), z = (0.9 + 0.1 * tp) * (1 - 0.06 * tl);
     R.M.a = z; R.M.d = z; R.M.e = TAG_CX * (1 - z); R.M.f = TAG_CY * (1 - z) - 6 * out3(tl); R.tag.tf.setMatrix(R.M);
     op(R.tag.e, tp * (1 - tl)); op(R.dot, seg(A, 0.86, 0.95));
-    R.idleOn = 1;                                              /* set() rewrote the base state: idle re-applies its offsets on its next call */
+    R.tz = z; R.tf = R.M.f; R.ad = ad; R.dotO = seg(A, 0.86, 0.95); R.gFull = gFull;
+    R.idleOn = 1;                                             /* set() rewrote the base state: idle re-applies its offsets on its next call */
   }
 
   function idle(t: number, w: number) {
     if (!R) return;
     w = +w; w = w > 0 ? (w > 1 ? 1 : w) : 0; t = +t || 0;
+    if (R.X) { idleLive(R.X, t, w); return; }                 /* v4 only (X exists only when LIVE) */
     if (w === 0) {
       if (!R.idleOn) return;                                   /* dormant: the dom is set(a)'s */
       tr(R.p2, R.p2.bx, R.p2.by); tr(R.p3, R.p3.bx, R.p3.by); tr(R.cg, 0, R.cg.by);
@@ -151,6 +208,58 @@ export function create(host: HTMLElement): Vignette {
     tr(R.cg, 0, R.cg.by - A1 * (0.5 - 0.5 * Math.cos(TAU * t / 2.8)));
     const f = t / 1.6 - Math.floor(t / 1.6);
     R.arc.setAttribute("stroke-dashoffset", (-6.4 * f * w).toFixed(2)); R.dashOn = 1;
+    R.idleOn = 1;
+  }
+
+  /* the tag's matrix: scale z about its centre, lifted by f (all six fields: R.M is shared with apply) */
+  const tagM = (z: number, f: number) => { if (!R) return; const M = R.M; M.a = z; M.b = 0; M.c = 0; M.d = z; M.e = TAG_CX * (1 - z); M.f = f; R.tag.tf.setMatrix(M); };
+  const wave = (t: number, p: number, ph: number) => 0.5 - 0.5 * Math.cos(TAU * t / p + ph);   /* 0..1, rests at 0 */
+  const frac = (x: number) => x - Math.floor(x);
+
+  /* v4: alive while seen (see the header). Additive on set(a)'s bases; at w = 0 everything goes back to them and the extra nodes hide. */
+  function idleLive(X: Live, t: number, w: number) {
+    if (!R) return;
+    if (w === 0) {
+      if (!R.idleOn) return;
+      tr(R.p2, R.p2.bx, R.p2.by); tr(R.p3, R.p3.bx, R.p3.by); tr(R.cg, 0, R.cg.by); tr(R.cs, 0, R.cs.by); tagM(R.tz, R.tf);
+      if (R.dashOn) { R.arc.removeAttribute("stroke-dashoffset"); R.grid.removeAttribute("stroke-dashoffset"); R.dashOn = 0; }
+      if (X.on) { X.on = 0; for (let i = 0; i < X.hide.length; i++) X.hide[i].setAttribute("display", "none"); }
+      R.idleOn = 0; return;
+    }
+    if (!X.on) { X.on = 1; for (let i = 0; i < X.hide.length; i++) X.hide[i].removeAttribute("display"); }
+    const S = SPU * w;                                         /* 1 screen px, weighted */
+
+    /* the slabs breathe up the stacking axis (upward only: they never meet), the coins hover, the tag floats */
+    const o2 = 2.5 * S * wave(t, 5.3, 0.9), o3 = 3.5 * S * wave(t, 4.6, 2.4);
+    tr(R.p2, R.p2.bx + UX * o2, R.p2.by + UY * o2); tr(R.p3, R.p3.bx + UX * o3, R.p3.by + UY * o3);
+    tr(R.cg, 0, R.cg.by - 3 * S * wave(t, 2.8, 0));
+    tr(R.cs, 0, R.cs.by - 2 * S * wave(t, 3.7, 2.2));
+    tagM(R.tz, R.tf - 2 * S * wave(t, 7.4, 0.6));
+
+    /* the arc's dashes flow grey -> green; the floor's dotted grid drifts forward from its back edges */
+    R.arc.setAttribute("stroke-dashoffset", (-6.4 * frac(t / 1.6) * w).toFixed(2));
+    R.grid.setAttribute("stroke-dashoffset", (-GRID_P * frac(t / 4.4) * w).toFixed(2)); R.dashOn = 1;
+
+    /* the value beads: 2.4 s each, half a period apart; they travel the first 70 % of it (eased like a toss), fading in out of the grey coin and out by the green */
+    for (let k = 0; k < X.beads.length; k++) {
+      const b = X.beads[k], q = frac(t / 2.4 + k * 0.5) / 0.7;
+      if (q >= 1) { op(b.g, 0); continue; }
+      const L = X.blen * (0.5 - 0.5 * Math.cos(Math.PI * q));
+      let i = 1; while (i < X.bl.length - 1 && X.bl[i] < L) i++;
+      const s0 = X.bl[i - 1], f = X.bl[i] > s0 ? (L - s0) / (X.bl[i] - s0) : 0;
+      b.tf.setTranslate(X.bx[i - 1] + (X.bx[i] - X.bx[i - 1]) * f, X.by[i - 1] + (X.by[i] - X.by[i - 1]) * f - 1.6);
+      op(b.g, w * R.ad * cl(q / 0.12) * cl((1 - q) / 0.15));
+    }
+
+    /* the glint: 1.1 s across the green face along v, every 5.2 s (it enters and leaves outside the clip) */
+    const gq = frac((t + 1.3) / 5.2) * (5.2 / 1.1);
+    if (gq < 1) { const s = -26 + 52 * (0.5 - 0.5 * Math.cos(Math.PI * gq)); X.stripe.setTranslate(IV * s, IW * s); op(X.hide[1], w * R.gFull); }
+    else op(X.hide[1], 0);
+
+    /* the status ring: 1.5 s out of the tag's dot, every 3 s */
+    const rq = frac((t + 0.4) / 3) * 2;
+    if (rq < 1) { X.ring.r.baseVal.value = 5 + 5 * out3(rq); op(X.ring, 0.9 * (1 - rq) * w * R.dotO); }
+    else op(X.ring, 0);
     R.idleOn = 1;
   }
 

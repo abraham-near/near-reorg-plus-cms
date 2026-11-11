@@ -5,7 +5,7 @@ import "./v4.css";
 
 /** exit: how the rail closes into the Stack (rail/layer.ts drawExit): no dots in v4 */
 /** steps: "line" drops the N tiles (the centre and the stations) and marks the steps in green over the ink line */
-export function RailV4({ exit, steps }: { exit?: "floor" | "frame" | "seam" | "ruler" | "sweep"; steps?: "tiles" | "line" }) {
+export function RailV4({ exit, steps }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop"; steps?: "tiles" | "line" }) {
   return (
     <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps}>
       <div className="rail__static">

@@ -15,7 +15,20 @@
  *   leave   1.00-1.14 the tag goes (fade, scale .94); 1.03-1.15 keyholes off, shackles open; 1.05-1.30 the dots drop out (last typed first); 1.08-1.28 lines undraw
  *           1.16-1.44 the plates fold back into one slab; 1.38-1.66 the slab lifts 18 px and fades; 1.48-1.80 the grid undraws, 1.56-1.92 the edge and fill go
  * Idle (additive, w scales it): each plate breathes 1 px along the iso vertical (4.6 s, out of phase); the dotted text scrambles: a pair of dots dips
- *   (fade to .3, shrink to .7) and comes back, a new pair every .45 s (each dip lasts .9 s, so two pairs overlap). */
+ *   (fade to .3, shrink to .7) and comes back, a new pair every .45 s (each dip lasts .9 s, so two pairs overlap).
+ * Idle, v4 (LIVE: the host sits in .layer--v4, where idle runs whenever the station is at rest on screen, scroll or not): "alive while seen", several
+ *   out-of-phase loops, all x w, all along iso axes (vertical or the floor's +-30 deg diagonals):
+ *     the plates hover 2.6 units up/down the iso vertical (5.8 s, phases 2.1 rad apart, so the gaps open and close by up to ~4.5);
+ *     a green scan line (a hairline + a faint trailing tint band, clipped to the plate's top face) sweeps across one plate's face along its rows' axis,
+ *       2.4 s every 4.8 s, top -> middle -> bottom in turn; the dots it passes swell (+45 %) as it reads them;
+ *     the scramble is stronger (dips to .12 opacity / .55 scale) and every 5.3 s one row (hashed plate + row) is retyped: backspaced right to left
+ *       (.45 s), blank, then typed left to right (.9 s);
+ *     the locks click in turn (7.8 s each, 2.6 s apart): the keyhole goes dark, the shackle lifts 2.2, drops shut, the keyhole relights with a pop;
+ *     a packet of three tiny green iso tiles rides the floor grid along the front (left tip -> front -> right tip, turning at a grid crossing; 4.6 s
+ *       every 9.2 s, direction alternating), under the plates' front edges;
+ *     the PRIVATE tag's dot swells and a green hairline ring pulses out of it (1.7 s every 2.6 s).
+ *   The added nodes (a clip + scan group per plate, the three packet tiles on the floor, the ring in the tag) exist only when LIVE and are display:none
+ *   at w = 0; v1 / v3 get none of this (their idle is the one above, unchanged). */
 import type { Vignette } from "./index";
 import { mountArt, liveTf, q } from "./art";
 
@@ -27,8 +40,20 @@ const io2 = (t: number) => (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
 const in2 = (t: number) => t * t;
 const SEP = 58.8037; /* the plates' spacing in the art (layer_2 sits 58.80 below layer_3, layer 58.80 below layer_2) */
 const NDOT = 34;
+/* LIVE geometry (art units, the top plate's face; the others sit SEP, 2 SEP lower): P0 its back-left corner, V along its rows (back-left edge), W across them
+   (left-front edge) */
+const P0X = 66.0391, P0Y = 51.9771, VX = 118.111, VY = -68.186, WX = 131.219, WY = 75.79;
+/* the packet's route on the floor grid: in at the left tip along a grid line (B9), turn at its crossing with A8, out at the right tip */
+const PAX = 20.0078, PAY = 180.197, PCX = 197.15, PCY = 282.45, PBX = 374.293, PBY = 180.197;
+const PL1 = Math.hypot(PCX - PAX, PCY - PAY), PLT = PL1 + Math.hypot(PBX - PCX, PBY - PCY), PGAP = 7;
+const PKO = [1, 0.6, 0.32];
+const md = (x: number, p: number) => ((x % p) + p) % p;
 let UID = 0;
 
+type Live = {
+  scanG: SVGGElement[]; iScan: number; dotS: Float64Array; rows: number[][]; /* per plate: [start, count, start, count, ...] (dot index within the plate) */
+  pk: SVGGraphicsElement[]; iPk: number; ring: SVGCircleElement; iTagDot: number;
+};
 type Rig = {
   M: DOMMatrix; tf: SVGTransform[]; cx: number[]; cy: number[];
   fHalf: SVGPathElement[]; fFill: SVGPathElement; fEdge: SVGPathElement;
@@ -37,29 +62,41 @@ type Rig = {
   iPlate: number; iShk: number; iKey: number; iDot: number; iTag: number;
   lines: SVGGraphicsElement[]; keys: SVGGraphicsElement[]; dots: SVGGraphicsElement[];
   tag: SVGGraphicsElement; tagDot: SVGGraphicsElement;
+  lv: Live | null;
 };
 
 export function create(host: HTMLElement): Vignette {
   const u = ++UID;
+  const LIVE = !!host.closest(".layer--v4");
   let a = 0, ready = false, R: Rig | null = null;
   /* idle offsets (additive): per plate y, per dot dip 0..1 */
   const breathe = new Float64Array(3), dip = new Float64Array(3 * NDOT), dipIdx = new Int32Array(4).fill(-1);
+  /* LIVE idle state (all 0 = set(a)'s look): per dot gone (retype) / pop (scan); per plate scan pos + opacity, keyhole off / pop, shackle lift;
+     the packet's tiles; the tag's ring and dot */
+  const gone = new Float64Array(3 * NDOT), pop = new Float64Array(3 * NDOT);
+  const scanS = new Float64Array(3), scanO = new Float64Array(3), kOff = new Float64Array(3), kPop = new Float64Array(3), shk = new Float64Array(3);
+  const pkX = new Float64Array(3), pkY = new Float64Array(3), pkO = new Float64Array(3);
+  let ringR = 5, ringO = 0, dotK = 1;
+  /* the scramble's dip depth (opacity, scale) and the plates' breathing (amplitude, period): v1 / v3's faint values, v4's readable ones */
+  const DIPO = LIVE ? 0.88 : 0.7, DIPK = LIVE ? 0.45 : 0.3, BA = LIVE ? 2.6 : 1, BP = LIVE ? 5.8 : 4.6;
 
   const apply = () => { if (ready) render(); };
 
   const art = mountArt("data", host, (svg) => {
     svg.removeAttribute("width"); svg.removeAttribute("height");
     svg.setAttribute("preserveAspectRatio", "xMidYMax meet");
-    R = build(svg, u);
+    R = build(svg, u, LIVE);
     ready = true; render();
   });
 
   /* write cache: one slot per (element, property); a write only when the value moved */
-  const SL = new Float64Array(1024).fill(NaN);
+  const SL = new Float64Array(2048).fill(NaN);
   const op = (s: number, e: SVGElement, v: number) => { const o = SL[s]; if (o === o && Math.abs(o - v) < 1e-4) return; SL[s] = v; e.style.opacity = String(v); };
+  /* opacity for the LIVE-only nodes: display:none at 0 */
+  const opD = (s: number, e: SVGElement, v: number) => { const o = SL[s]; if (o === o && Math.abs(o - v) < 1e-4) return; const was = o === o && o > 0; SL[s] = v; e.style.opacity = String(v); if (was !== (v > 0)) e.style.display = v > 0 ? "" : "none"; };
   /* a drawn stroke (pathLength 1, dasharray 1 2): g = how much shows; hidden = the middle of the gap (no round-cap dot at the start).
      fully drawn = no dash at all (the dashed render anti-aliases a hair differently from the art's plain stroke) */
-  const dsh = (s: number, e: SVGElement, g: number) => { const v = g <= 0 ? 1.5 : 1 - g; const o = SL[s]; if (o === o && Math.abs(o - v) < 1e-4) return; SL[s] = v; e.style.strokeDashoffset = String(v); const f = v === 0 ? 1 : 0; if (SL[s + 512] !== f) { SL[s + 512] = f; e.style.strokeDasharray = f ? "none" : ""; } };
+  const dsh = (s: number, e: SVGElement, g: number) => { const v = g <= 0 ? 1.5 : 1 - g; const o = SL[s]; if (o === o && Math.abs(o - v) < 1e-4) return; SL[s] = v; e.style.strokeDashoffset = String(v); const f = v === 0 ? 1 : 0; if (SL[s + 1024] !== f) { SL[s + 1024] = f; e.style.strokeDasharray = f ? "none" : ""; } };
   /* matrix (scale k about cx, cy, then translate tx, ty); slots s .. s+2 */
   const mat = (s: number, R: Rig, i: number, k: number, tx: number, ty: number) => {
     const ox = SL[s], oy = SL[s + 1], ok = SL[s + 2];
@@ -109,9 +146,9 @@ export function create(host: HTMLElement): Vignette {
       dsh(s++, R.lines[2 * p], ln); dsh(s++, R.lines[2 * p + 1], out3(seg(ln, 0.15, 1)));
       /* shackle drops shut; keyhole lights */
       const lk = arr ? out3(seg(A, 0.68 + d * 0.5, 0.8 + d * 0.5)) : 1 - seg(L, 0.05 + d * 0.3, 0.15 + d * 0.3);
-      mat(s, R, R.iShk + p, 1, 0, -2.4 * (1 - lk)); s += 3;
+      mat(s, R, R.iShk + p, 1, 0, -2.4 * (1 - lk) - shk[p]); s += 3;
       const gk = arr ? out3(seg(A, 0.74 + d * 0.6, 0.86 + d * 0.6)) : 1 - seg(L, 0.03 + d * 0.3, 0.12 + d * 0.3);
-      op(s++, R.keys[p], gk); mat(s, R, R.iKey + p, 0.4 + 0.6 * gk, 0, 0); s += 3;
+      op(s++, R.keys[p], gk * (1 - kOff[p])); mat(s, R, R.iKey + p, (0.4 + 0.6 * gk) * (1 - 0.35 * kOff[p] + 0.3 * kPop[p]), 0, 0); s += 3;
       /* dots: typed in, row by row, left to right */
       const t0 = 0.52 + p * 0.05;
       for (let j = 0; j < NDOT; j++) {
@@ -119,9 +156,9 @@ export function create(host: HTMLElement): Vignette {
         let v;
         if (arr) v = out3(seg(A, t0 + q * 0.16, t0 + q * 0.16 + 0.06));
         else { const r0 = 0.05 + (1 - q) * 0.14 + p * 0.02; v = 1 - seg(L, r0, r0 + 0.06); }
-        const dp = dip[n];
-        op(s++, R.dots[n], v * (1 - 0.7 * dp));
-        mat(s, R, R.iDot + n, (0.3 + 0.7 * v) * (1 - 0.3 * dp), 0, 0); s += 3;
+        const dp = dip[n], gn = gone[n];
+        op(s++, R.dots[n], v * (1 - DIPO * dp) * (1 - gn));
+        mat(s, R, R.iDot + n, (0.3 + 0.7 * v) * (1 - DIPK * dp) * (1 - 0.7 * gn) * (1 + 0.45 * pop[n]), 0, 0); s += 3;
       }
     }
     /* ── the tag pops last ── */
@@ -129,12 +166,21 @@ export function create(host: HTMLElement): Vignette {
     op(s++, R.tag, tg);
     mat(s, R, R.iTag, arr ? 0.9 + 0.1 * tg : 0.94 + 0.06 * tg, 0, 0); s += 3;
     op(s++, R.tagDot, arr ? seg(A, 0.9, 0.99) : 1 - seg(L, 0, 0.08));
+    /* ── LIVE only: the scan lines, the packet, the tag's ring and dot ── */
+    const V = R.lv;
+    if (V) {
+      for (let p = 0; p < 3; p++) { opD(s++, V.scanG[p], scanO[p]); mat(s, R, V.iScan + p, 1, scanS[p] * WX, scanS[p] * WY); s += 3; }
+      for (let i = 0; i < 3; i++) { opD(s++, V.pk[i], pkO[i] * fill); mat(s, R, V.iPk + i, 1, pkX[i], pkY[i]); s += 3; }
+      opD(s++, V.ring, ringO);
+      if (SL[s] !== ringR) { SL[s] = ringR; V.ring.r.baseVal.value = ringR; } s++;
+      mat(s, R, V.iTagDot, dotK, 0, 0); s += 3;
+    }
   }
 
   function idle(t: number, w: number) {
     if (!ready || art.dead()) return;
     const W = w > 0 ? w : 0;
-    for (let p = 0; p < 3; p++) breathe[p] = W * Math.sin((t / 4.6) * 2 * Math.PI + p * 2.1);
+    for (let p = 0; p < 3; p++) breathe[p] = W * BA * Math.sin((t / BP) * 2 * Math.PI + p * 2.1);
     for (let i = 0; i < 4; i++) { if (dipIdx[i] >= 0) dip[dipIdx[i]] = 0; dipIdx[i] = -1; }
     if (W > 0) {
       const step = Math.floor(t / 0.45);
@@ -147,7 +193,57 @@ export function create(host: HTMLElement): Vignette {
         }
       }
     }
+    if (LIVE) live(t, W);
     render();
+  }
+
+  /* v4's extra loops (see the header); W = 0 puts every one back to 0 (set(a)'s look) */
+  function live(t: number, W: number) {
+    const V = R && R.lv;
+    gone.fill(0); pop.fill(0); scanS.fill(0); scanO.fill(0); kOff.fill(0); kPop.fill(0); shk.fill(0); pkX.fill(0); pkY.fill(0); pkO.fill(0);
+    ringR = 5; ringO = 0; dotK = 1;
+    if (!V || W <= 0) return;
+    /* the scan: 2.4 s every 4.8 s, one plate at a time (top, middle, bottom); s runs -.1 -> 1.1 across the face, the dots near the line swell */
+    const ks = Math.floor(t / 4.8), us = (t - ks * 4.8) / 2.4;
+    if (us < 1) {
+      const sp = md(ks, 3), sNow = -0.1 + 1.2 * us;
+      scanS[sp] = sNow; scanO[sp] = W * 0.9 * cl(Math.min(us, 1 - us) / 0.12);
+      for (let j = 0; j < NDOT; j++) { const n = sp * NDOT + j, d = Math.abs(V.dotS[n] - sNow) / 0.07; if (d < 1) { const b = 1 - d * d; pop[n] = W * b * b; } }
+    }
+    /* the retype: every 5.3 s one row backspaces (right to left, .45 s), stays blank, then types back in (left to right, .9 s) */
+    const kr = Math.floor(t / 5.3), tr = t - kr * 5.3;
+    if (tr < 1.8) {
+      let x = (kr + 7) * 2654435761; x = (x ^ (x >>> 15)) >>> 0; x = Math.imul(x, 2246822519) >>> 0; x = (x ^ (x >>> 13)) >>> 0;
+      const rp = x % 3, rw = V.rows[rp], ri = ((x >>> 8) % (rw.length / 2)) * 2, r0 = rw[ri], rn = rw[ri + 1];
+      for (let j = 0; j < rn; j++) {
+        const tOff = (0.45 * (rn - 1 - j)) / rn, tOn = 0.75 + (0.9 * j) / rn;
+        gone[rp * NDOT + r0 + j] = W * seg(tr, tOff, tOff + 0.08) * (1 - out3(seg(tr, tOn, tOn + 0.14)));
+      }
+    }
+    /* the locks click in turn: keyhole dark, shackle lifts, drops shut, keyhole relights with a pop (7.8 s each, 2.6 s apart, top first) */
+    for (let p = 0; p < 3; p++) {
+      const tl = md(t - p * 2.6, 7.8);
+      if (tl > 1.5) continue;
+      shk[p] = W * 2.2 * out3(seg(tl, 0.15, 0.45)) * (1 - in2(seg(tl, 0.8, 0.98)));
+      kOff[p] = W * io2(seg(tl, 0, 0.25)) * (1 - seg(tl, 1.0, 1.12));
+      kPop[p] = W * Math.sin(Math.PI * seg(tl, 1.0, 1.45));
+    }
+    /* the packet: three iso tiles along the front of the floor grid, 4.6 s every 9.2 s, the direction alternating */
+    const kp = Math.floor(t / 9.2), up = (t - kp * 9.2) / 4.6;
+    if (up < 1) {
+      for (let i = 0; i < 3; i++) {
+        let d = up * (PLT + 2 * PGAP) - i * PGAP;
+        if (d < 0 || d > PLT) continue;
+        pkO[i] = W * PKO[i] * cl(Math.min(d, PLT - d) / 30);
+        if (kp & 1) d = PLT - d;
+        if (d < PL1) { const f = d / PL1; pkX[i] = PAX + (PCX - PAX) * f; pkY[i] = PAY + (PCY - PAY) * f; }
+        else { const f = (d - PL1) / (PLT - PL1); pkX[i] = PCX + (PBX - PCX) * f; pkY[i] = PCY + (PBY - PCY) * f; }
+      }
+    }
+    /* the tag: its dot swells and a ring pulses out of it, 1.7 s every 2.6 s */
+    const tt = md(t, 2.6), ph = tt / 1.7;
+    dotK = 1 + 0.16 * W * Math.sin(Math.PI * cl(tt / 0.35));
+    if (ph < 1) { ringR = 5 + 5.5 * out3(ph); ringO = W * 0.85 * (1 - ph) * cl(ph / 0.06); }
   }
 
   return {
@@ -159,7 +255,7 @@ export function create(host: HTMLElement): Vignette {
 }
 
 /* one-time restructure of the Figma export (resting look unchanged) */
-function build(svg: SVGSVGElement, u: number): Rig {
+function build(svg: SVGSVGElement, u: number, LIVE: boolean): Rig {
   const { $ } = q(svg);
   const mk = <T extends SVGElement>(tag: string, attrs: Record<string, string>) => { const e = document.createElementNS(NS, tag) as T; for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
   const tf: SVGTransform[] = [], cx: number[] = [], cy: number[] = [];
@@ -202,12 +298,48 @@ function build(svg: SVGSVGElement, u: number): Rig {
   const iDot = tf.length;
   PL.forEach((g) => { for (let j = 0; j < NDOT; j++) { const e = kid(g, 10 + j), c = ctr(e); dots.push(e); reg(e, c[0], c[1]); } });
   /* tag: scales about its left edge's middle */
-  const tag = $("#v2d-tag"), iTag = reg(tag, 288.445, 113.83);
+  const tag = $("#v2d-tag"), iTag = reg(tag, 288.445, 113.83), tagDot = kid(tag, 1);
+
+  /* v4 only (LIVE): the extra nodes, all hidden until idle shows them */
+  let lv: Live | null = null;
+  if (LIVE) {
+    const hide = <T extends SVGElement>(e: T) => { e.style.opacity = "0"; e.style.display = "none"; return e; };
+    /* per plate: a clip (its top face) holding a moving group: a green hairline along the rows' axis + a faint tint band trailing it */
+    const scanG: SVGGElement[] = [], iScan = tf.length;
+    const x1 = P0X - 0.1 * VX, x2 = P0X + 1.1 * VX, bx = 0.06 * WX, by = 0.06 * WY;
+    PL.forEach((g, p) => {
+      const y1 = P0Y - 0.1 * VY + p * SEP, y2 = P0Y + 1.1 * VY + p * SEP, cid = `v2d${u}face${p}`;
+      const cp = mk("clipPath", { id: cid }); cp.appendChild(mk("path", { d: kid(g, 3).getAttribute("d")! })); defs.appendChild(cp);
+      const cg = hide(mk<SVGGElement>("g", { "clip-path": `url(#${cid})`, class: "d-scan" }));
+      const mv = mk<SVGGElement>("g", {});
+      mv.appendChild(mk("path", { d: `M${x1} ${y1}L${x2} ${y2}L${x2 - bx} ${y2 - by}L${x1 - bx} ${y1 - by}Z`, fill: "#00DC8D", "fill-opacity": "0.12" }));
+      mv.appendChild(mk("path", { d: `M${x1} ${y1}L${x2} ${y2}`, stroke: "#00DC8D", "stroke-width": "0.9", fill: "none" }));
+      cg.appendChild(mv); g.insertBefore(cg, kid(g, 5)); /* over the face and its tab, under the lock, the lines and the dots */
+      reg(mv, 0, 0); scanG.push(cg);
+    });
+    /* each dot's place across its plate's face (0 at the back-left edge, 1 at the front-right one), for the scan; its rows (a new row where x steps back) */
+    const dotS = new Float64Array(3 * NDOT), rows: number[][] = [[], [], []];
+    const crs = (ax: number, ay: number, bx2: number, by2: number) => ax * by2 - ay * bx2, den = crs(WX, WY, VX, VY);
+    for (let p = 0; p < 3; p++) for (let j = 0; j < NDOT; j++) {
+      const n = p * NDOT + j, ix = iDot + n;
+      dotS[n] = crs(cx[ix] - P0X, cy[ix] - (P0Y + p * SEP), VX, VY) / den;
+      if (j === 0 || cx[ix] < cx[ix - 1] - 1) rows[p].push(j, 0);
+      rows[p][rows[p].length - 1]++;
+    }
+    /* the packet: three tiny iso tiles (a floor square, foreshortened) on the floor, over the grid, under the plates */
+    const iPk = tf.length, pk: SVGGraphicsElement[] = [];
+    for (let i = 0; i < 3; i++) { const e = hide(mk<SVGPathElement>("path", { d: "M0 -1.4L2.42 0L0 1.4L-2.42 0Z", fill: "#00DC8D" })); fl.appendChild(e); reg(e, 0, 0); pk.push(e); }
+    /* the tag: a hairline ring out of its green dot (under the text), the dot itself gets a matrix */
+    const ring = hide(mk<SVGCircleElement>("circle", { cx: "304.107", cy: "113.83", r: "5", fill: "none", stroke: "#00DC8D", "stroke-width": "0.8" }));
+    tag.insertBefore(ring, tagDot.nextSibling);
+    const iTagDot = reg(tagDot, 304.107, 113.83);
+    lv = { scanG, iScan, dotS, rows, pk, iPk, ring, iTagDot };
+  }
   return {
     M: svg.createSVGMatrix(), tf, cx, cy,
     fHalf, fFill: dia, fEdge, grid: gridLs, gridK, gridG: grid,
     arrows: $("#v2d-arrows"), plates,
     iPlate, iShk, iKey, iDot, iTag, lines, keys, dots,
-    tag, tagDot: kid(tag, 1),
+    tag, tagDot, lv,
   };
 }

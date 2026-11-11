@@ -9,6 +9,7 @@
 // r17 v1 runs the 'rise' entrance (html[data-stk-enter="rise"], world/head.ts): the band rises from the bottom with the scroll while the rail's dark is still closing (the rail writes --ov
 // on .stk for that overlap). r17's other entrance ('place', v2 only) is not part of v1 and is not ported.
 import type { V1Ctx, Dispose } from "../ctx";
+import { mountStackLive } from "../../v4/stack-live";
 
 const KEYS = ["protocol", "intents", "ai", "com"];            /* core first, as the list reads (his layers.ts order) */
 
@@ -72,9 +73,13 @@ export function mountStack(ctx: V1Ctx): Dispose {
     sts.push(ScrollTrigger.create({ trigger: el, start: "top bottom", onEnter: () => el.classList.add("is-in"), onLeaveBack: () => el.classList.remove("is-in") }));
   });
 
+  /* v4 only (its band is .stk--v4): the drawing keeps moving once built (v4/stack-live.ts); v1 never mounts it */
+  const live = root.classList.contains("stk--v4") && !RM ? mountStackLive(root, svg, ctx) : null;
+
   let done = false;
   return () => {
     if (done) return; done = true;
+    live?.();
     clear(); sts.forEach((s) => s.kill());
     html.removeAttribute("data-stk-in"); root.removeAttribute("data-build");
     rise.forEach((el) => el.classList.remove("is-in"));

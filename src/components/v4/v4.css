@@ -10,4 +10,4 @@
 .layer--v4 .rs__point, .layer--v4 .rs__dot { background: var(--color-ink, #262626); }
 .layer--v4 .rs__point img, .layer--v4 .rs__dot img { filter: invert(1); }
 /* steps on the line: no N tiles (the line marks the steps, layer.ts drawSteps) */
-.layer--v4[data-steps="line"] :is(.rs__point, .rs__dot, .rs__play) { visibility: hidden !important; }
+.layer--v4[data-steps="line"] :is(.rs__dot, .rs__play) { visibility: hidden !important; }

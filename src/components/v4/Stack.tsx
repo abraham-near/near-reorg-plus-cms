@@ -2,6 +2,7 @@
 // three features. The doc has no per-layer figures, no closing sentence and no Governance / Economics blocks, so those are left out.
 import { StackIso } from "../v1/stack/StackIso";
 import "../v1/stack/stack.css";
+import "./stack-live.css";
 
 type Layer = { key: string; n: string; name: string; role: string; url: string; host: string; line: string; features: [string, string][] };
 const LAYERS: Layer[] = [

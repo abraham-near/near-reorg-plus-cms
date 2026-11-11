@@ -582,7 +582,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
        frame     the stations' viewfinder opens from the node (its tile's round corners squaring off) to the whole screen
        seam      a seam drops from the node, then the dark parts from it to both sides
        ruler     the line's own ruler: its ticks grow down from the line, the centre first, thicken and merge into the dark
-       sweep     the steps carry on: the dark runs in from the left under the line, row by row (a staircase edge) */
+       drop      the four steps fall: the line's four quarters drop down the screen in turn, the dark behind each */
   function drawExit(c: CanvasRenderingContext2D, Wd: number, H: number, Y0: number) {
     const p = S.tk, rise = M.rise, lit = 1 - s01((p - 0.8) / 0.2);
     const band = (y0: number) => { c.beginPath(); c.rect(-2, y0, Wd + 4, H - y0 + 4); c.clip(); };   /* everything stays under the line */
@@ -603,14 +603,18 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       const d = s01(p / 0.26), o = inOut3(clamp((p - 0.16) / 0.84, 0, 1)), w = (Wd / 2 + 4) * o;
       if (d > 0) { c.fillRect(M.cx - 0.75, top, 1.5, deep * d); }
       if (w > 0) c.fillRect(M.cx - w, top - 1, w * 2, deep + 1);
-    } else if (EXIT === "sweep") {             /* the steps carry on: the dark runs in from the left under the line, as the green did, in rows a beat apart (a staircase edge) */
+    } else if (EXIT === "drop") {              /* the four steps fall: the green line parts into its four quarters (a step each) and each drops down the screen, left to
+                                                  right as the steps ran, pulling the dark down behind it; four steps become the Stack's four layers */
       band(Y0);
-      const n = 6, lag = 0.07, rh = deep / n;
+      const n = RAIL.stations.length, lag = 0.13, cw = Wd / n;
       for (let i = 0; i < n; i++) {
         const t = inOut3(clamp((p - i * lag) / (1 - (n - 1) * lag), 0, 1)); if (t <= 0) continue;
-        c.fillRect(-2, top - 1 + i * rh, (Wd + 4) * t, rh + 1.5);
+        const x = Math.floor(i * cw) - 1, w = Math.ceil(cw) + 2, h = (deep + 4) * t;
+        c.fillRect(x, top - 1, w, h + 1);
+        const g = lit * (1 - s01((t - 0.82) / 0.18));
+        if (g > 0.01) { c.globalAlpha = g; c.fillStyle = GREEN; c.fillRect(x + 1, top - 1 + h, w - 2, 2); c.fillStyle = DARK; c.globalAlpha = 1; }
       }
-    } else if (EXIT === "ruler") {             /* the line's own ruler: each tick grows down from the line, the centre first, thickens and merges with its neighbours */
+        } else if (EXIT === "ruler") {             /* the line's own ruler: each tick grows down from the line, the centre first, thickens and merges with its neighbours */
       c.beginPath(); c.rect(-2, Y0, Wd + 4, H - Y0 + 4); c.clip();
       const step = RU.step, { cx, Xc } = M, k0 = Math.ceil((Xc - cx - 2) / step) - 1, k1 = Math.floor((Xc + cx + 2) / step) + 1, full = H + M.riseEnd - M.railY + 24;
       for (let k = k0; k <= k1; k++) {
@@ -635,7 +639,10 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     { const pf = S.pf.toFixed(3), po = (1 - s01(S.tk * 4)).toFixed(3);
       if (last.pf !== pf) { last.pf = pf; R.playRect.style.strokeDashoffset = (1 - S.pf).toFixed(3); R.play.style.visibility = S.pf > 0.001 ? "visible" : "hidden"; }
       if (last.po !== po) { last.po = po; R.play.style.opacity = po; } }
-    put("pt", R.point, `scale(${S.pt.toFixed(3)})`);
+    /* v4 "line": the node stays centred on the line through every scene up to "user-owned", then leaves with the world as it slides to the first station
+       (riding the line: x from the title on, and the tide's rise) */
+    if (STEPLINE) { const nx = -(M.W * Math.max(0, S.wv - RAIL.title)) / 100; put("pt", R.point, `translate3d(${nx.toFixed(2)}px,${ry}px,0) scale(${S.pt.toFixed(3)})`); }
+    else put("pt", R.point, `scale(${S.pt.toFixed(3)})`);
     /* the slot (line 3) docks; NEAR: P0 -> P1 with the dock, then P1 -> P2 (the title) */
     { const d = S.dock, k = 1 + (M.dk - 1) * d; put("ts", R.slot, d < 1e-4 ? "none" : `translate3d(0,${(M.dockY * d).toFixed(2)}px,0) scale(${k.toFixed(4)})`); I.rest1.msc = k;
       const P1 = M.P1, P2 = M.P2, np = s01(S.nx / 0.72), ns = s01(S.nx), x = lerp(P1[0] * d, P2[0], np), y = lerp(P1[1] * d, P2[1], np), sc = lerp(1 + (P1[2] - 1) * d, P2[2], ns);   /* the place first, the size last (it never crosses "On", it closes on the comma) */
@@ -669,7 +676,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     /* 9 - 13 lines 1 and 2 dissolve; the end labels sweep out; the node shrinks away (the line stays) */
     leave(tl, I.c[0], 9, 2.8, 1.5, 3); leave(tl, I.c[1], 9.8, 2.8, 1.5, 3);
     I.ends.forEach((it, i) => to(it, { o: 1, duration: 2.2, ease: "none" }, 9.6 + 0.6 * i));
-    to(S, { pt: 0, duration: 1.4, ease: "power2.in" }, 11);
+    if (!STEPLINE) to(S, { pt: 0, duration: 1.4, ease: "power2.in" }, 11);
     /* 10.5 - 18 "NEAR is where they connect." docks at the top left (384:9085) */
     to(S, { dock: 1, duration: 7.5, ease: "power2.inOut" }, 10.5);
     /* 14.5 - 19.6 the problem climbs in, word by word, bottom -> top; it holds to 26 */
@@ -730,10 +737,24 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const mark = () => { lastScroll = performance.now(); };
     for (const t of ["scroll", "wheel", "touchmove"] as const) addEventListener(t, mark, { passive: true, signal: sig });
     const send = (i: number, t: number, v: number) => { const g = R && R.vig[i]; if (g && g.idle) g.idle(t, v); };
+    /* v4 (INKLINE): the drawings live while they are seen, scroll or not: the station at rest gets idle at once (no wait for the scroll to stop), and the
+       problem's drawing (the gate, S.ga exactly 1) gets its own */
+    let gw = 0, gsent = 0;
     const frame = (now: number) => {
       if (sig.aborted) return;
       idleRaf = requestAnimationFrame(frame);
       const dt = Math.min(0.1, prev ? (now - prev) / 1000 : 0); prev = now;
+      if (INKLINE) {
+        let rest = -1; for (let i = 0; i < 4; i++) if (S.va[i] === 1) rest = i;
+        if (rest !== idx && w <= 0) idx = rest;
+        const want = idx >= 0 && rest === idx && !document.hidden;
+        w = want ? Math.min(1, w + dt / IDLE.up) : Math.max(0, w - dt / IDLE.down);
+        if (idx >= 0 && (w > 0 || sent > 0)) { const e = s01(w); send(idx, now / 1000, e); sent = e; }
+        const g = R && R.gvig, gwant = S.ga === 1 && !document.hidden;
+        gw = gwant ? Math.min(1, gw + dt / IDLE.up) : Math.max(0, gw - dt / IDLE.down);
+        if (g && g.idle && (gw > 0 || gsent > 0)) { const e = s01(gw); g.idle(now / 1000, e); gsent = e; }
+        return;
+      }
       const T = main.time(); if (!(Math.abs(T - lastT) < 0.003)) { lastT = T; still = now; }   /* the scrub's last creeping hundredths count as settled */
       let rest = -1; for (let i = 0; i < 4; i++) if (S.va[i] === 1) rest = i;
       if (rest !== idx && w <= 0) idx = rest;                                   /* hand over only once the last one is back at rest */
@@ -741,7 +762,10 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       w = want ? Math.min(1, w + dt / IDLE.up) : Math.max(0, w - dt / IDLE.down);
       if (idx >= 0 && (w > 0 || sent > 0)) { const e = s01(w); send(idx, now / 1000, e); sent = e; }
     };
-    const stop = () => { if (!idleRaf) return; cancelAnimationFrame(idleRaf); idleRaf = 0; prev = 0; if (idx >= 0 && sent > 0) send(idx, performance.now() / 1000, 0); w = 0; sent = 0; };
+    const stop = () => {
+      if (!idleRaf) return; cancelAnimationFrame(idleRaf); idleRaf = 0; prev = 0; if (idx >= 0 && sent > 0) send(idx, performance.now() / 1000, 0); w = 0; sent = 0;
+      if (gsent > 0 && R && R.gvig) R.gvig.idle(performance.now() / 1000, 0); gw = 0; gsent = 0;
+    };
     idleIO = new IntersectionObserver((es) => { const on = es.some((e) => e.isIntersecting); if (on && !idleRaf && !sig.aborted) idleRaf = requestAnimationFrame(frame); else if (!on) stop(); });
     idleIO.observe(sec!);
   }

@@ -1,0 +1,199 @@
+/* near.org/foundation, version B (FoundationB.tsx): on v3's page tokens (proof-deeper.css .l-page), mostly free layouts; the ruled grid only for the ecosystem
+   and the close. Motion states are keyed to .l-page[data-motion] (set by v3's motion unless reduced) or to classes the motion adds (is-ready, is-scene,
+   is-story); without them every section is simply finished. */
+.fb-page { background: var(--paper-0); overflow-x: clip; --fb-mono: var(--font-montreal-mono), ui-monospace, monospace; }
+.fb-page [id^="fb-"] { scroll-margin-top: 96px; }
+.fb-art, .fb-iso__svg { display: block; overflow: visible; }
+.fb-art *, .fb-iso__svg * { vector-effect: non-scaling-stroke; }
+.fb-art { width: 100%; height: auto; stroke-width: 1; }
+/* paths drawn in by their dash offset (pathLength = 1) keep the plain stroke: Chrome measures dashes in screen space under non-scaling-stroke */
+.fb-edge, .fb-outline, .fb-seams path, .fb-a-strap path, .fb-a-link, .fb-a-edges path, .fb-op-link { vector-effect: none; }
+.fb-a-dots { stroke-width: 1.7; }
+.fb-schip__t { font-family: var(--fb-mono); font-size: 11px; letter-spacing: 0.07em; stroke: none; }
+.fb-a-cap { font-family: var(--fb-mono); font-size: 10.5px; letter-spacing: 0.1em; }
+
+/* shared type */
+.fb-h2 { font-family: var(--sans-display); font-weight: var(--t-h2s-w); font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); max-width: 11em; }
+.fb-h3 { margin-top: 14px !important; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); }
+.fb-body { margin-top: 14px !important; max-width: 25em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); }
+.fb-n { display: inline-flex; align-items: center; gap: 10px; font: var(--t-ui-w) var(--t-label)/1 var(--sans); letter-spacing: var(--t-label-tr); color: var(--muted); font-variant-numeric: tabular-nums; }
+.fb-n::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+
+/* text arrivals */
+:where(.l-page[data-motion]) [data-fb-rv]:not(.is-in) { opacity: 0; translate: 0 22px; }
+:where(.l-page[data-motion]) [data-fb-rv].is-in { transition: opacity 0.9s var(--ease-glide) var(--rv, 0.1s), translate 1.1s var(--ease-settle) var(--rv, 0.1s); }
+
+/* ================================================================ 1 · hero */
+.fb-hero { position: relative; }
+.fb-hero__stage { position: relative; height: 100vh; height: 100svh; min-height: 660px; overflow: hidden; }
+@media (min-width: 860px) and (prefers-reduced-motion: no-preference) {
+  :root[data-js] .fb-hero { height: 270vh; }
+  :root[data-js] .fb-hero__stage { position: sticky; top: 0; }
+}
+/* until the motion has set its first frame: no flash of the finished page */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .fb-hero:not(.is-ready) :is(.fb-h1, [data-hero-rv], .fb-iso) { opacity: 0; }
+}
+.fb-iso { position: absolute; inset: 0; z-index: 0; }
+.fb-iso__svg { width: 100%; height: 100%; }
+.fb-dots { stroke-width: 2.1; }
+.fb-pcs, .fb-shell { stroke-width: 1; }
+.fb-edge { stroke-width: 1; stroke-opacity: 0.5; }
+.fb-pc, .fb-shell { will-change: transform; }
+
+.fb-hero__copy { position: relative; z-index: 2; padding: clamp(116px, 15vh, 156px) var(--margin) 0; }
+.fb-kick { display: flex; align-items: center; gap: 10px; color: var(--ink) !important; }
+.fb-kick i { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); }
+.fb-h1 { margin-top: clamp(20px, 3.4vh, 36px) !important; max-width: 11.8em; font-family: var(--sans-display); font-weight: 500;
+  font-size: clamp(2.6rem, 0.9rem + 5.1vw, 6.4rem); line-height: 0.98; letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.fb-w { display: inline-block; vertical-align: baseline; overflow: clip; padding: 0.1em 0.12em 0.16em; margin: -0.1em -0.12em -0.16em; }
+.fb-wi { display: inline-block; will-change: transform; }
+.fb-h1 .fb-wi.accent { line-height: 0.9; }
+.fb-hero__sub { margin-top: clamp(22px, 3.6vh, 40px) !important; max-width: 27em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); }
+
+/* the scale under it: the scene's progress, Foundation → Ecosystem */
+.fb-hud { position: absolute; z-index: 2; left: var(--margin); bottom: clamp(24px, 4.5vh, 44px); display: flex; align-items: center; gap: 14px; }
+.fb-hud .t-label { color: var(--ink); }
+.fb-hud__track { position: relative; width: clamp(120px, 14vw, 220px); height: 1px; background: var(--line-strong); overflow: hidden; }
+.fb-hud__fill { position: absolute; inset: 0; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; }
+.fb-hud__track::after { content: ""; position: absolute; right: 0; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--emerald); }
+
+/* the chips (HTML over the drawing, placed by the motion at their anchors) */
+.fb-chips { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.fb-chip { position: absolute; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
+.fb-chip::before { content: ""; position: absolute; left: -0.5px; bottom: 0; width: 1px; height: 30px; background: #111; transform: scaleY(0); transform-origin: 50% 100%; transition: transform 0.45s var(--ease-settle); }
+.fb-chip::after { content: ""; position: absolute; left: -2.5px; top: -2.5px; width: 5px; height: 5px; border-radius: 50%; background: #111; transform: scale(0); transition: transform 0.35s var(--ease-settle); }
+.fb-chip__in { position: absolute; left: 0; bottom: 30px; display: inline-flex; align-items: center; gap: 8px; height: 26px; padding: 0 11px 0 10px; white-space: nowrap;
+  background: #111; color: #f5f4f1; font: 400 11.5px/1 var(--fb-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  opacity: 0; transform: translate(-50%, 6px) scale(0.92); transition: opacity 0.35s var(--ease-settle), transform 0.5s var(--ease-settle); }
+.fb-chip__in i { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); transform: scale(0); transition: transform 0.4s cubic-bezier(0.34, 1.8, 0.64, 1) 0.15s; }
+.fb-chip.is-on::before, .fb-chip.is-on::after { transform: none; }
+.fb-chip.is-on .fb-chip__in { opacity: 1; transform: translate(-50%, 0); }
+.fb-chip.is-on .fb-chip__in i { transform: none; }
+
+/* phones: the copy, then the drawing in the flow (it plays as it crosses the view) */
+@media (max-width: 859px) {
+  .fb-hero__stage { height: auto; min-height: 0; display: flex; flex-direction: column; overflow: visible; }
+  .fb-hero__copy { order: -1; padding-top: 112px; }
+  .fb-iso { position: relative; inset: auto; height: min(112vw, 560px); margin-top: 16px; }
+  .fb-hud { position: relative; left: auto; bottom: auto; margin: 0 var(--margin) 8px; }
+  .fb-chip__in { height: 22px; padding: 0 8px; gap: 6px; font-size: 10px; }
+  .fb-chip::before { height: 22px; }
+  .fb-chip__in { bottom: 22px; }
+}
+
+/* ================================================================ 2 · the pillars: a descending stair */
+.fb-pillars { padding: clamp(104px, 15vh, 176px) var(--margin) clamp(96px, 14vh, 160px); }
+.fb-pillars__list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(20px, 2.4vw, 40px); }
+.fb-pillar { grid-column: span 4; }
+.fb-pillar:nth-child(2) { margin-top: clamp(96px, 14vh, 150px); }
+.fb-pillar:nth-child(3) { margin-top: clamp(192px, 28vh, 300px); }
+.fb-pillar__art { display: flex; align-items: flex-end; justify-content: center; min-height: clamp(220px, 24vw, 330px); padding: 0 4%; will-change: transform; }
+.fb-pillar__art .fb-art { max-width: 340px; }
+.fb-pillar__txt { margin-top: 28px; padding-top: 22px; border-top: var(--hair) solid var(--line-strong); }
+@media (max-width: 1099px) and (min-width: 860px) {
+  .fb-pillar:nth-child(2) { margin-top: 96px; } .fb-pillar:nth-child(3) { margin-top: 192px; }
+}
+@media (max-width: 859px) {
+  .fb-pillars { padding-top: 88px; }
+  .fb-pillars__list { grid-template-columns: minmax(0, 1fr); row-gap: 72px; }
+  .fb-pillar { grid-column: auto; margin-top: 0 !important; }
+  .fb-pillar:nth-child(2) { padding-left: 12%; }
+  .fb-pillar:nth-child(3) { padding-left: 24%; }
+  .fb-pillar__art { min-height: 0; padding: 0 6%; }
+  /* the drawings scale down on phones: their chips keep a readable size */
+  .fb-schip__in { transform-box: fill-box; transform-origin: 50% 50%; scale: 1.45; }
+  .fb-art--glass .fb-schip__in, .fb-art--council .fb-schip__in, .fb-art--operate .fb-schip__in { scale: 1.7; }
+  .fb-a-cap { font-size: 15px; }
+}
+
+/* ================================================================ 3 · the thesis */
+.fb-mission { position: relative; padding: clamp(96px, 14vh, 160px) var(--margin); border-top: var(--hair) solid var(--line-strong); }
+.fb-mission__stage { position: relative; }
+.fb-mission__h { position: relative; max-width: 11.4em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.9rem, 1.1rem + 5.4vw, 7.25rem); line-height: 0.98; letter-spacing: -0.035em; }
+.fb-mission__sm { display: inline-block; }
+.fb-mission__b { margin: clamp(40px, 6vh, 64px) 0 0 auto !important; max-width: 33em; color: var(--ink) !important; }
+@media (min-width: 860px) { .fb-mission__b { margin-right: clamp(0px, 4vw, 80px) !important; } }
+/* the scene: the stage sticks while the big word shrinks into its place */
+.fb-mission.is-scene { height: 250vh; padding: 0 var(--margin); }
+.fb-mission.is-scene .fb-mission__stage { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; flex-direction: column; justify-content: flex-start; padding-top: clamp(104px, 17vh, 168px); }
+.fb-mission__big { position: absolute; left: 0; top: 100%; margin-top: 0.02em; white-space: nowrap; pointer-events: none; transform-origin: 0 0; will-change: transform; }
+.fb-mission .fb-mission__big { font-size: calc(3.15em * 1.18); line-height: 1.1; }
+.fb-mission.is-scene .fb-mission__b { will-change: transform, opacity; }
+@media (max-width: 859px) { .fb-mission .fb-mission__big { font-size: calc(2.05em * 1.18); } }
+
+/* ================================================================ 4 · transparency */
+.fb-tr { background: var(--paper-1); padding: clamp(96px, 15vh, 176px) var(--margin); }
+.fb-tr__in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(32px, 6vw, 112px); align-items: center; }
+.fb-tr__art { margin: 0; display: flex; justify-content: center; }
+.fb-tr__art .fb-art { max-width: 620px; }
+.fb-tr__p { margin-top: 32px !important; }
+.fb-tr__pull { margin-top: 36px !important; padding-top: 24px; border-top: var(--hair) solid var(--line-strong); max-width: 20em;
+  font-family: var(--sans-display); font-weight: 500; font-size: clamp(1.375rem, 1.05rem + 0.9vw, 1.875rem); line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); }
+.fb-a-scan { will-change: transform; }
+
+/* ================================================================ 5 · the Council (the Stack's ink) */
+.fb-council { background: var(--ink); color: var(--paper-0); padding: clamp(96px, 15vh, 176px) var(--margin);
+  --graphite: rgb(245 244 241 / 0.74); --muted: rgb(245 244 241 / 0.56); --line-strong: rgb(245 244 241 / 0.2); }
+.fb-council__in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(32px, 6vw, 112px); align-items: center; }
+.fb-council .l-lede { margin-top: 32px !important; color: rgb(245 244 241 / 0.8); }
+.fb-council__art { margin: 0; display: flex; justify-content: center; }
+.fb-council__art .fb-art { max-width: 580px; }
+.fb-council :focus-visible { outline-color: var(--paper-0); }
+
+/* ================================================================ 6 · how the Foundation operates */
+.fb-op { padding: clamp(96px, 15vh, 176px) var(--margin) clamp(48px, 8vh, 96px); }
+.fb-op__head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(32px, 6vw, 112px); align-items: end; }
+.fb-op__story { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(32px, 6vw, 112px); margin-top: clamp(48px, 8vh, 96px); }
+.fb-op__sticky { position: sticky; top: max(96px, calc(50vh - 290px)); display: flex; flex-direction: column; align-items: center; }
+.fb-op__sticky .fb-art { max-width: 640px; }
+.fb-op__count { display: none; align-self: flex-start; align-items: center; gap: 6px; margin-top: 16px !important; font: var(--t-ui-w) var(--t-ui)/1.2 var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
+.fb-op__ci { display: inline-flex; flex-direction: column; height: 1.2em; overflow: hidden; color: var(--ink); --ci: 0; }
+.fb-op__ci > span { display: block; line-height: 1.2; transform: translateY(calc(var(--ci) * -100%)); transition: transform 0.6s var(--ease-settle); }
+.fb-op__list { position: relative; padding-left: 36px; }
+.fb-op__rail { position: absolute; left: 0; top: 0; bottom: 0; width: var(--hair); background: var(--line-strong); }
+.fb-op__fill { position: absolute; inset: 0; background: var(--ink); transform: scaleY(1); transform-origin: 50% 0; }
+.fb-op__step { position: relative; padding: 40px 0; }
+.fb-op__step + .fb-op__step { border-top: var(--hair) solid var(--line); }
+/* the story: each activity a screen tall, the one in view in ink */
+.fb-op.is-story .fb-op__count { display: inline-flex; align-items: flex-start; }
+.fb-op.is-story .fb-op__fill { transform: scaleY(0); }
+.fb-op.is-story .fb-op__step { min-height: 74vh; display: flex; flex-direction: column; justify-content: center; border-top: 0; opacity: 0.26; transition: opacity 0.6s var(--ease-settle); }
+.fb-op.is-story .fb-op__step.is-on { opacity: 1; }
+.fb-op.is-story .fb-op__step::before { content: ""; position: absolute; left: -40px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--paper-0); box-shadow: inset 0 0 0 1px var(--ink); transition: background-color 0.4s var(--ease-settle); }
+.fb-op.is-story .fb-op__step.is-on::before { background: var(--emerald); box-shadow: inset 0 0 0 1px var(--ink); }
+.fb-op.is-story .fb-op__step:first-child { margin-top: -10vh; }
+
+/* ================================================================ 7 · the ecosystem (the ruled grid) */
+.fb-eco { padding-top: clamp(48px, 8vh, 96px); }
+.fb-eco__head { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.fb-eco__h { padding: 64px var(--l-pad) 48px; }
+.fb-eco__end { display: flex; flex-direction: column; justify-content: flex-end; padding: 64px var(--l-pad) 48px calc(var(--l-pad) * 1.5); }
+.fb-eco__link { margin-top: 24px !important; }
+.fb-eco__logos { grid-template-columns: minmax(0, 1fr); }
+.fb-eco__cell { display: grid; place-items: center; padding: clamp(40px, 7vh, 88px) var(--l-pad); background: var(--paper-1); }
+.fb-eco__cell img { display: block; width: min(100%, 1040px); height: auto; }
+
+/* ================================================================ 8 · the close: the doc's subhead and two buttons in the newsletter's place */
+.fb-close__nl { text-align: center; }
+.fb-close__nl .l-lede { margin-inline: auto; }
+.fb-close__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.fb-btn--fill { color: var(--paper-0); background: var(--ink); }
+@media (hover: hover) { .fb-btn--fill:hover { background: #000; } }
+
+/* ================================================================ phones */
+@media (max-width: 859px) {
+  .fb-tr__in, .fb-council__in, .fb-op__head, .fb-op__story, .fb-eco__head { grid-template-columns: minmax(0, 1fr); }
+  .fb-tr__art { margin-bottom: 40px; }
+  .fb-council__art { margin-top: 48px; }
+  .fb-op__head .l-lede { margin-top: 24px !important; }
+  .fb-op__fig { position: sticky; top: 64px; z-index: 2; margin: 0 calc(var(--margin) * -1); padding: 12px var(--margin) 8px; background: var(--paper-0); }
+  .fb-op__sticky { position: static; }
+  .fb-op__sticky .fb-art { max-height: 34vh; width: auto; max-width: 100%; }
+  .fb-op__count { margin-top: 6px !important; }
+  .fb-op.is-story .fb-op__step { min-height: 56vh; }
+  .fb-op.is-story .fb-op__step:first-child { margin-top: 0; }
+  .fb-eco__end { padding-top: 0; border-top: 0 !important; }
+  .fb-eco__h { padding: 48px var(--l-pad) 24px; }
+  .fb-eco__head > .l-cell + .l-cell::before { display: none; }
+}

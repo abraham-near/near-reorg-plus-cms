@@ -18,6 +18,7 @@
 //     100 vh more while the footer rises over it from below. Phones and reduced motion: the finished line and the newsletter, no hold.
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { mountIcons } from "../header/icons";
+import { mountVoiceMode } from "./voice-modes";
 
 export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: MotionCtx) {
   const ac = new AbortController(), on = { signal: ac.signal }, onP = { signal: ac.signal, passive: true };
@@ -127,8 +128,11 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
 
   /* ── the voices: one scene (gsap) ── */
   const vb = root.querySelector<HTMLElement>("[data-voices]");
+  /* v4's options (data-vmode): marquee / pins play without the scene (voice-modes.ts; the photo is the plain bleed's); short and deck are the scene, shorter */
+  const vmode = vb?.dataset.vmode || "", deck = vmode === "deck", short = vmode === "short";
+  const vOff = vb && (vmode === "marquee" || vmode === "pins") ? mountVoiceMode(vb, vmode, reduced) : null;
   let mm: gsap.MatchMedia | null = null;
-  if (vb && !reduced) {
+  if (vb && !reduced && !vOff) {
     mm = gsap.matchMedia();
     mm.add("(min-width: 860px)", () => {
       voices.on = true; vb.classList.add("is-scene");
@@ -137,10 +141,13 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
       const qs = [...vb.querySelectorAll<HTMLElement>(".l-vq")];
       // the timeline in vh of scroll: 0–100 the stage comes up, 100–300 it holds, 300–400 it leaves (three voices, v3's values).
       // More voices (v4: six): the hold grows 85 vh a voice (--scene-h), each comes in evenly and goes 20 vh before the next.
-      const n = qs.length, T = n === 3 ? 400 : 400 + (n - 3) * 85, END = T - 100;
-      const IN = n === 3 ? [58, 158, 236] : qs.map((_, i) => Math.round(58 + (i * (T - 222)) / Math.max(1, n - 1)));
-      const OUT = n === 3 ? [138, 218] : IN.slice(1).map((v) => v - 20);
-      if (n !== 3) vb.style.setProperty("--scene-h", `${END}vh`);
+      // short (v4 A): the same scene in 340 vh (v4's six in the long one: 655), a voice every 36 vh, its moves at 0.6 of the time.
+      // deck (v4 D): 280 vh, a voice every 24 vh, each sliding in from the right as the last slides out to the left.
+      const n = qs.length, T = deck ? 280 : short ? 340 : n === 3 ? 400 : 400 + (n - 3) * 85, END = T - 100, K = deck ? 0.5 : short ? 0.6 : 1;
+      const IN = deck || short ? qs.map((_, i) => Math.round(54 + (i * (T - 105 - 54)) / Math.max(1, n - 1)))
+        : n === 3 ? [58, 158, 236] : qs.map((_, i) => Math.round(58 + (i * (T - 222)) / Math.max(1, n - 1)));
+      const OUT = deck ? IN.slice(1).map((v) => v - 6) : short ? IN.slice(1).map((v) => v - 12) : n === 3 ? [138, 218] : IN.slice(1).map((v) => v - 20);
+      if (n !== 3 || deck || short) vb.style.setProperty("--scene-h", `${END}vh`);
       let tl: gsap.core.Timeline | null = null;
       const build = () => {
         if (tl) { tl.scrollTrigger?.kill(); tl.revert(); }
@@ -152,20 +159,32 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
         if (plate) tl.fromTo(plate, { yPercent: 7, xPercent: 1.5, scale: 1.22 }, { yPercent: -7, xPercent: -1.5, scale: 1.04, duration: T }, 0);
         if (top) tl.fromTo(top, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 30, ease: "power2.out" }, 46);
         // the count: 01 → 02 → 03…, each bar fills through its voice
-        if (nn) OUT.forEach((o, k) => tl!.to(nn, { yPercent: (-100 * (k + 1)) / n, duration: 18, ease: "power2.inOut" }, o + 10));
+        if (nn) OUT.forEach((o, k) => tl!.to(nn, { yPercent: (-100 * (k + 1)) / n, duration: 18 * K, ease: "power2.inOut" }, o + 10 * K));
         bars.forEach((b, i) => tl!.fromTo(b, { scaleX: 0 }, { scaleX: 1, duration: (OUT[i] ?? END) - IN[i] }, IN[i]));
         // the voices, line by line; each drifts against the photo while it is on
         qs.forEach((q, i) => {
           const lines = q.querySelectorAll(".l-vl"), who = q.querySelector(".l-who"), a = IN[i], o = OUT[i];
           // the hidden state at 0 (a staggered fromTo only renders its first target's start)
+          if (deck) {
+            // deck: the lines come in from the right one after another and leave to the left the same way; the first is on as the stage comes up
+            tl!.set(lines, { x: 120, autoAlpha: 0 }, 0);
+            if (who) tl!.set(who, { x: 60, autoAlpha: 0 }, 0);
+            tl!.to(lines, { x: 0, autoAlpha: 1, duration: 14, stagger: 2, ease: "power3.out" }, a);
+            if (who) tl!.to(who, { x: 0, autoAlpha: 1, duration: 10, ease: "power2.out" }, a + 6);
+            if (o !== undefined) {
+              tl!.to(lines, { x: -120, autoAlpha: 0, duration: 9, stagger: 1.5, ease: "power2.in" }, o);
+              if (who) tl!.to(who, { x: -60, autoAlpha: 0, duration: 7, ease: "power1.in" }, o);
+            }
+            return;
+          }
           tl!.set(lines, { yPercent: 70, autoAlpha: 0 }, 0);
           if (who) tl!.set(who, { y: 16, autoAlpha: 0 }, 0);
-          tl!.to(lines, { yPercent: 0, autoAlpha: 1, duration: 30, stagger: 5, ease: "power3.out" }, a);
-          if (who) tl!.to(who, { y: 0, autoAlpha: 1, duration: 20, ease: "power2.out" }, a + 20);
-          tl!.fromTo(q, { y: 40 }, { y: o === undefined ? 0 : -40, duration: (o === undefined ? END : o + 24) - a }, a);
+          tl!.to(lines, { yPercent: 0, autoAlpha: 1, duration: 30 * K, stagger: 5 * K, ease: "power3.out" }, a);
+          if (who) tl!.to(who, { y: 0, autoAlpha: 1, duration: 20 * K, ease: "power2.out" }, a + 20 * K);
+          tl!.fromTo(q, { y: 40 }, { y: o === undefined ? 0 : -40, duration: (o === undefined ? END : o + 24 * K) - a }, a);
           if (o !== undefined) {
-            tl!.to(lines, { yPercent: -50, autoAlpha: 0, duration: 20, stagger: 3, ease: "power2.in" }, o);
-            if (who) tl!.to(who, { y: -10, autoAlpha: 0, duration: 14, ease: "power1.in" }, o);
+            tl!.to(lines, { yPercent: -50, autoAlpha: 0, duration: 20 * K, stagger: 3 * K, ease: "power2.in" }, o);
+            if (who) tl!.to(who, { y: -10, autoAlpha: 0, duration: 14 * K, ease: "power1.in" }, o);
           }
         });
       };
@@ -286,7 +305,7 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
   place();
 
   return () => {
-    dead = true; ac.abort(); cancelAnimationFrame(raf); cancelAnimationFrame(sraf); mm?.revert();
+    dead = true; ac.abort(); cancelAnimationFrame(raf); cancelAnimationFrame(sraf); mm?.revert(); vOff?.();
     if (sc) {
       sc.classList.remove("is-scene", "is-lit"); sc.style.removeProperty("--nl");
       document.documentElement.removeAttribute("data-close-cover");

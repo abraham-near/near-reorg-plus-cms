@@ -17,6 +17,17 @@ export const GROUPS: Group[] = [
     ],
   },
   {
+    id: "pages",
+    title: "Pages",
+    note: "Inner pages of near.org in home v4's design, with the October 2026 copy.",
+    pages: [
+      { href: "/foundation", n: "A", name: "Foundation · Ruled grid", note: "near.org/foundation: the pillars, the devolution thesis, the Stiftung, the Council, how it operates, the ecosystem, the close.", tags: ["v4 design", "Ruled grid", "Scroll figure"], img: "/extra/foundation.webp" },
+      { href: "/foundation-b", n: "B", name: "Foundation · Devolve", note: "The hero's isometric block breaks into the ecosystem as you scroll; a staircase of pillars, a sticky story for how it operates.", tags: ["Iso illustrations", "Pinned hero", "Sticky story"], img: "/extra/foundation-b.webp" },
+      { href: "/foundation-c", n: "C", name: "Foundation · The Stiftung", note: "A dark hero: green columns rise on the Foundation's plinth; pillars on a horizontal run, a heading that shrinks, a glass vault.", tags: ["Dark hero", "Horizontal pin", "Iso illustrations"], img: "/extra/foundation-c.webp" },
+      { href: "/foundation-d", n: "D", name: "Foundation · People around the world", note: "The world laid flat in dots, places and people linked across it, the Foundation small in Zug; tilting cards, a sliding run of activities.", tags: ["Dot world", "Parallax", "Iso illustrations"], img: "/extra/foundation-d.webp" },
+    ],
+  },
+  {
     id: "base",
     title: "Base",
     note: "Where new pages start.",
