@@ -12,6 +12,10 @@
 .h2 { margin: 0; font-family: var(--font-montreal); font-weight: 400; font-size: clamp(26px, calc(2 * var(--u)), 36px); line-height: 1.05; letter-spacing: -.03em; }
 .gnote { margin: 0; max-width: 46ch; justify-self: end; font-size: 15px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
 .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 56px; }   /* the selector's grid has four; groups here read in threes */
+/* a featured page: a badge on the picture */
+.badge { position: absolute; z-index: 1; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--ink); color: var(--paper);
+  font-family: var(--font-mono); font-size: 11px; line-height: 1; letter-spacing: .06em; text-transform: uppercase; }
+.badge::before { content: ""; width: 6px; height: 6px; background: var(--green); }
 .name { font-size: clamp(24px, calc(1.9 * var(--u)), 34px); }
 
 @media (max-width: 900px) {

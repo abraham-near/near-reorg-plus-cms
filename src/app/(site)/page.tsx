@@ -3,7 +3,7 @@ import { COUNT, GROUPS } from "./extra/pages";
 
 const EXTRA_LINE = GROUPS.map((g) => `${g.title} (${g.pages.length})`).join(" · ");
 
-// The index: a choice between the two homepage directions in play (3D render and the new copy; /home-v1 and /home-v3 still exist, unlisted). Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
+// The index: a choice between the homepage directions in play (3D render, the new copy, and v5 on the forest; /home-v1 and /home-v3 still exist, unlisted). Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
 const VERSIONS = [
   {
     href: "/home-v2",
@@ -21,6 +21,14 @@ const VERSIONS = [
     tags: ["Oct 2026 copy", "Revenue row", "Six voices"],
     img: "/selector-v4.webp",
   },
+  {
+    href: "/home-v5",
+    n: "03",
+    name: "Mist forest",
+    note: "The new copy on a forest hero: the wordmark header that spreads, a six-line intro, a still Stack and the revenue story with a flat chart.",
+    tags: ["Forest hero", "Wordmark header", "Flat chart"],
+    img: "/selector-v5.webp",
+  },
 ];
 
 export default function Selector() {
@@ -35,8 +43,8 @@ export default function Selector() {
       </header>
 
       <div className={styles.intro}>
-        <h1 className={styles.h}>Two versions of the homepage<span className={styles.sq} aria-hidden="true" /></h1>
-        <p className={styles.sub}>Rendered in 3D, or flat with b10’s navigation and the October 2026 copy.</p>
+        <h1 className={styles.h}>Three versions of the homepage<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>Rendered in 3D, flat with b10’s navigation and the October 2026 copy, or that copy on a misty forest.</p>
       </div>
 
       <ul className={styles.grid}>

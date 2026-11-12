@@ -1,5 +1,6 @@
 // The extra pages listed at /extra, by group. Add a page here (and its 1200×750 capture in public/extra/) and it shows up in the index.
-export type Extra = { href: string; n: string; name: string; note: string; tags: string[]; img: string };
+// featured: the chosen direction in its group (a badge on the picture).
+export type Extra = { href: string; n: string; name: string; note: string; tags: string[]; img: string; featured?: boolean };
 export type Group = { id: string; title: string; note: string; pages: Extra[] };
 
 export const GROUPS: Group[] = [
@@ -17,7 +18,7 @@ export const GROUPS: Group[] = [
       { href: "/blog-g", n: "G", name: "Feature stream", note: "One column beside a sticky picture that wipes to the post you are reading; stories alternate large and small, the talks slide past on a dark band.", tags: ["Sticky media", "Editorial column", "Horizontal pin"], img: "/extra/blog-g.webp" },
       { href: "/blog-h", n: "H", name: "Chapters", note: "Three chapters by format, set as type: each title starts poster-size and shrinks to a sticky label; rows with no lines, the picture follows the cursor.", tags: ["Type-led", "Shrinking titles", "Cursor preview"], img: "/extra/blog-h.webp" },
       { href: "/blog-i", n: "I", name: "Atlas", note: "Posts as prints of different sizes and depths over fields of dots, with iso drawings; a floating dock holds the filters and a plain list view.", tags: ["Collage", "Parallax", "List toggle"], img: "/extra/blog-i.webp" },
-      { href: "/blog-j", n: "J", name: "Reading rail, open · Final", note: "The chosen index. E's rail, counts and pages of six without the ruled grid: open cards on whitespace, one hairline under the hero, text toggles for sort and view. Categories: Blog, Press, Watch.", tags: ["Final", "Sidebar", "No grid"], img: "/extra/blog-j.webp" },
+      { href: "/blog-j", n: "J", name: "Reading rail, open", note: "The chosen index. E's rail, counts and pages of six without the ruled grid: open cards on whitespace, one hairline under the hero, text toggles for sort and view. Categories: Blog, Press, Watch.", tags: ["Sidebar", "No grid", "Blog / Press / Watch"], img: "/extra/blog-j.webp", featured: true },
       { href: "/blog-k", n: "K", name: "By format, open", note: "F's page without the ruled grid: the typeahead, stories in alternating rows, the talk player on one dark band and the read, set on space and type; a search swaps the sections for its results.", tags: ["Typeahead", "No grid", "Grid / list"], img: "/extra/blog-k.webp" },
       { href: "/blog-l", n: "L", name: "Front page + archive", note: "E and F in one page, opened up: F's typeahead, lead and talks band up top; E's sticky rail and paged archive below. No ruled cells, crosshairs or boxed cards.", tags: ["Hybrid", "No grid", "Search + archive"], img: "/extra/blog-l.webp" },
     ],
@@ -28,7 +29,7 @@ export const GROUPS: Group[] = [
     note: "Three layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",
     pages: [
       { href: "/post-a", n: "A", name: "Ruled", note: "The index's ruled grid carried into the article: a row of facts, the photo in its cell, contents | text | margin notes.", tags: ["Ruled grid", "Sticky contents", "Margin notes"], img: "/extra/post-a.webp" },
-      { href: "/post-b", n: "B", name: "Cover", note: "A magazine feature: the photo fills the first screen, a drop cap, pictures that leave the column, figures on an ink band, Up next.", tags: ["Full-screen cover", "Reading line", "Footnotes"], img: "/extra/post-b.webp" },
+      { href: "/post-b", n: "B", name: "Cover", note: "A magazine feature: the photo fills the first screen, a drop cap, pictures that leave the column, figures on an ink band, Up next.", tags: ["Full-screen cover", "Reading line", "Footnotes"], img: "/extra/post-b.webp", featured: true },
       { href: "/post-c", n: "C", name: "Notebook", note: "A reference read: split opening, a sticky rail with contents that fill as you read, time left and the takeaways; boxed notes.", tags: ["Split hero", "Progress rail", "Docs feel"], img: "/extra/post-c.webp" },
     ],
   },

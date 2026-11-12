@@ -37,8 +37,8 @@ export default function ExtraIndex() {
           <ul className={`${styles.grid} ${x.grid}`}>
             {g.pages.map((p) => (
               <li key={p.href}>
-                <a className={styles.card} href={p.href}>
-                  <span className={styles.frame}><img className={styles.img} src={p.img} alt="" width={1200} height={750} loading="lazy" /></span>
+                <a className={`${styles.card}${p.featured ? ` ${x.featured}` : ""}`} href={p.href}>
+                  <span className={styles.frame}>{p.featured && <span className={x.badge}>Featured</span>}<img className={styles.img} src={p.img} alt="" width={1200} height={750} loading="lazy" /></span>
                   <span className={styles.meta}><span className={styles.n}>{p.n}</span><span className={styles.path}>{p.href}</span></span>
                   <span className={styles.row}><span className={`${styles.name} ${x.name}`}>{p.name}</span><Go /></span>
                   <span className={styles.note}>{p.note}</span>
