@@ -20,7 +20,7 @@ import { useUploadQueue } from './useUploadQueue'
 
 type Props = { canUpload: boolean; canEdit: boolean; canDelete: boolean; startUpload?: boolean }
 
-const controlClass = 'h-[34px] rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground shadow-[0_1px_2px_rgb(15_15_15/.04)]'
+const controlClass = 'h-[34px] rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.04)]'
 
 const matchesType = (item: MediaItem, type: MediaFilters['type']) =>
   type === 'all' || (type === 'image' ? item.mimeType.startsWith('image/') : type === 'video' ? item.mimeType.startsWith('video/') : !/^(image|video)\//.test(item.mimeType))
@@ -167,7 +167,7 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
             {list.hasMore && <div className="mt-8 flex justify-center"><Button type="button" variant="outline" size="sm" disabled={list.loadingMore} onClick={list.loadMore}>{list.loadingMore ? 'Loading…' : `Load more (${list.total - list.items.length} left)`}</Button></div>}
           </>}
 
-    {selecting && picked.size > 0 && <div className="cms-pop fixed bottom-7 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-[13px] shadow-[0_16px_40px_rgb(15_15_15/.14)] [--origin:bottom_center]">
+    {selecting && picked.size > 0 && <div className="cms-pop fixed bottom-7 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-[13px] shadow-[0_16px_40px_rgb(var(--shadow)/.14)] [--origin:bottom_center]">
       <span className="font-medium">{picked.size} selected</span>
       <Button type="button" size="sm" variant="ghost" onClick={() => setPicked(new Set())}>Clear</Button>
       <Button type="button" size="sm" variant="destructive" onClick={() => setBulkOpen(true)}>Delete</Button>

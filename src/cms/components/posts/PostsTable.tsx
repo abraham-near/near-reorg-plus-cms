@@ -48,7 +48,7 @@ export function StatusPill({ post }: { post: PostRow }) {
 }
 
 // Neutral tints for posts without a cover, picked from the id so a post keeps its colour.
-const TINTS = ['bg-[#ddf5ea]', 'bg-[#e7eefc]', 'bg-[#f4ebdd]', 'bg-[#e9e4f7]', 'bg-[#e0f1f4]', 'bg-[#efefec]']
+const TINTS = ['bg-[var(--tint-1)]', 'bg-[var(--tint-2)]', 'bg-[var(--tint-3)]', 'bg-[var(--tint-4)]', 'bg-[var(--tint-5)]', 'bg-[var(--tint-0)]']
 const tintFor = (id: string) => TINTS[[...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % TINTS.length]
 
 function Thumb({ post }: { post: PostRow }) {
@@ -256,13 +256,13 @@ export default function PostsTable({ posts, permissions, empty }: { posts: PostR
               role="toolbar"
               aria-label="Bulk actions"
               style={{ '--origin': 'bottom center' } as React.CSSProperties}
-              className="cms-pop pointer-events-auto flex max-w-full flex-wrap items-center gap-1.5 rounded-xl bg-[#191918] py-1.5 pl-3.5 pr-1.5 text-[13px] text-white shadow-[0_12px_32px_rgb(0_0_0/0.25)] ring-1 ring-white/10"
+              className="cms-pop pointer-events-auto flex max-w-full flex-wrap items-center gap-1.5 rounded-xl bg-[var(--inverse)] py-1.5 pl-3.5 pr-1.5 text-[13px] text-white shadow-[0_12px_32px_rgb(0_0_0/0.25)] ring-1 ring-white/10"
             >
               <b className="mr-2 font-semibold" aria-live="polite">{selected.length} selected</b>
               {permissions.publish && <BarButton disabled={busy} onClick={() => publish(selected)}>Publish</BarButton>}
               <BarButton disabled={busy} onClick={() => archive(selected)}>Archive</BarButton>
-              {permissions.delete && <BarButton disabled={busy} className="text-[#fda29b]" onClick={() => setConfirmDelete(selected)}>Delete</BarButton>}
-              <button type="button" aria-label="Clear selection" className="grid size-[30px] place-items-center rounded-lg text-[#a1a19c] outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/60" onClick={() => setSelected([])}><X className="size-4" /></button>
+              {permissions.delete && <BarButton disabled={busy} className="text-[var(--inverse-danger)]" onClick={() => setConfirmDelete(selected)}>Delete</BarButton>}
+              <button type="button" aria-label="Clear selection" className="grid size-[30px] place-items-center rounded-lg text-[var(--inverse-muted)] outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/60" onClick={() => setSelected([])}><X className="size-4" /></button>
             </div>
           </div>
         </div>
@@ -310,7 +310,7 @@ function alignWith(box: React.RefObject<HTMLElement | null>) {
 }
 
 function BarButton({ className, ...props }: React.ComponentProps<'button'>) {
-  return <button type="button" className={cn('cms-press h-[30px] rounded-lg border border-[#3a3a37] bg-[#2a2a28] px-3 font-[550] text-white outline-none hover:bg-[#353533] focus-visible:ring-2 focus-visible:ring-white/60 disabled:opacity-50', className)} {...props} />
+  return <button type="button" className={cn('cms-press h-[30px] rounded-lg border border-[var(--inverse-border)] bg-[var(--inverse-raised)] px-3 font-[550] text-white outline-none hover:bg-[var(--inverse-hover)] focus-visible:ring-2 focus-visible:ring-white/60 disabled:opacity-50', className)} {...props} />
 }
 
 function RowActions({ post, permissions, disabled, onArchive, onUnarchive, onDelete }: {

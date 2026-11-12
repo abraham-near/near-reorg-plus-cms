@@ -21,7 +21,7 @@ export function MenuContent({ className, align = 'end', children, ...props }: Re
         sideOffset={6}
         collisionPadding={12}
         style={{ '--origin': 'var(--radix-dropdown-menu-content-transform-origin)' } as React.CSSProperties}
-        className={cn('cms-pop z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-44 overflow-y-auto rounded-[10px] border bg-popover p-[5px] text-popover-foreground shadow-[0_12px_30px_rgb(15_15_15/0.12)]', className)}
+        className={cn('cms-pop z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-44 overflow-y-auto rounded-[10px] border bg-popover p-[5px] text-popover-foreground shadow-[0_12px_30px_rgb(var(--shadow)/0.12)]', className)}
         {...props}
       >
         {children}

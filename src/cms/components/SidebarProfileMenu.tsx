@@ -3,7 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { signOut } from "@/cms/lib/client";
-import { Settings, LogOut, ExternalLink, ChevronUp, Sparkles } from "lucide-react";
+import { Settings, LogOut, ExternalLink, ChevronUp, Sparkles, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme, type ThemeChoice } from "@/cms/components/ThemeProvider";
 import { LogoutConfirmationModal } from "@/cms/components/LogoutConfirmationModal";
 import { SidebarTooltip } from "@/cms/components/SidebarTooltip";
 
@@ -19,6 +20,12 @@ interface SidebarProfileMenuProps {
 export function SidebarProfileMenu({ userName, role, collapsed = false, canConnectClaude = false }: SidebarProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const { choice, setChoice } = useTheme();
+  const THEMES: { value: ThemeChoice; label: string; icon: React.ReactNode }[] = [
+    { value: "light", label: "Light", icon: <Sun className="w-3.5 h-3.5" /> },
+    { value: "dark", label: "Dark", icon: <Moon className="w-3.5 h-3.5" /> },
+    { value: "system", label: "System", icon: <Monitor className="w-3.5 h-3.5" /> },
+  ];
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,14 +44,34 @@ export function SidebarProfileMenu({ userName, role, collapsed = false, canConne
     : "?";
 
   const roleBadgeColor =
-    role === "ADMIN" ? "text-primary" : "text-sky-700";
+    role === "ADMIN" ? "text-primary" : "text-sky-700 dark:text-sky-300";
 
   return (
     <div ref={containerRef} className="relative">
       {/* Dropdown */}
       {open && (
-        <div className="cms-pop absolute bottom-full left-0 right-0 mb-2 bg-popover border border-border rounded-xl shadow-[0_16px_40px_rgb(15_15_15/.12)] overflow-hidden z-50 [--origin:bottom_left]">
-          <div className="py-1">
+        <div className={`cms-pop absolute bottom-full left-0 mb-2 ${collapsed ? "w-60" : "right-0"} bg-popover border border-border rounded-xl shadow-[0_16px_40px_rgb(var(--shadow)/.12)] overflow-hidden z-50 [--origin:bottom_left]`}>
+          <div className="px-3 pt-3 pb-2">
+            <p id="theme-label" className="mb-1.5 text-[11px] font-semibold tracking-[.05em] text-muted-foreground">THEME</p>
+            <div role="radiogroup" aria-labelledby="theme-label" className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+              {THEMES.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={choice === t.value}
+                  onClick={() => setChoice(t.value)}
+                  className={`cms-press flex h-7 items-center justify-center gap-1.5 rounded-md text-xs font-medium ${
+                    choice === t.value ? "bg-background text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.12)]" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.icon}
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-border py-1">
             <Link
               href="/admin/settings"
               data-tour-id="settings"

@@ -57,7 +57,7 @@ export function MediaDrawer(props: Props) {
 
   return <aside
     aria-label="File details"
-    className="cms-drawer fixed top-0 right-0 bottom-0 z-30 flex w-full flex-col gap-[18px] overflow-y-auto border-l border-border bg-card p-5 text-card-foreground shadow-[-24px_0_48px_rgb(15_15_15/.08)] sm:w-[380px]"
+    className="cms-drawer fixed top-0 right-0 bottom-0 z-30 flex w-full flex-col gap-[18px] overflow-y-auto border-l border-border bg-card p-5 text-card-foreground shadow-[-24px_0_48px_rgb(var(--shadow)/.08)] sm:w-[380px]"
   >
     <DrawerBody key={props.item.id} {...props} closeRef={closeRef} confirmingRef={confirming} flushRef={flush} />
   </aside>

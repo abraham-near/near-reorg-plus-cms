@@ -39,7 +39,7 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
 
   return (
     <div className="mx-auto max-w-[720px] space-y-10 pb-16">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f1f1ef] pb-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-soft)] pb-4">
         <Link href={`/admin/posts/${post.id}/edit`} className="cms-press inline-flex items-center gap-1 rounded-md text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Back to the editor</Link>
         <p className="text-xs text-muted-foreground">{state} · {post.visibility === 'UNLISTED' ? 'Unlisted' : 'Public'} · Last saved <LocalTime value={post.updatedAt} /></p>
       </header>
@@ -56,7 +56,7 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
         </div>
       </section>
 
-      <article className="space-y-6 border-t border-[#f1f1ef] pt-10">
+      <article className="space-y-6 border-t border-[var(--border-soft)] pt-10">
         {featured && <img src={featured} alt="" className="max-h-[360px] w-full rounded-xl object-cover" />}
         {categories.length > 0 && <p className="text-xs font-semibold tracking-[.05em] text-primary">{categories.join(' · ').toUpperCase()}</p>}
         <h1 className="text-[40px] font-bold leading-[1.12] tracking-[-0.02em]">{post.title}</h1>

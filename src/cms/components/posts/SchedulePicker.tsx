@@ -71,7 +71,7 @@ export default function SchedulePicker({ initial, allowPast = false, visibility,
           const disabled = !allowPast && cell.date < today
           const label = new Date(`${cell.date}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
           return <button key={cell.date} type="button" disabled={disabled} aria-pressed={selected} aria-current={cell.date === today ? 'date' : undefined} aria-label={label} onClick={() => setDate(cell.date)}
-            className={cn('cms-press grid h-8 w-9 place-items-center rounded-lg text-[13px] text-secondary-foreground hover:bg-muted disabled:cursor-not-allowed disabled:text-[#a3a39e] disabled:hover:bg-transparent',
+            className={cn('cms-press grid h-8 w-9 place-items-center rounded-lg text-[13px] text-secondary-foreground hover:bg-muted disabled:cursor-not-allowed disabled:text-[var(--text-subtle)] disabled:hover:bg-transparent',
               cell.date === today && !selected && 'font-semibold text-primary shadow-[inset_0_0_0_1px_#a7ebcd]',
               selected && 'bg-primary font-semibold text-primary-foreground hover:bg-primary')}>{cell.day}</button>
         })}
@@ -79,8 +79,8 @@ export default function SchedulePicker({ initial, allowPast = false, visibility,
     </div>
 
     <div className="flex gap-2">
-      <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-[#4a4a46]">Time<input type="time" required value={time} onChange={(event) => setTime(event.target.value)} className={fieldClass} /></label>
-      <label className="flex flex-[1.4] flex-col gap-1 text-xs font-medium text-[#4a4a46]">Time zone
+      <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">Time<input type="time" required value={time} onChange={(event) => setTime(event.target.value)} className={fieldClass} /></label>
+      <label className="flex flex-[1.4] flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">Time zone
         <select value={zone} onChange={(event) => setZone(event.target.value)} className={fieldClass}>
           {zones.map(([region, items]) => <optgroup key={region} label={region}>{items.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</optgroup>)}
         </select>
@@ -91,7 +91,7 @@ export default function SchedulePicker({ initial, allowPast = false, visibility,
     <fieldset className="flex flex-col gap-1.5">
       <legend className="sr-only">Visibility</legend>
       {([['PUBLIC', 'Public', 'Listed on the blog and in search'], ['UNLISTED', 'Unlisted', 'Only people with the link']] as const).map(([value, title, hint]) => (
-        <label key={value} className={cn('flex cursor-pointer items-start gap-2.5 rounded-[9px] border p-2.5 transition-colors duration-[var(--dur-fast)] has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/20', visibility === value ? 'border-[#a7ebcd] bg-[#f1fbf6]' : 'border-[#e9e9e6] hover:bg-muted/50')}>
+        <label key={value} className={cn('flex cursor-pointer items-start gap-2.5 rounded-[9px] border p-2.5 transition-colors duration-[var(--dur-fast)] has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/20', visibility === value ? 'border-[var(--accent-border)] bg-[var(--accent-soft)]' : 'border-[var(--border)] hover:bg-muted/50')}>
           <input type="radio" name={`${id}-visibility`} value={value} checked={visibility === value} onChange={() => onVisibilityChange(value)} className="mt-0.5 accent-[var(--primary)]" />
           <span><b className="block text-[13px] font-semibold">{title}</b><span className="text-xs text-muted-foreground">{hint}</span></span>
         </label>

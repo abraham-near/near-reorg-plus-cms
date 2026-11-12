@@ -41,7 +41,7 @@ function useSubmit(action: () => Promise<void>) {
 function ErrorBox({ message }: { message: string }) {
   if (!message) return null
   return (
-    <div role="alert" className="rounded border border-red-400/50 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+    <div role="alert" className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-400/40 dark:bg-red-500/10 dark:text-red-300">
       {message}
     </div>
   )

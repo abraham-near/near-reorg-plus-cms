@@ -364,10 +364,10 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
 
   return <div className="min-h-full">
     {/* Top bar: stays visible while #admin-main scrolls */}
-    <header className="sticky top-0 z-30 flex min-h-[52px] flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-[#f1f1ef] bg-background/95 px-5 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+    <header className="sticky top-0 z-30 flex min-h-[52px] flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-[var(--border-soft)] bg-background/95 px-5 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
         <Link href="/admin/posts" onNavigate={guardNavigation} className="rounded text-muted-foreground hover:text-foreground">Posts</Link>
-        <span aria-hidden className="text-[#c4c4bf]">/</span>
+        <span aria-hidden className="text-[var(--text-faint)]">/</span>
         <span aria-current="page" className="max-w-[320px] truncate font-medium">{form.title.trim() || 'Untitled'}</span>
       </nav>
       <PostStatusChip status={displayStatus} />
@@ -378,14 +378,14 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       {post && <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild><Button type="button" variant="ghost" size="icon-sm" className="cms-press" aria-label="More actions"><MoreHorizontal /></Button></DropdownMenu.Trigger>
         <DropdownMenu.Portal container={portalContainer()}>
-          <DropdownMenu.Content align="end" sideOffset={6} className="cms-pop z-50 min-w-[220px] rounded-[10px] border border-[#e9e9e6] bg-popover p-[5px] text-popover-foreground shadow-[0_12px_30px_rgba(15,15,15,.12)] [--origin:top_right]">
+          <DropdownMenu.Content align="end" sideOffset={6} className="cms-pop z-50 min-w-[220px] rounded-[10px] border border-[var(--border)] bg-popover p-[5px] text-popover-foreground shadow-[0_12px_30px_rgba(15,15,15,.12)] [--origin:top_right]">
             <DropdownMenu.Item className={menuItem} onSelect={() => setRevisionsOpen(true)}><History className="size-4 text-muted-foreground" />Revision history</DropdownMenu.Item>
             {permissions.publish && scheduled && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => openPublish('reschedule', 'schedule')}><CalendarClock className="size-4 text-muted-foreground" />Reschedule…</DropdownMenu.Item>}
             {permissions.publish && post.status === 'PUBLISHED' && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => void changeStatus('DRAFT', scheduled ? 'Unscheduled · now a draft' : 'Unpublished · now a draft')}><Undo2 className="size-4 text-muted-foreground" />{scheduled ? 'Unschedule to draft' : 'Unpublish to draft'}</DropdownMenu.Item>}
             {permissions.write && post.status !== 'ARCHIVED' && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => void changeStatus('ARCHIVED', 'Post archived')}><Archive className="size-4 text-muted-foreground" />Archive</DropdownMenu.Item>}
             {permissions.write && post.status === 'ARCHIVED' && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => void changeStatus('DRAFT', 'Moved to drafts')}><ArchiveRestore className="size-4 text-muted-foreground" />Move to drafts</DropdownMenu.Item>}
-            {permissions.delete && <><DropdownMenu.Separator className="my-1 h-px bg-[#f1f1ef]" /><DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:bg-destructive/10')} disabled={!editable} onSelect={() => void remove()}><Trash2 className="size-4" />Delete post</DropdownMenu.Item></>}
-            <DropdownMenu.Separator className="my-1 h-px bg-[#f1f1ef]" />
+            {permissions.delete && <><DropdownMenu.Separator className="my-1 h-px bg-[var(--border-soft)]" /><DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:bg-destructive/10')} disabled={!editable} onSelect={() => void remove()}><Trash2 className="size-4" />Delete post</DropdownMenu.Item></>}
+            <DropdownMenu.Separator className="my-1 h-px bg-[var(--border-soft)]" />
             <p className="px-2 py-1.5 text-xs leading-relaxed text-muted-foreground">Author: {post.author?.name ?? post.author?.email ?? 'Not assigned'}<br />Last edited by {post.lastEditedBy?.name ?? post.lastEditedBy?.email ?? '—'}</p>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
@@ -423,7 +423,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           }}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault()
             focusBody() } }}
-          className={cn('mb-4 text-[40px] font-bold leading-[1.12] tracking-[-0.02em] placeholder:text-[#c4c4bf] disabled:opacity-100', cover ? 'mt-9' : 'mt-3')} />
+          className={cn('mb-4 text-[40px] font-bold leading-[1.12] tracking-[-0.02em] placeholder:text-[var(--text-faint)] disabled:opacity-100', cover ? 'mt-9' : 'mt-3')} />
 
         <PostProperties status={displayStatus} editable={editable} manageTaxonomy={permissions.manageTaxonomy} categories={categories} tags={tags}
           categoryIds={form.categoryIds} onCategoryIds={(ids) => update('categoryIds', ids)} categoryOpen={categoryOpen} onCategoryOpenChange={setCategoryOpen}
@@ -436,7 +436,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           <BlockEditor label="Post body" value={form.body} onChange={(value) => update('body', value)} editable={editable} onWordCount={setEditorWords} />
         </div>
 
-        <details className="group mt-14 border-t border-[#f1f1ef] pt-3">
+        <details className="group mt-14 border-t border-[var(--border-soft)] pt-3">
           <summary className="-mx-1.5 flex cursor-pointer list-none items-center gap-2 rounded-md px-1.5 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
             <ChevronRight className="size-4 transition-transform duration-[var(--dur-base)] group-open:rotate-90" aria-hidden />Search &amp; social
             <span className="hidden font-normal sm:inline">· how the post looks in search results and when shared</span>
@@ -460,7 +460,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       </article>
     </div>
 
-    <div aria-live="off" className="pointer-events-none fixed bottom-4 right-5 z-20 hidden items-center gap-2.5 rounded-lg border border-[#efefec] bg-background px-2.5 py-1.5 text-xs text-muted-foreground shadow-[0_4px_16px_rgba(0,0,0,.06)] sm:flex">
+    <div aria-live="off" className="pointer-events-none fixed bottom-4 right-5 z-20 hidden items-center gap-2.5 rounded-lg border border-[var(--tint-0)] bg-background px-2.5 py-1.5 text-xs text-muted-foreground shadow-[0_4px_16px_rgba(0,0,0,.06)] sm:flex">
       {words} {words === 1 ? 'word' : 'words'} · {readingMinutes(words)} min read
     </div>
 

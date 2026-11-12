@@ -107,7 +107,7 @@ export function AdminSidebar({ children, role, userName, permissions, recentDraf
               <Link
                 href="/admin/posts/new"
                 onClick={guard('/admin/posts/new')}
-                className={`cms-press flex h-8 items-center justify-center gap-2 rounded-md border border-border bg-background text-[13px] font-medium text-foreground shadow-[0_1px_2px_rgb(15_15_15/.04)] hover:border-[#d6d6d1] ${collapsed ? 'w-8' : 'w-full'}`}
+                className={`cms-press flex h-8 items-center justify-center gap-2 rounded-md border border-border bg-background text-[13px] font-medium text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.04)] hover:border-[var(--border-strong)] ${collapsed ? 'w-8' : 'w-full'}`}
               >
                 <Plus className="h-4 w-4" />
                 {collapsed ? <span className="sr-only">New post</span> : 'New post'}

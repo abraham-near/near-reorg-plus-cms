@@ -31,7 +31,7 @@ export function UploadTray({ rows, onRetry, onRemove, onClear, className }: Prop
     : failed
       ? `${finished} uploaded · ${failed} failed`
       : `${finished} ${finished === 1 ? 'file' : 'files'} uploaded`
-  return <section aria-label="Uploads" className={cn('cms-pop z-40 w-[min(320px,calc(100vw-2rem))] rounded-[14px] border border-border bg-card px-4 py-3 text-card-foreground shadow-[0_16px_40px_rgb(15_15_15/.14)] [--origin:bottom_right]', className)}>
+  return <section aria-label="Uploads" className={cn('cms-pop z-40 w-[min(320px,calc(100vw-2rem))] rounded-[14px] border border-border bg-card px-4 py-3 text-card-foreground shadow-[0_16px_40px_rgb(var(--shadow)/.14)] [--origin:bottom_right]', className)}>
     <div className="flex items-center gap-2">
       <h2 className="flex-1 text-[13px] font-semibold" aria-live="polite">{title}</h2>
       <button type="button" onClick={() => setMinimized((value) => !value)} aria-expanded={!minimized} aria-label={minimized ? 'Show uploads' : 'Minimize uploads'} className="cms-press grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">

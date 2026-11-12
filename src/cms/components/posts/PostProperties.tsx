@@ -35,7 +35,7 @@ export const AutoTextarea = forwardRef<HTMLTextAreaElement, React.ComponentProps
 const portalContainer = () => typeof document === 'undefined' ? undefined : document.querySelector<HTMLElement>('.admin-wrapper') ?? undefined
 function PopoverPanel({ children, label, className }: { children: React.ReactNode; label: string; className?: string }) {
   return <Popover.Portal container={portalContainer()}>
-    <Popover.Content aria-label={label} align="start" sideOffset={6} className={cn('cms-pop z-50 w-72 rounded-[10px] border border-[#e9e9e6] bg-popover p-1.5 text-popover-foreground shadow-[0_12px_30px_rgba(15,15,15,.12)] [--origin:var(--radix-popover-content-transform-origin)]', className)}>{children}</Popover.Content>
+    <Popover.Content aria-label={label} align="start" sideOffset={6} className={cn('cms-pop z-50 w-72 rounded-[10px] border border-[var(--border)] bg-popover p-1.5 text-popover-foreground shadow-[0_12px_30px_rgba(15,15,15,.12)] [--origin:var(--radix-popover-content-transform-origin)]', className)}>{children}</Popover.Content>
   </Popover.Portal>
 }
 
@@ -90,7 +90,7 @@ export default function PostProperties(props: PostPropertiesProps) {
   const slugChanged = props.savedSlug !== null && props.slug !== props.savedSlug
   const filteredTags = tags.filter((tag) => tag.name.toLowerCase().includes(tagQuery.trim().toLowerCase()))
 
-  return <section aria-label="Post properties" className="flex flex-col gap-0.5 border-b border-[#f1f1ef] pb-4">
+  return <section aria-label="Post properties" className="flex flex-col gap-0.5 border-b border-[var(--border-soft)] pb-4">
     <div className={rowClass}><Key icon={CircleDot}>Status</Key><span><PostStatusChip status={props.status} /></span></div>
 
     <div className={rowClass}><Key icon={Tag}>Category</Key>
@@ -106,11 +106,11 @@ export default function PostProperties(props: PostPropertiesProps) {
               <button type="button" className="cms-press grid size-6 place-items-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-40" aria-label={`Move ${name(categories, id)} down`} disabled={index === categoryIds.length - 1} onClick={() => moveCategory(index, 1)}><ArrowDown className="size-3.5" /></button>
               <button type="button" className="cms-press grid size-6 place-items-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label={`Remove ${name(categories, id)}`} onClick={() => props.onCategoryIds(categoryIds.filter((item) => item !== id))}><X className="size-3.5" /></button>
             </li>)}</ol></>}
-          {categories.some((item) => !categoryIds.includes(item.id)) ? <><p className="border-t border-[#f1f1ef] px-2 pb-1 pt-2 text-xs text-muted-foreground">Add a category</p>
+          {categories.some((item) => !categoryIds.includes(item.id)) ? <><p className="border-t border-[var(--border-soft)] px-2 pb-1 pt-2 text-xs text-muted-foreground">Add a category</p>
             <ul className="max-h-56 overflow-y-auto">{categories.filter((item) => !categoryIds.includes(item.id)).map((item) => <li key={item.id}>
               <button type="button" className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] hover:bg-muted focus-visible:bg-muted" onClick={() => props.onCategoryIds([...categoryIds, item.id])}><Plus className="size-3.5 text-muted-foreground" />{item.name}</button>
             </li>)}</ul></> : !categories.length && <p className="px-2 py-2 text-[13px] text-muted-foreground">No categories have been created.</p>}
-          {props.manageTaxonomy && <Link href="/admin/categories" onNavigate={props.onNavigate} className="mt-1 block border-t border-[#f1f1ef] px-2 pb-1 pt-2 text-xs text-primary hover:underline">Manage categories and tags</Link>}
+          {props.manageTaxonomy && <Link href="/admin/categories" onNavigate={props.onNavigate} className="mt-1 block border-t border-[var(--border-soft)] px-2 pb-1 pt-2 text-xs text-primary hover:underline">Manage categories and tags</Link>}
         </PopoverPanel>
       </Popover.Root>
     </div>
@@ -128,7 +128,7 @@ export default function PostProperties(props: PostPropertiesProps) {
                 <span className={cn('grid size-4 place-items-center rounded border', on ? 'border-primary bg-primary text-primary-foreground' : 'border-input')}>{on && <Check className="size-3" strokeWidth={3} />}</span>{tag.name}
               </button></li>
             })}{!filteredTags.length && <li className="px-2 py-2 text-[13px] text-muted-foreground">No matching tags.</li>}</ul> : <p className="px-2 py-2 text-[13px] text-muted-foreground">No tags have been created.</p>}
-            {props.manageTaxonomy && <Link href="/admin/categories" onNavigate={props.onNavigate} className="mt-1 block border-t border-[#f1f1ef] px-2 pb-1 pt-2 text-xs text-primary hover:underline">Manage categories and tags</Link>}
+            {props.manageTaxonomy && <Link href="/admin/categories" onNavigate={props.onNavigate} className="mt-1 block border-t border-[var(--border-soft)] px-2 pb-1 pt-2 text-xs text-primary hover:underline">Manage categories and tags</Link>}
           </PopoverPanel>
         </Popover.Root> : !tagIds.length && <span className="text-muted-foreground">Empty</span>}
       </span>
@@ -161,7 +161,7 @@ export default function PostProperties(props: PostPropertiesProps) {
           {props.wasLive ? 'This post has been live: links to the old address stop working if you change it.' : 'Lowercase words and numbers separated by hyphens. Enter to confirm, Esc to undo.'}
         </p>
       </div> : <span className="flex min-w-0 items-center gap-2">
-        <button type="button" disabled={!editable} onClick={() => setEditingSlug(props.slug)} className={cn(valueButton, 'min-w-0 font-mono text-[12.5px] text-[#4a4a46]')} aria-label={`URL: ${SITE_HOST}/blog/${props.slug}. Edit`}>
+        <button type="button" disabled={!editable} onClick={() => setEditingSlug(props.slug)} className={cn(valueButton, 'min-w-0 font-mono text-[12.5px] text-[var(--text-secondary)]')} aria-label={`URL: ${SITE_HOST}/blog/${props.slug}. Edit`}>
           <span className="truncate">{SITE_HOST}/blog/{props.slug || <span className="text-muted-foreground">post-title</span>}</span>
         </button>
         {slugChanged && props.wasLive && <span className="inline-flex flex-none items-center gap-1 rounded-md bg-[var(--warning-bg)] px-1.5 py-0.5 text-xs text-[var(--warning-fg)]"><TriangleAlert className="size-3" aria-hidden />URL changed</span>}

@@ -1,5 +1,5 @@
-import { Toaster } from 'sonner'
 import { AdminSidebar } from '@/cms/components/AdminSidebar'
+import { ThemedToaster } from '@/cms/components/ThemeProvider'
 import { NavigationGuardProvider } from '@/cms/components/NavigationGuardProvider'
 import { TooltipProvider } from '@/cms/components/ui/tooltip'
 import { requirePagePermission } from '@/cms/lib/auth'
@@ -25,7 +25,7 @@ export default async function PanelLayout({ children }: Readonly<{ children: Rea
           {children}
         </AdminSidebar>
       </NavigationGuardProvider>
-      <Toaster richColors position="bottom-right" theme="light" />
+      <ThemedToaster />
     </TooltipProvider>
   )
 }

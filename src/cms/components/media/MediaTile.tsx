@@ -49,7 +49,7 @@ export function MediaTile({ item, meta, selected = false, checkable = false, fre
   >
     <span className={cn(
       'relative block aspect-[4/3] w-full overflow-hidden rounded-[10px] bg-muted transition-shadow duration-[var(--dur-fast)]',
-      selected ? 'shadow-[0_0_0_2px_var(--background),0_0_0_4px_var(--primary)]' : 'shadow-[inset_0_0_0_1px_rgb(15_15_15/.04)]',
+      selected ? 'shadow-[0_0_0_2px_var(--background),0_0_0_4px_var(--primary)]' : 'shadow-[inset_0_0_0_1px_rgb(var(--shadow)/.04)]',
     )}>
       <MediaThumb item={item} />
       {missingAlt && <span className="absolute top-2 left-2 rounded-[5px] bg-[var(--warning-bg)] px-[7px] py-0.5 text-[11px] font-semibold text-[var(--warning-fg)]">No alt</span>}

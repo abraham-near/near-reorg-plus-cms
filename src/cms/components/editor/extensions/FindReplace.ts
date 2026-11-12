@@ -34,7 +34,7 @@ export const FindReplace = Extension.create({
         if (!settings && !transaction.docChanged) return previous
         const { query, matchCase } = settings ?? previous
         const matches = findTextMatches(nextState.doc, query, matchCase)
-        return { query, matchCase, decorations: DecorationSet.create(nextState.doc, matches.map(({ from, to }) => Decoration.inline(from, to, { class: 'bg-yellow-200 text-black' }))) }
+        return { query, matchCase, decorations: DecorationSet.create(nextState.doc, matches.map(({ from, to }) => Decoration.inline(from, to, { class: 'bg-yellow-200 text-black dark:bg-yellow-700/70 dark:text-yellow-50' }))) }
       },
     },
     props: { decorations: (state) => findReplaceKey.getState(state)?.decorations ?? DecorationSet.empty },

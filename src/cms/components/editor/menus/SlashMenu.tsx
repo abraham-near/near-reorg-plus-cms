@@ -50,7 +50,7 @@ export const SlashMenu = forwardRef<SlashMenuHandle, SlashMenuProps>(function Sl
 
   let position = -1
   return (
-    <div className="cms-slash-menu w-[340px] overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-[0_16px_40px_rgb(15_15_15/0.12),0_2px_6px_rgb(15_15_15/0.06)]">
+    <div className="cms-slash-menu w-[340px] overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-[0_16px_40px_rgb(var(--shadow)/0.12),0_2px_6px_rgb(var(--shadow)/0.06)]">
       <div ref={listRef} role="listbox" aria-label="Insert a block" id="cms-slash-listbox" className="max-h-[min(380px,calc(100vh-96px))] overflow-y-auto overscroll-contain px-1.5 py-1">
         {flat.length === 0 && <p className="px-2 py-3 text-sm text-muted-foreground">No matching blocks</p>}
         {sections.map((section) => (

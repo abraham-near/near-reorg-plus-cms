@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '@fontsource-variable/mona-sans'
 import './admin.css'
+import { THEME_SCRIPT, ThemeProvider } from '@/cms/components/ThemeProvider'
 
 // Root layout for the CMS. Separate from src/app/(site)/layout.tsx so the admin gets none of the
 // site's fonts, scripts or styles, and the site none of the admin's.
@@ -15,9 +16,13 @@ export const instant = false
 
 export default function CmsRootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: THEME_SCRIPT may add class="dark" before React hydrates.
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased" suppressHydrationWarning>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

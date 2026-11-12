@@ -73,7 +73,7 @@ export function DropOverlay({ state, imagesOnly = false, className }: { state: D
   const [first, second] = uploadLimitLines(imagesOnly)
   const style = state.box ? { top: state.box.top + 12, left: state.box.left + 12, width: state.box.width - 24, height: state.box.height - 24 } : undefined
   return <div aria-hidden={!state.active} style={style} className={cn(
-    'pointer-events-none z-40 flex flex-col items-center justify-center gap-2.5 rounded-[18px] border-2 border-dashed border-primary bg-[rgb(241_251_246/.9)] p-6 text-center transition-[opacity,visibility] duration-[var(--dur-base)] ease-[var(--ease-out)]',
+    'pointer-events-none z-40 flex flex-col items-center justify-center gap-2.5 rounded-[18px] border-2 border-dashed border-primary bg-[color-mix(in_oklab,var(--accent-soft)_90%,transparent)] p-6 text-center transition-[opacity,visibility] duration-[var(--dur-base)] ease-[var(--ease-out)]',
     state.active ? 'visible opacity-100' : 'invisible opacity-0',
     className,
   )}>

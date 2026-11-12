@@ -66,7 +66,7 @@ export default function PublishDialog({ open, onOpenChange, kind, initialMode, c
           <DialogClose asChild><Button className="cms-press">Done</Button></DialogClose>
         </div>
       </div> : <>
-        <div className="flex items-center gap-3 border-b border-[#f1f1ef] px-7 pb-4 pt-[22px]">
+        <div className="flex items-center gap-3 border-b border-[var(--border-soft)] px-7 pb-4 pt-[22px]">
           {mode === 'schedule' && kind === 'publish' && <Button type="button" variant="ghost" size="icon-sm" className="cms-press -ml-2" aria-label="Back to the checklist" onClick={() => setMode('checklist')}><ArrowLeft /></Button>}
           <div className="min-w-0">
             <DialogTitle className="text-xl font-semibold leading-tight">{mode === 'checklist' ? 'Ready to publish?' : scheduleTitle}</DialogTitle>
@@ -84,29 +84,29 @@ export default function PublishDialog({ open, onOpenChange, kind, initialMode, c
         {mode === 'checklist' ? <div key="checklist" className="cms-fade-up">
           <div className="grid md:grid-cols-2">
             <section aria-label="Checks" className="px-7 pb-5 pt-2">
-              <ul>{checks.map((check) => <li key={check.key} className="flex items-start gap-3 border-b border-[#f1f1ef] py-3 last:border-b-0">
+              <ul>{checks.map((check) => <li key={check.key} className="flex items-start gap-3 border-b border-[var(--border-soft)] py-3 last:border-b-0">
                 {check.ok ? <CheckBadge /> : <WarnBadge />}
                 <div className="min-w-0 flex-1"><p className="text-sm font-medium">{check.title}<span className="sr-only">{check.ok ? ' (passed)' : ' (warning)'}</span></p><p className="mt-0.5 text-[12.5px] text-muted-foreground">{check.detail}</p></div>
                 {!check.ok && check.action && <button type="button" onClick={() => onFix(check.key)} className="cms-press rounded px-1 text-[13px] font-medium text-primary hover:text-accent-foreground hover:underline">{check.action}</button>}
               </li>)}</ul>
             </section>
-            <section aria-label="Previews" className="flex flex-col gap-5 border-t border-[#f1f1ef] bg-sidebar px-7 py-5 md:border-l md:border-t-0">
+            <section aria-label="Previews" className="flex flex-col gap-5 border-t border-[var(--border-soft)] bg-sidebar px-7 py-5 md:border-l md:border-t-0">
               <div>
-                <p className="mb-2.5 text-xs font-semibold tracking-[.05em] text-[#6b6b67]">GOOGLE</p>
-                <p className="text-xs text-[#4a4a46]">{SITE_HOST} › blog</p>
-                <p className="my-0.5 line-clamp-2 text-lg leading-snug text-[#1a0dab]">{preview.title || 'Untitled'}</p>
-                <p className="line-clamp-3 text-[13px] leading-normal text-[#4d5156]">{preview.description || 'Add a summary so search engines show a description.'}</p>
+                <p className="mb-2.5 text-xs font-semibold tracking-[.05em] text-[var(--muted-foreground)]">GOOGLE</p>
+                <p className="text-xs text-[var(--text-secondary)]">{SITE_HOST} › blog</p>
+                <p className="my-0.5 line-clamp-2 text-lg leading-snug text-[var(--google-link)]">{preview.title || 'Untitled'}</p>
+                <p className="line-clamp-3 text-[13px] leading-normal text-[var(--google-text)]">{preview.description || 'Add a summary so search engines show a description.'}</p>
               </div>
               <div>
-                <p className="mb-2.5 text-xs font-semibold tracking-[.05em] text-[#6b6b67]">X / LINKEDIN</p>
+                <p className="mb-2.5 text-xs font-semibold tracking-[.05em] text-[var(--muted-foreground)]">X / LINKEDIN</p>
                 <div className="overflow-hidden rounded-xl border border-input bg-background">
-                  {preview.image ? <img src={preview.image} alt="" className="aspect-[1200/630] w-full object-cover" /> : <div className="grid h-[150px] place-items-center bg-[repeating-linear-gradient(135deg,#f4f4f1_0_12px,#efefec_12px_24px)] text-xs text-[#6b6b67]">No cover · add one for a richer card</div>}
+                  {preview.image ? <img src={preview.image} alt="" className="aspect-[1200/630] w-full object-cover" /> : <div className="grid h-[150px] place-items-center bg-[repeating-linear-gradient(135deg,#f4f4f1_0_12px,#efefec_12px_24px)] text-xs text-[var(--muted-foreground)]">No cover · add one for a richer card</div>}
                   <div className="px-3 py-2.5"><p className="text-xs text-muted-foreground">{SITE_HOST}</p><p className="line-clamp-2 text-sm font-semibold">{preview.title || 'Untitled'}</p></div>
                 </div>
               </div>
             </section>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5 border-t border-[#f1f1ef] px-7 py-3.5">
+          <div className="flex flex-wrap items-center gap-2.5 border-t border-[var(--border-soft)] px-7 py-3.5">
             <label className="flex min-w-0 items-center gap-1.5 text-[13px] text-muted-foreground">
               <span className="sr-only">Visibility</span>
               <select value={visibility} onChange={(event) => onVisibilityChange(event.target.value as Visibility)} className="h-7 rounded-md border border-transparent bg-transparent px-1 text-[13px] font-medium text-foreground hover:border-input focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20">
@@ -121,7 +121,7 @@ export default function PublishDialog({ open, onOpenChange, kind, initialMode, c
             </Button>
           </div>
         </div> : <div key="schedule" className="cms-fade-up px-7 pb-6 pt-4">
-          {kind === 'publish' && <div role="radiogroup" aria-label="When" className="mb-4 flex gap-1 rounded-[9px] bg-[#f3f3f1] p-[3px]">
+          {kind === 'publish' && <div role="radiogroup" aria-label="When" className="mb-4 flex gap-1 rounded-[9px] bg-[var(--muted)] p-[3px]">
             <button type="button" role="radio" aria-checked={false} onClick={() => setMode('checklist')} className="cms-press h-[30px] flex-1 rounded-[7px] text-[13px] font-medium text-muted-foreground hover:text-foreground">Publish now</button>
             <button type="button" role="radio" aria-checked className="h-[30px] flex-1 rounded-[7px] bg-background text-[13px] font-medium shadow-[0_1px_2px_rgba(0,0,0,.08)]">Schedule</button>
           </div>}
