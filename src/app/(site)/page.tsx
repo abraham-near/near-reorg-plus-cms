@@ -3,35 +3,19 @@ import { COUNT, GROUPS } from "./extra/pages";
 
 const EXTRA_LINE = GROUPS.map((g) => `${g.title} (${g.pages.length})`).join(" · ");
 
-// The index: a choice between the homepage directions. Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
+// The index: a choice between the two homepage directions in play (3D render and the new copy; /home-v1 and /home-v3 still exist, unlisted). Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
 const VERSIONS = [
   {
-    href: "/home-v1",
-    n: "01",
-    name: "Flat design",
-    note: "Drawn in dots and lines: a dot-matrix globe, a rail that draws itself as you scroll, and flat isometric illustrations.",
-    tags: ["Dot globe", "Vector rail", "Isometrics"],
-    img: "/selector-v1.webp",
-  },
-  {
     href: "/home-v2",
-    n: "02",
+    n: "01",
     name: "3D render",
     note: "Rendered in 3D: filmed landscapes scrubbed by the scroll, glass and chrome objects, and a rendered Stack.",
     tags: ["Rendered film", "3D scenes", "Scroll-scrubbed"],
     img: "/selector-v2.webp",
   },
   {
-    href: "/home-v3",
-    n: "03",
-    name: "Flat + b10",
-    note: "The flat direction with b10's navigation and buttons: a floating pill nav whose menus unfold out of it, and b10's pill buttons.",
-    tags: ["Dot globe", "Pill nav", "b10 buttons"],
-    img: "/selector-v3.webp",
-  },
-  {
     href: "/home-v4",
-    n: "04",
+    n: "02",
     name: "New copy",
     note: "Flat + b10 with the October 2026 copy: a new intro, rail and Stack, a revenue row, updated figures and six voices.",
     tags: ["Oct 2026 copy", "Revenue row", "Six voices"],
@@ -51,8 +35,8 @@ export default function Selector() {
       </header>
 
       <div className={styles.intro}>
-        <h1 className={styles.h}>Four versions of the homepage<span className={styles.sq} aria-hidden="true" /></h1>
-        <p className={styles.sub}>Drawn in dots and lines, rendered in 3D, or flat with b10’s navigation and buttons; and that last one again with the October 2026 copy.</p>
+        <h1 className={styles.h}>Two versions of the homepage<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>Rendered in 3D, or flat with b10’s navigation and the October 2026 copy.</p>
       </div>
 
       <ul className={styles.grid}>
