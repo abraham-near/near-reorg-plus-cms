@@ -17,6 +17,16 @@ export const GROUPS: Group[] = [
     ],
   },
   {
+    id: "post",
+    title: "Blog post",
+    note: "Three layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",
+    pages: [
+      { href: "/post-a", n: "A", name: "Ruled", note: "The index's ruled grid carried into the article: a row of facts, the photo in its cell, contents | text | margin notes.", tags: ["Ruled grid", "Sticky contents", "Margin notes"], img: "/extra/post-a.webp" },
+      { href: "/post-b", n: "B", name: "Cover", note: "A magazine feature: the photo fills the first screen, a drop cap, pictures that leave the column, figures on an ink band, Up next.", tags: ["Full-screen cover", "Reading line", "Footnotes"], img: "/extra/post-b.webp" },
+      { href: "/post-c", n: "C", name: "Notebook", note: "A reference read: split opening, a sticky rail with contents that fill as you read, time left and the takeaways; boxed notes.", tags: ["Split hero", "Progress rail", "Docs feel"], img: "/extra/post-c.webp" },
+    ],
+  },
+  {
     id: "pages",
     title: "Pages",
     note: "Inner pages of near.org in home v4's design, with the October 2026 copy.",
