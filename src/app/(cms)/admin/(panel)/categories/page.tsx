@@ -13,11 +13,11 @@ export default async function CategoriesPage() {
   const [categories, tags] = await Promise.all([listTaxonomy('category'), listTaxonomy('tag')])
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="flex items-center gap-2 text-2xl font-semibold">Categories &amp; tags</h1>
-        <p className="text-sm text-muted-foreground">Organize posts with shared categories and tags.</p>
-      </div>
+    <div className="flex flex-col gap-5">
+      <header>
+        <h1 className="text-2xl font-semibold">Categories &amp; tags</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Group posts so readers can find related stories. You pick them in each post&rsquo;s properties.</p>
+      </header>
       <TaxonomyManager categories={categories} tags={tags} />
     </div>
   )

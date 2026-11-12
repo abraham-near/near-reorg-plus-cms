@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, FileArchive, FileAudio, FileText, FileVideo, Type } from 'lucide-react'
+import { Check, FileArchive, FileAudio, FileText, FileVideo, Maximize2, Type } from 'lucide-react'
 import { cn } from '@/cms/lib/utils'
 import { isCmsMediaUrl } from './reference-values'
 import type { MediaItem } from './types'
@@ -45,20 +45,26 @@ export function MediaTile({ item, meta, selected = false, checkable = false, fre
     aria-pressed={checkable ? selected : undefined}
     aria-current={!checkable && selected ? 'true' : undefined}
     onClick={onClick}
-    className={cn('cms-lift group flex min-w-0 flex-col gap-1.5 rounded-[12px] text-left outline-offset-4', fresh && 'cms-fade-up')}
+    className={cn('group flex min-w-0 flex-col gap-1.5 rounded-[12px] text-left outline-offset-4', fresh && 'cms-fade-up')}
   >
     <span className={cn(
       'relative block aspect-[4/3] w-full overflow-hidden rounded-[10px] bg-muted transition-shadow duration-[var(--dur-fast)]',
-      selected ? 'shadow-[0_0_0_2px_var(--background),0_0_0_4px_var(--primary)]' : 'shadow-[inset_0_0_0_1px_rgb(var(--shadow)/.04)]',
+      selected
+        ? 'shadow-[0_0_0_2px_var(--background),0_0_0_4px_var(--primary)]'
+        : 'shadow-[inset_0_0_0_1px_var(--border)] group-hover:shadow-[0_0_0_1px_var(--border-strong)]',
     )}>
       <MediaThumb item={item} />
+      {/* Hover: a soft veil and an "open" hint; nothing moves or scales. */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-[var(--dur-fast)] group-hover:bg-black/[.06] dark:group-hover:bg-white/[.04]" />
       {missingAlt && <span className="absolute top-2 left-2 rounded-[5px] bg-[var(--warning-bg)] px-[7px] py-0.5 text-[11px] font-semibold text-[var(--warning-fg)]">No alt</span>}
-      {checkable && <span aria-hidden="true" className={cn(
-        'absolute top-2 right-2 grid size-[22px] place-items-center rounded-full border-2 transition-colors duration-[var(--dur-fast)]',
-        selected ? 'border-primary bg-primary text-primary-foreground' : 'border-white bg-black/20 text-transparent group-hover:bg-black/30',
-      )}><Check className="size-3.5" strokeWidth={3} /></span>}
+      {checkable
+        ? <span aria-hidden="true" className={cn(
+          'absolute top-2 right-2 grid size-[22px] place-items-center rounded-full border-2 transition-colors duration-[var(--dur-fast)]',
+          selected ? 'border-primary bg-primary text-primary-foreground' : 'border-white bg-black/20 text-transparent group-hover:bg-black/30',
+        )}><Check className="size-3.5" strokeWidth={3} /></span>
+        : <span aria-hidden="true" className="absolute right-2 bottom-2 grid size-7 place-items-center rounded-md bg-background/90 text-foreground opacity-0 shadow-[0_1px_3px_rgb(var(--shadow)/.15)] transition-opacity duration-[var(--dur-fast)] group-hover:opacity-100 group-focus-visible:opacity-100"><Maximize2 className="size-3.5" /></span>}
     </span>
-    <span className="block truncate text-[13px] text-secondary-foreground" title={item.filename}>{item.filename}</span>
+    <span className="block truncate text-[13px] text-secondary-foreground transition-colors duration-[var(--dur-fast)] group-hover:text-foreground" title={item.filename}>{item.filename}</span>
     <span className="block truncate text-xs text-muted-foreground">{meta}</span>
   </button>
 }
@@ -71,4 +77,5 @@ export function MediaTileSkeleton() {
   </div>
 }
 
-export const GRID_CLASS = 'grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-[18px]'
+/** At most 5 per row. Columns follow the grid's own width (it narrows while the detail panel is open). */
+export const GRID_CLASS = 'grid grid-cols-2 gap-x-4 gap-y-5 @[600px]:grid-cols-3 @[820px]:grid-cols-4 @[1040px]:grid-cols-5'

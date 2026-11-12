@@ -20,7 +20,7 @@ import { useUploadQueue } from './useUploadQueue'
 
 type Props = { canUpload: boolean; canEdit: boolean; canDelete: boolean; startUpload?: boolean }
 
-const controlClass = 'h-[34px] rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.04)]'
+const controlClass = 'h-[34px] flex-none whitespace-nowrap rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.04)]'
 
 const matchesType = (item: MediaItem, type: MediaFilters['type']) =>
   type === 'all' || (type === 'image' ? item.mimeType.startsWith('image/') : type === 'video' ? item.mimeType.startsWith('video/') : !/^(image|video)\//.test(item.mimeType))
@@ -96,6 +96,8 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
       return
     }
     setActive((current) => current?.id === item.id ? null : item)
+    // The grid narrows for the panel: keep the opened tile in view.
+    requestAnimationFrame(() => document.querySelector(`[data-media-id="${CSS.escape(item.id)}"]`)?.scrollIntoView({ block: 'nearest' }))
   }
 
   async function bulkDelete() {
@@ -116,12 +118,12 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
   const pickedInUse = [...picked].filter((id) => (usage[id] ?? 0) > 0).length
   const [limitFirst, limitSecond] = uploadLimitLines()
 
-  return <div className={cn('transition-[padding] duration-[var(--dur-slow)] ease-[var(--ease-out)]', active && 'xl:pr-[380px]')}>
-    <div className="flex flex-wrap items-center gap-3">
-      <h1 className="text-2xl font-semibold">Media</h1>
-      <span className="text-[13px] text-muted-foreground" aria-live="polite">{list.loading && !list.items.length ? '' : `${list.total} ${list.total === 1 ? 'file' : 'files'}`}</span>
+  return <div className={cn('@container', active && 'xl:pr-[440px]')}>
+    <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
+      <h1 className="flex-none text-2xl font-semibold">Media</h1>
+      <span className="flex-none text-[13px] text-muted-foreground" aria-live="polite">{list.loading && !list.items.length ? '' : `${list.total} ${list.total === 1 ? 'file' : 'files'}`}</span>
       <span className="flex-1" />
-      <label className={cn(controlClass, 'flex w-full items-center gap-2 sm:w-[260px] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/20')}>
+      <label className={cn(controlClass, 'flex w-full items-center gap-2 sm:w-auto sm:min-w-[120px] sm:flex-[0_1_260px] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/20')}>
         <Search className="size-4 flex-none text-muted-foreground" aria-hidden="true" />
         <span className="sr-only">Search files</span>
         <input type="search" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search name or alt text" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground focus-visible:outline-none" />
@@ -134,7 +136,7 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
       </label>
       <button type="button" aria-pressed={unused} onClick={() => setUnused((value) => !value)} className={cn(controlClass, 'cms-press font-medium', unused ? 'border-transparent bg-accent text-accent-foreground' : 'hover:bg-muted')}>Unused only</button>
       {canDelete && <button type="button" aria-pressed={selecting} onClick={() => { setSelecting((value) => !value); setPicked(new Set()); setActive(null) }} className={cn(controlClass, 'cms-press font-medium', selecting ? 'border-transparent bg-accent text-accent-foreground' : 'hover:bg-muted')}>{selecting ? 'Done' : 'Select'}</button>}
-      {canUpload && <Button type="button" className="h-[34px]" onClick={() => fileInput.current?.click()}><Upload />Upload</Button>}
+      {canUpload && <Button type="button" className="h-[34px] flex-none" onClick={() => fileInput.current?.click()}><Upload />Upload</Button>}
       <input ref={fileInput} type="file" multiple hidden accept={acceptAttribute()} onChange={(event) => { addFiles(Array.from(event.target.files ?? [])); event.target.value = '' }} />
     </div>
 

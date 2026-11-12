@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { signOut } from "@/cms/lib/client";
-import { Settings, LogOut, ExternalLink, ChevronUp, Sparkles, Sun, Moon, Monitor } from "lucide-react";
+import { Settings, LogOut, ExternalLink, ChevronUp, Sparkles, Check } from "lucide-react";
 import { useTheme, type ThemeChoice } from "@/cms/components/ThemeProvider";
 import { LogoutConfirmationModal } from "@/cms/components/LogoutConfirmationModal";
 import { SidebarTooltip } from "@/cms/components/SidebarTooltip";
@@ -21,11 +21,6 @@ export function SidebarProfileMenu({ userName, role, collapsed = false, canConne
   const [open, setOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const { choice, setChoice } = useTheme();
-  const THEMES: { value: ThemeChoice; label: string; icon: React.ReactNode }[] = [
-    { value: "light", label: "Light", icon: <Sun className="w-3.5 h-3.5" /> },
-    { value: "dark", label: "Dark", icon: <Moon className="w-3.5 h-3.5" /> },
-    { value: "system", label: "System", icon: <Monitor className="w-3.5 h-3.5" /> },
-  ];
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,27 +45,8 @@ export function SidebarProfileMenu({ userName, role, collapsed = false, canConne
     <div ref={containerRef} className="relative">
       {/* Dropdown */}
       {open && (
-        <div className={`cms-pop absolute bottom-full left-0 mb-2 ${collapsed ? "w-60" : "right-0"} bg-popover border border-border rounded-xl shadow-[0_16px_40px_rgb(var(--shadow)/.12)] overflow-hidden z-50 [--origin:bottom_left]`}>
-          <div className="px-3 pt-3 pb-2">
-            <p id="theme-label" className="mb-1.5 text-[11px] font-semibold tracking-[.05em] text-muted-foreground">THEME</p>
-            <div role="radiogroup" aria-labelledby="theme-label" className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
-              {THEMES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={choice === t.value}
-                  onClick={() => setChoice(t.value)}
-                  className={`cms-press flex h-7 items-center justify-center gap-1.5 rounded-md text-xs font-medium ${
-                    choice === t.value ? "bg-background text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.12)]" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t.icon}
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className={`cms-pop absolute bottom-full left-0 mb-2 w-[272px] bg-popover border border-border rounded-xl shadow-[0_16px_40px_rgb(var(--shadow)/.12)] overflow-hidden z-50 [--origin:bottom_left]`}>
+          <ThemePicker choice={choice} onChange={setChoice} />
           <div className="border-t border-border py-1">
             <Link
               href="/admin/settings"
@@ -153,6 +129,93 @@ export function SidebarProfileMenu({ userName, role, collapsed = false, canConne
         onOpenChange={setLogoutConfirmOpen}
         onConfirm={() => signOut()}
       />
+    </div>
+  );
+}
+
+/** Tiny window previews in each theme's colours (fixed on purpose: they show the theme, not the current one). */
+const PREVIEWS: Record<ThemeChoice, { label: string; bg: string; side: string; bar: string; text: string }> = {
+  light: { label: "Light", bg: "#ffffff", side: "#f4f4f2", bar: "#e6e6e2", text: "#c9c9c4" },
+  dark: { label: "Dark", bg: "#1d1d1c", side: "#151514", bar: "#363532", text: "#4b4a46" },
+  system: { label: "System", bg: "", side: "", bar: "", text: "" },
+};
+
+function WindowPreview({ theme }: { theme: "light" | "dark" }) {
+  const c = PREVIEWS[theme];
+  return (
+    <span className="absolute inset-0 flex" style={{ background: c.bg }}>
+      <span className="flex w-[30%] flex-col gap-[3px] p-[5px]" style={{ background: c.side }}>
+        <span className="h-[3px] w-3/4 rounded-full" style={{ background: c.text }} />
+        <span className="h-[3px] w-full rounded-full" style={{ background: c.bar }} />
+        <span className="h-[3px] w-2/3 rounded-full" style={{ background: c.bar }} />
+      </span>
+      <span className="flex flex-1 flex-col gap-[3px] p-[6px]">
+        <span className="h-[4px] w-1/2 rounded-full" style={{ background: c.text }} />
+        <span className="h-[3px] w-full rounded-full" style={{ background: c.bar }} />
+        <span className="h-[3px] w-4/5 rounded-full" style={{ background: c.bar }} />
+        <span className="mt-auto h-[6px] w-[38%] self-end rounded-[2px] bg-[#3ecf98]" />
+      </span>
+    </span>
+  );
+}
+
+function ThemePicker({ choice, onChange }: { choice: ThemeChoice; onChange: (choice: ThemeChoice) => void }) {
+  const options: ThemeChoice[] = ["light", "dark", "system"];
+  return (
+    <div className="px-3 pt-3 pb-3">
+      <p id="theme-label" className="mb-2 text-[11px] font-semibold tracking-[.05em] text-muted-foreground">APPEARANCE</p>
+      <div
+        role="radiogroup"
+        aria-labelledby="theme-label"
+        className="grid grid-cols-3 gap-2"
+        onKeyDown={(event) => {
+          const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 0;
+          if (!step) return;
+          event.preventDefault();
+          const next = options[(options.indexOf(choice) + step + options.length) % options.length];
+          onChange(next);
+          event.currentTarget.querySelector<HTMLButtonElement>(`[data-theme-option="${next}"]`)?.focus();
+        }}
+      >
+        {options.map((option) => {
+          const active = choice === option;
+          return (
+            <button
+              key={option}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              tabIndex={active ? 0 : -1}
+              data-theme-option={option}
+              onClick={() => onChange(option)}
+              className="group flex flex-col items-center gap-1.5 rounded-lg outline-none"
+            >
+              <span
+                className={`relative block aspect-[4/3] w-full overflow-hidden rounded-lg transition-shadow duration-[var(--dur-fast)] ${
+                  active
+                    ? "shadow-[0_0_0_2px_var(--popover),0_0_0_4px_var(--primary)]"
+                    : "shadow-[0_0_0_1px_var(--border)] group-hover:shadow-[0_0_0_1px_var(--border-strong)] group-focus-visible:shadow-[0_0_0_2px_var(--popover),0_0_0_4px_var(--ring)]"
+                }`}
+              >
+                {option === "system" ? (
+                  <>
+                    <WindowPreview theme="light" />
+                    <span className="absolute inset-0 [clip-path:polygon(100%_0,100%_100%,0_100%)]"><WindowPreview theme="dark" /></span>
+                  </>
+                ) : (
+                  <WindowPreview theme={option} />
+                )}
+                {active && (
+                  <span className="cms-pop absolute top-1 right-1 grid size-4 place-items-center rounded-full bg-primary text-primary-foreground [--origin:center]">
+                    <Check className="size-2.5" strokeWidth={3.5} />
+                  </span>
+                )}
+              </span>
+              <span className={`text-xs ${active ? "font-semibold text-foreground" : "text-muted-foreground group-hover:text-foreground"}`}>{PREVIEWS[option].label}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

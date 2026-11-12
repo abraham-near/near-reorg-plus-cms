@@ -22,7 +22,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const canWrite = can(user.role, 'post:write')
   const firstName = user.name?.trim().split(/\s+/)[0] || user.email.split('@')[0]
   return (
-    <div className="flex flex-col gap-[22px]">
+    <div className="flex flex-col gap-5">
       {denied && <p role="status" className="rounded-lg border bg-[var(--warning-bg)] p-3 text-sm text-[var(--warning-fg)]">Your role does not have access to that page.</p>}
       <header data-tour-id="dashboard" className="flex flex-wrap items-end gap-4">
         <DashboardGreeting firstName={firstName} />
@@ -32,12 +32,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       <QuickActions canWrite={canWrite} canUpload={can(user.role, 'media:upload')} claude={can(user.role, 'apitoken:manage') && apiTokensEnabled()} />
 
-      <div className="flex flex-wrap items-start gap-5">
-        <div className="flex min-w-0 flex-[2_1_520px] flex-col gap-5">
+      {/* One 3-column grid for every row: quick actions and cards share the same columns and gaps. */}
+      <div className="grid items-start gap-5 lg:grid-cols-3">
+        <div className="flex min-w-0 flex-col gap-5 lg:col-span-2">
           <ContinueWriting draft={data.continueWriting} canWrite={canWrite} />
           {data.continueWriting && <YourDrafts drafts={data.drafts} />}
         </div>
-        <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5">
           <section aria-labelledby="up-next" className={cardClass} style={{ animationDelay: '60ms' }}>
             <CardCaption className="mb-3"><span id="up-next">Up next</span></CardCaption>
             <UpNext posts={data.scheduled} />

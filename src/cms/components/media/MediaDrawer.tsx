@@ -57,7 +57,7 @@ export function MediaDrawer(props: Props) {
 
   return <aside
     aria-label="File details"
-    className="cms-drawer fixed top-0 right-0 bottom-0 z-30 flex w-full flex-col gap-[18px] overflow-y-auto border-l border-border bg-card p-5 text-card-foreground shadow-[-24px_0_48px_rgb(var(--shadow)/.08)] sm:w-[380px]"
+    className="cms-drawer fixed top-0 right-0 bottom-0 z-30 flex w-full flex-col gap-[18px] overflow-y-auto border-l border-border bg-card p-5 text-card-foreground shadow-[-24px_0_48px_rgb(var(--shadow)/.08)] sm:w-[440px]"
   >
     <DrawerBody key={props.item.id} {...props} closeRef={closeRef} confirmingRef={confirming} flushRef={flush} />
   </aside>
@@ -186,7 +186,7 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
       </button>
     </div>
 
-    <div className="relative grid aspect-[16/10] flex-none place-items-center overflow-hidden rounded-xl bg-muted">
+    <div className="relative grid aspect-[4/3] flex-none place-items-center overflow-hidden rounded-xl bg-muted">
       {image && isCmsMediaUrl(current.url)
         // eslint-disable-next-line @next/next/no-img-element -- CMS files are already sized; no optimizer for /cms
         ? <img src={current.url} alt={current.alt ?? ''} className="max-h-full max-w-full object-contain" onLoad={(event) => { const img = event.currentTarget; if (img.naturalWidth) setSize({ w: img.naturalWidth, h: img.naturalHeight }) }} />

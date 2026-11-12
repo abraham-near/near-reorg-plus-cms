@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Bot, ImageUp, PenLine, Plus } from 'lucide-react'
+import { ArrowRight, Bot, FileText, ImageUp, PenLine, Plus } from 'lucide-react'
 import { Button } from '@/cms/components/ui/button'
 import { cn } from '@/cms/lib/utils'
 import { safeUrl } from '@/cms/lib/sanitize'
@@ -24,15 +24,16 @@ export function QuickActions({ canWrite, canUpload, claude }: { canWrite: boolea
     ...(canUpload ? [{ href: '/admin/media?upload=1', title: 'Upload images', hint: 'Add photos to the media library', icon: ImageUp }] : []),
     ...(claude ? [{ href: '/admin/settings?tab=claude', title: 'Draft with Claude', hint: 'Connect in Settings › Claude', icon: Bot }] : []),
   ]
-  if (!actions.length) return null
+  // Three cards line up with the 2/3 + 1/3 columns below; without Claude the third one opens the posts list.
+  if (actions.length < 3) actions.push({ href: '/admin/posts', title: 'Browse posts', hint: 'Drafts, scheduled and published', icon: FileText })
   return (
-    <nav aria-label="Quick actions" className="flex flex-wrap gap-3">
+    <nav aria-label="Quick actions" className="grid gap-5 sm:grid-cols-3">
       {actions.map(({ href, title, hint, icon: Icon }, index) => (
         <Link
           key={href}
           href={href}
           style={{ animationDelay: `${index * 40}ms` }}
-          className="cms-fade-up cms-lift flex min-w-0 flex-[1_1_180px] flex-col gap-2.5 rounded-xl border bg-card p-4 text-foreground hover:border-primary/30 focus-visible:outline-2 focus-visible:outline-ring"
+          className="cms-fade-up cms-lift flex min-w-0 flex-col gap-2.5 rounded-[14px] border bg-card p-5 text-foreground hover:border-primary/30 focus-visible:outline-2 focus-visible:outline-ring"
         >
           <span className="grid size-[34px] place-items-center rounded-[9px] bg-accent text-primary" aria-hidden="true"><Icon className="size-[18px]" strokeWidth={1.75} /></span>
           <span className="text-sm font-semibold">{title}</span>
