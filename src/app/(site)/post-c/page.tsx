@@ -8,5 +8,5 @@ import { ARTICLE } from "@/components/v3/post/article";
 export const metadata: Metadata = { title: `${ARTICLE.title} · Post C`, description: ARTICLE.dek };
 
 export default function PostPageC() {
-  return <><BlogShell home="/home-v4"><PostC /></BlogShell><PostSwitch on="c" /></>;
+  return <><BlogShell home="/home-v4"><PostC article={ARTICLE} /></BlogShell><PostSwitch on="c" /></>;
 }

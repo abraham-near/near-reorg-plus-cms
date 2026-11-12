@@ -60,7 +60,7 @@ MONTHS.reduce((acc, v, i) => { const c = acc + v; RUN.push([yc(i), (c / maxR) * 
 RUN.push([0, RUN[RUN.length - 1][1]]);
 
 /** a monotone curve through projected points (x' always grows along the run, so no overshoot: the total only grows) */
-function monotone(p: [number, number][]) {
+export function monotone(p: [number, number][]) {
   const n = p.length;
   if (n < 2) return "";
   const d: number[] = [], m: number[] = [];
@@ -86,3 +86,14 @@ export function line(q: number) {
 }
 /** the tag's anchor: the line's end */
 export const END = pct(0, 0, RUN[RUN.length - 1][1]);
+
+/** the chart's geometry as one object: the iso scene (this file) or the flat chart (./flat.ts, home v5) share this shape, so RevenueD and motion.ts draw either */
+export type ChartGeo = {
+  COL_H: number[]; VX: number; VY: number; VW: number; VH: number; HEAD_R: number;
+  FLOOR: string; GRID: string; WALL: string; WALL_TICKS: string;
+  TICKS_L: { v: number; at: { left: string; top: string } }[]; TICKS_R: { v: number; at: { left: string; top: string } }[];
+  END: { left: string; top: string };
+  column: (i: number, h: number) => { l: string; r: string; t: string };
+  line: (q: number) => { d: string; hx: number; hy: number };
+};
+export const ISO: ChartGeo = { COL_H, VX, VY, VW, VH, HEAD_R: 0.085, FLOOR, GRID, WALL, WALL_TICKS, TICKS_L, TICKS_R, END, column, line };

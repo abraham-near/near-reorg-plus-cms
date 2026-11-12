@@ -1,0 +1,62 @@
+/* Home v5's own styles (V5Page.tsx), on top of v4's. Everything is scoped under html[data-home="v5"] (set before first paint), so v1 / v3 / v4 never see it. */
+
+/* ───────── the hero: a photo instead of the globe ───────── */
+/* the boot still reads .stage / .globe (it runs as with ?gl=0); they never show */
+html[data-home="v5"] :is(.stage, .globe, .globe__poster) { display: none !important; }
+.hero--v5 { isolation: isolate; overflow: hidden; }
+.hero--v5 .hero__bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: #dfe1df; }
+/* flipped: the trees on the right, the mist (and the copy) on the left */
+.hero--v5 .hero__bg img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; transform: scaleX(-1); }
+/* a soft veil for the copy on the left, and the paper at the foot so the hero hands over to the intro */
+.hero--v5 .hero__bg::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgb(244 244 244 / .72) 0%, rgb(244 244 244 / .38) 34%, rgb(244 244 244 / 0) 60%),
+    linear-gradient(180deg, rgb(244 244 244 / 0) 72%, var(--paper, #f4f4f4) 100%);
+}
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
+  .hero--v5 .hero__bg img { object-position: 30% 50%; }
+  .hero--v5 .hero__bg::after { background: linear-gradient(180deg, rgb(244 244 244 / .7) 0%, rgb(244 244 244 / .3) 45%, rgb(244 244 244 / 0) 70%, var(--paper, #f4f4f4) 100%); }
+}
+
+/* ───────── the intro: one left-aligned paragraph under the N on its green tile, the marker on the last phrase ───────── */
+.statement--v5 { --st: calc(4.1 * var(--u)); --st-lh: 1.1; }
+.statement--v5 .statement__tile {
+  display: grid; place-items: center; width: max(30px, calc(2.2 * var(--u))); aspect-ratio: 1; margin-bottom: calc(1.9 * var(--u));
+  border-radius: 6px; background: var(--green);
+}
+.statement--v5 .statement__n { width: 58%; margin: 0; fill: var(--ink); }
+.statement--v5 .st__l { padding-left: 0 !important; }   /* six lines, all on the left edge (the reference's breaks); phones re-wrap (world.css) */
+/* one centred column for the hero's copy and the intro: as wide as the intro's longest line (74.4 u at --st 4.1 u), so both share the same left edge and
+   the intro has the same space on its left and right. Phones keep the page margins (the intro re-wraps there). */
+html[data-home="v5"] { --v5-col: calc(74.6 * var(--u)); }
+@media (min-width: 761px) {
+  .statement--v5 .statement__inner, .hero--v5 .hero__main { max-width: calc(var(--v5-col) + 2 * var(--m)); margin-inline: auto; }
+}
+.statement--v5 .st__mark { display: inline; background: linear-gradient(var(--green), var(--green)) 0 .15em / calc(var(--mark) * 100%) calc(100% - .17em) no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.statement--v5 .st__mark::before { display: none; }
+
+/* ───────── the isometrics: no viewfinder corners (the rail's stations, revenue A and D) ───────── */
+html[data-home="v5"] :is(.rs__fin, .rva-fin > i, .rvd-fin) { display: none !important; }
+
+/* ───────── the rail: the line, the station art and its copy sit lower, so the docked heading above gets air.
+   The line goes as low as the copy under it allows: 64 % on short screens, up to 76 % on tall ones (the art's height follows: layer.ts --art-cap). ───────── */
+html[data-home="v5"] .rs { --rail-y: clamp(64%, calc(100% - var(--tt) - 1.57 * var(--h2) - 2.6 * var(--pp) - 10svh), 76%); }
+
+/* the thesis ("AI is the frontend…") at the intro's size: the smaller of the two */
+html[data-home="v5"] .rs { --cs: calc(4.1 * var(--u)); }
+html[data-home="v5"] .rail__h { font-size: calc(4.1 * var(--u)); }
+
+/* phones: the same rules, in the phone sizes (the rail's thesis was the smaller one there) */
+@media (max-width: 760px) {
+  .statement--v5 { --st: clamp(25px, 7.1vw, 40px); }
+  .statement--v5 .st__l { display: inline; white-space: normal; }
+  .statement--v5 .statement__tile { width: 30px; margin-bottom: 22px; }
+  html[data-home="v5"] .rs { --cs: clamp(25px, 7.1vw, 40px); --rail-y: clamp(62%, calc(100% - var(--tt) - 1.57 * var(--h2) - 3.9 * var(--pp) - 7svh), 70%); }
+  html[data-home="v5"] .rail__h { font-size: clamp(25px, 7.1vw, 40px); }
+}
+
+/* ───────── the Stack into Real Usage, Real Revenue (option D): less ink between them. The Stack ends closer to its drawing, and D's stage brings its
+   heading up at 28 % of the screen instead of the middle (revenue/d/motion.ts reads --rvd-head-at). ───────── */
+html[data-home="v5"] .stk--v4 { padding-bottom: 40px; }
+html[data-home="v5"] .rvd { --rvd-head-at: .28; }

@@ -101,3 +101,6 @@
   .pa-hero__ph { aspect-ratio: 4 / 3; }
   .pa-more-h__cell { padding-top: 48px; }
 }
+
+/* an author without a line about them: the name beside the avatar, centred */
+.pa-author__cell:not(:has(.pa-author__b)) { align-items: center; }

@@ -47,9 +47,10 @@ const ExtMark = () => (
   <svg viewBox="0 0 10 10" width="9" height="9" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" fill="none" stroke="currentColor" strokeWidth="1.2"></path></svg>
 );
 
-export function StackV4() {
+/** still: the drawing without its build-in and its live loop (home v5) */
+export function StackV4({ still = false }: { still?: boolean }) {
   return (
-    <section className="stk stk--v4" id="stack" aria-labelledby="stack-title" data-stack="" data-tone="dark" data-nav-tone="dark" data-active-layer="protocol">
+    <section className="stk stk--v4" id="stack" aria-labelledby="stack-title" data-stack="" data-still={still ? "" : undefined} data-tone="dark" data-nav-tone="dark" data-active-layer="protocol">
       <div className="stk-inner">
         <div className="stk-grid">
           <header className="stk-head" data-rise="">

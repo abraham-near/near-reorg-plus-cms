@@ -8,6 +8,8 @@
 //   - the footer (#footer): as it arrives (its top from 92 % to 57 % of the screen) the pill slides out, scrubbed; back on the way up.
 //   - Get started: magnet (pointer: fine), and quiet (ghost) while the hero's own CTA is on screen (html[data-hero-in-view], CSS).
 //   - phones (< 860 px): the N + Menu; Menu opens the map, modal: the page behind is inert, Tab stays inside, Escape closes.
+//   - spread (header[data-spread], home v5; home v1's effect): at the very top the N sits at the left margin, the menus in the middle and Get started at the right
+//     margin, with no pill; the first real scroll (64 px) gathers them into the pill, which spreads again only near the top (24 px). Opening a menu gathers it too.
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { smooth } from "@/lib/motion/smooth";
 import { mountIcons } from "./icons";
@@ -17,6 +19,8 @@ const OPEN_MS = 60, CLOSE_MS = 180, ZPAD = 6;    // hover intent
 const HIDE_AFTER = 96, DOWN = 8, UP = 6;         // hide on the way down, back on the way up
 const FOOT_A = 0.92, FOOT_B = 0.57;              // the footer's top from 92 % to 57 % of the viewport: the pill slides out
 const MOVED_ON = 160;                            // a panel closes once the page has clearly moved on
+const SPREAD_IN = 64, SPREAD_OUT = 24;
+const TONE_MS = 620;                             // soft: how long the light / dark cross-fade lasts           // spread: gather past 64 px, spread again under 24 px (no flicker)
 
 /** relative luminance of a computed colour, or -1 when it's (mostly) transparent */
 const lum = (c: string) => {
@@ -42,6 +46,32 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
   panels.forEach((p) => { p.inert = true; });
 
   const icons = mountIcons(header, reduced);
+
+  /* ── spread: the three groups' offsets from their places in the pill to the page's margins (measured untransformed, without transitions) ── */
+  const spread = header.hasAttribute("data-spread");
+  /** header[data-stay] (home v5, a trial): the pill never hides on the way down; the effect stays in place, switched off */
+  const stay = header.hasAttribute("data-stay");
+  /** header[data-soft] (home v5): the light / dark switch cross-fades (.nv-toning for TONE_MS) instead of one clean cut (.nv-flip) */
+  const soft = header.hasAttribute("data-soft");
+  let toneT = 0;
+  const logoEl = $(".nv-bar > .nv-logo"), actsEl = $(".nv-bar > .nv-actions");
+  let wide = spread;
+  function measureSpread() {
+    if (!spread) return;
+    header.classList.add("nv-calm");
+    const was = header.classList.contains("nv-wide"); header.classList.remove("nv-wide");
+    if (!isMob()) {
+      const vw = doc.clientWidth, m = parseFloat(getComputedStyle(header).getPropertyValue("--spread-m")) || Math.max(20, Math.min(96, vw * 0.0556));
+      const l = logoEl.getBoundingClientRect(), n = nav.getBoundingClientRect(), a = actsEl.getBoundingClientRect();
+      header.style.setProperty("--sx-logo", Math.round(m - l.left) + "px");
+      header.style.setProperty("--sx-nav", Math.round(vw / 2 - (n.left + n.width / 2)) + "px");
+      header.style.setProperty("--sx-act", Math.round(vw - m - a.right) + "px");
+    }
+    header.classList.toggle("nv-wide", was);
+    void bar.offsetWidth;
+    requestAnimationFrame(() => header.classList.remove("nv-calm"));
+  }
+  function setWide(v: boolean) { if (v === header.classList.contains("nv-wide")) return; header.classList.toggle("nv-wide", v); }
 
   const st = { popKey: "", openId: null as string | null, pinned: false, map: false, dark: false, quiet: false,
     darkRaw: false, darkN: 0, openY: 0, away: false, fade: 0 };
@@ -233,6 +263,9 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
     const r = bar.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2, vw = innerWidth;
     for (const el of document.elementsFromPoint(x, y)) {
       if (header.contains(el)) continue;
+      // a band that says its tone (data-nav-tone) wins over any ground painted inside it (revenue D keeps its ink stage under a paper layer)
+      const said = el.closest("[data-nav-tone]");
+      if (said) return (lastG = said.getAttribute("data-nav-tone") === "dark");
       for (let e: Element | null = el; e && e !== document.body && e !== doc; e = e.parentElement) {   // the band's ground, never a small element passing under the pill
         const nt = e.getAttribute("data-nav-tone"); if (nt) return (lastG = nt === "dark");
         if (e.getAttribute("data-tone") === "dark") return (lastG = true);
@@ -252,16 +285,22 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
     if (raw !== st.darkRaw) { st.darkRaw = raw; st.darkN = 0; } else st.darkN++;
     if (st.darkRaw !== st.dark && (st.darkN >= 2 || reduced)) {
       st.dark = st.darkRaw;
-      header.classList.add("nv-flip");
-      header.classList.toggle("is-dark", st.dark);
-      raf2(() => header.classList.remove("nv-flip"));
+      if (soft && !reduced) {
+        clearTimeout(toneT); header.classList.add("nv-toning");
+        header.classList.toggle("is-dark", st.dark);
+        toneT = window.setTimeout(() => header.classList.remove("nv-toning"), TONE_MS);
+      } else {
+        header.classList.add("nv-flip");
+        header.classList.toggle("is-dark", st.dark);
+        raf2(() => header.classList.remove("nv-flip"));
+      }
     }
     // direction, with a little hysteresis
     const dy = y - hd.y; hd.y = y;
     if (dy) {
       hd.acc = Math.sign(dy) === Math.sign(hd.acc) ? hd.acc + dy : dy;
       const busy = st.openId || st.map || header.contains(document.activeElement);
-      if (y <= HIDE_AFTER || busy) { setHidden(false); hd.up = false; }
+      if (y <= HIDE_AFTER || busy || stay) { setHidden(false); hd.up = false; }
       else if (hd.acc >= DOWN) { setHidden(true); hd.up = false; }
       else if (hd.acc <= -UP) { setHidden(false); hd.up = true; } // on the way up it returns anywhere, the footer too
     }
@@ -279,6 +318,11 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
       st.away = away; header.classList.toggle("nv-away", away);
       if (away && header.contains(document.activeElement)) (document.activeElement as HTMLElement).blur();
       bar.inert = away;
+    }
+    // spread: gathered once scrolled, while a menu or the map is open, and on phones
+    if (spread) {
+      if (wide && y > SPREAD_IN) wide = false; else if (!wide && y < SPREAD_OUT) wide = true;
+      setWide(wide && !isMob() && !st.openId && !st.map);
     }
     // panels close once the page has clearly moved on
     if (st.openId && Math.abs(y - st.openY) > MOVED_ON && (st.pinned || !lastXY || !inZone(+lastXY.split(",")[0], +lastXY.split(",")[1]))) closePanel(false);
@@ -319,13 +363,14 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop);
-  addEventListener("resize", () => { placePop(true); fitMap(); if (!isMob() && st.map) setMap(false); }, on);
+  addEventListener("resize", () => { placePop(true); fitMap(); measureSpread(); if (!isMob() && st.map) setMap(false); }, on);
+  measureSpread();
   addEventListener("load", () => { placePop(true); fixStarts(); }, on);
-  document.fonts?.ready.then(() => { if (!dead) placePop(true); });
+  document.fonts?.ready.then(() => { if (!dead) { placePop(true); measureSpread(); } });
 
   return () => {
     dead = true; ac.abort(); cancelAnimationFrame(raf);
-    clearTimeout(closeT); clearTimeout(openT); clearTimeout(mapT);
+    clearTimeout(closeT); clearTimeout(openT); clearTimeout(mapT); clearTimeout(toneT);
     icons.dispose();
     inertList.forEach((el) => el.removeAttribute("inert")); inertList = [];
     doc.classList.remove("nv-locked");

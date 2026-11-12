@@ -1,0 +1,85 @@
+/* Blog H · Chapters (BlogH.tsx). Type does the work: poster-size chapter titles that shrink to labels, free rows with no lines, a picture that follows
+   the cursor. Motion states only under .bl-h[data-motion] (motion.ts). */
+.bl-h { --mono: var(--font-mono, ui-monospace, monospace); --gut: 27%; }
+
+/* ================================================================ the head */
+.blh-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: 24px clamp(32px, 5vw, 96px); padding: var(--top) var(--margin) 0; }
+.blh-h1 { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); }
+.blh-lede { max-width: 26em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
+.blh-filters { grid-column: 1 / -1; margin-top: clamp(16px, 3vh, 32px); }
+
+/* ================================================================ a chapter */
+.blh-ch { position: relative; padding: clamp(72px, 13vh, 150px) var(--margin) 0; }
+.blh-ch__head { position: relative; z-index: 3; padding-bottom: clamp(36px, 6vh, 64px); pointer-events: none; }
+.blh-ch__t { transform-origin: 0 0; will-change: transform; }
+.blh-ch__name { display: block; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3.25rem, 0.6rem + 8.6vw, 10.5rem); line-height: 0.9;
+  letter-spacing: -0.045em; text-wrap: balance; }
+.blh-ch__name .accent { --accent-scale: 1.12em; }
+.blh-ch__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; margin-top: clamp(20px, 3vh, 32px) !important; }
+.blh-ch__no { font: 400 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.blh-ch__count { font-size: var(--t-small); color: var(--muted); }
+
+/* desktop, motion on: the title sticks while it shrinks (motion.ts), and the rows keep to the right of it */
+@media (min-width: 1024px) {
+  :where(.bl-h[data-motion]) .blh-ch__head { position: sticky; top: 28px; }
+  .blh-rows { padding-left: var(--gut); }
+  .blh-row__note { padding-left: 80px; }
+}
+
+/* ================================================================ the rows: type, no lines */
+.blh-rows { position: relative; z-index: 2; padding-bottom: clamp(24px, 6vh, 64px); }
+.blh-row { transition: opacity 0.35s var(--ease-tick); }
+.blh-row__a { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) minmax(0, 11em) 24px; align-items: baseline; column-gap: 24px; padding: clamp(18px, 2.4vh, 26px) 0; }
+.blh-row__n { font: 400 12px/1 var(--mono); letter-spacing: 0.06em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.blh-row__t { position: relative; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance;
+  transition: translate 0.5s var(--ease-settle); }
+.blh-row__t::before { /* the green dot, before the title on hover */
+  content: ""; position: absolute; left: -22px; top: 0.5em; width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); scale: 0; transition: scale 0.4s var(--ease-settle); }
+.blh-row__src { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+.blh-row__go { display: inline-flex; align-items: center; justify-content: flex-end; opacity: 0; translate: -8px 0;
+  transition: opacity 0.25s var(--ease-tick), translate 0.4s var(--ease-settle); }
+.blh-row__thumb { display: none; }
+.blh-row__note { margin-top: -10px !important; padding-bottom: 14px; font-size: var(--t-caption); line-height: var(--t-caption-lh); color: var(--muted); }
+.blh-row__a:focus-visible { outline: none; }
+.blh-rows:has(.blh-row__a:focus-visible) .blh-row:not(:focus-within) { opacity: 0.3; }
+.blh-row__a:focus-visible .blh-row__t { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.14em; }
+.blh-row__a:focus-visible :is(.blh-row__go) { opacity: 1; translate: none; }
+.blh-row__a:focus-visible .blh-row__t::before { scale: 1; }
+@media (hover: hover) {
+  .blh-rows:has(.blh-row__a:hover) .blh-row:not(:hover, :focus-within) { opacity: 0.3; }
+  .blh-row__a:hover .blh-row__t { translate: 14px 0; }
+  .blh-row__a:hover .blh-row__t::before { scale: 1; translate: -14px 0; }
+  .blh-row__a:hover .blh-row__go { opacity: 1; translate: none; }
+}
+
+/* ================================================================ the picture that follows the cursor */
+.blh-pic { position: fixed; z-index: 40; left: 0; top: 0; pointer-events: none; }
+.blh-pic__in { position: relative; width: clamp(240px, 21vw, 340px); aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-2);
+  box-shadow: 0 24px 60px -24px rgb(38 38 38 / 0.35); opacity: 0; scale: 0.72; transition: opacity 0.25s var(--ease-tick), scale 0.5s var(--ease-settle); }
+.blh-pic.is-on .blh-pic__in { opacity: 1; scale: 1; }
+.blh-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; scale: 1.08; transition: opacity 0.3s var(--ease-tick), scale 0.9s var(--ease-settle); }
+.blh-pic img.is-on { opacity: 1; scale: 1; }
+@media (hover: none) { .blh-pic { display: none; } }
+
+/* ================================================================ below 1024: one column; touch: a small picture in each row */
+@media (max-width: 1023px) {
+  .blh-head { grid-template-columns: minmax(0, 1fr); }
+  .blh-row__a { grid-template-columns: 40px minmax(0, 1fr) auto; column-gap: 14px; }
+  .blh-row__src { grid-column: 2; margin-top: 8px; }
+  .blh-row__go { display: none; }
+  .blh-row__note { padding-left: 54px; }
+}
+@media (hover: none) {
+  .blh-row__a { grid-template-columns: 40px minmax(0, 1fr) 76px; }
+  .blh-row__thumb { display: block; grid-column: 3; grid-row: 1 / span 2; align-self: start; position: relative; width: 76px; aspect-ratio: 1; overflow: hidden; background: var(--paper-2); }
+  .blh-row__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+}
+/* a chapter of one: its post at section size */
+.blh-rows--one .blh-row__t { font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); max-width: 14em; }
+@media (max-width: 599px) {
+  .blh-rows--one .blh-row__t { font-size: var(--t-h3); line-height: var(--t-h3-lh); }
+  .blh-row__t { font-size: var(--t-h4); line-height: var(--t-h4-lh); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blh-pic__in, .blh-pic img { transition: none; scale: none; }
+}

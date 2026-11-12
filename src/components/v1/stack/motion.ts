@@ -59,11 +59,13 @@ export function mountStack(ctx: V1Ctx): Dispose {
   /* the build-in + the rise (scroll-driven, reversible) */
   if (RM || !ScrollTrigger) return reset;
   html.setAttribute("data-stk-in", "");
-  root.setAttribute("data-build", "-1");
+  /* a still drawing (the band's data-still, home v5): built from the start, no build-in and no live loop; the copy still rises */
+  const still = root.hasAttribute("data-still");
+  root.setAttribute("data-build", still ? String(KEYS.length - 1) : "-1");
   const timers: number[] = [];
   const clear = () => { timers.forEach(clearTimeout); timers.length = 0; };
   const sts: ReturnType<typeof ScrollTrigger.create>[] = [];
-  sts.push(ScrollTrigger.create({
+  if (!still) sts.push(ScrollTrigger.create({
     trigger: svg, start: "top 96%",                            /* the pillar builds as soon as it shows */
     onEnter: () => { clear(); KEYS.forEach((_, k) => timers.push(window.setTimeout(() => root.setAttribute("data-build", String(k)), k * 320))); },
     onLeaveBack: () => { clear(); root.setAttribute("data-build", "-1"); root.removeAttribute("data-hl"); },
@@ -74,7 +76,7 @@ export function mountStack(ctx: V1Ctx): Dispose {
   });
 
   /* v4 only (its band is .stk--v4): the drawing keeps moving once built (v4/stack-live.ts); v1 never mounts it */
-  const live = root.classList.contains("stk--v4") && !RM ? mountStackLive(root, svg, ctx) : null;
+  const live = root.classList.contains("stk--v4") && !RM && !still ? mountStackLive(root, svg, ctx) : null;
 
   let done = false;
   return () => {

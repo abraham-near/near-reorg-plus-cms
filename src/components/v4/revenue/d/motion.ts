@@ -11,7 +11,8 @@
 // The header's tone follows the ground (data-nav-tone). Phones, short screens, reduced motion: nothing here runs; the markup is the finished paper bento.
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { smooth } from "@/lib/motion/smooth";
-import { COL_H, column, line } from "./iso";
+import { ISO } from "./iso";
+import { FLAT } from "./flat";
 
 const T = 350;
 
@@ -39,10 +40,11 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
     };
     const headIns = [$(".rvd-h .rvd-in"), $(".rvd-l .rvd-in")];
     const tIn = $(".rvd-t .rvd-in");
-    /** the heading row, centred in the stage */
+    /** the heading row, centred in the stage (or higher: --rvd-head-at, 0..1 of the stage's height; home v5 sets it so the band follows the Stack closely) */
+    const headAt = parseFloat(getComputedStyle(root).getPropertyValue("--rvd-head-at")) || 0.5;
     const headY = () => {
       const bs = headIns.map(off), t = Math.min(...bs.map((b) => b.y)), b = Math.max(...bs.map((b) => b.y + b.h));
-      return stage.offsetHeight / 2 - (t + b) / 2;
+      return stage.offsetHeight * headAt - (t + b) / 2;
     };
     /** the total, large, in the middle of the room left under the heading row */
     const story = () => {
@@ -58,7 +60,8 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
     const c01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
     const runs: { el: HTMLElement; at: number; dur: number; to: number; last: string }[] = [];
     const count = (el: HTMLElement, at: number, dur: number) => runs.push({ el, at, dur, to: Number(el.dataset.to), last: "" });
-    const cols = COL_H.map((h, i) => {
+    const G = root.dataset.chart === "flat" ? FLAT : ISO;   // the chart's geometry (RevenueD marks the flat one)
+    const cols = G.COL_H.map((h, i) => {
       const g = $(`.rvd-col[data-i="${i}"]`), [l, r, t] = [...g.querySelectorAll("path")];
       return { g, l, r, t, h, at: 262 + 3 * i, last: -1 };
     });
@@ -69,11 +72,11 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
         const k = Math.round(colE(c01((time - c.at) / 8)) * 1000) / 1000;
         if (k === c.last) return; c.last = k;
         c.g.style.visibility = k > 0 ? "" : "hidden";
-        if (k > 0) { const f = column(Number(c.g.dataset.i), c.h * k); c.l.setAttribute("d", f.l); c.r.setAttribute("d", f.r); c.t.setAttribute("d", f.t); }
+        if (k > 0) { const f = G.column(Number(c.g.dataset.i), c.h * k); c.l.setAttribute("d", f.l); c.r.setAttribute("d", f.r); c.t.setAttribute("d", f.t); }
       });
       const q = Math.round(c01((time - 267) / 47) * 2000) / 2000;
       if (q !== lastQ) {
-        lastQ = q; const L = line(q);
+        lastQ = q; const L = G.line(q);
         run.setAttribute("d", L.d); head.setAttribute("cx", L.hx.toFixed(3)); head.setAttribute("cy", L.hy.toFixed(3));
         run.style.visibility = head.style.visibility = q > 0 ? "" : "hidden";
       }

@@ -1,0 +1,4 @@
+/* /blog (BlogLive.tsx) on Blog A's rows (a/blog-a.css): the lead's excerpt above its date, the empty state. */
+.bl-live__lead-t { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.25rem); max-width: 14em; }
+.bl-live__ex { display: block; margin-bottom: 14px; max-width: 32em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); }
+.bl-live__empty { padding-top: 48px; padding-bottom: 48px; font-size: var(--t-body-l); color: var(--muted); }

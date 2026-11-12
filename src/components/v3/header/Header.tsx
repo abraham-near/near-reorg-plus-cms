@@ -15,6 +15,15 @@ const N_PATH = "M72.2 4.6L53.4 32.5c-1.3 1.9 1.2 4.2 3 2.6L74.9 19c.5-.4 1.2-.1 
 const MARK = (
   <svg className="nv-n" viewBox="0 0 90 90" aria-hidden="true" focusable="false"><path d={N_PATH} /></svg>
 );
+// the wordmark alone ("near", no N; public/brand/near-wordmark.svg): the spread header shows it at the top, the N once gathered
+const WORD = (
+  <svg className="nv-wm" viewBox="567 156 981 255" aria-hidden="true" focusable="false">
+    <path d="m703.42,157.72c-26.61,0-45.96,6.29-62.4,20.8l-29.03,25.15c-2.42,1.94-7.26,3.39-10.64.48-3.39-2.9-3.87-6.77-.97-10.64l15.48-23.22c2.42-3.39.49-7.74-3.87-7.74h-37.25c-4.35,0-7.74,3.39-7.74,7.74v226.4c0,4.35,3.39,7.74,7.74,7.74h38.7c4.35,0,7.74-3.39,7.74-7.74v-127.71c0-58.53,48.86-67.72,67.24-67.72,39.18,0,53.21,28.06,53.21,49.34v146.09c0,4.35,3.39,7.74,7.74,7.74h38.7c4.35,0,7.74-3.39,7.74-7.74v-150.93c0-54.18-35.32-88.04-92.4-88.04Z" />
+    <path d="m953.5,156.75c-74.98,0-122.87,45.96-122.87,108.36v34.35c0,65.79,47.89,110.78,122.87,110.78,66.27,0,112.71-34.35,117.55-80.79.49-4.84-2.9-8.22-7.74-8.22h-37.73c-3.39,0-6.29,1.94-7.26,5.32-4.84,15.48-27.57,38.7-64.82,38.7s-72.08-27.09-71.6-65.79l.49-43.05c.48-32.41,34.35-54.66,71.11-54.66,33.38,0,65.79,18.87,69.17,49.83h0c.28,3.58-2.18,6.81-5.71,7.49l-108.46,21.05c-4.35.97-7.74,4.84-7.74,9.67v.48c0,4.35,4.35,8.22,10.64,8.22h155.77c4.28,0,7.74-3.47,7.74-7.74v-30.47c0-57.56-49.83-103.52-121.42-103.52Z" />
+    <path d="m1223.42,156.75c-60.47,0-112.71,35.31-112.71,81.75,0,3.87,3.39,6.77,7.74,6.77h39.18c3.87,0,6.77-2.9,7.26-6.77,3.87-21.28,29.51-36.76,57.08-36.76,32.89,0,55.15,20.32,55.15,55.15v42.09c0,43.05-31.93,64.82-71.6,64.82-30.96,0-48.86-11.61-48.86-30.48,0-16.45,8.71-30.48,44.5-38.7l51.76-14.03c5.32-1.45,7.26-5.81,6.29-10.64-.48-3.87-4.83-5.81-8.71-5.81h-53.69c-45.47,0-91.43,29.02-91.43,71.59v6.77c0,43.54,41.12,66.27,88.04,66.27,29.99,0,55.63-11.61,71.59-25.15l23.71-20.32c3.87-3.39,7.74-3.39,11.12,0,2.9,2.9,1.93,7.26-.49,10.64l-14.51,22.74c-2.42,3.39-.49,7.74,3.87,7.74h34.83c4.35,0,7.74-3.39,7.74-7.74v-146.58c0-56.11-40.15-93.36-107.88-93.36Z" />
+    <path d="m1540.26,162.56h-54.18c-18.86,0-37.25,11.61-50.31,22.74l-21.28,18.38c-2.42,1.94-6.78,3.39-9.68.97-3.39-2.42-4.84-7.26-1.93-11.13l15.48-23.22c2.42-3.39.49-7.74-3.87-7.74h-36.28c-4.35,0-7.74,3.39-7.74,7.74v226.4c0,4.35,3.39,7.74,7.74,7.74h39.67c4.35,0,7.74-3.39,7.74-7.74v-116.1c0-49.83,20.32-72.08,64.34-72.08h50.31c4.35,0,7.74-3.39,7.74-7.74v-30.48c0-4.35-3.39-7.74-7.74-7.74Z" />
+  </svg>
+);
 // microcopy that is ours, not the client's (b10's UI strings)
 const UI = { menu: "Menu", close: "Close", home: "NEAR home", map: "Map of NEAR", ext: " (another NEAR site)" };
 const SPRITE = "/nav/sprite.svg";
@@ -82,20 +91,23 @@ function MapGrid() {
   );
 }
 
-/** home: where the N goes (each version's own home; plain <a>, a full page load, so one version's boot never meets the other's). On that page it scrolls to the top. */
-export function V3Header({ home = "/" }: { home?: string }) {
+/** home: where the N goes (each version's own home; plain <a>, a full page load, so one version's boot never meets the other's). On that page it scrolls to the top.
+ *  soft: the switch to the dark pill (over dark bands) cross-fades instead of cutting (home v5).
+ *  stay: the pill does not hide while scrolling down (home v5, on trial; the hide effect is only switched off).
+ *  spread: at the top of the page the N, the menus and Get started sit apart at the margins and gather into the pill on the first scroll (home v5; motion.ts). */
+export function V3Header({ home = "/", spread = false, stay = false, soft = false }: { home?: string; spread?: boolean; stay?: boolean; soft?: boolean }) {
   const ref = useRef<HTMLElement>(null);
   useScrollMotion(ref, mount);
   return (
     <>
       {/* on <html>: b10's UI face (Montreal Medium; v3's buttons across the page use it too, ../buttons.css) and Kepler Light Italic (v3's large accents, styles/versions.css) */}
       <InlineScript html={`document.documentElement.classList.add('${montrealNav.variable}','${keplerLight.variable}')`} />
-      <header ref={ref} className={`nvh ${montrealNav.variable}`}>
+      <header ref={ref} className={`nvh ${montrealNav.variable}${spread ? " nv-wide nv-calm" : ""}`} data-spread={spread ? "" : undefined} data-stay={stay ? "" : undefined} data-soft={soft ? "" : undefined}>
         <a className="nv-skip" href="#main">Skip to content</a>
         <div className="nv-bar">
           <div className="nv-pop" aria-hidden="true" />
           <span className="nv-surface" aria-hidden="true" />
-          <a className="nv-logo" href={home} data-nv-home="" aria-label={UI.home}><span className="nv-mark">{MARK}</span></a>
+          <a className="nv-logo" href={home} data-nv-home="" aria-label={UI.home}><span className="nv-mark">{MARK}</span>{spread && <span className="nv-word">{WORD}</span>}</a>
           <nav className="nv-nav" aria-label="Primary">
             <ul className="nv-list">
               {GROUPS.map((g) => (

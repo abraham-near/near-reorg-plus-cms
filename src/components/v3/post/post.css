@@ -100,3 +100,40 @@
   .pst .pb-stat { flex-direction: row; align-items: baseline; gap: 16px; padding: 16px 0; }
   .pst .pb-stat__n { min-width: 3.4em; }
 }
+
+/* a CMS body (/blog/[slug]): sanitized HTML, given the pb-* classes it can on the server (lib/blog/html.ts). Here: the tags the blocks have no twin for */
+.pst .pb-body--html a { color: var(--green-text); text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 0.18em; transition: color 0.2s var(--ease-tick); }
+.pst .pb-body--html a:hover { color: var(--ink); }
+.pst .pb-body--html :is(strong, b) { font-weight: 600; }
+.pst .pb-body--html :is(em, i) { font-style: italic; }
+.pst .pb-body--html mark { padding: 0 0.12em; background: rgb(0 220 141 / 0.22); color: inherit; }
+.pst .pb-body--html :not(pre) > code { padding: 0.1em 0.35em; border-radius: 4px; background: var(--paper-1); box-shadow: inset 0 0 0 1px var(--l-soft); font: 0.86em/1.4 var(--mono); }
+.pst .pb-body--html > .pb-h3 { margin-top: 1.9em; }
+.pst .pb-body--html > :is(h4, h5, h6) { margin-top: 1.8em; font-weight: 500; font-size: var(--t-body-l); line-height: 1.3; }
+.pst .pb-body--html hr { height: var(--hair); margin: 2.4em 0; border: 0; background: var(--l-line); }
+.pst .pb-body--html hr:has(+ .pb-h2) { display: none; }   /* the sections draw their own rule */
+.pst .pb-body--html li > p + p, .pst .pb-body--html .pb-quote p + p, .pst .pb-body--html .pb-callout > * + * { margin-top: 0.5em; }
+.pst .pb-body--html li :is(ul, ol) { display: grid; gap: 0.4em; margin-top: 0.5em; }
+.pst .pb-body--html li ul > li { position: relative; padding-left: 1.3em; }
+.pst .pb-body--html li ul > li::before { content: ""; position: absolute; left: 0.3em; top: 0.7em; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
+.pst .pb-body--html li ol { list-style: decimal; padding-left: 1.3em; }
+.pst .pb-tasks { display: grid; gap: 0.5em; }
+.pst .pb-tasks > li { display: flex; gap: 0.6em; }
+.pst .pb-tasks > li > span { flex: none; color: var(--green-text); }
+.pst .pb-tasks > li.cms-task-checked > div { color: var(--muted); text-decoration: line-through; text-decoration-thickness: var(--hair); }
+/* figures at the image's own proportions (an uploaded image is never cropped) */
+.pst .pb-fig--free .pb-fig__ph { aspect-ratio: auto; }
+.pst .pb-fig--free .pb-fig__img { position: static; height: auto; }
+.pst .pb-body--html img:not(.pb-fig__img) { display: inline-block; max-width: 100%; height: auto; vertical-align: middle; }
+.pst .pb-table { overflow-x: auto; }
+.pst .pb-table table { width: 100%; border-collapse: collapse; font-size: var(--t-small); line-height: 1.45; font-variant-numeric: tabular-nums; }
+.pst .pb-table :is(th, td) { padding: 10px 14px; text-align: left; vertical-align: top; border-bottom: var(--hair) solid var(--l-soft); }
+.pst .pb-table :is(th, td):first-child { padding-left: 0; }
+.pst .pb-table th { font-weight: 500; border-bottom-color: var(--l-line); }
+.pst .pb-table:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.pst .pb-embed :is(iframe, video) { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 0; background: var(--paper-2); }
+.pst .pb-code:not([data-lang]) { padding-top: 22px; }
+.pst .pb-tag--plain:hover { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--l-line); }
+
+/* no photo: a quiet panel in its place (cards, the index's lead) */
+.bl .pb-noimg { background: radial-gradient(circle at 50% 50%, var(--emerald) 0 3px, transparent 3.5px), linear-gradient(135deg, var(--paper-2), var(--paper-1)); }

@@ -1,0 +1,140 @@
+/* 404, proposal A "Lost in the mist" (NotFoundA.tsx). Home v5's hero values (world.css's hero A type, v5.css's photo, veil and column), scoped under .nfa.
+   Layers, back to front: the photo (z 0) · the 404 (z 1) · the fog (z 2) · the headline, sub, actions and the foot line (z 3). */
+
+.nfa {
+  /* hero A's type (world.css .pin), capped by the height so short screens keep the whole screen */
+  --h1: min(calc(7.6 * var(--u)), 13.5svh);
+  --lh1: calc(var(--h1) * 1.1241);
+  --kep: 1.365;
+  --sq: calc(var(--h1) * .2125);
+  --p: calc(1.74 * var(--u));
+  --code: clamp(120px, min(calc(17 * var(--u)), 27svh), 330px);       /* the 404: 245 px at 1440 x 900 */
+  --col: calc(74.6 * var(--u));                                       /* v5's column (--v5-col): the hero copy's left edge */
+  --cta-w: clamp(176px, calc(11.25 * var(--u)), 240px); --cta-h: clamp(52px, calc(3.18 * var(--u)), 68px); --cta-fs: clamp(16px, calc(.955 * var(--u)), 19.6px);
+  --mist: 46 54 50;                                                   /* the mist's grey (a cool, green-leaning dark), as rgb channels for the 404's fade */
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; flex-direction: column;
+  height: auto; min-height: 100vh; min-height: 100svh;
+  background: var(--paper);
+  font-family: var(--font-text); font-weight: 400; font-size: 17px; line-height: 1.4; color: var(--ink);
+}
+
+/* ───────── the photo: v5's, flipped (trees right, mist left), with a very slow drift ───────── */
+.nfa__bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: #dfe1df; overflow: hidden; }
+.nfa__bg img {
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%;
+  transform: scaleX(-1) scale(1.06); transform-origin: 50% 50%;
+  animation: nfa-drift 70s ease-in-out infinite alternate;
+}
+@keyframes nfa-drift {
+  from { transform: scaleX(-1) scale(1.06) translate3d(1.4%, 0, 0); }
+  to { transform: scaleX(-1) scale(1.09) translate3d(-1.4%, -.8%, 0); }
+}
+/* v5's veil for the copy on the left, and the paper at the foot */
+.nfa__bg::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgb(244 244 244 / .72) 0%, rgb(244 244 244 / .38) 34%, rgb(244 244 244 / 0) 60%),
+    linear-gradient(180deg, rgb(244 244 244 / 0) 72%, var(--paper, #f4f4f4) 100%);
+}
+
+/* ───────── the fog: two soft banks of paper-white, drifting slowly across the left half ───────── */
+.nfa__fog { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.nfa__fog i {
+  position: absolute; display: block; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(244 244 244 / .95), rgb(244 244 244 / .55) 48%, rgb(244 244 244 / 0));
+  will-change: transform;
+}
+.nfa__fog i:nth-child(1) { left: -24%; top: 22%; width: 80%; height: 30%; opacity: .8; animation: nfa-fog1 48s ease-in-out infinite alternate; }
+.nfa__fog i:nth-child(2) { left: 14%; top: 34%; width: 96%; height: 28%; opacity: .5; animation: nfa-fog2 66s ease-in-out infinite alternate; }
+@keyframes nfa-fog1 { from { transform: translate3d(-6%, 0, 0); } to { transform: translate3d(30%, -6%, 0); } }
+@keyframes nfa-fog2 { from { transform: translate3d(12%, 4%, 0); } to { transform: translate3d(-28%, -2%, 0); } }
+
+/* ───────── the copy, on v5's column ───────── */
+.nfa__main {
+  position: relative; flex: 1; display: flex; align-items: center;
+  width: 100%; max-width: calc(var(--col) + 2 * var(--m)); margin-inline: auto; padding: calc(var(--nav-h) + 3svh) var(--m) 2svh;
+}
+.nfa__copy { width: 100%; }
+/* the 404: Montreal at its lightest cut, tight, in the mist's grey that fades out toward its foot (the fog passes over it) */
+.nfa__code {
+  position: relative; z-index: 1; margin: 0 0 calc(var(--code) * .02) calc(var(--code) * -.045);
+  font-family: var(--font-text); font-weight: 400; font-size: var(--code); line-height: .8; letter-spacing: -.065em;
+  font-variant-numeric: lining-nums; white-space: nowrap; user-select: none;
+  color: transparent; background: linear-gradient(180deg, rgb(var(--mist) / .5) 6%, rgb(var(--mist) / .26) 46%, rgb(var(--mist) / .03) 96%);
+  -webkit-background-clip: text; background-clip: text;
+  padding-bottom: .04em;
+}
+/* the headline: hero A's (world.css .h1 / .ln--key / .sq), on one line here, on two on phones */
+.nfa__h { position: relative; z-index: 3; margin: 0; text-wrap: nowrap; }
+.nfa .ln { display: inline; }
+.nfa .sq { margin-left: calc(var(--h1) * .058); }
+.nfa__sub .bl { display: inline; }
+.nfa__sub {
+  position: relative; z-index: 3; margin: calc(.9 * var(--u)) 0 0; max-width: 30em;
+  font-size: var(--p); line-height: 1.2194; letter-spacing: -.0134em; color: var(--ink); text-wrap: pretty;
+}
+/* the actions: the hero's pill home, then two ways out as v3's text links (Montreal 500, a drawn arrow, the hairline that sweeps in) */
+.nfa__go { position: relative; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px; margin-top: clamp(24px, calc(2.6 * var(--u)), 56px); }
+.nfa__ways { display: flex; flex-wrap: wrap; gap: 8px 30px; margin: 0; padding: 0; list-style: none; }
+.nfa__a {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 0;
+  font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; line-height: 1.2; letter-spacing: -.003em;
+  color: var(--b-ink); text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--b-hair) no-repeat; transition: background-size .4s var(--b-ease-settle);
+}
+.nfa__a::after {
+  content: ""; flex: none; width: 16px; height: 16px; background: currentColor;
+  -webkit-mask: var(--b-arr) center / contain no-repeat; mask: var(--b-arr) center / contain no-repeat;
+  transition: translate .24s var(--b-ease-tick);
+}
+.nfa__a--ext::after { rotate: -45deg; width: 14px; height: 14px; }   /* another NEAR site: the arrow points out */
+.nfa__a:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 4px; border-radius: 2px; }
+@media (hover: hover) {
+  .nfa__a:hover { background-size: 100% var(--b-hair); }
+  .nfa__a:hover::after { translate: 4px 0; }
+  .nfa__a--ext:hover::after { translate: 2px -2px; }
+}
+
+/* ───────── the foot line: ©, two legal links, on the paper the photo fades to ───────── */
+.nfa__foot { position: relative; z-index: 3; width: 100%; }
+.nfa__foot-in {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px;
+  max-width: calc(var(--col) + 2 * var(--m)); margin-inline: auto; padding: 18px var(--m) 22px;
+  font-family: var(--b-sans); font-size: 13px; line-height: 1.3; letter-spacing: .005em; color: var(--ink-2);
+}
+.nfa__legal { display: flex; gap: 22px; margin: 0; padding: 0; list-style: none; }
+.nfa__legal a { color: inherit; text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--b-hair) no-repeat; transition: color .2s, background-size .4s var(--b-ease-settle); }
+.nfa__legal a:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 3px; border-radius: 2px; }
+@media (hover: hover) { .nfa__legal a:hover { color: var(--ink); background-size: 100% var(--b-hair); } }
+
+/* ───────── entry: the 404 surfaces out of the mist (blur to sharp), then the copy rises, staggered ───────── */
+@keyframes nfa-surface { from { opacity: 0; filter: blur(14px); transform: translateY(.04em); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes nfa-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.nfa-in { animation: nfa-rise .8s var(--ease) both; animation-delay: calc(.35s + var(--i, 0) * .11s); }
+.nfa__code.nfa-in { animation: nfa-surface 1.8s var(--ease) both .1s; }
+
+/* ───────── phones and portrait tablets: v5's crop and vertical veil, the copy under the header, the headline on two lines ───────── */
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
+  .nfa { --m: clamp(20px, 5.2vw, 40px); --nav-h: 64px; --h1: clamp(46px, min(15.5vw, 11svh), 104px); --p: clamp(17px, 4.6vw, 24px); --code: clamp(110px, min(40vw, 22svh), 240px); }
+  .nfa__bg img { object-position: 30% 50%; }
+  .nfa__bg::after { background: linear-gradient(180deg, rgb(244 244 244 / .7) 0%, rgb(244 244 244 / .3) 45%, rgb(244 244 244 / 0) 70%, var(--paper, #f4f4f4) 100%); }
+  .nfa__main { align-items: flex-start; max-width: none; padding-top: calc(var(--nav-h) + 6svh); }
+  .nfa__foot-in { max-width: none; }
+  .nfa__sub .bl { display: block; }
+  .nfa__code { margin-bottom: calc(var(--code) * .1); }
+  .nfa .ln { display: block; }
+  .nfa__sub { margin-top: 14px; line-height: 1.25; }
+  .nfa__go { margin-top: 26px; gap: 18px 28px; }
+  .nfa__foot-in { padding-bottom: 20px; }
+  .nfa__fog i:nth-child(1) { left: -40%; top: 10%; width: 150%; height: 26%; }
+  .nfa__fog i:nth-child(2) { left: -10%; top: 22%; width: 150%; height: 22%; }
+}
+
+/* reduced motion: everything still, in its final place */
+@media (prefers-reduced-motion: reduce) {
+  .nfa__bg img { animation: none; transform: scaleX(-1) scale(1.06); }
+  .nfa__fog i { animation: none; }
+  .nfa-in, .nfa__code.nfa-in { animation: none; opacity: 1; filter: none; transform: none; }
+  .nfa__a, .nfa__a::after, .nfa__legal a { transition: none; }
+}

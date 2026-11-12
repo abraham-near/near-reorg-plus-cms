@@ -113,3 +113,9 @@
   .pst-b .pb-pair__row { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .pbv-cue i { animation: none; } }
+
+/* no photo: the cover is a dark panel, a green glow in its corner, a little shorter */
+.pbv-cover--plain { min-height: max(560px, 78svh); background: radial-gradient(110% 80% at 88% 0%, rgb(0 220 141 / 0.2), rgb(0 220 141 / 0) 60%), #141615; }
+.pbv-cover--plain::after { display: none; }
+.pbv-next__a:not(:has(img)) { min-height: min(60vh, 560px); }
+.pbv-next__ph:not(:has(img)) { background: radial-gradient(90% 90% at 90% 0%, rgb(0 220 141 / 0.18), rgb(0 220 141 / 0) 60%), #141615; }

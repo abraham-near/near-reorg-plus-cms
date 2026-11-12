@@ -324,3 +324,34 @@ html[data-rm] .nvh *, html[data-rm] .nvh { transition-duration: 0s !important; }
 html[data-rm] .nvh .nv-pop, html[data-rm] .nvh .nv-panel, html[data-rm] .nvh .nv-map, html[data-rm] .nvh .nv-surface, html[data-rm] .nvh .nv-mark, html[data-rm] .nvh .b3map .nv-blk > *, html[data-rm] .nvh .nv-bar {
   transition-property: opacity, visibility !important; transition-duration: 200ms, 0s !important; transition-delay: 0s !important; transform: none !important; translate: none !important;
 }
+
+/* ---------------------------------------------------------------- spread (header[data-spread], home v5: home v1's effect on this pill). At the top the three
+   groups sit apart (the N at the left margin, the menus centred, Get started at the right margin) with no pill; the first scroll gathers them (motion.ts).
+   Transform only: the bar keeps its place, so the panels still open from it. .nv-calm: one frame without transitions while motion.ts measures. */
+.nvh[data-spread] { --spread-m: clamp(20px, 5.56vw, 96px); }
+.nvh[data-spread] .nv-bar > :is(.nv-logo, .nv-nav, .nv-actions) { transition: transform 720ms var(--ease-glide); }
+.nvh[data-spread] .nv-surface { transition: opacity 420ms var(--ease-settle), background-color var(--dur-tick) var(--ease-tick), box-shadow var(--dur-tick) var(--ease-tick); }
+.nvh[data-spread].nv-wide .nv-surface { opacity: 0; transition-duration: 260ms; }
+.nvh[data-spread].nv-wide .nv-bar > .nv-logo { transform: translateX(var(--sx-logo, 0px)); }
+.nvh[data-spread].nv-wide .nv-bar > .nv-nav { transform: translateX(var(--sx-nav, 0px)); }
+.nvh[data-spread].nv-wide .nv-bar > .nv-actions { transform: translateX(var(--sx-act, 0px)); }
+.nvh[data-spread].nv-calm .nv-bar > *, .nvh[data-spread].nv-calm .nv-surface { transition: none !important; }
+@media (max-width: 859px) { .nvh[data-spread].nv-wide .nv-bar > * { transform: none; } .nvh[data-spread].nv-wide .nv-surface { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .nvh[data-spread] .nv-bar > *, .nvh[data-spread] .nv-surface { transition: none !important; } }
+
+/* soft tone (header[data-soft], home v5): while .nv-toning is on (motion.ts, ~0.6 s) the pill's ground, its type, the N and Get started cross-fade
+   between light and dark; outside it every transition keeps its own speed (hover stays quick). */
+.nvh.nv-toning :is(.nv-bar, .nv-surface, .nv-logo, .nv-trig, .nv-tl, .nv-cta, .nv-menu) {
+  transition-duration: 560ms !important; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* spread: the wordmark "near" (no N) at the top, the N once gathered into the pill. The word hangs from the logo's left edge (the logo is translated to the
+   page margin while spread), the two cross-fade with the gathering. */
+.nvh[data-spread] .nv-word { position: absolute; left: 0; top: 50%; width: 84px; height: 22px; transform: translateY(-50%); opacity: 0; pointer-events: none;
+  transition: opacity 360ms var(--ease-settle); }
+.nvh[data-spread] .nv-wm { display: block; width: 100%; height: 100%; fill: currentColor; }
+.nvh[data-spread] .nv-mark { transition: opacity 360ms var(--ease-settle), transform var(--dur-fade) var(--ease-settle); }
+.nvh[data-spread].nv-wide .nv-word { opacity: 1; transition-delay: 160ms; }
+.nvh[data-spread].nv-wide .nv-mark { opacity: 0; }
+.nvh[data-spread].nv-wide .nv-logo::before { left: 0; width: 84px; transform: translateY(-50%); }   /* the word's hit area */
+@media (max-width: 859px) { .nvh[data-spread].nv-wide .nv-word { opacity: 0; } .nvh[data-spread].nv-wide .nv-mark { opacity: 1; } }

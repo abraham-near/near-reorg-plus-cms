@@ -103,3 +103,8 @@
 @media (prefers-reduced-motion: reduce) {
   .pc-h1, .pc-dek, .pc-facts, .pc-open__ph, .pc-open__ph img { animation: none; }
 }
+
+/* no photo: the opening is one column */
+.pc-open--plain { grid-template-columns: minmax(0, 1fr); }
+.pc-open--plain .pc-h1 { max-width: 18em; }
+.pc-author:not(:has(.pc-author__b)) { align-items: center; }

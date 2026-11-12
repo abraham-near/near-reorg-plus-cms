@@ -1,7 +1,10 @@
-// The example post the three post layouts (/post-a, /post-b, /post-c) share: a generic piece on AI agents, written as placeholder copy so the layouts
-// can be compared on the same words and photos. Not NEAR's copy: no claims of ours, and the figures are marked as illustrative.
-// Inline marks in text: **bold** and *italic* (Body.tsx renders them).
-export type Img = { src: string; alt: string; cap?: string };
+// What the three post layouts (PostA / PostB / PostC) render: an Article. Its body is either typed blocks (the example below, which /post-a, /post-b and
+// /post-c share) or sanitized HTML from the CMS (/blog/[slug], built in lib/blog). The example is a generic piece on AI agents, written as placeholder
+// copy so the layouts can be compared on the same words and photos. Not NEAR's copy: no claims of ours, and the figures are marked as illustrative.
+// Inline marks in block text: **bold** and *italic* (Body.tsx renders them).
+import { POSTS, TYPE_LABEL, href, img, type Type } from "../blog/data";
+
+export type Img = { src: string; alt: string; cap?: string; w?: number; h?: number };
 export type Block =
   | { k: "p"; t: string; note?: string }
   | { k: "h2"; id: string; t: string }
@@ -14,7 +17,32 @@ export type Block =
   | { k: "stats"; items: { n: string; l: string }[]; note: string }
   | { k: "code"; lang: string; t: string };
 
-export const ARTICLE = {
+export type Section = { id: string; t: string };
+/** a post in Keep reading / Up next / Related */
+export type MorePost = { key: string; title: string; href: string; img: string | null; label: string; source: string; type?: Type; note?: string };
+export type Article = {
+  category: string;
+  type: string;
+  title: string;
+  dek: string;
+  author: { name: string; role: string; initials: string; bio: string };
+  date: string;
+  dateIso: string;
+  /** href "": no tag page to link to (a plain label) */
+  tags: { name: string; href: string }[];
+  /** null: no photo (the layouts fall back to a plain panel) */
+  hero: Img | null;
+  takeaways: string[];
+  /** typed blocks (the example) or sanitized HTML (the CMS) */
+  body: { blocks: Block[] } | { html: string };
+  sections: Section[];
+  readMin: number;
+  more: MorePost[];
+  /** where Blog / All posts go */
+  blogHref: string;
+};
+
+const EXAMPLE = {
   category: "AI",
   type: "Read",
   title: "Agents that act: what it takes to build AI people can trust",
@@ -82,17 +110,29 @@ export const ARTICLE = {
   ] as Block[],
 };
 
-/** the post's sections (its h2s), for the contents lists */
-export const SECTIONS = ARTICLE.blocks.filter((b): b is Extract<Block, { k: "h2" }> => b.k === "h2");
+const { blocks: BLOCKS, ...META } = EXAMPLE;
 
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
-const WORDS = ARTICLE.blocks.reduce((n, b) => {
+const WORDS = BLOCKS.reduce((n, b) => {
   if (b.k === "p" || b.k === "h2" || b.k === "h3" || b.k === "quote" || b.k === "callout") return n + words(b.t);
   if (b.k === "list") return n + b.items.reduce((m, i) => m + words(i), 0);
   return n;
-}, words(ARTICLE.dek));
-/** minutes at ~220 words a minute */
-export const READ_MIN = Math.max(1, Math.round(WORDS / 220));
+}, words(META.dek));
 
 /** related posts: ids from the blog index (blog/data.ts) */
-export const RELATED = ["agent-economy", "venice", "brave"];
+const RELATED = ["agent-economy", "venice", "brave"];
+
+export const ARTICLE: Article = {
+  ...META,
+  author: { ...META.author, bio: "Placeholder author for this example. A real post shows the writer’s name, role and a line about what they work on." },
+  tags: META.tags.map((name) => ({ name, href: "#" })),
+  body: { blocks: BLOCKS },
+  /** the post's sections (its h2s), for the contents lists */
+  sections: BLOCKS.flatMap((b) => (b.k === "h2" ? [{ id: b.id, t: b.t }] : [])),
+  /** minutes at ~220 words a minute */
+  readMin: Math.max(1, Math.round(WORDS / 220)),
+  more: RELATED.flatMap((id) => POSTS.filter((p) => p.id === id)).map((p) => ({
+    key: p.id, title: p.title, href: href(p), img: img(p.id), label: TYPE_LABEL[p.type], source: p.source, type: p.type, note: p.note,
+  })),
+  blogHref: "/blog-a",
+};

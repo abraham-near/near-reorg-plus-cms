@@ -1,8 +1,12 @@
 "use client";
 // The post's body, the same markup in all three layouts (pb-* classes); each layout styles it in its own CSS. Notes either sit beside / under their
-// paragraph (notes="aside") or become numbered footnotes (notes="foot", with <Footnotes /> at the end). Plus the small shared pieces: byline, tags, share.
+// paragraph (notes="aside") or become numbered footnotes (notes="foot", with <Footnotes /> at the end). Plus the small shared pieces: byline, tags, share,
+// and the card the layouts' "more posts" use. A CMS body is sanitized HTML already given pb-* classes on the server (lib/blog/html.ts); post.css styles
+// the rest of its tags under .pb-body--html. It has no notes.
 import { Fragment, useState, useSyncExternalStore, type ReactNode } from "react";
-import { ARTICLE, type Block, type Img } from "./article";
+import { isExt } from "../blog/data";
+import { Arrow, Photo } from "../blog/parts";
+import type { Article, Block, Img, MorePost } from "./article";
 
 /** **bold** and *italic* inside a string */
 export function inline(t: string): ReactNode[] {
@@ -11,7 +15,8 @@ export function inline(t: string): ReactNode[] {
   );
 }
 
-export const NOTES = ARTICLE.blocks.flatMap((b) => (b.k === "p" && b.note ? [b.note] : []));
+/** the notes of a typed body (an HTML body has none) */
+export const notesOf = (a: Article) => ("blocks" in a.body ? a.body.blocks.flatMap((b) => (b.k === "p" && b.note ? [b.note] : [])) : []);
 
 export function Figure({ img, cls = "", eager, size }: { img: Img; cls?: string; eager?: boolean; size?: string }) {
   return (
@@ -23,7 +28,8 @@ export function Figure({ img, cls = "", eager, size }: { img: Img; cls?: string;
 }
 
 /** notes: "aside" = a note box under its paragraph; "margin" = the note first, for a layout that floats it beside the paragraph; "foot" = numbered footnotes */
-export function Body({ notes = "aside" }: { notes?: "aside" | "margin" | "foot" }) {
+export function Body({ article, notes = "aside" }: { article: Article; notes?: "aside" | "margin" | "foot" }) {
+  if ("html" in article.body) return <div className="pb-body pb-body--html" dangerouslySetInnerHTML={{ __html: article.body.html }} />;
   let h = 0, fn = 0;
   const one = (b: Block, i: number): ReactNode => {
     switch (b.k) {
@@ -77,10 +83,12 @@ export function Body({ notes = "aside" }: { notes?: "aside" | "margin" | "foot" 
         return <pre key={i} className="pb-code" data-lang={b.lang}><code>{b.t}</code></pre>;
     }
   };
-  return <div className="pb-body">{ARTICLE.blocks.map(one)}</div>;
+  return <div className="pb-body">{article.body.blocks.map(one)}</div>;
 }
 
-export function Footnotes() {
+export function Footnotes({ article }: { article: Article }) {
+  const NOTES = notesOf(article);
+  if (!NOTES.length) return null;
   return (
     <section className="pb-fns" aria-label="Notes">
       <p className="pb-fns__h">Notes</p>
@@ -89,22 +97,23 @@ export function Footnotes() {
   );
 }
 
-export const Avatar = ({ cls = "" }: { cls?: string }) => <span className={`pb-av ${cls}`} aria-hidden="true">{ARTICLE.author.initials}</span>;
+export const Avatar = ({ article, cls = "" }: { article: Article; cls?: string }) => <span className={`pb-av ${cls}`} aria-hidden="true">{article.author.initials}</span>;
 
-export function Tags({ cls = "" }: { cls?: string }) {
-  return <ul className={`pb-tags ${cls}`} aria-label="Tags">{ARTICLE.tags.map((t) => <li key={t}><a className="pb-tag" href="#">{t}</a></li>)}</ul>;
+export function Tags({ article, cls = "" }: { article: Article; cls?: string }) {
+  if (!article.tags.length) return null;
+  return <ul className={`pb-tags ${cls}`} aria-label="Tags">{article.tags.map((t) => <li key={t.name}>{t.href ? <a className="pb-tag" href={t.href}>{t.name}</a> : <span className="pb-tag pb-tag--plain">{t.name}</span>}</li>)}</ul>;
 }
 
 const noop = () => () => {};
 
 /** copy the link, or share it on X / LinkedIn (plain links: no scripts of theirs) */
-export function Share({ cls = "", label = true }: { cls?: string; label?: boolean }) {
+export function Share({ title, cls = "", label = true }: { title: string; cls?: string; label?: boolean }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard?.writeText(location.href).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); }).catch(() => {});
   };
   const here = useSyncExternalStore(noop, () => location.href, () => "");   // the server has no URL: the share links fill in on the client
-  const u = encodeURIComponent(here), t = encodeURIComponent(ARTICLE.title);
+  const u = encodeURIComponent(here), t = encodeURIComponent(title);
   return (
     <div className={`pb-share ${cls}`}>
       {label && <span className="pb-share__l">Share</span>}
@@ -121,3 +130,24 @@ export function Share({ cls = "", label = true }: { cls?: string; label?: boolea
     </div>
   );
 }
+
+/** a post card for the layouts' "more posts", in the blog index's card markup (blog/parts.tsx Card), fed by a MorePost: its own photo and label */
+export function MoreCard({ p, j = 0 }: { p: MorePost; j?: number }) {
+  return (
+    <article className="bl-card" style={{ ["--j" as string]: j }}>
+      <a className="bl-card__a" href={p.href}>
+        {p.img ? <Photo src={p.img} cls="bl-card__ph" /> : <div className="bl-ph bl-card__ph pb-noimg" aria-hidden="true" />}
+        {p.type === "watch" && <span className="bl-play" aria-hidden="true"><i data-icon="play" /></span>}
+        <div className="bl-card__body" data-rv="" data-rise="">
+          <span className="bl-meta t-label">{p.type && <i className="bl-glyph" data-icon={`deeper-${p.type}`} aria-hidden="true" />}{p.label}</span>
+          <h3 className="bl-card__t">{p.title}{isExt(p.href) && <span className="sr-only"> (another site)</span>}</h3>
+          <span className="bl-card__foot"><span className="bl-card__src">{p.source}</span><span className="bl-card__go" aria-hidden="true"><Arrow /></span></span>
+        </div>
+      </a>
+      {p.note && <p className="bl-card__note" data-rv="" data-rise="">{p.note}</p>}
+    </article>
+  );
+}
+
+/** a hero for a post without a photo: a plain panel in the photo's place */
+export const NoImg = ({ cls = "" }: { cls?: string }) => <div className={`pb-noimg ${cls}`} aria-hidden="true" />;
