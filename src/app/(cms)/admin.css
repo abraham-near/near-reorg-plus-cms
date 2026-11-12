@@ -216,6 +216,7 @@
    .cms-pop        menus, popovers, slash/bubble/block menus: scale from 96% at their anchor (set --origin)
    .cms-fade-up    content that appears (cards, list rows, toasts)
    .cms-drawer     panels sliding in from the right
+   .cms-sheet      a full-height side panel: slides all the way in from the right edge; add .is-leaving to slide it out
    .cms-press      buttons: lift 1px on hover, press to 97%
    .cms-lift       cards/rows that rise a little on hover
    .cms-skeleton   loading placeholders with a shimmer (keep the final layout's size)
@@ -224,12 +225,16 @@
 @keyframes cms-pop { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
 @keyframes cms-fade-up { from { opacity: 0; transform: translateY(4px); } }
 @keyframes cms-drawer { from { opacity: 0; transform: translateX(16px); } }
+@keyframes cms-sheet-in { from { transform: translateX(100%); } }
+@keyframes cms-sheet-out { to { transform: translateX(100%); } }
 @keyframes cms-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 @keyframes cms-check { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes cms-spin { to { transform: rotate(360deg); } }
 .cms-pop { transform-origin: var(--origin, top left); animation: cms-pop var(--dur-base) var(--ease-out) both; }
 .cms-fade-up { animation: cms-fade-up var(--dur-base) var(--ease-out) both; }
 .cms-drawer { animation: cms-drawer var(--dur-slow) var(--ease-out) both; }
+.cms-sheet { animation: cms-sheet-in 300ms cubic-bezier(.22, 1, .36, 1) both; }
+.cms-sheet.is-leaving { animation: cms-sheet-out 220ms cubic-bezier(.4, 0, 1, 1) both; }
 .cms-press { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
 .cms-press:hover:not(:disabled) { transform: translateY(-1px); }
 .cms-press:active:not(:disabled) { transform: scale(.97); }
@@ -246,7 +251,7 @@
 @media (prefers-reduced-motion: reduce) { .theme-switching, .theme-switching * { transition: none !important; } }
 .dark .cms-lift:hover { box-shadow: 0 6px 18px rgb(0 0 0 / .35); }
 @media (prefers-reduced-motion: reduce) {
-  .cms-pop, .cms-fade-up, .cms-drawer { animation-name: none; }
+  .cms-pop, .cms-fade-up, .cms-drawer, .cms-sheet, .cms-sheet.is-leaving { animation-name: none; }
   .cms-press, .cms-lift { transition-property: background-color, color, box-shadow; }
   .cms-press:hover:not(:disabled), .cms-press:active:not(:disabled), .cms-lift:hover { transform: none; }
   .cms-skeleton { animation: none; }

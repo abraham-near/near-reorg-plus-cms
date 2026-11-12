@@ -261,6 +261,11 @@ model Media {
   width        Int?
   height       Int?
   alt          String?
+  /// The file as uploaded, kept when the served copy was optimized (images become WebP, max 2000 px).
+  /// Same bucket, e.g. "cms/9f6b6507069105af.jpg"; posts never reference it.
+  originalKey      String?
+  originalMimeType String?
+  originalSize     Int?
   uploadedById String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

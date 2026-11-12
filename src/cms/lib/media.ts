@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import DOMPurify from 'isomorphic-dompurify'
+import sharp from 'sharp'
 import { bucketEnabled, putMedia } from './bucket'
 import { db } from './db'
 import { HttpError } from './http'
@@ -10,6 +11,8 @@ import { HttpError } from './http'
 // Media uploads for the CMS. Files land in the S3-compatible bucket (or public/cms in development
 // without one), named by content hash (`cms/<sha1-16>.<ext>`, served by src/app/(cms)/cms/[...path]). The
 // type is decided by the file's bytes, never by the browser's Content-Type or the extension alone.
+// Photos are optimized on the way in (optimizeImage): the served copy is a WebP of at most 2000 px, and the
+// file as uploaded is kept next to it (originalKey) so it can be downloaded or converted again later.
 
 const MB = 1024 * 1024
 
@@ -83,7 +86,7 @@ export function sanitizeSvg(svg: string): string {
   })
 }
 
-function contentDisposition(filename: string, inline: boolean) {
+export function contentDisposition(filename: string, inline: boolean) {
   const ascii = filename.replace(/[^\x20-\x7E]/g, '_').replace(/["\\]/g, '')
   return `${inline ? 'inline' : 'attachment'}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(filename)}`
 }
@@ -92,10 +95,52 @@ function contentDisposition(filename: string, inline: boolean) {
 export const cleanFilename = (name: string) =>
   (path.basename(name || 'file').replace(/[\u0000-\u001f\u007f]/g, '').trim() || 'file').slice(0, 200)
 
+/** Longest side of a served image; larger uploads are scaled down (never up). */
+export const IMAGE_MAX_SIDE = 2000
+const WEBP_QUALITY = 80
+/** Raster formats that are re-encoded. GIF stays GIF when animated; SVG is never rasterized. */
+const OPTIMIZE = new Set(['jpg', 'png', 'webp', 'avif', 'gif'])
+
+export type Optimized = { buf: Buffer; width: number | null; height: number | null; converted: boolean }
+
+/**
+ * Turns an uploaded photo into the copy posts use: EXIF orientation applied, scaled to fit IMAGE_MAX_SIDE,
+ * WebP at quality 80, metadata (GPS, camera) dropped. Animated GIF / WebP are left as they are, and so is a
+ * WebP that would only get heavier. Returns the input untouched (converted: false) for anything else.
+ */
+export async function optimizeImage(buf: Buffer, ext: string): Promise<Optimized> {
+  if (!OPTIMIZE.has(ext)) return { buf, width: null, height: null, converted: false }
+  const meta = await sharp(buf, { animated: true, failOn: 'none' }).metadata()
+  const rotated = (meta.orientation ?? 1) >= 5   // 90° / 270°: width and height swap
+  const width = (rotated ? meta.height : meta.width) ?? null
+  const height = (rotated ? meta.width : (meta.pageHeight ?? meta.height)) ?? null
+  if ((meta.pages ?? 1) > 1) return { buf, width, height, converted: false }
+  const out = await sharp(buf, { failOn: 'none' })
+    .rotate()
+    .resize({ width: IMAGE_MAX_SIDE, height: IMAGE_MAX_SIDE, fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: WEBP_QUALITY, effort: 5, smartSubsample: true })
+    .toBuffer({ resolveWithObject: true })
+  // A WebP already at size that would only grow: keep it as it came.
+  if (ext === 'webp' && out.data.length >= buf.length && out.info.width === width && out.info.height === height) return { buf, width, height, converted: false }
+  return { buf: out.data, width: out.info.width, height: out.info.height, converted: true }
+}
+
+/** Writes one object to the bucket, or to public/cms in development without one. */
+export async function writeObject(key: string, buf: Buffer, mime: string, disposition: string) {
+  if (bucketEnabled) return putMedia(key, buf, mime, disposition)
+  if (process.env.NODE_ENV === 'production') throw new HttpError(503, 'Media storage is not configured')
+  const file = path.join(process.cwd(), 'public', key)
+  await mkdir(path.dirname(file), { recursive: true })
+  await writeFile(file, buf)
+}
+
+export const webpName = (filename: string) => `${filename.replace(/\.[^.]+$/, '') || 'image'}.webp`
+
 /**
  * Validates and stores an uploaded file, returning its Media row. Uploading the same bytes twice
- * returns the existing row (content-hash keys). Without bucket credentials (local dev) the file is
- * written to public/cms, which app/cms serves in development.
+ * returns the existing row (keys come from the hash of the bytes as uploaded). Photos are stored as an
+ * optimized WebP (`cms/<hash>.webp`) plus the original (`cms/<hash>.<ext>`, originalKey). Without bucket
+ * credentials (local dev) files are written to public/cms, which app/cms serves in development.
  */
 export async function storeUpload(file: File, uploadedById: string | null, opts: { imagesOnly?: boolean } = {}) {
   if (file.size === 0) throw new HttpError(400, 'Empty file')
@@ -108,24 +153,32 @@ export async function storeUpload(file: File, uploadedById: string | null, opts:
   if (buf.length > kind.max) throw new HttpError(413, `File too large (max ${Math.round(kind.max / MB)} MB for ${kind.ext})`)
   if (kind.ext === 'svg') buf = Buffer.from(sanitizeSvg(buf.toString('utf8')))
 
-  const name = `${createHash('sha1').update(buf).digest('hex').slice(0, 16)}.${kind.ext}`
-  const key = `cms/${name}`
-  const url = `/cms/${name}`
-
-  const existing = await db.media.findUnique({ where: { key } })
+  const hash = createHash('sha1').update(buf).digest('hex').slice(0, 16)
+  const originalKey = `cms/${hash}.${kind.ext}`
+  const webpKey = `cms/${hash}.webp`
+  // The same bytes again: as the served file, as a kept original, or (before optimizing) as an older row.
+  const existing = await db.media.findFirst({ where: { OR: [{ key: { in: [originalKey, webpKey] } }, { originalKey }] } })
   if (existing) return existing
 
-  if (bucketEnabled) {
-    await putMedia(key, buf, kind.mime, contentDisposition(filename, kind.inline))
-  } else if (process.env.NODE_ENV !== 'production') {
-    const dir = path.join(process.cwd(), 'public', 'cms')
-    await mkdir(dir, { recursive: true })
-    await writeFile(path.join(dir, name), buf)
-  } else {
-    throw new HttpError(503, 'Media storage is not configured')
+  let opt: Optimized = { buf, width: null, height: null, converted: false }
+  try { opt = await optimizeImage(buf, kind.ext) } catch (error) {
+    // An image sharp cannot read is still stored as it came (it was accepted by its bytes).
+    console.warn('[cms] image optimization failed; storing the original', filename, error)
   }
 
+  if (opt.converted) {
+    await writeObject(originalKey, buf, kind.mime, contentDisposition(filename, false))
+    await writeObject(webpKey, opt.buf, 'image/webp', contentDisposition(webpName(filename), true))
+    return db.media.create({
+      data: {
+        key: webpKey, url: `/${webpKey}`, filename: webpName(filename), mimeType: 'image/webp', size: opt.buf.length,
+        width: opt.width, height: opt.height, originalKey, originalMimeType: kind.mime, originalSize: buf.length, uploadedById,
+      },
+    })
+  }
+
+  await writeObject(originalKey, buf, kind.mime, contentDisposition(filename, kind.inline))
   return db.media.create({
-    data: { key, url, filename, mimeType: kind.mime, size: buf.length, uploadedById },
+    data: { key: originalKey, url: `/${originalKey}`, filename, mimeType: kind.mime, size: buf.length, width: opt.width, height: opt.height, uploadedById },
   })
 }

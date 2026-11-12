@@ -27,6 +27,9 @@ type Props = {
   /** A new file took this one's place in posts; the original stays in the library. */
   onReplaced: (originalId: string, replacement: MediaItem) => void
   onDeleted: (id: string) => void
+  /** Sliding out: the library keeps it mounted until onLeft. */
+  leaving?: boolean
+  onLeft?: () => void
 }
 
 /** Recommended alt text length; screen readers handle longer text, the server accepts 500. */
@@ -40,24 +43,26 @@ export function MediaDrawer(props: Props) {
   const closeRef = useRef<HTMLButtonElement>(null)
   const confirming = useRef(false)
   const flush = useRef<(() => void) | null>(null)
-  const { onClose } = props
+  const { onClose, leaving = false, onLeft } = props
 
   // First open moves focus into the panel; switching files keeps it where the person is.
   useEffect(() => { closeRef.current?.focus({ preventScroll: true }) }, [])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || event.defaultPrevented || confirming.current) return
+      if (event.key !== 'Escape' || event.defaultPrevented || confirming.current || leaving) return
       flush.current?.()
       onClose()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, leaving])
 
   return <aside
     aria-label="File details"
-    className="cms-drawer fixed top-0 right-0 bottom-0 z-30 flex w-full flex-col gap-[18px] overflow-y-auto border-l border-border bg-card p-5 text-card-foreground shadow-[-24px_0_48px_rgb(var(--shadow)/.08)] sm:w-[440px]"
+    inert={leaving}
+    onAnimationEnd={(event) => { if (event.target === event.currentTarget && event.animationName === 'cms-sheet-out') onLeft?.() }}
+    className={cn('cms-sheet fixed top-0 right-0 bottom-0 z-30 flex w-full flex-col gap-[18px] overflow-y-auto border-l border-border bg-card p-5 text-card-foreground shadow-[-24px_0_48px_rgb(var(--shadow)/.08)] sm:w-[440px]', leaving && 'is-leaving')}
   >
     <DrawerBody key={props.item.id} {...props} closeRef={closeRef} confirmingRef={confirming} flushRef={flush} />
   </aside>
@@ -164,6 +169,19 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
   const uploadedAt = new Date(current.createdAt)
   const uploader = detail?.uploadedBy ? (detail.uploadedBy.name || detail.uploadedBy.email) : null
   const used = references?.length ?? 0
+  // The file as uploaded, kept next to the optimized WebP (cms/<hash>.<ext>).
+  const original = current.originalKey && current.originalSize
+    ? (() => {
+      const ext = current.originalKey.split('.').pop() ?? ''
+      return {
+        url: `/${current.originalKey}`,
+        name: `${current.filename.replace(/\.[^.]+$/, '')}.${ext}`,
+        label: ext.toUpperCase().replace('JPG', 'JPEG'),
+        size: current.originalSize,
+        saved: Math.round((1 - current.size / current.originalSize) * 100),
+      }
+    })()
+    : null
 
   return <>
     <div className="flex items-center gap-2">
@@ -243,6 +261,15 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
     <dl className="grid grid-cols-2 gap-3">
       <div><dt className="text-xs text-muted-foreground">Uploaded</dt><dd className="mt-0.5 text-[13px]" title={uploadedAt.toLocaleString()}>{uploadedAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}{uploader && ` · ${uploader}`}</dd></div>
       <div><dt className="text-xs text-muted-foreground">Type</dt><dd className="mt-0.5 text-[13px]">{typeLabel(current)}</dd></div>
+      {original && <div className="col-span-2 rounded-lg bg-muted/60 px-3 py-2.5">
+        <dt className="text-xs text-muted-foreground">Optimized for the web</dt>
+        <dd className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+          <span className="tabular-nums">{original.label} {formatBytes(original.size)} → WebP {formatBytes(current.size)}</span>
+          {original.saved > 0 && <span className="rounded-full bg-accent px-1.5 py-px text-[11px] font-medium text-accent-foreground tabular-nums">−{original.saved}%</span>}
+          <span className="flex-1" />
+          <a href={original.url} download={original.name} className="inline-flex items-center gap-1 text-[12.5px] font-medium text-foreground underline-offset-2 hover:underline"><Download className="size-3.5" />Original</a>
+        </dd>
+      </div>}
     </dl>
 
     <div className="mt-auto flex flex-wrap gap-2 border-t border-border pt-4">

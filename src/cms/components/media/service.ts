@@ -1,8 +1,9 @@
 import 'server-only'
 import { Prisma } from '@/generated/prisma/client'
-import { unlink } from 'node:fs/promises'
+import { readFile, unlink } from 'node:fs/promises'
 import path from 'node:path'
-import { bucketEnabled, deleteMedia } from '@/cms/lib/bucket'
+import { bucketEnabled, deleteMedia, getMediaObject } from '@/cms/lib/bucket'
+import { contentDisposition, optimizeImage, webpName, writeObject } from '@/cms/lib/media'
 import { db } from '@/cms/lib/db'
 import { HttpError } from '@/cms/lib/http'
 import { audit } from '@/cms/lib/audit'
@@ -115,11 +116,15 @@ export async function removeMedia(id: string, force: boolean, user: Actor, req?:
   if (references.length && !force) throw new HttpError(409, 'This file is still in use. Replace its references before deleting, or explicitly force deletion.', { references })
   if (!isCmsMediaUrl(media.url) || media.key !== media.url.slice(1)) throw new HttpError(409, 'Invalid storage key')
   // Remove bytes first: a storage failure must leave the database record available for retry.
+  // The kept original goes with it (only a key of ours: cms/<hash>.<ext>).
+  const keys = [media.key, ...(media.originalKey && /^cms\/[0-9a-f]{16}\.[a-z0-9]+$/.test(media.originalKey) && media.originalKey !== media.key ? [media.originalKey] : [])]
   try {
-    if (bucketEnabled) await deleteMedia(media.key)
-    else if (process.env.NODE_ENV !== 'production') {
-      await unlink(path.join(process.cwd(), 'public', media.key)).catch((error: NodeJS.ErrnoException) => { if (error.code !== 'ENOENT') throw error })
-    } else throw new Error('Media storage is not configured')
+    for (const key of keys) {
+      if (bucketEnabled) await deleteMedia(key)
+      else if (process.env.NODE_ENV !== 'production') {
+        await unlink(path.join(process.cwd(), 'public', key)).catch((error: NodeJS.ErrnoException) => { if (error.code !== 'ENOENT') throw error })
+      } else throw new Error('Media storage is not configured')
+    }
   } catch (error) {
     console.error('[cms] media storage deletion failed', error)
     throw new HttpError(503, 'Storage deletion failed. The file record was kept; retry later.')
@@ -127,4 +132,61 @@ export async function removeMedia(id: string, force: boolean, user: Actor, req?:
   await db.media.delete({ where: { id } })
   await audit(user, { action: force ? 'FORCE_DELETE' : 'DELETE', entityType: 'MEDIA', entityId: id, entityTitle: media.filename, diff: { url: media.url, references: references.length } }, req)
   return { id, references: references.length }
+}
+
+/* ── optimizing files uploaded before uploads were optimized ── */
+
+const OPTIMIZABLE_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif']
+/** Images never looked at by the optimizer: no kept original and no recorded size. */
+const unoptimized = { originalKey: null, width: null, mimeType: { in: OPTIMIZABLE_MIME } } satisfies Prisma.MediaWhereInput
+const OUR_KEY = /^cms\/([0-9a-f]{16})\.([a-z0-9]+)$/
+
+export const countUnoptimizedMedia = () => db.media.count({ where: unoptimized })
+
+async function readObject(key: string) {
+  if (bucketEnabled) return getMediaObject(key)
+  if (process.env.NODE_ENV === 'production') throw new Error('Media storage is not configured')
+  return readFile(path.join(process.cwd(), 'public', key))
+}
+
+/**
+ * Optimizes up to `limit` older images the way new uploads are (optimizeImage): writes the WebP, points
+ * every post at it (with revisions, as Replace does), then turns the row into the WebP and keeps its old
+ * file as the original. A file that is better left as it is (animated, already small) just gets its size recorded.
+ */
+export async function optimizeStoredMedia(user: Actor, req?: Request, limit = 4) {
+  const rows = await db.media.findMany({ where: unoptimized, select: mediaSelect, orderBy: { createdAt: 'asc' }, take: limit })
+  const result = { optimized: 0, kept: 0, failed: [] as { id: string; filename: string; error: string }[], savedBytes: 0 }
+  for (const row of rows) {
+    try {
+      const match = OUR_KEY.exec(row.key)
+      if (!match || row.url !== `/${row.key}`) throw new Error('Unexpected storage key')
+      const buf = await readObject(row.key)
+      const opt = await optimizeImage(buf, match[2])
+      const webpKey = `cms/${match[1]}.webp`
+      if (!opt.converted || webpKey === row.key || (await db.media.findUnique({ where: { key: webpKey }, select: { id: true } }))) {
+        await db.media.update({ where: { id: row.id }, data: { width: opt.width ?? 0, height: opt.height ?? 0 } })
+        result.kept++
+        continue
+      }
+      const name = webpName(row.filename)
+      await writeObject(webpKey, opt.buf, 'image/webp', contentDisposition(name, true))
+      // Posts first: if that fails the row is untouched and its file still serves every post.
+      await replaceMediaReferences(row.url, `/${webpKey}`, user, req)
+      await db.media.update({
+        where: { id: row.id },
+        data: {
+          key: webpKey, url: `/${webpKey}`, filename: name, mimeType: 'image/webp', size: opt.buf.length, width: opt.width, height: opt.height,
+          originalKey: row.key, originalMimeType: row.mimeType, originalSize: row.size,
+        },
+      })
+      await audit(user, { action: 'OPTIMIZE', entityType: 'MEDIA', entityId: row.id, entityTitle: name, diff: { oldUrl: row.url, newUrl: `/${webpKey}`, before: row.size, after: opt.buf.length } }, req)
+      result.optimized++
+      result.savedBytes += Math.max(0, row.size - opt.buf.length)
+    } catch (error) {
+      console.error('[cms] optimizing media failed', row.id, error)
+      result.failed.push({ id: row.id, filename: row.filename, error: error instanceof HttpError ? error.message : 'Could not optimize this file' })
+    }
+  }
+  return { ...result, remaining: await countUnoptimizedMedia() }
 }

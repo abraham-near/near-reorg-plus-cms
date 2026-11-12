@@ -39,6 +39,14 @@ export async function putMedia(key: string, body: Buffer, contentType: string, c
   )
 }
 
+/** Reads one object's bytes (the optimizer re-encodes files uploaded before it existed). */
+export async function getMediaObject(key: string): Promise<Buffer> {
+  if (!client) throw new Error('Bucket is not configured')
+  const res = await client.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
+  if (!res.Body) throw new Error(`Empty object: ${key}`)
+  return Buffer.from(await res.Body.transformToByteArray())
+}
+
 export async function deleteMedia(key: string) {
   if (!client) throw new Error('Bucket is not configured')
   await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }))

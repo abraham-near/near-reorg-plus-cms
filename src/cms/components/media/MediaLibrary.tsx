@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ImageUp, Search, Upload, X } from 'lucide-react'
+import { ImageUp, Search, Sparkles, Upload, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/cms/lib/client'
 import { cn } from '@/cms/lib/utils'
@@ -11,10 +11,10 @@ import {
 } from '@/cms/components/ui/alert-dialog'
 import { DropOverlay, useFileDrag } from './DropOverlay'
 import { MediaDrawer } from './MediaDrawer'
-import { GRID_CLASS, MediaTile, MediaTileSkeleton } from './MediaTile'
+import { LIBRARY_GRID_CLASS, MediaTile, MediaTileSkeleton } from './MediaTile'
 import type { MediaItem } from './types'
 import { UploadTray } from './UploadTray'
-import { acceptAttribute, tileMeta, uploadLimitLines } from './upload-limits'
+import { acceptAttribute, formatBytes, uploadLimitLines } from './upload-limits'
 import { useMediaList, type MediaFilters } from './useMediaList'
 import { useUploadQueue } from './useUploadQueue'
 
@@ -35,6 +35,8 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
   const requested = useRef(new Set<string>())
   const [fresh, setFresh] = useState<Set<string>>(() => new Set())
   const [active, setActive] = useState<MediaItem | null>(null)
+  /** The panel is sliding out; `active` (and the room the grid leaves for it) goes once it is gone. */
+  const [leaving, setLeaving] = useState(false)
   const [selecting, setSelecting] = useState(false)
   const [picked, setPicked] = useState<Set<string>>(() => new Set())
   const [bulkOpen, setBulkOpen] = useState(false)
@@ -84,19 +86,27 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
     try { fileInput.current?.showPicker() } catch { /* needs a user gesture; the hint stays */ }
   }, [startUpload, canUpload])
 
-  const closeDrawer = useCallback(() => {
+  const finishClose = useCallback(() => {
     const id = active?.id
     setActive(null)
+    setLeaving(false)
     if (id) requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-media-id="${CSS.escape(id)}"]`)?.focus())
   }, [active?.id])
+  // The panel slides out first (MediaDrawer calls onLeft when it is gone); with reduced motion it just goes.
+  const closeDrawer = useCallback(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) finishClose()
+    else setLeaving(true)
+  }, [finishClose])
 
   function openTile(item: MediaItem) {
     if (selecting) {
       setPicked((current) => { const next = new Set(current); if (next.has(item.id)) next.delete(item.id); else next.add(item.id); return next })
       return
     }
-    setActive((current) => current?.id === item.id ? null : item)
-    // The grid narrows for the panel: keep the opened tile in view.
+    if (active?.id === item.id && !leaving) { closeDrawer(); return }
+    setLeaving(false)
+    setActive(item)
+    // The grid makes room for the panel at once (fewer tiles per row, same size): keep the opened tile in view.
     requestAnimationFrame(() => document.querySelector(`[data-media-id="${CSS.escape(item.id)}"]`)?.scrollIntoView({ block: 'nearest' }))
   }
 
@@ -147,18 +157,20 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
       <button type="button" aria-label="Dismiss" onClick={() => setHint(false)} className="grid size-7 place-items-center rounded-md hover:bg-background/60"><X className="size-4" /></button>
     </div>}
 
+    {canEdit && canUpload && <OptimizeBanner onDone={() => void list.reload()} />}
+
     {list.error
       ? <div role="alert" className="mt-6 rounded-xl border border-destructive/40 p-4 text-[13px]"><p>{list.error}</p><Button className="mt-3" size="sm" variant="outline" onClick={() => void list.reload()}>Retry</Button></div>
       : list.loading && !list.items.length
-        ? <div className={cn(GRID_CLASS, 'mt-[22px]')} role="status" aria-label="Loading files">{Array.from({ length: 12 }, (_, i) => <MediaTileSkeleton key={i} />)}</div>
+        ? <div className={cn(LIBRARY_GRID_CLASS, 'mt-[22px]')} role="status" aria-label="Loading files">{Array.from({ length: 12 }, (_, i) => <MediaTileSkeleton key={i} />)}</div>
         : !list.items.length
           ? <EmptyState filtered={filtered} canUpload={canUpload} limits={[limitFirst, limitSecond]} onUpload={() => fileInput.current?.click()} onClear={() => { setQ(''); setType('all'); setUnused(false) }} />
           : <>
-            <div className={cn(GRID_CLASS, 'mt-[22px] transition-opacity duration-[var(--dur-base)]', list.loading && 'opacity-60')} aria-busy={list.loading}>
+            <div className={cn(LIBRARY_GRID_CLASS, 'mt-[22px] transition-opacity duration-[var(--dur-base)]', list.loading && 'opacity-60')} aria-busy={list.loading}>
               {list.items.map((item) => <MediaTile
                 key={item.id}
                 item={item}
-                meta={tileMeta(item, usage[item.id])}
+                usage={usage[item.id]}
                 selected={selecting ? picked.has(item.id) : active?.id === item.id}
                 checkable={selecting}
                 fresh={fresh.has(item.id)}
@@ -193,6 +205,8 @@ export default function MediaLibrary({ canUpload, canEdit, canDelete, startUploa
 
     {active && <MediaDrawer
       item={active}
+      leaving={leaving}
+      onLeft={finishClose}
       canEdit={canEdit}
       canUpload={canUpload}
       canDelete={canDelete}
@@ -229,5 +243,48 @@ function EmptyState({ filtered, canUpload, limits, onUpload, onClear }: { filter
         {canUpload && <><Button type="button" className="mt-5" onClick={onUpload}><Upload />Upload files</Button>
           {limits.map((line) => <p key={line} className="mt-2 text-xs text-muted-foreground first-of-type:mt-4">{line}</p>)}</>}
       </>}
+  </div>
+}
+
+/**
+ * Images uploaded before uploads were optimized: a banner offers to convert them (WebP, max 2000 px, original kept,
+ * posts pointed at the new file). Runs a few at a time through /api/admin/media/optimize until none are left.
+ */
+function OptimizeBanner({ onDone }: { onDone: () => void }) {
+  const [remaining, setRemaining] = useState<number | null>(null)
+  const [running, setRunning] = useState(false)
+  const [done, setDone] = useState({ optimized: 0, saved: 0, failed: 0 })
+
+  useEffect(() => {
+    adminFetch<{ remaining: number }>('/api/admin/media/optimize').then((data) => setRemaining(data.remaining)).catch(() => setRemaining(0))
+  }, [])
+
+  async function run() {
+    setRunning(true)
+    const total = { optimized: 0, saved: 0, failed: 0 }
+    try {
+      for (;;) {
+        const data = await adminFetch<{ optimized: number; kept: number; savedBytes: number; failed: unknown[]; remaining: number }>('/api/admin/media/optimize', { method: 'POST' })
+        total.optimized += data.optimized; total.saved += data.savedBytes; total.failed += data.failed.length
+        setDone({ ...total }); setRemaining(data.remaining)
+        // Stop when finished, or when a round made no progress (only failures left).
+        if (!data.remaining || data.optimized + data.kept === 0) break
+      }
+      if (total.failed) toast.warning(`${total.optimized} optimized. ${total.failed} could not be converted and were left as they are.`)
+      else toast.success(`${total.optimized} ${total.optimized === 1 ? 'image' : 'images'} optimized · ${formatBytes(total.saved)} saved`)
+      onDone()
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Optimizing failed. Please retry.') }
+    finally { setRunning(false) }
+  }
+
+  if (!remaining && !running) return null
+  return <div role="status" className="cms-fade-up mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-[13px]">
+    <Sparkles className="size-5 flex-none text-primary" aria-hidden="true" />
+    <span className="min-w-0 flex-1">
+      {running
+        ? <><b className="font-semibold">Optimizing…</b> {done.optimized} done, {remaining} to go. Keep this page open.</>
+        : <><b className="font-semibold">{remaining} {remaining === 1 ? 'image was' : 'images were'} uploaded before optimization.</b> Convert them to WebP (max 2000 px) and update the posts that use them; the originals are kept.</>}
+    </span>
+    <Button type="button" size="sm" disabled={running} onClick={() => void run()}>{running ? 'Optimizing…' : 'Optimize now'}</Button>
   </div>
 }
