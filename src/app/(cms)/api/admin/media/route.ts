@@ -5,19 +5,22 @@ import { db } from '@/cms/lib/db'
 import { HttpError, json, route } from '@/cms/lib/http'
 import { storeUpload } from '@/cms/lib/media'
 import { mediaSelect } from '@/cms/components/media/types'
+import { mediaUsageByUrl } from '@/cms/components/media/service'
 import { readMediaUpload } from '@/cms/components/media/validation'
 import { rateLimit } from '@/cms/lib/rate-limit'
 
 const PAGE_SIZE = 24
 
-/** GET /api/admin/media?page=1&q=&type=image|video|other */
+/** GET /api/admin/media?page=1&q=&type=image|video|other&unused=1 (unused: files no post references) */
 export const GET = route(async (req) => {
   await requireActor(req, 'content:read')
   const params = new URL(req.url).searchParams
   const page = Math.max(1, Math.min(10_000, Math.floor(Number(params.get('page')) || 1)))
   const q = params.get('q')?.trim().slice(0, 100)
   const type = params.get('type')
+  const usedUrls = params.get('unused') === '1' ? [...(await mediaUsageByUrl()).keys()] : null
   const where: Prisma.MediaWhereInput = {
+    ...(usedUrls ? { url: { notIn: usedUrls } } : {}),
     ...(q ? { OR: [{ filename: { contains: q, mode: 'insensitive' } }, { alt: { contains: q, mode: 'insensitive' } }] } : {}),
     ...(type === 'image' ? { mimeType: { startsWith: 'image/' } } : {}),
     ...(type === 'video' ? { mimeType: { startsWith: 'video/' } } : {}),

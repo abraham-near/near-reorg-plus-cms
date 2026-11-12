@@ -15,7 +15,7 @@ export const instant = false
 
 export default function CmsRootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className="min-h-screen bg-background font-sans text-foreground antialiased" suppressHydrationWarning>
         {children}
       </body>

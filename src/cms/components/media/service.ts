@@ -9,7 +9,7 @@ import { audit } from '@/cms/lib/audit'
 import type { SessionUser } from '@/cms/lib/session'
 import { saveRevision } from '@/cms/lib/revisions'
 import { revalidatePost } from '@/cms/lib/cache-tags'
-import { isCmsMediaUrl, replaceExactUrl } from './reference-values'
+import { extractCmsUrls, isCmsMediaUrl, replaceExactUrl } from './reference-values'
 import { mediaSelect, type MediaReference } from './types'
 import { postSelect } from '@/cms/lib/posts/select'
 
@@ -19,9 +19,11 @@ type Store = Prisma.TransactionClient
 
 
 // Posts are the only content that holds media URLs.
+const REFERENCE_FIELDS = ['body', 'featuredImage', 'metaImage', 'excerpt'] as const satisfies readonly (keyof typeof postSelect)[]
+
 async function scanReferences(store: Store, oldUrl: string, newUrl = oldUrl): Promise<ReferenceRecord[]> {
   const found: ReferenceRecord[] = []
-  function collect(type: ReferenceRecord['entityType'], row: object, fields: string[], title: string, routePath: string | null = null) {
+  function collect(type: ReferenceRecord['entityType'], row: object, fields: readonly string[], title: string, routePath: string | null = null, status?: string) {
     const snapshot = JSON.parse(JSON.stringify(row)) as Prisma.InputJsonObject
     const record = row as Record<string, unknown>
     const changes: Record<string, Prisma.JsonValue> = {}
@@ -30,12 +32,12 @@ async function scanReferences(store: Store, oldUrl: string, newUrl = oldUrl): Pr
       const result = replaceExactUrl((record[field] ?? null) as Prisma.JsonValue, oldUrl, newUrl)
       if (result.count) { changes[field] = result.value; occurrences += result.count }
     }
-    if (occurrences) found.push({ entityType: type, id: String(record.id ?? record.key), title, path: routePath, fields: Object.keys(changes), occurrences, snapshot, changes })
+    if (occurrences) found.push({ entityType: type, id: String(record.id ?? record.key), title, path: routePath, fields: Object.keys(changes), occurrences, ...(status ? { status } : {}), snapshot, changes })
   }
   // Read in batches; retain snapshots only for records that actually reference the file.
   for (let skip = 0; ; skip += 100) {
     const rows = await store.post.findMany({ select: postSelect, orderBy: { id: 'asc' }, skip, take: 100 })
-    for (const r of rows) collect('POST', r, ['body', 'featuredImage', 'metaImage', 'excerpt'], r.title, `/admin/posts/${r.id}/edit`)
+    for (const r of rows) collect('POST', r, REFERENCE_FIELDS, r.title, `/admin/posts/${r.id}/edit`, r.status)
     if (rows.length < 100) break
   }
   return found
@@ -43,7 +45,24 @@ async function scanReferences(store: Store, oldUrl: string, newUrl = oldUrl): Pr
 
 export async function findMediaReferences(url: string): Promise<MediaReference[]> {
   const records = await scanReferences(db, url)
-  return records.map(({ entityType, id, title, path, fields, occurrences }) => ({ entityType, id, title, path, fields, occurrences }))
+  return records.map(({ entityType, id, title, path, fields, occurrences, status }) => ({ entityType, id, title, path, fields, occurrences, ...(status ? { status } : {}) }))
+}
+
+/**
+ * How many posts use each CMS media URL, in one pass over the posts (only the fields that can hold
+ * media are read). Same matching rules as findMediaReferences.
+ */
+export async function mediaUsageByUrl(): Promise<Map<string, number>> {
+  const usage = new Map<string, number>()
+  for (let skip = 0; ; skip += 200) {
+    const rows = await db.post.findMany({ select: { id: true, body: true, featuredImage: true, metaImage: true, excerpt: true }, orderBy: { id: 'asc' }, skip, take: 200 })
+    for (const row of rows) {
+      const urls = extractCmsUrls(REFERENCE_FIELDS.map((field) => row[field] ?? null))
+      for (const url of urls) usage.set(url, (usage.get(url) ?? 0) + 1)
+    }
+    if (rows.length < 200) break
+  }
+  return usage
 }
 
 export async function replaceMediaReferences(oldUrl: string, newUrl: string, user: Actor, req?: Request, options?: {

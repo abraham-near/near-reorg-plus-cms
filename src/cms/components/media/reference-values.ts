@@ -41,3 +41,22 @@ export function replaceExactUrl(value: Prisma.JsonValue, oldUrl: string, newUrl:
 export function isCmsMediaUrl(url: string) {
   return /^\/cms\/[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+$/.test(url)
 }
+
+const CMS_URL_CANDIDATE = /\/cms\/[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+/g
+
+/**
+ * Every CMS media URL a value references, by the same whole-URL rules as replaceExactUrl (so a URL
+ * inside another site's query string or with a suffix does not count).
+ */
+export function extractCmsUrls(value: Prisma.JsonValue): Set<string> {
+  const found = new Set<string>()
+  const candidates = new Set<string>()
+  const visit = (input: Prisma.JsonValue) => {
+    if (typeof input === 'string') { for (const match of input.matchAll(CMS_URL_CANDIDATE)) candidates.add(match[0]) }
+    else if (Array.isArray(input)) input.forEach(visit)
+    else if (input && typeof input === 'object') Object.values(input).forEach((child) => visit(child ?? null))
+  }
+  visit(value)
+  for (const url of candidates) if (replaceExactUrl(value, url, url).count > 0) found.add(url)
+  return found
+}

@@ -1,54 +1,104 @@
 'use client'
 
-import { useEffect, useEffectEvent, useState } from 'react'
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, ArrowUp, ArrowDown, Eye, ImagePlus, LockKeyhole, Save, Trash2, X } from 'lucide-react'
+import { Archive, ArchiveRestore, CalendarClock, ChevronDown, ChevronRight, Eye, History, ImagePlus, LockKeyhole, MoreHorizontal, RotateCcw, Trash2, Undo2, X } from 'lucide-react'
+import { DropdownMenu } from 'radix-ui'
 import { toast } from 'sonner'
 import BlockEditor from '@/cms/components/editor/BlockEditor'
 import MediaPickerModal from '@/cms/components/media/MediaPickerModal'
+import { useNavigationGuard } from '@/cms/components/NavigationGuardProvider'
 import { Button } from '@/cms/components/ui/button'
 import { Input } from '@/cms/components/ui/input'
 import { Label } from '@/cms/components/ui/label'
 import { Textarea } from '@/cms/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/cms/components/ui/tooltip'
 import { AdminApiError, adminFetch } from '@/cms/lib/client'
-import { formatAdminDate, slugify } from '@/cms/lib/utils'
+import { cn, slugify } from '@/cms/lib/utils'
 import { useNow } from '@/cms/lib/useStoredState'
 import { safeUrl } from '@/cms/lib/sanitize'
+import PostProperties, { AutoTextarea, PostStatusChip, type DisplayStatus } from './PostProperties'
+import PublishDialog, { SITE_HOST, type PublishKind } from './PublishDialog'
 import RevisionsPanel from './RevisionsPanel'
+import SaveState, { type SaveStatus } from './SaveState'
+import { countWords, publishChecks, readingMinutes, snippet, type CheckKey } from './publish-checks'
+import { formatLocalDateTime } from './schedule-time'
 import type { PostPermissions, PostRecord, TaxonomyOption } from './types'
 
 type Status = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 type Visibility = 'PUBLIC' | 'UNLISTED'
 type Form = {
   title: string; slug: string; excerpt: string; featuredImage: string; metaTitle: string; metaDescription: string
-  metaImage: string; visibility: Visibility; publishedAt: string; categoryIds: string[]; tagIds: string[]; body: string
+  metaImage: string; visibility: Visibility; categoryIds: string[]; tagIds: string[]; body: string
 }
-const fieldClass = 'w-full rounded-md border bg-background px-3 py-2 text-sm'
+/** status/publishedAt change only through explicit actions (publish, schedule, archive…); `blocking` disables the form meanwhile. */
+type SaveOptions = { status?: Status; publishedAt?: string | null; auto?: boolean; blocking?: boolean }
+
+/** Drafts save themselves this long after the last change. Published and scheduled posts never autosave. */
+const AUTOSAVE_MS = 2000
+
 function formFromPost(post: PostRecord | null): Form {
   return {
     title: post?.title ?? '', slug: post?.slug ?? '', excerpt: post?.excerpt ?? '', featuredImage: post?.featuredImage ?? '',
     metaTitle: post?.metaTitle ?? '', metaDescription: post?.metaDescription ?? '', metaImage: post?.metaImage ?? '',
-    visibility: post?.visibility ?? 'PUBLIC', publishedAt: post?.publishedAt?.slice(0, 16) ?? '',
+    visibility: post?.visibility ?? 'PUBLIC',
     categoryIds: post?.categories.map((join) => join.categoryId) ?? [], tagIds: post?.tags.map((tag) => tag.id) ?? [],
     body: post?.body ?? '',
   }
 }
+const isMac = () => typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
+const menuItem = 'flex h-8 cursor-pointer select-none items-center gap-2 rounded-md px-2 text-[13px] outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-muted'
+const portalContainer = () => typeof document === 'undefined' ? undefined : document.querySelector<HTMLElement>('.admin-wrapper') ?? undefined
 
 export default function PostForm({ initialPost, categories, tags, permissions }: { initialPost: PostRecord | null; categories: TaxonomyOption[]; tags: TaxonomyOption[]; permissions: PostPermissions }) {
   const router = useRouter()
-  const now = useNow(30_000)
+  const now = useNow(15_000)
+  const { setIsDirty } = useNavigationGuard()
   const [post, setPost] = useState(initialPost)
   const [form, setForm] = useState(() => formFromPost(initialPost))
   const [dirty, setDirty] = useState(false)
+  const [changes, setChanges] = useState(0)
   const [busy, setBusy] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveFailed, setSaveFailed] = useState(false)
+  const [savedAt, setSavedAt] = useState<Date | null>(() => initialPost ? new Date(initialPost.updatedAt) : null)
   const [error, setError] = useState('')
+  const [conflict, setConflict] = useState(false)
   const [mediaField, setMediaField] = useState<'featuredImage' | 'metaImage' | null>(null)
   const [lock, setLock] = useState<'checking' | 'ready' | 'blocked'>(initialPost && permissions.write ? 'checking' : 'ready')
   const [lockMessage, setLockMessage] = useState('')
+  const [publish, setPublish] = useState<{ open: boolean; kind: PublishKind; mode: 'checklist' | 'schedule'; session: number }>({ open: false, kind: 'publish', mode: 'checklist', session: 0 })
+  const [revisionsOpen, setRevisionsOpen] = useState(false)
+  const [categoryOpen, setCategoryOpen] = useState(false)
+  const [editorWords, setEditorWords] = useState<number | null>(null)
+  const titleRef = useRef<HTMLTextAreaElement>(null)
+  const excerptRef = useRef<HTMLTextAreaElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  // Saves read the latest values through refs: an autosave timer or a queued save must never send a stale form or updatedAt.
+  const postRef = useRef(post)
+  const formRef = useRef(form)
+  const dirtyRef = useRef(dirty)
+  const lockRef = useRef(lock)
+  const revRef = useRef(0)
+  const inflight = useRef<Promise<void> | null>(null)
+  const afterPublishClose = useRef<(() => void) | null>(null)
+  useEffect(() => {
+    postRef.current = post
+    formRef.current = form
+    dirtyRef.current = dirty
+    lockRef.current = lock
+  })
+
   const postId = post?.id
   const editable = permissions.write && lock === 'ready' && !busy
+  const scheduled = post?.status === 'PUBLISHED' && !!post.publishedAt && !!now && new Date(post.publishedAt) > now
+  const live = post?.status === 'PUBLISHED' && !scheduled
+  const wasLive = !!post?.publishedAt && !!now && new Date(post.publishedAt) <= now
+  const displayStatus: DisplayStatus = !post || post.status === 'DRAFT' ? 'Draft' : post.status === 'ARCHIVED' ? 'Archived' : scheduled ? 'Scheduled' : 'Published'
+  const canAutosave = permissions.write && lock === 'ready' && (!post || post.status === 'DRAFT') && !conflict
 
+  // Edit lock: acquire, renew every 30 s, release on unmount and on full page loads.
   useEffect(() => {
     if (!postId || !permissions.write) return
     let active = true
@@ -81,38 +131,105 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
     window.addEventListener('beforeunload', beforeUnload)
     return () => window.removeEventListener('beforeunload', beforeUnload)
   }, [dirty])
+  // The sidebar asks before leaving while there are unsaved changes.
+  useEffect(() => { setIsDirty(dirty) }, [dirty, setIsDirty])
+  useEffect(() => () => setIsDirty(false), [setIsDirty])
 
+  function markChanged() {
+    revRef.current += 1
+    setDirty(true)
+    setChanges((count) => count + 1)
+  }
   function update<K extends keyof Form>(key: K, value: Form[K]) {
     setForm((current) => ({ ...current, [key]: value }))
-    setDirty(true)
+    markChanged()
   }
   function acceptPost(saved: PostRecord) {
+    revRef.current += 1
+    postRef.current = saved
     setPost(saved)
     setForm(formFromPost(saved))
     setDirty(false)
+    setSavedAt(new Date())
+    setSaveFailed(false)
     setError('')
   }
-  async function save(status: Status = post?.status ?? 'DRAFT') {
-    if (!editable) return
-    if (!form.title.trim() || !form.slug.trim()) { setError('Title and slug are required.'); return }
-    setBusy(true)
-    setError('')
+
+  /** The one save path (autosave, ⌘S, Update, publish, schedule, archive). Saves queue behind each other. */
+  async function persist(options: SaveOptions = {}): Promise<PostRecord | null> {
+    if (!permissions.write) return null
+    while (inflight.current) await inflight.current
+    const current = postRef.current
+    if (lockRef.current !== 'ready') return null
+    if (options.auto && (!dirtyRef.current || (current && current.status !== 'DRAFT'))) return null
+    const values = formRef.current
+    if (!values.title.trim() || !values.slug.trim()) {
+      if (!options.auto) { setError('Add a title before saving.')
+        titleRef.current?.focus() }
+      return null
+    }
+    const rev = revRef.current
+    const status = options.status ?? current?.status ?? 'DRAFT'
+    const json = { ...values, status, ...(current ? { expectedUpdatedAt: current.updatedAt } : {}), ...(options.publishedAt !== undefined ? { publishedAt: options.publishedAt } : {}) }
+    let done = () => {}
+    inflight.current = new Promise<void>((resolve) => { done = resolve })
+    setSaving(true)
+    if (options.blocking) setBusy(true)
     try {
-      const saved = await adminFetch<PostRecord>(post ? `/api/admin/posts/${post.id}` : '/api/admin/posts', {
-        method: post ? 'PATCH' : 'POST',
-        json: { ...form, status, ...(post ? { expectedUpdatedAt: post.updatedAt } : {}), publishedAt: form.publishedAt ? new Date(`${form.publishedAt}:00Z`).toISOString() : null },
-      })
-      acceptPost(saved)
-      toast.success(status === 'PUBLISHED' ? (saved.publishedAt && new Date(saved.publishedAt) > new Date() ? 'Post scheduled' : 'Post published') : status === 'ARCHIVED' ? 'Post archived' : 'Draft saved')
-      if (!post) router.replace(`/admin/posts/${saved.id}/edit`)
-      router.refresh()
-    } catch (error) { setError(error instanceof Error ? error.message : 'Could not save the post') }
-    finally { setBusy(false) }
+      const saved = await adminFetch<PostRecord>(current ? `/api/admin/posts/${current.id}` : '/api/admin/posts', { method: current ? 'PATCH' : 'POST', json })
+      postRef.current = saved
+      setPost(saved)
+      setSavedAt(new Date())
+      setSaveFailed(false)
+      setError('')
+      // Edits made while the request was in flight stay in the form and stay dirty (the next autosave sends them).
+      if (revRef.current === rev) {
+        dirtyRef.current = false
+        setDirty(false)
+        // Status changes take the server's view of the post; plain saves keep the form as typed (no cursor jumps).
+        if (options.blocking) setForm(formFromPost(saved))
+      }
+      // A new post becomes a draft at its edit URL without remounting the editor (keeps focus and content).
+      if (!current) {
+        window.history.replaceState(null, '', `/admin/posts/${saved.id}/edit`)
+        document.title = document.title.replace(/^New post/, 'Edit post')
+      }
+      return saved
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not save the post'
+      setSaveFailed(true)
+      setError(message)
+      if (error instanceof AdminApiError && error.status === 409 && message.startsWith('Post changed')) setConflict(true)
+      if (error instanceof AdminApiError && error.status === 423) { setLock('blocked')
+        setLockMessage(message) }
+      return null
+    } finally {
+      setSaving(false)
+      if (options.blocking) setBusy(false)
+      inflight.current = null
+      done()
+    }
   }
+  async function saveNow() {
+    const current = postRef.current
+    const saved = await persist()
+    if (saved && current && current.status !== 'DRAFT') toast.success(current.status === 'ARCHIVED' ? 'Changes saved' : scheduled ? 'Scheduled post updated' : 'Changes published')
+  }
+
+  const runAutosave = useEffectEvent(() => { void persist({ auto: true }) })
+  useEffect(() => {
+    if (!changes || !canAutosave) return
+    const timer = setTimeout(() => runAutosave(), AUTOSAVE_MS)
+    return () => clearTimeout(timer)
+  }, [changes, canAutosave])
+
+  // The editor flushes its latest HTML on ⌘S too (BlockEditor), so save on the next tick, after that
+  // update has rendered: saving in this same keypress would read the body from before it.
+  const saveLatest = useEffectEvent(() => { void saveNow() })
   const saveFromKeyboard = useEffectEvent((event: KeyboardEvent) => {
     if (!permissions.write || (!event.metaKey && !event.ctrlKey) || event.altKey || event.key.toLowerCase() !== 's') return
     event.preventDefault()
-    if (editable && !event.repeat) void save()
+    if (editable && !event.repeat) setTimeout(() => saveLatest(), 0)
   })
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => saveFromKeyboard(event)
@@ -133,10 +250,11 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
     setBusy(true)
     try {
       await adminFetch(`/api/admin/posts/${post.id}`, { method: 'DELETE', json: {} })
+      dirtyRef.current = false
       setDirty(false)
+      setIsDirty(false)
       toast.success('Post deleted')
       router.push('/admin/posts')
-      router.refresh()
     } catch (error) { toast.error(error instanceof Error ? error.message : 'Could not delete post') }
     finally { setBusy(false) }
   }
@@ -148,62 +266,217 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       setLockMessage('')
     } catch (error) { setLockMessage(error instanceof Error ? error.message : 'Could not acquire the lock') }
   }
-  function orderCategory(index: number, direction: number) {
-    const ids = [...form.categoryIds]
-    const destination = index + direction
-    if (destination < 0 || destination >= ids.length) return
-    const previous = ids[index]
-    ids[index] = ids[destination]
-    ids[destination] = previous
-    update('categoryIds', ids)
+  async function changeStatus(status: Status, message: string) {
+    if (await persist({ status, blocking: true })) toast.success(message)
   }
-  const futurePublish = !!form.publishedAt && !!now && new Date(`${form.publishedAt}:00Z`) > now
-  const scheduled = post?.status === 'PUBLISHED' && !!post.publishedAt && now && new Date(post.publishedAt) > now
-  return <div className="space-y-6">
-    <header className="flex flex-wrap items-start justify-between gap-4">
-      <div className="min-w-0"><Link href="/admin/posts" onNavigate={guardNavigation} className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />All posts</Link><h1 className="text-2xl font-semibold">{post ? permissions.write ? 'Edit post' : 'View post' : 'New post'}</h1><p className="mt-1 text-sm text-muted-foreground">{post ? `${scheduled ? 'Scheduled' : post.status.charAt(0) + post.status.slice(1).toLowerCase()} · Last saved ${formatAdminDate(post.updatedAt)}` : 'Create a draft, then preview and publish when ready.'}{dirty ? ' · Unsaved changes' : ''}</p></div>
-      <div className="flex flex-wrap gap-2">
-        {post && <Button variant="outline" asChild><Link href={`/admin/posts/${post.id}/preview`} target="_blank"><Eye />Preview</Link></Button>}
-        {permissions.write && <Button type="button" disabled={!editable} onClick={() => save()}><Save />{busy ? 'Saving…' : post && post.status !== 'DRAFT' ? 'Save changes' : 'Save draft'}</Button>}
-      </div>
+
+  function openPublish(kind: PublishKind, mode: 'checklist' | 'schedule') {
+    setError('')
+    setPublish((current) => ({ open: true, kind, mode, session: current.session + 1 }))
+  }
+  async function publishNow(): Promise<string | null> {
+    const saved = await persist({ status: 'PUBLISHED', publishedAt: null, blocking: true })
+    if (!saved) return null
+    toast.success('Post published')
+    return `“${saved.title}” is live at ${SITE_HOST}/blog/${saved.slug}${saved.visibility === 'UNLISTED' ? ' (unlisted: reachable by link only)' : ''}.`
+  }
+  async function schedulePost(iso: string): Promise<string | null> {
+    const kind = publish.kind
+    const saved = await persist({ status: 'PUBLISHED', publishedAt: iso, blocking: true })
+    if (!saved?.publishedAt) return null
+    const future = new Date(saved.publishedAt) > new Date()
+    toast.success(kind === 'date' ? 'Publish date updated' : future ? 'Post scheduled' : 'Post published')
+    return future ? `It goes live on its own: ${formatLocalDateTime(saved.publishedAt)}.` : `Shown as published ${formatLocalDateTime(saved.publishedAt)}.`
+  }
+
+  function focusBody() {
+    const editor = bodyRef.current?.querySelector<HTMLElement>('.ProseMirror')
+    editor?.focus()
+    editor?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }
+  /** A checklist "fix" closes the dialog, then takes the editor to that field (after Radix restores focus). */
+  function fix(key: CheckKey) {
+    afterPublishClose.current = () => {
+      if (key === 'title') titleRef.current?.focus()
+      else if (key === 'summary') excerptRef.current?.focus()
+      else if (key === 'category') { titleRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        setCategoryOpen(true) }
+      else if (key === 'cover') setMediaField('featuredImage')
+      else if (key === 'alt') {
+        const image = [...(bodyRef.current?.querySelectorAll<HTMLImageElement>('.ProseMirror img') ?? [])].find((img) => !img.getAttribute('alt')?.trim())
+        if (image) { image.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          image.classList.add('ring-2', 'ring-[var(--warning-fg)]')
+          setTimeout(() => image.classList.remove('ring-2', 'ring-[var(--warning-fg)]'), 2400)
+          toast.info('Select the highlighted image to add its description.') }
+        else focusBody()
+      } else focusBody()
+    }
+    setPublish((current) => ({ ...current, open: false }))
+  }
+
+  async function openPreview() {
+    const current = postRef.current
+    const url = (id: string) => `/admin/posts/${id}/preview`
+    if (current && !(dirty && current.status === 'DRAFT')) {
+      window.open(url(current.id), '_blank')
+      if (dirty) toast.info('The preview shows the last saved version. Update to include your changes.')
+      return
+    }
+    if (!form.title.trim()) { toast.error('Add a title before previewing.')
+      titleRef.current?.focus()
+      return }
+    // Open the tab now (inside the click) so pop-up blockers allow it, then point it at the saved post.
+    const tab = window.open('about:blank', '_blank')
+    const saved = await persist()
+    if (saved) { if (tab) tab.location.href = url(saved.id)
+      else window.open(url(saved.id), '_blank') }
+    else tab?.close()
+  }
+
+  // The editor reports its own count; until it does (or if it never mounts), count the saved HTML.
+  const htmlWords = useMemo(() => countWords(form.body), [form.body])
+  const words = editorWords ?? htmlWords
+  const checks = useMemo(() => publishChecks({
+    title: form.title, excerpt: form.excerpt, featuredImage: form.featuredImage, body: form.body,
+    categoryNames: form.categoryIds.map((id) => categories.find((item) => item.id === id)?.name ?? 'Unknown category'),
+  }), [form.title, form.excerpt, form.featuredImage, form.body, form.categoryIds, categories])
+  const saveStatus: SaveStatus = saving ? 'saving' : saveFailed ? 'error' : dirty ? 'dirty' : post ? 'saved' : 'new'
+  const cover = safeUrl(form.featuredImage)
+  const socialImage = safeUrl(form.metaImage)
+  const dateLabel = !post || post.status !== 'PUBLISHED' || !post.publishedAt
+    ? <span className="text-muted-foreground">Empty · publishes when you click Publish</span>
+    : !now ? <span className="text-muted-foreground">…</span>
+      : scheduled ? <span className="inline-flex items-center gap-1.5"><CalendarClock className="size-3.5 text-[var(--status-scheduled)]" aria-hidden />Scheduled · {formatLocalDateTime(post.publishedAt)}</span>
+        : <span>{formatLocalDateTime(post.publishedAt)}</span>
+  const onOpenDate = permissions.publish && editable && post?.status !== 'ARCHIVED'
+    ? () => openPublish(scheduled ? 'reschedule' : live ? 'date' : 'publish', 'schedule')
+    : undefined
+  const saveHint = `${isMac() ? '⌘' : 'Ctrl+'}S saves`
+
+  let primary: React.ReactNode = null
+  if (permissions.publish && (live || scheduled)) {
+    primary = <Button type="button" size="sm" className="cms-press" disabled={!editable || !dirty} onClick={() => void saveNow()}>{busy ? 'Saving…' : 'Update'}</Button>
+  } else if (permissions.publish) {
+    primary = <Button type="button" size="sm" className="cms-press" disabled={!editable} onClick={() => openPublish('publish', 'checklist')}>Publish<ChevronDown className="size-3.5" aria-hidden /></Button>
+  } else if (permissions.write) {
+    primary = <Button type="button" size="sm" className="cms-press" disabled={!editable || !dirty} onClick={() => void saveNow()}>Save</Button>
+  }
+
+  return <div className="min-h-full">
+    {/* Top bar: stays visible while #admin-main scrolls */}
+    <header className="sticky top-0 z-30 flex min-h-[52px] flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-[#f1f1ef] bg-background/95 px-5 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
+        <Link href="/admin/posts" onNavigate={guardNavigation} className="rounded text-muted-foreground hover:text-foreground">Posts</Link>
+        <span aria-hidden className="text-[#c4c4bf]">/</span>
+        <span aria-current="page" className="max-w-[320px] truncate font-medium">{form.title.trim() || 'Untitled'}</span>
+      </nav>
+      <PostStatusChip status={displayStatus} />
+      <span className="grow" />
+      {permissions.write && <SaveState status={saveStatus} savedAt={savedAt} now={now} error={error} onRetry={editable ? () => void persist() : undefined} />}
+      <Button type="button" variant="outline" size="sm" className="cms-press" onClick={() => void openPreview()} disabled={busy}><Eye />Preview</Button>
+      {primary && <Tooltip><TooltipTrigger asChild><span className="inline-flex">{primary}</span></TooltipTrigger><TooltipContent side="bottom">{live || scheduled ? `Publishes your changes · ${saveHint}` : `Drafts save automatically · ${saveHint}`}</TooltipContent></Tooltip>}
+      {post && <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild><Button type="button" variant="ghost" size="icon-sm" className="cms-press" aria-label="More actions"><MoreHorizontal /></Button></DropdownMenu.Trigger>
+        <DropdownMenu.Portal container={portalContainer()}>
+          <DropdownMenu.Content align="end" sideOffset={6} className="cms-pop z-50 min-w-[220px] rounded-[10px] border border-[#e9e9e6] bg-popover p-[5px] text-popover-foreground shadow-[0_12px_30px_rgba(15,15,15,.12)] [--origin:top_right]">
+            <DropdownMenu.Item className={menuItem} onSelect={() => setRevisionsOpen(true)}><History className="size-4 text-muted-foreground" />Revision history</DropdownMenu.Item>
+            {permissions.publish && scheduled && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => openPublish('reschedule', 'schedule')}><CalendarClock className="size-4 text-muted-foreground" />Reschedule…</DropdownMenu.Item>}
+            {permissions.publish && post.status === 'PUBLISHED' && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => void changeStatus('DRAFT', scheduled ? 'Unscheduled · now a draft' : 'Unpublished · now a draft')}><Undo2 className="size-4 text-muted-foreground" />{scheduled ? 'Unschedule to draft' : 'Unpublish to draft'}</DropdownMenu.Item>}
+            {permissions.write && post.status !== 'ARCHIVED' && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => void changeStatus('ARCHIVED', 'Post archived')}><Archive className="size-4 text-muted-foreground" />Archive</DropdownMenu.Item>}
+            {permissions.write && post.status === 'ARCHIVED' && <DropdownMenu.Item className={menuItem} disabled={!editable} onSelect={() => void changeStatus('DRAFT', 'Moved to drafts')}><ArchiveRestore className="size-4 text-muted-foreground" />Move to drafts</DropdownMenu.Item>}
+            {permissions.delete && <><DropdownMenu.Separator className="my-1 h-px bg-[#f1f1ef]" /><DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:bg-destructive/10')} disabled={!editable} onSelect={() => void remove()}><Trash2 className="size-4" />Delete post</DropdownMenu.Item></>}
+            <DropdownMenu.Separator className="my-1 h-px bg-[#f1f1ef]" />
+            <p className="px-2 py-1.5 text-xs leading-relaxed text-muted-foreground">Author: {post.author?.name ?? post.author?.email ?? 'Not assigned'}<br />Last edited by {post.lastEditedBy?.name ?? post.lastEditedBy?.email ?? '—'}</p>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>}
     </header>
-    {error && <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</p>}
-    {lock !== 'ready' && <div role="status" className="flex flex-wrap items-center gap-3 rounded-md border bg-muted p-4 text-sm"><LockKeyhole className="size-4" /><p className="flex-1">{lock === 'checking' ? 'Checking edit access…' : lockMessage}</p>{lock === 'blocked' && <><Button type="button" variant="outline" size="sm" onClick={() => takeLock(false)}>Retry</Button>{permissions.overrideLock && <Button type="button" size="sm" onClick={() => { if (window.confirm('Take over this post? The other editor will lose their editing lock.')) void takeLock(true) }}>Take over lock</Button>}</>}</div>}
-    {!permissions.write && <p className="rounded-md border bg-muted p-3 text-sm">You have read-only access to posts.</p>}
-    <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="min-w-0 space-y-6">
-        <fieldset disabled={!editable} className="space-y-5">
-          <div className="space-y-2"><Label htmlFor="post-title">Title</Label><Input id="post-title" className="h-auto py-3 text-xl font-semibold" maxLength={500} value={form.title} onChange={(event) => { const title = event.target.value; setForm((current) => ({ ...current, title, slug: !post && current.slug === slugify(current.title) ? slugify(title) : current.slug })); setDirty(true) }} placeholder="Post title" required /></div>
-          <div className="space-y-2"><Label htmlFor="post-slug">Slug</Label><div className="flex items-center gap-2"><span className="text-sm text-muted-foreground">/blog/</span><Input id="post-slug" value={form.slug} maxLength={200} onChange={(event) => update('slug', event.target.value)} placeholder="post-title" required /></div><p className="text-xs text-muted-foreground">The post’s address. Avoid changing it once published: links to the old address stop working.</p></div>
-          <div className="space-y-2"><Label htmlFor="post-excerpt">Excerpt</Label><Textarea id="post-excerpt" value={form.excerpt} onChange={(event) => update('excerpt', event.target.value)} placeholder="A short introduction for post listings" maxLength={10000} rows={3} /></div>
-        </fieldset>
-        <section aria-labelledby="post-body-label" className="space-y-3"><h2 id="post-body-label" className="font-semibold">Body</h2><p className="text-xs text-muted-foreground">Type <kbd className="rounded border px-1">/</kbd> for headings, lists, images, tables and more.</p>
-          <BlockEditor label="Post body" value={form.body} onChange={(value) => update('body', value)} editable={editable} autosaveLabel={dirty ? 'Unsaved changes' : post ? `Saved ${formatAdminDate(post.updatedAt)}` : 'New draft'} />
-        </section>
-        <details className="rounded-lg border bg-card p-5" open><summary className="cursor-pointer font-semibold">Search and social sharing</summary><fieldset disabled={!editable} className="mt-5 grid gap-5 sm:grid-cols-2">
-          <div className="space-y-2 sm:col-span-2"><Label htmlFor="meta-title">Meta title</Label><Input id="meta-title" value={form.metaTitle} onChange={(event) => update('metaTitle', event.target.value)} maxLength={500} placeholder="Defaults to the post title" /><p className="text-xs text-muted-foreground">{form.metaTitle.length} characters</p></div>
-          <div className="space-y-2 sm:col-span-2"><Label htmlFor="meta-description">Meta description</Label><Textarea id="meta-description" value={form.metaDescription} onChange={(event) => update('metaDescription', event.target.value)} maxLength={5000} placeholder="Defaults to the excerpt" /><p className="text-xs text-muted-foreground">{form.metaDescription.length} characters</p></div>
-          <div className="space-y-2 sm:col-span-2"><Label htmlFor="meta-image">Social image</Label><div className="flex gap-2"><Input id="meta-image" value={form.metaImage} onChange={(event) => update('metaImage', event.target.value)} placeholder="Defaults to the featured image" /><Button type="button" variant="outline" onClick={() => setMediaField('metaImage')}>Choose</Button></div><p className="text-xs text-muted-foreground">Shown when the post is shared on social networks. 1200 × 630 works best.</p></div>
-        </fieldset></details>
-      </div>
-      <aside className="space-y-6 rounded-lg border bg-card p-5">
-        <section className="space-y-4"><h2 className="font-semibold">Publication</h2><fieldset disabled={!editable} className="space-y-4">
-          <div className="space-y-2"><Label htmlFor="post-visibility">Visibility</Label><select id="post-visibility" className={fieldClass} value={form.visibility} onChange={(event) => update('visibility', event.target.value as Visibility)}><option value="PUBLIC">Public</option><option value="UNLISTED">Unlisted</option></select><p className="text-xs text-muted-foreground">{form.visibility === 'UNLISTED' ? 'Reachable by its link only: hidden from listings and search engines.' : 'Visible in listings and search engines.'}</p></div>
-          <div className="space-y-2"><Label htmlFor="post-published">Publish at (UTC)</Label><Input id="post-published" type="datetime-local" value={form.publishedAt} onChange={(event) => update('publishedAt', event.target.value)} disabled={!permissions.publish} /><p className="text-xs text-muted-foreground">Leave empty to publish now. A future time schedules the post: it goes live on its own.</p></div>
-        </fieldset>
-          {permissions.publish && <div className="flex flex-col gap-2">{post?.status !== 'PUBLISHED' && <Button type="button" disabled={!editable} onClick={() => save('PUBLISHED')}>{futurePublish ? 'Schedule' : 'Publish now'}</Button>}{post?.status === 'PUBLISHED' && <Button type="button" disabled={!editable} variant="outline" onClick={() => save('DRAFT')}>Unpublish to draft</Button>}</div>}
-          {permissions.write && post && post.status !== 'ARCHIVED' && <Button type="button" className="w-full" disabled={!editable} variant="ghost" onClick={() => save('ARCHIVED')}>Archive post</Button>}
-          {permissions.write && post?.status === 'ARCHIVED' && <Button type="button" className="w-full" disabled={!editable} variant="outline" onClick={() => save('DRAFT')}>Move to draft</Button>}
-        </section>
-        <section className="space-y-3 border-t pt-5"><h2 className="font-semibold">Featured image</h2>{safeUrl(form.featuredImage) ? <div className="relative overflow-hidden rounded-md border"><img src={safeUrl(form.featuredImage)!} alt="Featured image preview" className="aspect-video w-full object-cover" />{editable && <Button type="button" variant="secondary" size="icon-sm" className="absolute right-2 top-2" aria-label="Remove featured image" onClick={() => update('featuredImage', '')}><X /></Button>}</div> : <div className="flex aspect-video items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">No featured image</div>}<Button type="button" className="w-full" variant="outline" disabled={!editable} onClick={() => setMediaField('featuredImage')}><ImagePlus />Choose image</Button></section>
-        <section className="space-y-3 border-t pt-5"><h2 className="font-semibold">Categories</h2><p className="text-xs text-muted-foreground">The first category is the main one. Reorder with the arrows.</p>
-          <ol className="space-y-2">{form.categoryIds.map((id, index) => <li key={id} className="flex items-center gap-1 rounded border px-2 py-1 text-sm"><span className="flex-1">{index + 1}. {categories.find((item) => item.id === id)?.name ?? 'Unknown category'}</span><Button type="button" size="icon-xs" variant="ghost" aria-label="Move category up" disabled={!editable || index === 0} onClick={() => orderCategory(index, -1)}><ArrowUp /></Button><Button type="button" size="icon-xs" variant="ghost" aria-label="Move category down" disabled={!editable || index === form.categoryIds.length - 1} onClick={() => orderCategory(index, 1)}><ArrowDown /></Button><Button type="button" size="icon-xs" variant="ghost" aria-label="Remove category" disabled={!editable} onClick={() => update('categoryIds', form.categoryIds.filter((item) => item !== id))}><X /></Button></li>)}</ol>
-          <select aria-label="Add category" disabled={!editable} className={fieldClass} value="" onChange={(event) => { if (event.target.value) update('categoryIds', [...form.categoryIds, event.target.value]) }}><option value="">Add a category…</option>{categories.filter((item) => !form.categoryIds.includes(item.id)).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-        </section>
-        <section className="space-y-3 border-t pt-5"><h2 className="font-semibold">Tags</h2>{tags.length ? <fieldset disabled={!editable} className="max-h-52 space-y-2 overflow-auto">{tags.map((tag) => <label key={tag.id} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.tagIds.includes(tag.id)} onChange={(event) => update('tagIds', event.target.checked ? [...form.tagIds, tag.id] : form.tagIds.filter((id) => id !== tag.id))} />{tag.name}</label>)}</fieldset> : <p className="text-sm text-muted-foreground">No tags have been created.</p>}{permissions.manageTaxonomy && <Link href="/admin/categories" onNavigate={guardNavigation} className="inline-block text-sm underline">Manage categories and tags</Link>}</section>
-        {post && <><RevisionsPanel postId={post.id} expectedUpdatedAt={post.updatedAt} canRestore={editable} onRestore={acceptPost} onRestoreBusyChange={setBusy} /><div className="space-y-2 border-t pt-5"><p className="text-xs text-muted-foreground">Author: {post.author?.name ?? post.author?.email ?? 'Not assigned'}<br />Last editor: {post.lastEditedBy?.name ?? post.lastEditedBy?.email ?? '—'}</p>{permissions.delete && <Button type="button" className="w-full" variant="ghost" disabled={!editable} onClick={remove}><Trash2 />Delete post</Button>}</div></>}
-      </aside>
+
+    {(lock !== 'ready' || !permissions.write || error || conflict) && <div className="mx-auto mt-4 w-full max-w-[720px] space-y-2 px-6">
+      {lock !== 'ready' && <div role="status" className="cms-fade-up flex flex-wrap items-center gap-3 rounded-lg bg-muted px-4 py-3 text-sm"><LockKeyhole className="size-4" aria-hidden /><p className="flex-1">{lock === 'checking' ? 'Checking edit access…' : lockMessage}</p>{lock === 'blocked' && <><Button type="button" variant="outline" size="sm" className="cms-press" onClick={() => takeLock(false)}>Retry</Button>{permissions.overrideLock && <Button type="button" size="sm" className="cms-press" onClick={() => { if (window.confirm('Take over this post? The other editor will lose their editing lock.')) void takeLock(true) }}>Take over lock</Button>}</>}</div>}
+      {!permissions.write && <p className="rounded-lg bg-muted px-4 py-3 text-sm">You have read-only access to posts.</p>}
+      {(error || conflict) && <div role="alert" className="cms-fade-up flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <p className="flex-1">{conflict ? 'Someone else saved this post after you opened it. Reload to get their version (copy anything you want to keep first); autosave is paused.' : error}</p>
+        {conflict ? <Button type="button" size="sm" variant="outline" className="cms-press" onClick={() => window.location.reload()}><RotateCcw />Reload</Button>
+          : <Button type="button" size="icon-xs" variant="ghost" aria-label="Dismiss" onClick={() => setError('')}><X /></Button>}
+      </div>}
+    </div>}
+
+    <div className="flex justify-center px-6 pb-28">
+      <article className="w-full max-w-[720px]">
+        {/* Cover = the featured image */}
+        {cover ? <div className="group relative -mx-6 h-[200px] overflow-hidden rounded-b-xl bg-muted sm:h-[220px]">
+          <img src={cover} alt="" className="cms-fade-up size-full object-cover" />
+          {editable && <div className="absolute bottom-3 right-3 flex gap-1.5 opacity-100 transition-opacity duration-[var(--dur-fast)] sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+            <Button type="button" size="sm" variant="outline" className="cms-press h-7 bg-background/90 text-xs" onClick={() => setMediaField('featuredImage')}>Change cover</Button>
+            <Button type="button" size="sm" variant="outline" className="cms-press h-7 bg-background/90 text-xs" onClick={() => update('featuredImage', '')}>Remove</Button>
+          </div>}
+        </div> : <div className="pt-10">{editable && <Button type="button" variant="ghost" size="sm" className="cms-press -ml-2 h-7 text-xs text-muted-foreground" onClick={() => setMediaField('featuredImage')}><ImagePlus />Add cover</Button>}</div>}
+
+        <AutoTextarea ref={titleRef} aria-label="Post title" placeholder="Untitled" value={form.title} maxLength={500} disabled={!editable}
+          onChange={(event) => {
+            const title = event.target.value.replace(/\n/g, ' ')
+            // Until a post has been published, its URL follows the title (unless someone edited the URL by hand).
+            const followTitle = !post || (post.status === 'DRAFT' && !post.publishedAt)
+            setForm((current) => ({ ...current, title, slug: followTitle && current.slug === slugify(current.title) ? slugify(title) : current.slug }))
+            markChanged()
+          }}
+          onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault()
+            focusBody() } }}
+          className={cn('mb-4 text-[40px] font-bold leading-[1.12] tracking-[-0.02em] placeholder:text-[#c4c4bf] disabled:opacity-100', cover ? 'mt-9' : 'mt-3')} />
+
+        <PostProperties status={displayStatus} editable={editable} manageTaxonomy={permissions.manageTaxonomy} categories={categories} tags={tags}
+          categoryIds={form.categoryIds} onCategoryIds={(ids) => update('categoryIds', ids)} categoryOpen={categoryOpen} onCategoryOpenChange={setCategoryOpen}
+          tagIds={form.tagIds} onTagIds={(ids) => update('tagIds', ids)} dateLabel={dateLabel} onOpenDate={onOpenDate}
+          slug={form.slug} onSlug={(slug) => update('slug', slug)} wasLive={wasLive} savedSlug={post?.slug ?? null}
+          visibility={form.visibility} onVisibility={(value) => update('visibility', value)}
+          excerpt={form.excerpt} onExcerpt={(value) => update('excerpt', value)} excerptRef={excerptRef} onNavigate={guardNavigation} />
+
+        <div ref={bodyRef} className="pt-5">
+          <BlockEditor label="Post body" value={form.body} onChange={(value) => update('body', value)} editable={editable} onWordCount={setEditorWords} />
+        </div>
+
+        <details className="group mt-14 border-t border-[#f1f1ef] pt-3">
+          <summary className="-mx-1.5 flex cursor-pointer list-none items-center gap-2 rounded-md px-1.5 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+            <ChevronRight className="size-4 transition-transform duration-[var(--dur-base)] group-open:rotate-90" aria-hidden />Search &amp; social
+            <span className="hidden font-normal sm:inline">· how the post looks in search results and when shared</span>
+          </summary>
+          <fieldset disabled={!editable} className="cms-fade-up mt-3 space-y-5 pb-4 pl-6">
+            <div className="space-y-1.5"><div className="flex items-baseline justify-between"><Label htmlFor="meta-title" className="text-[13px]">Meta title</Label><span className={cn('text-xs', form.metaTitle.length > 60 ? 'text-[var(--warning-fg)]' : 'text-muted-foreground')}>{form.metaTitle.length} / 60</span></div>
+              <Input id="meta-title" value={form.metaTitle} onChange={(event) => update('metaTitle', event.target.value)} maxLength={500} placeholder={form.title || 'Defaults to the post title'} /></div>
+            <div className="space-y-1.5"><div className="flex items-baseline justify-between"><Label htmlFor="meta-description" className="text-[13px]">Meta description</Label><span className={cn('text-xs', form.metaDescription.length > 160 ? 'text-[var(--warning-fg)]' : 'text-muted-foreground')}>{form.metaDescription.length} / 160</span></div>
+              <Textarea id="meta-description" value={form.metaDescription} onChange={(event) => update('metaDescription', event.target.value)} maxLength={5000} rows={3} placeholder={form.excerpt || 'Defaults to the summary'} /></div>
+            <div className="space-y-1.5"><Label htmlFor="meta-image" className="text-[13px]">Social image</Label>
+              <div className="flex items-start gap-3">
+                <div className="grid aspect-[1200/630] w-32 flex-none place-items-center overflow-hidden rounded-md bg-muted text-center text-xs text-muted-foreground">{socialImage ? <img src={socialImage} alt="Social image preview" className="size-full object-cover" /> : cover ? <img src={cover} alt="Social image preview (cover)" className="size-full object-cover opacity-70" /> : 'None'}</div>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="flex gap-2"><Input id="meta-image" value={form.metaImage} onChange={(event) => update('metaImage', event.target.value)} placeholder="Defaults to the cover image" /><Button type="button" variant="outline" className="cms-press" onClick={() => setMediaField('metaImage')}>Choose</Button></div>
+                  <p className="text-xs text-muted-foreground">Shown when the post is shared on social networks. 1200 × 630 works best.</p>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </details>
+      </article>
     </div>
-    <MediaPickerModal open={!!mediaField} onClose={() => setMediaField(null)} onSelect={(selected) => { const url = safeUrl(Array.isArray(selected) ? selected[0] : selected); if (mediaField && url) update(mediaField, url); setMediaField(null) }} />
+
+    <div aria-live="off" className="pointer-events-none fixed bottom-4 right-5 z-20 hidden items-center gap-2.5 rounded-lg border border-[#efefec] bg-background px-2.5 py-1.5 text-xs text-muted-foreground shadow-[0_4px_16px_rgba(0,0,0,.06)] sm:flex">
+      {words} {words === 1 ? 'word' : 'words'} · {readingMinutes(words)} min read
+    </div>
+
+    {permissions.publish && <PublishDialog key={publish.session} open={publish.open} onOpenChange={(open) => setPublish((current) => ({ ...current, open }))}
+      kind={publish.kind} initialMode={publish.mode} checks={checks} busy={busy} dirty={dirty} error={publish.open ? error : ''}
+      preview={{ title: form.metaTitle || form.title, description: form.metaDescription || form.excerpt || snippet(form.body), image: socialImage ?? cover, slug: form.slug }}
+      visibility={form.visibility} onVisibilityChange={(value) => update('visibility', value)} publishedAt={post?.publishedAt ?? null}
+      previewHref={post ? `/admin/posts/${post.id}/preview` : null}
+      onPublishNow={publishNow} onSchedule={schedulePost} onFix={fix}
+      onCloseAutoFocus={(event) => { const run = afterPublishClose.current
+        if (run) { event.preventDefault()
+          afterPublishClose.current = null
+          requestAnimationFrame(run) } }} />}
+    {post && <RevisionsPanel open={revisionsOpen} onOpenChange={setRevisionsOpen} postId={post.id} expectedUpdatedAt={post.updatedAt} canRestore={editable} onRestore={acceptPost} onRestoreBusyChange={setBusy} />}
+    <MediaPickerModal open={!!mediaField} onClose={() => setMediaField(null)} onSelect={(selected) => { const url = safeUrl(Array.isArray(selected) ? selected[0] : selected)
+      if (mediaField && url) update(mediaField, url)
+      setMediaField(null) }} />
   </div>
 }

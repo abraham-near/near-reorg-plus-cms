@@ -9,10 +9,17 @@ export type MediaItem = {
   filename: string
   mimeType: string
   size: number
+  width?: number | null
+  height?: number | null
   alt: string | null
   createdAt: string
   updatedAt: string
 }
+
+/** GET /api/admin/media/:id: the file, where it is used and (when known) who uploaded it. */
+export type MediaDetail = MediaItem & { references: MediaReference[]; uploadedBy?: { name: string | null; email: string } | null }
+
+export type MediaListResult = { items: MediaItem[]; total: number; page: number; pageSize: number }
 
 export type MediaReference = {
   entityType: 'POST'
@@ -21,4 +28,6 @@ export type MediaReference = {
   path: string | null
   fields: string[]
   occurrences: number
+  /** The post's status (DRAFT, PUBLISHED…), when known. */
+  status?: string
 }

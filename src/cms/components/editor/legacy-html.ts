@@ -1,7 +1,7 @@
 import { escapeHtml, sanitizeRichHtml } from '@/cms/lib/sanitize'
 
 const customBlocks = new Set(['embed-block', 'taskList', 'taskItem'])
-const modeledTags = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'STRONG', 'B', 'EM', 'I', 'S', 'DEL', 'U', 'CODE', 'PRE', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'BR', 'HR', 'A', 'IMG'])
+const modeledTags = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'STRONG', 'B', 'EM', 'I', 'S', 'DEL', 'U', 'MARK', 'CODE', 'PRE', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'BR', 'HR', 'A', 'IMG'])
 const modeledAttributes: Record<string, Set<string>> = {
   A: new Set(['href', 'target', 'rel']),
   IMG: new Set(['src', 'alt', 'title', 'width', 'height']),
@@ -16,7 +16,11 @@ function needsPreservation(element: Element): boolean {
   return [...element.children].some(needsPreservation)
 }
 
-/** Only schema-compatible sections become rich text; anything else is kept intact in a raw HTML block. */
+/**
+ * Stored HTML (a saved post, or a body written through the API) → editor HTML. Only schema-compatible
+ * sections become rich text; anything else is kept intact in a raw HTML block. Pasted HTML is cleaned
+ * instead and never preserved this way: see `htmlForPaste`.
+ */
 export function htmlForEditor(html: string): string {
   const safeHtml = sanitizeRichHtml(html)
   if (typeof document === 'undefined') return safeHtml

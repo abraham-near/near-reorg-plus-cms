@@ -37,13 +37,13 @@ export function SidebarProfileMenu({ userName, role, collapsed = false, canConne
     : "?";
 
   const roleBadgeColor =
-    role === "ADMIN" ? "text-primary" : "text-sky-400";
+    role === "ADMIN" ? "text-primary" : "text-sky-700";
 
   return (
     <div ref={containerRef} className="relative">
       {/* Dropdown */}
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50">
+        <div className="cms-pop absolute bottom-full left-0 right-0 mb-2 bg-popover border border-border rounded-xl shadow-[0_16px_40px_rgb(15_15_15/.12)] overflow-hidden z-50 [--origin:bottom_left]">
           <div className="py-1">
             <Link
               href="/admin/settings"

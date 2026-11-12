@@ -11,9 +11,14 @@ type Context = { params: Promise<{ id: string }> }
 export const GET = route<Context>(async (req, { params }) => {
   await requireActor(req, 'content:read')
   const { id } = await params
-  const media = await db.media.findUnique({ where: { id }, select: mediaSelect })
+  const media = await db.media.findUnique({ where: { id }, select: { ...mediaSelect, uploadedById: true } })
   if (!media) throw new HttpError(404, 'File not found')
-  return json({ ...media, references: await findMediaReferences(media.url) })
+  const { uploadedById, ...file } = media
+  const [references, uploadedBy] = await Promise.all([
+    findMediaReferences(media.url),
+    uploadedById ? db.user.findUnique({ where: { id: uploadedById }, select: { name: true, email: true } }) : null,
+  ])
+  return json({ ...file, references, uploadedBy })
 }, { token: true })
 
 export const PATCH = route<Context>(async (req, { params }) => {

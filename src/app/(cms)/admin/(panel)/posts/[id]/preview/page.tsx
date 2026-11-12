@@ -7,7 +7,7 @@ import { db } from '@/cms/lib/db'
 import { postSelect } from '@/cms/lib/posts/select'
 import { isLive, isScheduled } from '@/cms/lib/posts/visibility'
 import { safeUrl, sanitizeRichHtml, stripTags } from '@/cms/lib/sanitize'
-import { formatAdminDate } from '@/cms/lib/utils'
+import LocalTime from '@/cms/components/posts/LocalTime'
 
 // Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
 export const instant = false
@@ -34,31 +34,34 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
   if (!post) notFound()
   const card = shareCard(post)
   const featured = safeUrl(post.featuredImage)
-  const state = isScheduled(post) ? `Scheduled for ${formatAdminDate(post.publishedAt)}` : isLive(post) ? `Published ${formatAdminDate(post.publishedAt)}` : post.status === 'ARCHIVED' ? 'Archived' : 'Draft'
+  const state = isScheduled(post) ? <>Scheduled for <LocalTime value={post.publishedAt} /></> : isLive(post) ? <>Published <LocalTime value={post.publishedAt} /></> : post.status === 'ARCHIVED' ? 'Archived' : 'Draft'
+  const categories = post.categories.map((join) => join.category.name)
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <Link href={`/admin/posts/${post.id}/edit`} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Back to the editor</Link>
-        <p className="text-sm text-muted-foreground">{state} · {post.visibility === 'UNLISTED' ? 'Unlisted' : 'Public'} · Last saved {formatAdminDate(post.updatedAt)}</p>
+    <div className="mx-auto max-w-[720px] space-y-10 pb-16">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f1f1ef] pb-4">
+        <Link href={`/admin/posts/${post.id}/edit`} className="cms-press inline-flex items-center gap-1 rounded-md text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Back to the editor</Link>
+        <p className="text-xs text-muted-foreground">{state} · {post.visibility === 'UNLISTED' ? 'Unlisted' : 'Public'} · Last saved <LocalTime value={post.updatedAt} /></p>
       </header>
 
       <section aria-labelledby="share-heading" className="space-y-3">
-        <h2 id="share-heading" className="text-sm font-semibold text-muted-foreground">When shared on social networks</h2>
-        <div className="max-w-lg overflow-hidden rounded-xl border bg-card">
-          {card.image ? <img src={card.image} alt="" className="aspect-[1200/630] w-full object-cover" /> : <div className="flex aspect-[1200/630] items-center justify-center bg-muted text-sm text-muted-foreground">No social or featured image</div>}
-          <div className="space-y-1 p-4">
-            <p className="font-semibold">{card.title}</p>
-            {card.description && <p className="line-clamp-2 text-sm text-muted-foreground">{card.description}</p>}
+        <h2 id="share-heading" className="text-xs font-semibold tracking-[.05em] text-muted-foreground">WHEN SHARED ON SOCIAL NETWORKS</h2>
+        <div className="max-w-md overflow-hidden rounded-xl border border-input bg-card">
+          {card.image ? <img src={card.image} alt="" className="aspect-[1200/630] w-full object-cover" /> : <div className="flex aspect-[1200/630] items-center justify-center bg-[repeating-linear-gradient(135deg,#f4f4f1_0_12px,#efefec_12px_24px)] text-xs text-muted-foreground">No social or cover image</div>}
+          <div className="space-y-1 px-3 py-2.5">
+            <p className="text-xs text-muted-foreground">near.org</p>
+            <p className="text-sm font-semibold">{card.title}</p>
+            {card.description && <p className="line-clamp-2 text-[13px] text-muted-foreground">{card.description}</p>}
           </div>
         </div>
       </section>
 
-      <article className="space-y-6 border-t pt-10">
-        {featured && <img src={featured} alt="" className="w-full rounded-lg object-cover" />}
-        <h1 className="text-4xl font-bold">{post.title}</h1>
-        {post.excerpt && <p className="text-lg text-muted-foreground">{post.excerpt}</p>}
-        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(post.body) }} />
+      <article className="space-y-6 border-t border-[#f1f1ef] pt-10">
+        {featured && <img src={featured} alt="" className="max-h-[360px] w-full rounded-xl object-cover" />}
+        {categories.length > 0 && <p className="text-xs font-semibold tracking-[.05em] text-primary">{categories.join(' · ').toUpperCase()}</p>}
+        <h1 className="text-[40px] font-bold leading-[1.12] tracking-[-0.02em]">{post.title}</h1>
+        {post.excerpt && <p className="text-lg leading-relaxed text-muted-foreground">{post.excerpt}</p>}
+        <div className="prose max-w-none text-[16.5px] leading-[1.7] prose-headings:tracking-[-0.01em] prose-a:text-primary prose-img:rounded-lg" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(post.body) }} />
       </article>
     </div>
   )

@@ -7,7 +7,14 @@ export const instant = false
 
 export const metadata: Metadata = { title: 'Media' }
 
-export default async function MediaPage() {
+/** /admin/media?upload=1 (the dashboard's "Upload images") opens the file picker or shows the drop hint. */
+export default async function MediaPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { user } = await requirePagePermission('content:read')
-  return <MediaLibrary canUpload={can(user.role, 'media:upload')} canEdit={can(user.role, 'media:edit')} canDelete={can(user.role, 'media:delete')} />
+  const { upload } = await searchParams
+  return <MediaLibrary
+    canUpload={can(user.role, 'media:upload')}
+    canEdit={can(user.role, 'media:edit')}
+    canDelete={can(user.role, 'media:delete')}
+    startUpload={upload === '1'}
+  />
 }

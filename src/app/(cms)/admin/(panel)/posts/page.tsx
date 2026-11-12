@@ -1,67 +1,145 @@
 import type { Metadata } from 'next'
-import type { Prisma, Status } from '@/generated/prisma/client'
-import Link from 'next/link'
-import { Plus, Search } from 'lucide-react'
+import type { Prisma } from '@/generated/prisma/client'
 import { requirePagePermission } from '@/cms/lib/auth'
 import { db } from '@/cms/lib/db'
 import { can } from '@/cms/lib/permissions'
+import { LOCK_TTL_MS } from '@/cms/lib/posts/service'
+import { hasPostFilters, parsePostsQuery, postsHref, type PostTab } from '@/cms/lib/posts/list-query'
+import { initialsOf } from '@/cms/lib/people/activity'
 import { Button } from '@/cms/components/ui/button'
-import { Input } from '@/cms/components/ui/input'
 import PostsTable from '@/cms/components/posts/PostsTable'
+import { NavLink, PostsNavProvider } from '@/cms/components/posts/list/PostsNav'
+import { PostsHeader, PostsTabs } from '@/cms/components/posts/list/PostsToolbar'
+import type { PostRow } from '@/cms/components/posts/list/types'
+import Link from 'next/link'
 
 // Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
 export const instant = false
 
 export const metadata: Metadata = { title: 'Posts' }
 const pageSize = 20
-const statuses = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const
+
+const EMPTY: Record<PostTab, { title: string; body: string }> = {
+  all: { title: 'Your first story starts here', body: 'Create a draft to add text, images and publication details.' },
+  draft: { title: 'No drafts yet', body: 'Drafts are private until you publish them.' },
+  scheduled: { title: 'Nothing scheduled', body: 'Pick a future date when you publish a post and it will wait here until then.' },
+  published: { title: 'Nothing published yet', body: 'Published posts are live on the blog.' },
+  archived: { title: 'No archived posts', body: 'Archive a post to take it off the blog without deleting it.' },
+}
+
 export default async function PostsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { user } = await requirePagePermission('content:read')
-  const params = await searchParams
-  const string = (name: string) => typeof params[name] === 'string' ? params[name] as string : ''
-  const page = Math.min(100000, Math.max(1, Number.parseInt(string('page') || '1', 10) || 1))
-  const q = string('q').slice(0, 200)
-  const status = statuses.includes(string('status') as Status) ? string('status') as Status : undefined
-  const categoryId = string('categoryId')
-  const tagId = string('tagId')
-  const scheduled = string('scheduled') === 'true'
-  const sort = ['title', 'createdAt', 'updatedAt', 'publishedAt'].includes(string('sort')) ? string('sort') : 'updatedAt'
-  const where: Prisma.PostWhereInput = {
+  const query = parsePostsQuery(await searchParams)
+  const now = new Date()
+  const q = query.q.trim()
+
+  // Search and filters narrow every tab (and its count); the tab adds the status.
+  const base: Prisma.PostWhereInput = {
     ...(q ? { OR: [{ title: { contains: q, mode: 'insensitive' } }, { slug: { contains: q, mode: 'insensitive' } }, { excerpt: { contains: q, mode: 'insensitive' } }] } : {}),
-    ...(status ? { status } : {}), ...(categoryId ? { categories: { some: { categoryId } } } : {}), ...(tagId ? { tags: { some: { id: tagId } } } : {}),
-    ...(scheduled ? { status: 'PUBLISHED', publishedAt: { gt: new Date() } } : {}),
+    ...(query.categoryId ? { categories: { some: { categoryId: query.categoryId } } } : {}),
+    ...(query.tagId ? { tags: { some: { id: query.tagId } } } : {}),
+    ...(query.authorId ? { authorId: query.authorId } : {}),
   }
-  const [posts, total, allCount, statusCounts, categories, tags] = await Promise.all([
-    db.post.findMany({ where, skip: (page - 1) * pageSize, take: pageSize, orderBy: { [sort]: sort === 'title' ? 'asc' : 'desc' }, select: { id: true, title: true, slug: true, status: true, visibility: true, publishedAt: true, updatedAt: true, lockedById: true, lockedAt: true, author: { select: { id: true, name: true, email: true } } } }),
-    db.post.count({ where }), db.post.count(), db.post.groupBy({ by: ['status'], _count: true }),
+  const scheduledWhere: Prisma.PostWhereInput = { status: 'PUBLISHED', publishedAt: { gt: now } }
+  const liveWhere: Prisma.PostWhereInput = { status: 'PUBLISHED', OR: [{ publishedAt: null }, { publishedAt: { lte: now } }] }
+  const byTab: Record<PostTab, Prisma.PostWhereInput> = {
+    all: {}, draft: { status: 'DRAFT' }, scheduled: scheduledWhere, published: liveWhere, archived: { status: 'ARCHIVED' },
+  }
+  const where: Prisma.PostWhereInput = { AND: [base, byTab[query.tab]] }
+  const direction = query.sort === 'title' ? 'asc' : 'desc'
+  const orderBy: Prisma.PostOrderByWithRelationInput[] = [
+    query.sort === 'publishedAt' ? { publishedAt: { sort: 'desc', nulls: 'last' } } : { [query.sort]: direction },
+    { id: 'asc' },
+  ]
+
+  const [posts, total, statusCounts, scheduledCount, categories, authors] = await Promise.all([
+    db.post.findMany({
+      where, orderBy, skip: (query.page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, title: true, excerpt: true, featuredImage: true, status: true, visibility: true, publishedAt: true, updatedAt: true, lockedById: true, lockedAt: true,
+        author: { select: { name: true, email: true } },
+        categories: { orderBy: { position: 'asc' }, take: 1, select: { category: { select: { name: true } } } },
+      },
+    }),
+    db.post.count({ where }),
+    db.post.groupBy({ by: ['status'], where: base, _count: { _all: true } }),
+    db.post.count({ where: { AND: [base, scheduledWhere] } }),
     db.category.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-    db.tag.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    db.user.findMany({ where: { posts: { some: {} } }, select: { id: true, name: true, email: true }, orderBy: { name: 'asc' } }),
   ])
-  const permissions = { write: can(user.role, 'post:write'), publish: can(user.role, 'post:publish'), delete: can(user.role, 'post:delete'), overrideLock: can(user.role, 'lock:override'), manageTaxonomy: can(user.role, 'taxonomy:manage') }
-  const pages = Math.max(1, Math.ceil(total / pageSize))
-  function url(changes: Record<string, string>) {
-    const next = new URLSearchParams()
-    for (const key of ['q', 'status', 'categoryId', 'tagId', 'scheduled', 'sort']) if (string(key)) next.set(key, string(key))
-    for (const [key, value] of Object.entries(changes)) {
-      if (value) next.set(key, value)
-      else next.delete(key)
-    }
-    return `/admin/posts?${next}`
+
+  const byStatus = (status: string) => statusCounts.find((row) => row.status === status)?._count._all ?? 0
+  const counts: Record<PostTab, number> = {
+    all: statusCounts.reduce((sum, row) => sum + row._count._all, 0),
+    draft: byStatus('DRAFT'),
+    scheduled: scheduledCount,
+    published: byStatus('PUBLISHED') - scheduledCount,
+    archived: byStatus('ARCHIVED'),
   }
-  return <div className="space-y-6">
-    <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-semibold">Posts</h1><p className="mt-1 text-sm text-muted-foreground">{allCount} posts · Draft, schedule and publish.</p></div>{permissions.write && <Button asChild><Link href="/admin/posts/new"><Plus />New post</Link></Button>}</header>
-    <nav className="flex flex-wrap gap-2" aria-label="Filter by status">{[{ value: '', label: 'All', count: allCount }, ...statuses.map((value) => ({ value, label: value.charAt(0) + value.slice(1).toLowerCase(), count: statusCounts.find((item) => item.status === value)?._count ?? 0 }))].map((item) => <Link key={item.value} href={url({ status: item.value, page: '1', scheduled: '' })} aria-current={(status ?? '') === item.value && !scheduled ? 'page' : undefined} className={`rounded-full px-3 py-1.5 text-sm ${(status ?? '') === item.value && !scheduled ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'}`}>{item.label} <span className="ml-1 text-xs">{item.count}</span></Link>)}<Link href={url({ status: '', page: '1', scheduled: scheduled ? '' : 'true' })} className={`rounded-full px-3 py-1.5 text-sm ${scheduled ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'}`}>Scheduled</Link></nav>
-    <form action="/admin/posts" className="flex flex-wrap items-center gap-2">
-      {status && <input type="hidden" name="status" value={status} />}{scheduled && <input type="hidden" name="scheduled" value="true" />}
-      <div className="relative min-w-52 flex-1"><Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" /><Input name="q" defaultValue={q} aria-label="Search posts" placeholder="Search title, slug or excerpt…" className="pl-9" /></div>
-      <select name="categoryId" defaultValue={categoryId} aria-label="Filter by category" className="h-9 max-w-52 rounded-md border bg-background px-2 text-sm"><option value="">All categories</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-      <select name="tagId" defaultValue={tagId} aria-label="Filter by tag" className="h-9 max-w-40 rounded-md border bg-background px-2 text-sm"><option value="">All tags</option>{tags.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-      <select name="sort" defaultValue={sort} aria-label="Sort posts" className="h-9 rounded-md border bg-background px-2 text-sm"><option value="updatedAt">Recently updated</option><option value="createdAt">Newest created</option><option value="publishedAt">Publication date</option><option value="title">Title A–Z</option></select>
-      <Button type="submit" variant="outline">Filter</Button>{Object.keys(where).length > 0 && <Button asChild variant="ghost"><Link href="/admin/posts">Clear</Link></Button>}
-    </form>
-    <section className="overflow-hidden rounded-lg border bg-card" aria-label="Posts">
-      {posts.length ? <PostsTable key={posts.map((post) => post.id).join(',')} permissions={permissions} posts={posts.map((post) => ({ ...post, publishedAt: post.publishedAt?.toISOString() ?? null, updatedAt: post.updatedAt.toISOString(), lockedAt: post.lockedAt?.toISOString() ?? null }))} /> : <div className="px-5 py-16 text-center"><h2 className="font-medium">{allCount ? 'No posts match these filters' : 'Your first story starts here'}</h2><p className="mt-2 text-sm text-muted-foreground">{allCount ? 'Try another search or clear the filters.' : 'Create a draft to add content, images, and publication details.'}</p><Button asChild variant="link" className="mt-2"><Link href={allCount ? '/admin/posts' : permissions.write ? '/admin/posts/new' : '/admin/posts'}>{allCount ? 'Clear filters' : permissions.write ? 'Create a post' : 'Refresh posts'}</Link></Button></div>}
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3"><p className="text-sm text-muted-foreground">{total} results · Page {page} of {pages}</p><div className="flex gap-2">{page > 1 && <Button asChild variant="outline" size="sm"><Link href={url({ page: String(page - 1) })}>Previous</Link></Button>}{page < pages && <Button asChild variant="outline" size="sm"><Link href={url({ page: String(page + 1) })}>Next</Link></Button>}</div></footer>
-    </section>
-  </div>
+  const permissions = { write: can(user.role, 'post:write'), publish: can(user.role, 'post:publish'), delete: can(user.role, 'post:delete') }
+  const pages = Math.max(1, Math.ceil(total / pageSize))
+  const rows: PostRow[] = posts.map((post) => {
+    const authorName = post.author ? post.author.name || post.author.email.split('@')[0] : null
+    return {
+      id: post.id,
+      title: post.title,
+      excerpt: post.excerpt,
+      featuredImage: post.featuredImage,
+      status: post.status,
+      scheduled: post.status === 'PUBLISHED' && !!post.publishedAt && post.publishedAt > now,
+      visibility: post.visibility,
+      publishedAt: post.publishedAt?.toISOString() ?? null,
+      updatedAt: post.updatedAt.toISOString(),
+      locked: !!post.lockedById && !!post.lockedAt && now.getTime() - post.lockedAt.getTime() < LOCK_TTL_MS,
+      author: authorName ? { name: authorName, initials: initialsOf(authorName) } : null,
+      category: post.categories[0]?.category.name ?? null,
+    }
+  })
+
+  const filtered = hasPostFilters(query)
+  const empty = filtered
+    ? { title: 'No posts match', body: q ? `Nothing matches “${q}” here. Try other words or clear the filters.` : 'Try another filter or clear them.' }
+    : EMPTY[query.tab]
+  const emptyState = (
+    <div className="cms-fade-up px-5 py-16 text-center">
+      <h2 className="text-base font-semibold">{empty.title}</h2>
+      <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">{empty.body}</p>
+      <div className="mt-4 flex justify-center gap-2">
+        {filtered && <Button asChild variant="outline" size="sm"><NavLink href={postsHref(query, { q: '', categoryId: '', tagId: '', authorId: '' })}>Clear filters</NavLink></Button>}
+        {!filtered && permissions.write && (query.tab === 'all' || query.tab === 'draft') && <Button asChild size="sm"><Link href="/admin/posts/new">Write a post</Link></Button>}
+      </div>
+    </div>
+  )
+
+  const first = (query.page - 1) * pageSize + 1
+  return (
+    <PostsNavProvider>
+      <div className="flex flex-col gap-[18px]">
+        <PostsHeader query={query} canWrite={permissions.write} />
+        <PostsTabs
+          query={query}
+          counts={counts}
+          categories={categories}
+          authors={authors.map((author) => ({ id: author.id, name: author.id === user.id ? `${author.name || author.email} (you)` : author.name || author.email }))}
+        />
+        <section aria-label="Posts" className="-mt-3.5">
+          <PostsTable key={rows.map((row) => row.id).join(',')} posts={rows} permissions={permissions} empty={emptyState} />
+          {total > 0 && (
+            <footer className="flex flex-wrap items-center justify-between gap-3 py-4">
+              <p className="text-[13px] text-muted-foreground">
+                {total > pageSize ? <>Showing {Math.min(first, total).toLocaleString()}–{Math.min(first + posts.length - 1, total).toLocaleString()} of {total.toLocaleString()}</> : <>{total.toLocaleString()} {total === 1 ? 'post' : 'posts'}</>}
+              </p>
+              {pages > 1 && (
+                <nav aria-label="Pages" className="flex items-center gap-2">
+                  <span className="text-[13px] text-muted-foreground">Page {query.page} of {pages}</span>
+                  {query.page > 1 && <Button asChild variant="outline" size="sm"><NavLink href={postsHref(query, { page: query.page - 1 })} rel="prev">Previous</NavLink></Button>}
+                  {query.page < pages && <Button asChild variant="outline" size="sm"><NavLink href={postsHref(query, { page: query.page + 1 })} rel="next">Next</NavLink></Button>}
+                </nav>
+              )}
+            </footer>
+          )}
+        </section>
+      </div>
+    </PostsNavProvider>
+  )
 }

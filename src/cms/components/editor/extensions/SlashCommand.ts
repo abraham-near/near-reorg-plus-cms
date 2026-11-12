@@ -1,94 +1,73 @@
-import { Extension, type Editor } from '@tiptap/core'
+import { Extension } from '@tiptap/core'
+import { ReactRenderer } from '@tiptap/react'
+import { PluginKey } from '@tiptap/pm/state'
 import Suggestion, { type SuggestionProps } from '@tiptap/suggestion'
+import { SlashMenu, type SlashMenuHandle, type SlashMenuProps } from '../menus/SlashMenu'
+import { readRecentSlashItems, rememberSlashItem, SLASH_ITEMS, type SlashItem } from './slash-items'
 
-type Item = { title: string,run: (editor: Editor) => void }
-export type Insert = 'image' | 'embed'
+export const slashCommandKey = new PluginKey('slashCommand')
 
-export function createSlashCommand(onInsert: (kind: Insert) => void) {
-  const items: Item[] = [
-    { title: 'Paragraph', run: (editor) => { editor.chain().focus().setParagraph().run() } },
-    { title: 'Heading 2', run: (editor) => { editor.chain().focus().setHeading({ level: 2 }).run() } },
-    { title: 'Heading 3', run: (editor) => { editor.chain().focus().setHeading({ level: 3 }).run() } },
-    { title: 'Bullet list', run: (editor) => { editor.chain().focus().toggleBulletList().run() } },
-    { title: 'Numbered list', run: (editor) => { editor.chain().focus().toggleOrderedList().run() } },
-    { title: 'Task list', run: (editor) => { editor.chain().focus().toggleTaskList().run() } },
-    { title: 'Quote', run: (editor) => { editor.chain().focus().toggleBlockquote().run() } },
-    { title: 'Code block', run: (editor) => { editor.chain().focus().toggleCodeBlock().run() } },
-    { title: 'Divider', run: (editor) => { editor.chain().focus().setHorizontalRule().run() } },
-    { title: 'Table', run: (editor) => { editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() } },
-    { title: 'Image', run: () => onInsert('image') },
-    { title: 'Embed', run: () => onInsert('embed') },
-  ]
-  return Extension.create({
+/** "/" opens the block picker (Menus A). */
+export const SlashCommand = Extension.create({
     name: 'slashCommand',
     addProseMirrorPlugins() {
-      return [Suggestion<Item>({
+      return [Suggestion<SlashItem>({
+        pluginKey: slashCommandKey,
         editor: this.editor,
         char: '/',
-        allowSpaces: true,
-        items: ({ query }) => items.filter((item) => item.title.toLowerCase().includes(query.toLowerCase())),
+        // Notion-like: "/" at the start of a line or after a space; queries are short words.
+        allowedPrefixes: [' ', ' '],
+        allowSpaces: false,
+        // Filtering and grouping happen in the menu; every item is a candidate.
+        items: () => SLASH_ITEMS,
+        allow: ({ editor, range }) => !editor.isActive('codeBlock') && editor.state.doc.resolve(range.from).parent.type.name !== 'codeBlock',
+        // The menu is fixed-positioned so no scroll container can clip it; Floating UI flips it above
+        // the line when there is no room below.
+        floatingUi: { strategy: 'fixed' },
+        offset: { mainAxis: 6 },
+        container: '.admin-wrapper',
         command: ({ editor, range, props }) => {
           editor.chain().focus().deleteRange(range).run()
+          rememberSlashItem(props.id)
           props.run(editor)
         },
         render: () => {
-          let menu: HTMLDivElement | null = null
-          let props: SuggestionProps<Item> | null = null
-          let selected = 0
-          const render = (next: SuggestionProps<Item>) => {
-            props = next
-            if (!menu) {
-              menu = document.createElement('div')
-              menu.className = 'fixed z-50 max-h-72 min-w-48 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground'
-              menu.setAttribute('role', 'listbox')
-              menu.setAttribute('aria-label', 'Insert a block')
-              const portal = document.querySelector('.admin-wrapper') ?? document.body
-              portal.append(menu)
-            }
-            menu.replaceChildren()
-            const rect = next.clientRect?.()
-            if (rect) {
-              menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - 220))}px`
-              menu.style.top = `${Math.max(8, Math.min(rect.bottom + 4, window.innerHeight - 300))}px`
-            }
-            next.items.forEach((item, index) => {
-              const button = document.createElement('button')
-              button.type = 'button'
-              button.className = `block w-full rounded px-3 py-2 text-left text-sm ${index === selected ? 'bg-accent' : 'hover:bg-accent'}`
-              button.textContent = item.title
-              button.setAttribute('role', 'option')
-              button.setAttribute('aria-selected', String(index === selected))
-              button.addEventListener('mousedown', (event) => event.preventDefault())
-              button.addEventListener('click', () => next.command(item))
-              menu?.append(button)
-            })
-            if (!next.items.length) menu.textContent = 'No matching blocks'
-            menu.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' })
-          }
+          let renderer: ReactRenderer<SlashMenuHandle, SlashMenuProps> | null = null
+          let unmount: (() => void) | null = null
+          const toMenuProps = (props: SuggestionProps<SlashItem>, recent: string[]): SlashMenuProps => ({
+            items: props.items, query: props.query, recent, command: (item) => props.command(item),
+          })
+          let recent: string[] = []
           return {
-            onStart(next) { selected = 0
-              render(next) },
-            onUpdate(next) { selected = 0
-              render(next) },
-            onKeyDown({ event }) {
-              if (event.key === 'Escape') { menu?.remove()
-                menu = null
-                return true }
-              if (!props?.items.length) return false
-              if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-                selected = (selected + (event.key === 'ArrowUp' ? -1 : 1) + props.items.length) % props.items.length
-                render(props)
-                return true
-              }
-              if (event.key === 'Enter') { props.command(props.items[selected])
-                return true }
-              return false
+            onStart(props) {
+              recent = readRecentSlashItems()
+              renderer = new ReactRenderer(SlashMenu, { props: toMenuProps(props, recent), editor: props.editor, className: 'cms-pop z-50' })
+              renderer.element.setAttribute('data-cms-floating', '')
+              unmount = props.mount(renderer.element as HTMLElement, {
+                onPosition: ({ x, y, placement, strategy }) => {
+                  const element = renderer?.element as HTMLElement | undefined
+                  if (!element) return
+                  element.style.setProperty('--origin', placement.startsWith('top') ? 'bottom left' : 'top left')
+                  Object.assign(element.style, { position: strategy, left: `${x}px`, top: `${y}px`, visibility: 'visible' })
+                },
+              })
+              ;(renderer.element as HTMLElement).style.visibility = 'hidden'
             },
-            onExit() { menu?.remove()
-              menu = null },
+            onUpdate(props) {
+              renderer?.updateProps(toMenuProps(props, recent))
+            },
+            onKeyDown({ event }) {
+              if (event.key === 'Escape') return true
+              return renderer?.ref?.onKeyDown(event) ?? false
+            },
+            onExit() {
+              unmount?.()
+              renderer?.destroy()
+              unmount = null
+              renderer = null
+            },
           }
         },
       })]
     },
   })
-}

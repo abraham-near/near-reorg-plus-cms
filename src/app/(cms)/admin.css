@@ -8,36 +8,61 @@
 @source "./";
 
 :root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
+  /* Light is the default theme (2026-11 redesign: Notion/Docs-like). Warm neutrals, NEAR green as the accent. */
+  --background: #ffffff;
+  --foreground: #191918;
+  --card: #ffffff;
+  --card-foreground: #191918;
+  --popover: #ffffff;
+  --popover-foreground: #191918;
   /* NEAR green #43F0AF fails WCAG on white (1.47:1); this darker shade of the same hue gives 5.3:1 with white text and 5.08:1 on the grey surfaces. */
   --primary: #0a7b50;
   --primary-foreground: #ffffff;
-  --secondary: oklch(0.95 0 0);
-  --secondary-foreground: oklch(0.2 0 0);
-  --muted: oklch(0.95 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: #e6fbf3;
-  --accent-foreground: oklch(0.2 0 0);
-  --destructive: oklch(0.6188 0.2376 25.7658);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.9 0 0);
+  --secondary: #f1f1ef;
+  --secondary-foreground: #37352f;
+  --muted: #f4f4f1;
+  /* 5.3:1 on white */
+  --muted-foreground: #6b6b67;
+  --accent: #e6fbf2;
+  --accent-foreground: #075e3d;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --border: #eaeae6;
+  --input: #e4e4e0;
   --ring: #0a7b50;
   --brand: #43f0af;
-  --sidebar: oklch(0.975 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar: #fbfbfa;
+  --sidebar-foreground: #37352f;
   --sidebar-primary: #0a7b50;
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.93 0 0);
-  --sidebar-accent-foreground: oklch(0.2 0 0);
-  --sidebar-border: oklch(0.91 0 0);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #efefec;
+  --sidebar-accent-foreground: #191918;
+  --sidebar-border: #efefec;
   --sidebar-ring: #0a7b50;
   --radius: 0.5rem;
+
+  /* Status colours (pills, dots): text pairs pass 4.5:1 on their tint */
+  --status-draft: #8a8a85;
+  --status-draft-bg: #f1f1ef;
+  --status-draft-fg: #4a4a46;
+  --status-scheduled: #3b82f6;
+  --status-scheduled-bg: #eef4ff;
+  --status-scheduled-fg: #1d4ed8;
+  --status-published: #12b76a;
+  --status-published-bg: #e6fbf2;
+  --status-published-fg: #075e3d;
+  --status-archived: #c4c4bf;
+  --status-archived-bg: #f4f4f1;
+  --status-archived-fg: #6b6b67;
+  --warning-bg: #fef0c7;
+  --warning-fg: #93370d;
+
+  /* Motion: every animation answers "what just happened?". Closing is faster than opening. */
+  --dur-fast: 120ms;   /* hover, press */
+  --dur-base: 180ms;   /* menus, popovers, toasts */
+  --dur-slow: 260ms;   /* drawers, dialogs */
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
 }
 
 .dark {
@@ -109,8 +134,43 @@
 
 @layer base {
   * { border-color: var(--border); }
-  body { background: var(--background); color: var(--foreground); }
+  body { background: var(--background); color: var(--foreground); font-size: 14px; }
   :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+}
+
+/* ── Motion utilities (see the tokens in :root). Use these instead of ad-hoc keyframes. ──
+   .cms-pop        menus, popovers, slash/bubble/block menus: scale from 96% at their anchor (set --origin)
+   .cms-fade-up    content that appears (cards, list rows, toasts)
+   .cms-drawer     panels sliding in from the right
+   .cms-press      buttons: lift 1px on hover, press to 97%
+   .cms-lift       cards/rows that rise a little on hover
+   .cms-skeleton   loading placeholders with a shimmer (keep the final layout's size)
+   .cms-check      svg <path> of a tick that draws in (pathLength="1")
+   .cms-dragging   a dragged card/block: tilt 2deg + shadow */
+@keyframes cms-pop { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+@keyframes cms-fade-up { from { opacity: 0; transform: translateY(4px); } }
+@keyframes cms-drawer { from { opacity: 0; transform: translateX(16px); } }
+@keyframes cms-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes cms-check { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes cms-spin { to { transform: rotate(360deg); } }
+.cms-pop { transform-origin: var(--origin, top left); animation: cms-pop var(--dur-base) var(--ease-out) both; }
+.cms-fade-up { animation: cms-fade-up var(--dur-base) var(--ease-out) both; }
+.cms-drawer { animation: cms-drawer var(--dur-slow) var(--ease-out) both; }
+.cms-press { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.cms-press:hover:not(:disabled) { transform: translateY(-1px); }
+.cms-press:active:not(:disabled) { transform: scale(.97); }
+.cms-lift { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background-color var(--dur-fast) var(--ease-out); }
+.cms-lift:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgb(15 15 15 / .06); }
+.cms-skeleton { background: linear-gradient(90deg, var(--muted) 0%, #fafaf9 40%, var(--muted) 80%); background-size: 200% 100%; animation: cms-shimmer 1.4s linear infinite; border-radius: 6px; }
+.cms-check { stroke-dasharray: 1; animation: cms-check 320ms var(--ease-out) 80ms both; }
+.cms-spin { animation: cms-spin .7s linear infinite; }
+.cms-dragging { transform: rotate(-2deg); box-shadow: 0 18px 36px rgb(15 15 15 / .16); }
+@media (prefers-reduced-motion: reduce) {
+  .cms-pop, .cms-fade-up, .cms-drawer { animation-name: none; }
+  .cms-press, .cms-lift { transition-property: background-color, color, box-shadow; }
+  .cms-press:hover:not(:disabled), .cms-press:active:not(:disabled), .cms-lift:hover { transform: none; }
+  .cms-skeleton { animation: none; }
+  .cms-check { animation: none; stroke-dashoffset: 0; }
 }
 
 /* ── Editor (TipTap) — from near-org-cms styles/admin.css ── */
@@ -122,11 +182,87 @@
 .ProseMirror .is-editor-empty::before {
   content: attr(data-placeholder);
   float: left;
-  color: var(--muted-foreground);
+  color: color-mix(in oklab, var(--muted-foreground) 62%, transparent);
   pointer-events: none;
   height: 0;
-  opacity: 0.5;
+  font-weight: inherit;
 }
+
+/* Body as a page column (Editor A): 16.5px / 1.7, quiet block rhythm, headings that lead sections. */
+.cms-editor-body {
+  --tw-prose-body: color-mix(in oklab, var(--foreground) 90%, var(--background));
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--brand);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  min-height: 16rem;
+  padding-bottom: 6rem;
+  font-size: 16.5px;
+  line-height: 1.7;
+  color: var(--tw-prose-body);
+  caret-color: var(--primary);
+}
+.cms-editor-body > * { margin-top: 0; margin-bottom: 0; }
+.cms-editor-body > * + * { margin-top: 0.75rem; }
+.cms-editor-body p { margin-top: 0; margin-bottom: 0; }
+.cms-editor-body li > p { margin: 0; }
+.cms-editor-body li { margin-top: 0.15em; margin-bottom: 0.15em; }
+.cms-editor-body :is(ul, ol) { padding-left: 1.5em; }
+.cms-editor-body h1 { font-size: 32px; line-height: 1.2; letter-spacing: -0.02em; font-weight: 700; }
+.cms-editor-body h2 { font-size: 26px; line-height: 1.25; letter-spacing: -0.01em; font-weight: 650; }
+.cms-editor-body h3 { font-size: 20px; line-height: 1.35; letter-spacing: -0.005em; font-weight: 650; }
+.cms-editor-body > :is(h1, h2) { margin-top: 1.75rem; }
+.cms-editor-body > h3 { margin-top: 1.4rem; }
+.cms-editor-body > :is(h1, h2, h3):first-child { margin-top: 0; }
+.cms-editor-body > :is(h1, h2, h3) + * { margin-top: 0.5rem; }
+.cms-editor-body blockquote { margin-top: 1rem; margin-bottom: 1rem; padding: 2px 0 2px 18px; border-left: 3px solid var(--brand); font-style: normal; font-size: 1.1em; line-height: 1.6; color: var(--foreground); quotes: none; }
+.cms-editor-body blockquote p::before, .cms-editor-body blockquote p::after { content: none; }
+.cms-editor-body :not(pre) > code { padding: 0.1em 0.35em; border-radius: 4px; background: var(--muted); font-size: 0.88em; font-weight: 500; }
+.cms-editor-body :not(pre) > code::before, .cms-editor-body :not(pre) > code::after { content: none; }
+.cms-editor-body pre { border-radius: 8px; background: #191918; color: #f5f5f2; font-size: 13.5px; line-height: 1.6; padding: 14px 16px; }
+.cms-editor-body hr { margin: 1.5rem 0; border-color: var(--border); }
+.cms-editor-body mark { background: color-mix(in oklab, var(--brand) 32%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
+.cms-editor-body a { text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--primary) 45%, transparent); }
+.cms-editor-body ::selection { background: color-mix(in oklab, var(--brand) 35%, transparent); }
+
+/* Inline images with their alt control. */
+.cms-image { position: relative; display: inline-block; max-width: 100%; line-height: 0; vertical-align: bottom; }
+.cms-image img { display: block; max-width: 100%; height: auto; margin: 0.5rem 0; border-radius: 10px; }
+.cms-image.is-selected img { outline: 2px solid var(--primary); outline-offset: 2px; }
+.cms-image-missing { display: inline-block; padding: 1rem; border: 1px dashed var(--border); border-radius: 8px; color: var(--muted-foreground); font-size: 13px; line-height: 1.4; }
+.cms-image-tools { position: absolute; left: 10px; bottom: 18px; display: flex; line-height: 1.4; }
+.cms-image-alt-button { height: 24px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background: color-mix(in oklab, var(--popover) 92%, transparent); color: var(--foreground); font-size: 12px; font-weight: 550; box-shadow: 0 2px 8px rgb(15 15 15 / .08); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out); }
+.cms-image-alt-button:hover { background: var(--popover); }
+.cms-image-alt-button.is-missing { border-color: color-mix(in oklab, var(--warning-fg) 30%, transparent); background: var(--warning-bg); color: var(--warning-fg); }
+.cms-image-alt-editor { display: flex; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--popover); box-shadow: 0 12px 30px rgb(15 15 15 / .14); }
+.cms-image-alt-editor input { width: min(320px, 70vw); height: 30px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--foreground); font-size: 13px; outline: none; }
+
+/* Image uploading (a decoration until the upload lands). */
+.cms-upload-placeholder { display: inline-flex; align-items: flex-end; width: min(100%, 420px); height: 180px; margin: 0.5rem 0; padding: 10px 12px; vertical-align: bottom; color: var(--muted-foreground); font-size: 12.5px; line-height: 1.4; border-radius: 10px; }
+.cms-upload-placeholder > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Floating menus: slash, bubble, block (all open with .cms-pop). */
+.cms-kbd { display: inline-block; min-width: 1.4em; padding: 1px 5px; border: 1px solid var(--input); border-radius: 4px; background: var(--background); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.3; text-align: center; }
+.cms-menu { padding: 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--popover); color: var(--popover-foreground); box-shadow: 0 16px 40px rgb(15 15 15 / .12), 0 2px 6px rgb(15 15 15 / .05); }
+.cms-menu-item { display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; padding: 0 10px; border-radius: 6px; font-size: 13.5px; text-align: left; color: var(--secondary-foreground); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out); }
+.cms-menu-item.text-destructive { color: var(--destructive); }
+.cms-menu-item:is(:hover, :focus-visible, [data-open]) { background: var(--muted); outline: none; }
+.cms-menu-item:disabled { opacity: .45; cursor: default; background: none; }
+.cms-menu-shortcut { margin-left: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--muted-foreground); }
+.cms-menu-separator { height: 1px; margin: 4px 6px; background: var(--border); }
+.cms-bubble { display: flex; align-items: center; padding: 4px; border: 1px solid var(--border); border-radius: 10px; background: var(--popover); color: var(--popover-foreground); box-shadow: 0 12px 32px rgb(15 15 15 / .14), 0 2px 6px rgb(15 15 15 / .05); }
+.cms-bubble-button { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 7px; border-radius: 6px; color: var(--secondary-foreground); cursor: pointer; white-space: nowrap; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.cms-bubble-button:hover { background: var(--muted); color: var(--foreground); }
+.cms-bubble-button[data-active] { background: var(--accent); color: var(--accent-foreground); }
+.cms-bubble-separator { width: 1px; height: 18px; margin: 0 4px; background: var(--border); }
+.cms-bubble-error { position: absolute; top: calc(100% + 6px); left: 0; padding: 6px 10px; border-radius: 8px; background: var(--destructive); color: var(--destructive-foreground); font-size: 12px; line-height: 1.4; white-space: nowrap; }
 
 /* Task list styles (editor and saved output, e.g. the preview) */
 :is(.ProseMirror, .prose) ul[data-type="taskList"] {
@@ -232,41 +368,19 @@
   margin: 1rem 0;
 }
 
-/* Drag handle */
-.drag-handle-wrapper {
-  position: fixed;
-  display: none;
-  align-items: center;
-  gap: 2px;
-  z-index: 50;
-  user-select: none;
-}
-
-.drag-handle,
-.drag-handle-plus {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  color: var(--muted-foreground);
-  cursor: grab;
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.drag-handle:hover,
-.drag-handle-plus:hover {
-  background: var(--muted);
-  color: var(--foreground);
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.drag-handle-plus {
-  cursor: pointer;
+/* Block handle: `+` and `⠿` in the page column's left margin; the hovered block gets a soft background. */
+.cms-block-hover { position: absolute; z-index: 0; border-radius: 6px; background: color-mix(in oklab, var(--muted) 70%, transparent); pointer-events: none; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); }
+.cms-block-hover.is-visible { opacity: 1; }
+.cms-block-handle { position: absolute; top: 0; left: 0; z-index: 20; display: flex; gap: 2px; opacity: 0; pointer-events: none; transition: opacity var(--dur-fast) var(--ease-out); }
+.cms-block-handle.is-visible { opacity: 1; pointer-events: auto; }
+.cms-block-handle button { display: grid; place-items: center; height: 24px; border-radius: 4px; color: color-mix(in oklab, var(--muted-foreground) 75%, transparent); transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.cms-block-handle-add { width: 22px; cursor: pointer; }
+.cms-block-handle-grip { width: 18px; cursor: grab; }
+.cms-block-handle-grip:active { cursor: grabbing; }
+.cms-block-handle button:hover, .cms-block-handle-grip[aria-expanded="true"] { background: var(--sidebar-accent); color: var(--foreground); }
+.cms-drag-ghost { position: fixed; top: -10000px; left: -10000px; z-index: 100; padding: 4px 10px; border-radius: 8px; background: var(--background); font-size: 16.5px; line-height: 1.7; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cms-drag-ghost.cms-dragging { transform: none; }
 }
 
 /* Selected node (during drag) */

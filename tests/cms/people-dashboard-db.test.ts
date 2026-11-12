@@ -18,7 +18,8 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('people dashboard database aggre
       { id: otherId, name: 'Other fixture', email: `${prefix}-other@near.org`, passwordHash: secret, role: 'PUBLISHER' },
     ] })
     await db.post.createMany({ data: [
-      { id: `${prefix}-draft`, slug: `${prefix}-draft`, title: 'Your draft', authorId: user.id, body: `<p>${secret}</p>`, metaDescription: secret },
+      { id: `${prefix}-draft`, slug: `${prefix}-draft`, title: 'Your draft', authorId: user.id, body: '<p>Agents ask for access; they don&#39;t take a copy.</p>', metaDescription: secret, updatedAt: new Date('2031-05-15T11:00:00Z') },
+      { id: `${prefix}-older-draft`, slug: `${prefix}-older-draft`, title: 'Your older draft', authorId: user.id, body: `<p>${secret}</p>`, updatedAt: new Date('2031-05-10T11:00:00Z') },
       { id: `${prefix}-other-draft`, slug: `${prefix}-other-draft`, title: 'Someone else’s draft', authorId: otherId, body: `<p>${secret}</p>` },
       { id: `${prefix}-published`, slug: `${prefix}-published`, title: 'Published in May', authorId: user.id, status: 'PUBLISHED', publishedAt: new Date('2031-05-01T00:00:00Z'), body: `<p>${secret}</p>` },
       { id: `${prefix}-april`, slug: `${prefix}-april`, title: 'Published in April', authorId: user.id, status: 'PUBLISHED', publishedAt: new Date('2031-04-30T23:59:59Z'), body: `<p>${secret}</p>` },
@@ -35,22 +36,24 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('people dashboard database aggre
     await db.user.deleteMany({ where: { id: { in: [user.id, otherId] } } })
   })
 
-  it('aggregates in SQL, excludes future publications, and selects only safe summaries', async () => {
+  it('shows only your drafts, quotes only the latest one, and selects only safe summaries', async () => {
     const result = await getDashboard(user, now)
-    expect(result.publications).toHaveLength(12)
-    expect(result.publications.find(({ period }) => period === '2031-04-01')?.count).toBe(1)
-    expect(result.publications.find(({ period }) => period === '2031-05-01')?.count).toBe(1)
-    expect(result.drafts.map(({ id }) => id)).toEqual([`${prefix}-draft`])
+    expect(result.continueWriting?.id).toBe(`${prefix}-draft`)
+    expect(result.continueWriting?.snippet).toBe('Agents ask for access; they don\'t take a copy.')
+    expect(result.continueWriting?.words).toBe(9)
+    expect(result.continueWriting?.readiness.ready).toBe(1)
+    expect(result.drafts.map(({ id }) => id)).toEqual([`${prefix}-older-draft`])
     expect(result.scheduled.some(({ id }) => id === `${prefix}-scheduled`)).toBe(true)
-    expect(result.recentActivity).not.toBeNull()
+    expect(result.scheduled.some(({ id }) => id === `${prefix}-published`)).toBe(false)
+    expect(result.activity?.some((item) => item.object === 'Dashboard fixture' && item.actor === 'You' && item.verb === 'created')).toBe(true)
     expect(JSON.stringify(result)).not.toContain(secret)
     expect(JSON.stringify(result)).not.toMatch(/passwordHash|tokenHash|userAgent|ipHash/)
   })
 
   it('does not disclose audit activity to a PUBLISHER', async () => {
     const result = await getDashboard({ ...user, role: 'PUBLISHER' }, now)
-    expect(result.recentActivity).toBeNull()
-    expect(result.drafts.map(({ id }) => id)).toEqual([`${prefix}-draft`])
+    expect(result.activity).toBeNull()
+    expect(result.continueWriting?.id).toBe(`${prefix}-draft`)
   })
 
   it('purges only expired sessions and rate-limit rows', async () => {
