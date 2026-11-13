@@ -80,9 +80,19 @@ export async function parseJson<S extends z.ZodType>(req: Request, schema: S, ma
   }
   const result = schema.safeParse(raw)
   if (!result.success) {
-    throw new HttpError(400, 'Validation failed', process.env.NODE_ENV === 'production' ? undefined : z.treeifyError(result.error))
+    const fields = invalidFields(result.error)
+    throw new HttpError(400, fields.length ? `Validation failed: ${fields.join(', ')}` : 'Validation failed', process.env.NODE_ENV === 'production' ? { fields } : z.treeifyError(result.error))
   }
   return result.data
+}
+
+/** The names of the fields that failed (never their values), so the editor and Claude can say which. */
+export function invalidFields(error: z.ZodError): string[] {
+  const names = error.issues.flatMap((issue) => {
+    if (issue.code === 'unrecognized_keys') return issue.keys.map(String)
+    return issue.path.length ? [String(issue.path[0])] : []
+  })
+  return [...new Set(names)]
 }
 
 type Handler<C> = (req: Request, ctx: C) => Promise<Response>

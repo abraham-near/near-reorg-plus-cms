@@ -72,7 +72,12 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('taxonomy database writes', () =
     await expect(deleteTaxonomy(kind, `${prefix}-missing`, user, req)).rejects.toMatchObject({ status: 404 })
   })
 
-  it('requires an explicit slug when the name cannot produce one', async () => {
-    await expect(createTaxonomy('tag', { name: '日本語' }, user, req)).rejects.toMatchObject({ status: 400 })
+  it('gives names with no Latin letters a generated slug', async () => {
+    // A name unique to this run with no Latin letters or digits (CJK characters picked from the run's prefix).
+    const name = Array.from(prefix.slice(-6), (c) => String.fromCodePoint(0x4e00 + c.charCodeAt(0))).join('')
+    const tag = await createTaxonomy('tag', { name }, user, req)
+    expect(tag?.name).toBe(name)
+    expect(tag?.slug).toMatch(/^tag-[a-z0-9]{6}$/)
+    await db.tag.delete({ where: { id: tag!.id } })
   })
 })

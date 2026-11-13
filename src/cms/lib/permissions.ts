@@ -58,6 +58,20 @@ export const TOKEN_CAP: ReadonlySet<Permission> = new Set<Permission>([
 
 export type Via = 'session' | 'token'
 
-/** `can` for whoever is acting: a token never exceeds TOKEN_CAP, even for an admin. */
-export const canActor = (user: { role: Role; via?: Via }, permission: Permission) =>
-  can(user.role, permission) && (user.via !== 'token' || TOKEN_CAP.has(permission))
+/**
+ * OAuth scopes (Claude connectors) and what each allows, inside TOKEN_CAP. A grant without
+ * cms:publish can write drafts but never publish, schedule or unpublish.
+ */
+export const SCOPE_PERMISSIONS: Record<string, readonly Permission[]> = {
+  'cms:read': ['admin:access', 'content:read'],
+  'cms:write': ['post:write', 'taxonomy:manage'],
+  'media:write': ['media:upload', 'media:edit'],
+  'cms:publish': ['post:publish'],
+}
+export const SCOPES = Object.keys(SCOPE_PERMISSIONS)
+export const scopesAllow = (scopes: readonly string[], permission: Permission) =>
+  scopes.some((scope) => SCOPE_PERMISSIONS[scope]?.includes(permission))
+
+/** `can` for whoever is acting: a token never exceeds TOKEN_CAP, even for an admin, nor its OAuth scopes. */
+export const canActor = (user: { role: Role; via?: Via; scopes?: readonly string[] }, permission: Permission) =>
+  can(user.role, permission) && (user.via !== 'token' || TOKEN_CAP.has(permission)) && (!user.scopes || scopesAllow(user.scopes, permission))

@@ -106,11 +106,15 @@ export function AdminSidebar({ children, role, userName, permissions, recentDraf
             <SidebarTooltip label="New post" collapsed={collapsed}>
               <Link
                 href="/admin/posts/new"
-                onClick={guard('/admin/posts/new')}
+                onClick={(e) => {
+                  // Already on the new-post page: the guard starts a fresh editor (a plain Link would keep the old one).
+                  if (pathname === '/admin/posts/new') { e.preventDefault(); requestNavigation('/admin/posts/new') }
+                  else guard('/admin/posts/new')(e)
+                }}
                 className={`cms-press flex h-8 items-center justify-center gap-2 rounded-md border border-border bg-background text-[13px] font-medium text-foreground shadow-[0_1px_2px_rgb(var(--shadow)/.04)] hover:border-[var(--border-strong)] ${collapsed ? 'w-8' : 'w-full'}`}
               >
                 <Plus className="h-4 w-4" />
-                {collapsed ? <span className="sr-only">New post</span> : 'New post'}
+                {collapsed ? <span key="sr" className="sr-only">New post</span> : <span key="label">New post</span>}
               </Link>
             </SidebarTooltip>
           </div>
