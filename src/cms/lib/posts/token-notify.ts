@@ -16,16 +16,17 @@ export async function notifyTokenPublish(previous: AdminPost | null, post: Admin
   if (user.via !== 'token') return
   const origin = cmsOrigin()
   const editLink = `${origin}/admin/posts/${post.id}/edit`
+  const through = user.authKind === 'oauth' ? 'Claude (connector)' : 'your API token'
   if (isLive(post) && !(previous && isLive(previous))) {
     await audit(user, { action: 'POST_PUBLISHED_VIA_TOKEN', entityType: 'POST', entityId: post.id, entityTitle: post.title, diff: { publishedAt: post.publishedAt?.toISOString() ?? null } }, req)
-    await sendEmail(user.email, subject(`Published through your API token: ${post.title}`), postPublishedByTokenEmail(user.name, post.title, `${origin}/admin/posts/${post.id}/preview`, editLink))
+    await sendEmail(user.email, subject(`Published through ${through}: ${post.title}`), postPublishedByTokenEmail(user.name, post.title, `${origin}/admin/posts/${post.id}/preview`, editLink))
       .catch((error) => console.error('[cms] publish notice failed', post.id, error))
     return
   }
   if (!isScheduled(post) || !post.publishedAt) return
   if (previous && isScheduled(previous) && previous.publishedAt?.getTime() === post.publishedAt.getTime()) return
   await audit(user, { action: 'POST_SCHEDULED_VIA_TOKEN', entityType: 'POST', entityId: post.id, entityTitle: post.title, diff: { publishedAt: post.publishedAt.toISOString() } }, req)
-  await sendEmail(user.email, subject(`Scheduled through your API token: ${post.title}`), postScheduledByTokenEmail(
+  await sendEmail(user.email, subject(`Scheduled through ${through}: ${post.title}`), postScheduledByTokenEmail(
     user.name, post.title, post.publishedAt, editLink, `${origin}/admin/posts/${post.id}/preview`,
   )).catch((error) => console.error('[cms] schedule notice failed', post.id, error))
 }

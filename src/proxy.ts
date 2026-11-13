@@ -16,10 +16,13 @@ const PUBLIC_ADMIN = [/^\/admin\/login$/, /^\/admin\/forgot-password$/, /^\/admi
 const PUBLIC_ADMIN_API = /^\/api\/admin\/auth\//
 const API_TOKEN = /^Bearer ncms_[A-Za-z0-9_-]{43}$/
 
-function adminHeaders(response: NextResponse) {
+function adminHeaders(response: NextResponse, pathname = '') {
   response.headers.set('Cache-Control', NO_STORE)
   response.headers.set('X-Robots-Tag', 'noindex, nofollow')
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+  // The Claude consent screen must never be framed, not even by the CMS itself (clickjacking).
+  const consent = pathname.startsWith('/admin/oauth/')
+  response.headers.set('X-Frame-Options', consent ? 'DENY' : 'SAMEORIGIN')
+  if (consent) response.headers.set('Content-Security-Policy', "frame-ancestors 'none'")
   response.headers.set('Referrer-Policy', 'same-origin')
   return response
 }
@@ -37,7 +40,7 @@ export function proxy(request: NextRequest) {
     if (isApi) return adminHeaders(NextResponse.json({ error: 'Not signed in' }, { status: 401 }))
     const login = new URL('/admin/login', request.url)
     if (pathname !== '/admin') login.searchParams.set('next', pathname + search)
-    return adminHeaders(NextResponse.redirect(login))
+    return adminHeaders(NextResponse.redirect(login), pathname)
   }
-  return adminHeaders(NextResponse.next())
+  return adminHeaders(NextResponse.next(), pathname)
 }

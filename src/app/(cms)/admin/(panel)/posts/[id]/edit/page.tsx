@@ -4,7 +4,7 @@ import { requirePagePermission } from '@/cms/lib/auth'
 import { db } from '@/cms/lib/db'
 import { can } from '@/cms/lib/permissions'
 import { postSelect } from '@/cms/lib/posts/select'
-import PostForm from '@/cms/components/posts/PostForm'
+import { PostEditor } from '@/cms/components/posts/PostForm'
 
 // Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
 export const instant = false
@@ -20,5 +20,5 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   ])
   if (!post) notFound()
   const initialPost = { ...post, createdAt: post.createdAt.toISOString(), updatedAt: post.updatedAt.toISOString(), publishedAt: post.publishedAt?.toISOString() ?? null, lockedAt: post.lockedAt?.toISOString() ?? null }
-  return <PostForm key={post.id} initialPost={initialPost} categories={categories} tags={tags} permissions={{ write: can(user.role, 'post:write'), publish: can(user.role, 'post:publish'), delete: can(user.role, 'post:delete'), overrideLock: can(user.role, 'lock:override'), manageTaxonomy: can(user.role, 'taxonomy:manage') }} />
+  return <PostEditor initialPost={initialPost} categories={categories} tags={tags} permissions={{ write: can(user.role, 'post:write'), publish: can(user.role, 'post:publish'), delete: can(user.role, 'post:delete'), overrideLock: can(user.role, 'lock:override'), manageTaxonomy: can(user.role, 'taxonomy:manage') }} />
 }

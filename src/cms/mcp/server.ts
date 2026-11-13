@@ -5,6 +5,7 @@ import { createApi } from './client'
 import { loadConfig, type Config } from './config'
 import { GUIDE_URI, INSTRUCTIONS, PROMPTS } from './guide'
 import { assetTools } from './tools/assets'
+import { importTools } from './tools/import'
 import { localTools } from './tools/local'
 import { postTools } from './tools/posts'
 import { readTools } from './tools/read'
@@ -21,7 +22,7 @@ export function createServer(deps: ServerDeps = {}) {
   register(server, config, () => {
     if (!config.ok) throw new Error(config.error)
     return { api: createApi(config.origin, () => getToken(config.host)), uploadDir: config.uploadDir }
-  }, [...readTools, ...postTools, ...assetTools, ...localTools])
+  }, [...readTools, ...postTools, ...importTools, ...assetTools, ...localTools])
   for (const prompt of PROMPTS) {
     const argsSchema = Object.fromEntries(prompt.args.map((arg) => [arg.name, z.string().max(200).optional().describe(arg.description)]))
     server.registerPrompt(prompt.name, { title: prompt.title, description: prompt.description, argsSchema }, (args: Record<string, string | undefined>) => ({

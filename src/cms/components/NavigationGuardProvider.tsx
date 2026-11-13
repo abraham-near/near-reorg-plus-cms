@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -16,12 +16,15 @@ interface NavigationGuardContextType {
   isDirty: boolean;
   setIsDirty: (dirty: boolean) => void;
   requestNavigation: (href: string) => void;
+  /** Bumped when "New post" is chosen while already on /admin/posts/new: the editor keys on it to start blank. */
+  newPostRun: number;
 }
 
 const NavigationGuardContext = createContext<NavigationGuardContextType>({
   isDirty: false,
   setIsDirty: () => {},
   requestNavigation: () => {},
+  newPostRun: 0,
 });
 
 export function useNavigationGuard() {
@@ -30,9 +33,21 @@ export function useNavigationGuard() {
 
 export function NavigationGuardProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isDirty, setIsDirty] = useState(false);
+  const [newPostRun, setNewPostRun] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const pendingHref = useRef<string | null>(null);
+
+  // Next keeps a page's state when you navigate to the URL you are already on, so "New post" on
+  // /admin/posts/new would keep the post you were writing: start a fresh editor instead.
+  const go = useCallback(
+    (href: string) => {
+      if (href === "/admin/posts/new" && pathname === href) setNewPostRun((run) => run + 1);
+      else router.push(href);
+    },
+    [pathname, router]
+  );
 
   const requestNavigation = useCallback(
     (href: string) => {
@@ -40,23 +55,23 @@ export function NavigationGuardProvider({ children }: { children: React.ReactNod
         pendingHref.current = href;
         setDialogOpen(true);
       } else {
-        router.push(href);
+        go(href);
       }
     },
-    [isDirty, router]
+    [isDirty, go]
   );
 
   function handleLeave() {
     setIsDirty(false);
     setDialogOpen(false);
     if (pendingHref.current) {
-      router.push(pendingHref.current);
+      go(pendingHref.current);
       pendingHref.current = null;
     }
   }
 
   return (
-    <NavigationGuardContext.Provider value={{ isDirty, setIsDirty, requestNavigation }}>
+    <NavigationGuardContext.Provider value={{ isDirty, setIsDirty, requestNavigation, newPostRun }}>
       {children}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent showCloseButton={false} className="max-w-sm">

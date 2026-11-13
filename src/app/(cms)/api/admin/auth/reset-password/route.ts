@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { revokeUserApiTokens } from '@/cms/lib/api-tokens/revoke'
+import { revokeUserOAuthGrants } from '@/cms/lib/oauth/flow'
 import { audit } from '@/cms/lib/audit'
 import { sha256 } from '@/cms/lib/crypto'
 import { db } from '@/cms/lib/db'
@@ -36,6 +37,8 @@ export const POST = route(async (req) => {
   ])
   await revokeUserSessions(record.userId)
   const tokens = await revokeUserApiTokens(record.userId, 'PASSWORD_RESET')
+  // Claude connections too: whoever reset the password must reconnect Claude.
+  await revokeUserOAuthGrants(record.userId, 'PASSWORD_RESET')
   await audit({ id: record.user.id, email: record.user.email }, { action: 'PASSWORD_RESET', entityType: 'AUTH', entityId: record.userId, diff: { revokedApiTokens: tokens.count } }, req)
   await notifyPasswordChanged(record.user, clientIp(req))
   return json({ ok: true })

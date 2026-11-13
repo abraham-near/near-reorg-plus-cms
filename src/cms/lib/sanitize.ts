@@ -89,6 +89,17 @@ export function sanitizeRichHtml(html: string): string {
  * Plain text only (titles, names): strips every tag and returns the text as written, not HTML-escaped
  * ("Tom & Jerry <3" stays as typed). Callers render it as text (React) or escape it (escapeHtml).
  */
+/**
+ * Text fields typed by people (titles, summaries, SEO fields, taxonomy names) are stored exactly as
+ * written: "Using Vec<u8> in Rust" must not lose "<u8>". They are never HTML: React renders them as
+ * text and emails escape them. Only control characters go; single-line fields also turn line
+ * breaks into spaces.
+ */
+export function cleanText(value: string, { singleLine = false } = {}): string {
+  const text = value.replace(singleLine ? /[\u0000-\u001F\u007F]+/g : /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]+/g, singleLine ? ' ' : '')
+  return singleLine ? text.replace(/ {2,}/g, ' ') : text
+}
+
 export function stripTags(value: string): string {
   if (!value.includes('<')) return value
   const fragment = DOMPurify.sanitize(value, { ALLOWED_TAGS: [], ALLOWED_ATTR: [], RETURN_DOM_FRAGMENT: true })

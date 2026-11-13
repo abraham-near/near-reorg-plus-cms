@@ -16,7 +16,13 @@ const ABSOLUTE_MS = 14 * 24 * 60 * 60 * 1000 // and after 14 days regardless
 const TOUCH_MS = 5 * 60 * 1000 // refresh lastSeenAt at most every 5 min
 
 /** `via` and `apiTokenId` are set only when the request came through an API token (lib/cms/api-tokens). */
-export type SessionUser = { id: string; email: string; name: string; role: Role; via?: Via; apiTokenId?: string | null }
+export type SessionUser = {
+  id: string; email: string; name: string; role: Role; via?: Via; apiTokenId?: string | null
+  /** For token actors: a personal API token (pat) or an OAuth grant (oauth, Claude connectors). */
+  authKind?: 'pat' | 'oauth'
+  /** OAuth scopes the person granted; undefined for sessions and personal tokens. */
+  scopes?: readonly string[]
+}
 export type CurrentSession = { id: string; user: SessionUser }
 
 export async function createSession(userId: string, meta: { ip: string | null; userAgent: string | null }) {

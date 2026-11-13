@@ -26,11 +26,24 @@ export async function requirePermission(permission: Permission = 'admin:access')
   return session
 }
 
+// The remote MCP endpoint (/api/mcp) authenticates the OAuth token itself, then calls the same
+// /api/admin handlers in process with a Request it built. It attaches the actor to that Request
+// object here: nothing sent over HTTP can create an entry, and the token never reaches /api/admin.
+const boundActors = new WeakMap<Request, CurrentSession>()
+export function bindActor(req: Request, actor: CurrentSession) {
+  boundActors.set(req, actor)
+}
+
 /**
  * For the handlers that accept API tokens (`route(…, { token: true })`): the bearer token if one is
  * sent, otherwise the session cookie. Never both, so it is always clear who is acting.
  */
 export async function requireActor(req: Request, permission: Permission = 'admin:access'): Promise<CurrentSession> {
+  const bound = boundActors.get(req)
+  if (bound) {
+    if (!canActor(bound.user, permission)) throw new HttpError(403, 'Not available through this connection')
+    return bound
+  }
   if (parseBearer(req)) {
     if (req.headers.get('cookie')?.split(';').some((c) => SESSION_COOKIE_NAMES.includes(c.split('=')[0].trim()))) {
       throw new HttpError(400, 'Send either a session cookie or an API token, not both')

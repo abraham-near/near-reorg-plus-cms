@@ -1,13 +1,13 @@
 import 'server-only'
 import { Prisma } from '@/generated/prisma/client'
 import { z } from 'zod'
-import { stripTags } from '@/cms/lib/sanitize'
+import { cleanText } from '@/cms/lib/sanitize'
 import { db } from '@/cms/lib/db'
 import { audit, diffFields } from '@/cms/lib/audit'
 import { revalidateCategories, revalidatePost } from '@/cms/lib/cache-tags'
 import { HttpError } from '@/cms/lib/http'
 import type { SessionUser } from '@/cms/lib/session'
-import { isValidSlug, slugify } from '@/cms/lib/utils'
+import { fallbackSlug, isValidSlug, slugify } from '@/cms/lib/utils'
 
 export type TaxonomyKind = 'category' | 'tag'
 
@@ -20,7 +20,7 @@ export const taxonomySelect = {
 
 export type TaxonomyItem = Prisma.CategoryGetPayload<{ select: typeof taxonomySelect }>
 
-const nameSchema = z.string().max(160).transform(stripTags).pipe(z.string().trim().min(1))
+const nameSchema = z.string().max(160).transform((v) => cleanText(v, { singleLine: true })).pipe(z.string().trim().min(1))
 const slugSchema = z.string().trim().max(120).refine(isValidSlug, 'Use lowercase letters, numbers and single hyphens')
 
 export const taxonomyCreateSchema = z.object({
@@ -59,7 +59,7 @@ export async function createTaxonomy(
   user: Pick<SessionUser, 'id' | 'email'>,
   req: Request,
 ) {
-  const slug = input.slug ?? slugify(input.name)
+  const slug = input.slug ?? (slugify(input.name) || fallbackSlug(kind))
   if (!isValidSlug(slug)) throw new HttpError(400, 'Provide a slug using lowercase letters, numbers and hyphens')
   try {
     const args = { data: { name: input.name, slug }, select: taxonomySelect }

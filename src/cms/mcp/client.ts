@@ -16,6 +16,16 @@ const STATUS_HINT: Record<number, string> = {
   429: 'rate limited, wait a minute and retry',
 }
 
+/** A CMS error response → the message Claude sees (status, hint, the CMS's own error). */
+export function cmsError(status: number, data: unknown, hints: Record<number, string> = STATUS_HINT): CmsError {
+  const err = data as { error?: string; details?: unknown } | null
+  let msg = `CMS returned HTTP ${status}: ${hints[status] ?? STATUS_HINT[status] ?? 'request failed'}`
+  if (err?.error) msg += ` (${err.error})`
+  if (status === 409 && /stale|changed|updated/i.test(err?.error ?? '')) msg += ' - the post changed, re-read it with get_post and retry'
+  if (err?.details) msg += ` details: ${JSON.stringify(err.details).slice(0, 1000)}`
+  return new CmsError(msg, status)
+}
+
 export function createApi(origin: string, getToken: () => Promise<string>): Api {
   return {
     origin,
@@ -40,12 +50,8 @@ export function createApi(origin: string, getToken: () => Promise<string>): Api 
       let data: unknown = null
       try { data = text ? JSON.parse(text) : null } catch { /* non-JSON body */ }
       if (!res.ok) {
-        const err = data as { error?: string; details?: unknown } | null
-        let msg = `CMS returned HTTP ${res.status}: ${STATUS_HINT[res.status] ?? 'request failed'}`
-        if (err?.error) msg += ` (${err.error})`
-        if (res.status === 409 && /stale|changed|updated/i.test(err?.error ?? '')) msg += ' - the post changed, re-read it with get_post and retry'
-        if (err?.details) msg += ` details: ${JSON.stringify(err.details).slice(0, 1000)}`
-        throw new CmsError(msg.replaceAll(token, '[redacted]'), res.status)
+        const error = cmsError(res.status, data)
+        throw new CmsError(error.message.replaceAll(token, '[redacted]'), res.status)
       }
       return data as never
     },
