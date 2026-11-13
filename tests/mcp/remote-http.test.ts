@@ -22,6 +22,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('remote MCP over HTTP (database)
   const prefix = `remote-${randomUUID()}`
   let userId: string
   beforeAll(async () => {
+    await db.rateLimit.deleteMany({ where: { key: { startsWith: 'oauth-' } } })
     userId = (await db.user.create({ data: { email: `${prefix}@near.org`, name: 'Remote', role: 'PUBLISHER', passwordHash: await hashPassword('test-password-123') } })).id
   })
   afterAll(async () => {

@@ -37,7 +37,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('OAuth flow for Claude connector
     await db.user.delete({ where: { id: user.id } })
     await db.oAuthClient.deleteMany({ where: { clientId: CLIENT_ID } })
   })
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Every test request comes from the same (unknown) address: start each test with a clean failure count.
+    await db.rateLimit.deleteMany({ where: { key: { startsWith: 'oauth-' } } })
     mocks.safeFetch.mockReset()
     mocks.safeFetch.mockResolvedValue({ status: 200, headers: { 'cache-control': 'max-age=600' }, url: new URL(CLIENT_ID), body: Buffer.from(JSON.stringify({ client_id: CLIENT_ID, client_name: 'Claude', redirect_uris: [REDIRECT], token_endpoint_auth_method: 'none' })) })
     mocks.getSession.mockResolvedValue({ id: `${prefix}-session`, user })
@@ -160,6 +162,18 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('OAuth flow for Claude connector
       expect(res.status, JSON.stringify(over)).toBe(303)
       expect(new URL(res.headers.get('location')!).searchParams.get('error')).toBeTruthy()
     }
+  })
+
+  it('lists your connections and lets only you (or an admin) end them', async () => {
+    const { listOwnConnections, revokeConnection } = await import('@/cms/lib/people/oauth-grants')
+    const { code, verifier } = await connect()
+    const t = await (await exchange(code, verifier)).json()
+    const mine = (await listOwnConnections(user.id)).find((c) => c.status === 'active')!
+    expect(mine).toMatchObject({ clientName: 'Claude', status: 'active' })
+    const stranger = { id: 'someone-else', user: { id: 'someone-else', email: 'x@near.org', name: 'X', role: 'PUBLISHER' as const } }
+    await expect(revokeConnection(stranger, mine.id, req())).rejects.toMatchObject({ status: 404 })
+    await revokeConnection({ id: 's', user }, mine.id, req())
+    await expect(resolveOAuthActor(bearer(t.access_token))).rejects.toMatchObject({ status: 401 })
   })
 
   it('takes the answer only from the session that saw the consent page, once', async () => {
