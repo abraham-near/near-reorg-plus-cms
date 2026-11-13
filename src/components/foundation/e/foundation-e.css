@@ -1,0 +1,119 @@
+/* Foundation E (FoundationE.tsx): B's page (../b/foundation-b.css) with C's columns in the hero, the pillars on the homepage's ruled grid, C's shrinking
+   statement on two lines. Scoped under .fe-page. */
+
+/* ================================================================ 1 · the hero: one screen, no pin; the drawing can travel over the section below */
+.fe-page .fe-hero { position: relative; z-index: 3; height: auto !important; }
+.fe-page .fe-hero .fb-hero__stage { position: relative !important; overflow: visible; }
+:root[data-js] .fe-page .fe-hero:not(.is-ready) .fe-art { opacity: 0; }
+.fe-art { position: absolute; z-index: 1; right: calc(var(--margin) - 2vw); top: clamp(280px, 35vh, 350px); width: min(50vw, 820px); height: min(66vh, 660px);
+  pointer-events: none; transform-origin: 50% 50%; will-change: transform; }
+.fe-art__cam { width: 100%; height: 100%; will-change: transform; }
+.fe-art .fc-hiso { display: block; width: 100%; height: 100%; overflow: visible; }
+.fe-art .fc-hiso * { vector-effect: non-scaling-stroke; }
+/* C's drawing in B's hand: white tops, light grey sides, ink hairlines; C's greens stay */
+.fe-art .fc-h-ground path { fill: none; stroke: rgb(28 25 23 / 0.32); stroke-width: 0.8; stroke-dasharray: 1 4.4; stroke-linecap: round; }
+.fe-art .fc-h-fill { stroke-width: 0.6; stroke-linejoin: round; }
+.fe-art .fc-h-base .fc-h-t { fill: #fbfbfa; stroke: #fbfbfa; } .fe-art .fc-h-base .fc-h-l { fill: #ecebe8; stroke: #ecebe8; } .fe-art .fc-h-base .fc-h-r { fill: #e2e1dd; stroke: #e2e1dd; }
+.fe-art .fc-h-top .fc-h-t { fill: #ffffff; stroke: #ffffff; } .fe-art .fc-h-top .fc-h-l { fill: #f2f2f0; stroke: #f2f2f0; } .fe-art .fc-h-top .fc-h-r { fill: #e8e8e6; stroke: #e8e8e6; }
+.fe-art .fc-h-edge { fill: none; stroke: #111; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
+.fe-art .fc-h-grid path { fill: none; stroke: rgb(17 17 17 / 0.28); stroke-width: 0.8; stroke-dasharray: 1 3.6; stroke-linecap: round; }
+.fe-art .fc-h-sig polygon { fill: var(--emerald); }
+.fe-art .fc-col__s polygon { stroke-width: 0.5; stroke-linejoin: round; }
+.fe-art .fc-col__w { fill: none; stroke: #0b8f5d; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; opacity: 0; }
+.fe-art .fc-col.is-ghost .fc-col__w { stroke: rgb(17 17 17 / 0.4); stroke-dasharray: 3 3; opacity: 1; }
+.fe-art .fc-h-lead path { fill: none; stroke: rgb(17 17 17 / 0.55); stroke-width: 1; stroke-dasharray: 1 3.4; stroke-linecap: round; }
+.fe-art .fc-chip rect { fill: #111; }
+.fe-art .fc-chip text { fill: #f5f5f5; font: 500 11.5px/1 var(--fb-mono); letter-spacing: 0.06em; }
+.fe-art .fc-chip__dot { fill: var(--emerald); }
+@media (max-width: 859px) {
+  .fe-art { position: relative; right: auto; top: auto; width: auto; height: min(96vw, 480px); margin: 8px calc(var(--margin) * 0.5) 0; }
+  .fe-page .fe-hero .fb-hero__stage { padding-bottom: 24px; }
+}
+
+/* ================================================================ 2 · the pillars: three boxes, a descending stair (the steps above them stay empty) */
+.fe-pl { position: relative; z-index: 1; --fe-step: clamp(84px, 12vh, 132px); padding: clamp(24px, 4vh, 48px) var(--margin) calc(2 * var(--fe-step)); }
+/* one row: the boxes stretch to the tallest, so all three share a height; the stair is a shift down (not a margin), which keeps it so */
+.fe-pl__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; margin: 0; padding: 0; list-style: none; }
+.fe-pl__cell { position: relative; display: flex; flex-direction: column; min-width: 0; }
+.fe-pl__spot { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--i) * var(--fe-step)); pointer-events: none; }
+/* every box draws all four edges; a box's left edge sits on its neighbour's right (one hairline where they meet). The same step between each pair.
+   B's stair margins and paddings (.fb-pillar:nth-child) are cancelled: the step is the shift alone. */
+.fe-pl .fe-pl__card { position: relative; flex: 1 1 auto; margin: 0; padding: var(--l-pad) var(--l-pad) calc(var(--l-pad) * 2);
+  border: var(--hair) solid var(--l-line); transform: translateY(calc(var(--i) * var(--fe-step))); }
+.fe-pl__cell + .fe-pl__cell .fe-pl__card { margin-left: calc(-1 * var(--hair)); }
+.fe-pl__x { position: absolute; z-index: 3; top: 0; left: 0; width: 9px; height: 9px; margin: -5px 0 0 -5px; pointer-events: none;
+  background: linear-gradient(var(--l-x), var(--l-x)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 0 50% / 100% var(--hair) no-repeat; }
+.fe-pl__x--r { left: auto; right: 0; margin: -5px -4px 0 0; }
+.fe-pl .fb-pillar__art { min-height: clamp(190px, 18vw, 260px); padding: 0 6%; }
+.fe-pl .fb-pillar__art .fb-art { max-width: 300px; }
+.fe-pl__txt { margin-top: 20px; max-width: 30em; }
+@media (max-width: 859px) {
+  .fe-pl { padding-bottom: 0; }
+  .fe-pl__row { grid-template-columns: minmax(0, 1fr); }
+  .fe-pl__spot { display: none; }
+  .fe-pl__card { transform: none; }
+  .fe-pl .fe-pl__card { padding-left: var(--l-pad); border-bottom: 0; }
+  .fe-pl__cell + .fe-pl__cell .fe-pl__card { margin-left: 0; }
+  .fe-pl__cell:last-child .fe-pl__card { border-bottom: var(--hair) solid var(--l-line); }
+}
+
+/* ================================================================ 3 · "smaller": two lines that shrink to the left */
+.fe-small { position: relative; }
+.fe-small__stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 96px); margin: 0 var(--margin);
+  padding: clamp(96px, 14vh, 160px) 0; }
+.fe-small__h { margin: 0; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-section); line-height: 0.98; letter-spacing: -0.03em; color: var(--ink); }
+.fe-small__l { display: block; white-space: nowrap; }
+.fe-small__acc { display: inline-block; transform-origin: 0 80%; }
+.fe-small__sq { display: inline-block; width: 0.14em; height: 0.14em; margin-left: 0.06em; background: var(--emerald); vertical-align: baseline; }
+.fe-small__body { display: flex; flex-direction: column; gap: 28px; max-width: 40em; }
+.fe-small__lead { font-family: var(--sans-display); font-weight: 400; font-size: var(--t-h3); line-height: 1.18; letter-spacing: -0.02em; color: var(--ink); }
+.fe-small__lead .fe-sn + .fe-sn { color: var(--green-text, #1f6b45); }
+.fe-small__p { font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
+.fe-small__end { padding-top: 24px; border-top: var(--hair) solid var(--line-strong); font-size: var(--t-body-l); line-height: var(--t-body-l-lh); font-weight: 500; color: var(--ink); }
+.fe-sn { display: inline; transition: opacity 0.3s linear; }
+@media (max-width: 859px) {
+  .fe-small__stage { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .fe-small__l { white-space: normal; }
+}
+/* desktop, with motion: a pinned screen; the lines start the width of the screen */
+@media (min-width: 860px) and (prefers-reduced-motion: no-preference) {
+  :root[data-js] .fe-small { height: 240vh; }
+  :root[data-js] .fe-small .fe-small__stage { position: sticky; top: 0; display: block; height: 100vh; height: 100svh; min-height: 640px; padding: 0; overflow: hidden; }
+  :root[data-js] .fe-small .fe-small__h { position: absolute; left: 0; top: 0; font-size: 7.6vw; line-height: 0.94; transform-origin: 0 0; will-change: transform; }
+  :root[data-js] .fe-small .fe-small__body { position: absolute; left: 46%; right: 0; top: 50%; translate: 0 -50%; max-width: 44em; }
+}
+
+/* ================================================================ 4 · transparency and 5 · the Council: two boxes on the homepage's ruled grid
+   (.l-sec / .l-row / .l-cell from proof-deeper.css; the + at the top is generated by its motion, the + at the bottom is in the markup: .fe-x).
+   Both on the page's paper: no ground of their own, no full-bleed band. The Council's ink fills the frame only; its rules turn light over it. */
+.fe-page .fe-box { background: none; padding: clamp(64px, 10vh, 128px) 0 0; }
+.fe-page .fe-council { padding-bottom: clamp(80px, 12vh, 144px); }
+.fe-page .fe-tr .fe-box__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.fe-page .fe-council .fe-box__row { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+/* the box closes at the bottom: the frame (::after) carries the last rule, so it draws in with the sides */
+.fe-page .fe-box__row::after { border-bottom: var(--hair) solid var(--l-line); }
+.fe-page .fe-box__art { display: flex; align-items: center; justify-content: center; padding: clamp(40px, 7vh, 80px) clamp(24px, 3.5vw, 56px); }
+.fe-page .fe-box__art > figure { width: 100%; }
+/* the drawings sized so a box stays inside one screen (the Council's drawing is taller than it is wide) */
+.fe-page .fe-tr .fb-tr__art .fb-art { max-width: min(620px, 70vh); }
+.fe-page .fe-council .fb-council__art .fb-art { max-width: min(500px, 60vh); }
+.fe-page .fe-box__txt { display: flex; flex-direction: column; justify-content: center; padding: clamp(48px, 8vh, 96px) clamp(24px, 3vw, 48px); }
+/* the + at the bottom: a cell's bottom-left (and the last cell's bottom-right) */
+.fe-page .fe-x { top: 100%; left: 0; margin: -5px 0 0 -4px; --xd: 1.6; }
+.fe-page .fe-x--r { left: 100%; }
+.fe-page .fe-x--m { display: none; }   /* phones only: the right end of the seam between the stacked cells */
+/* the Council: ink inside the frame only; light hairlines over it; the + read on both grounds (white, by difference: ink on paper, light on ink) */
+.fe-page .fe-council .fe-box__row { background: var(--ink); --l-line: rgb(245 244 241 / 0.22); }
+.fe-page .fe-council .l-x { --l-x: #fff; mix-blend-mode: difference; }
+@media (max-width: 859px) {
+  .fe-page .fe-box { padding-top: 56px; }
+  .fe-page .fe-council { padding-bottom: 72px; }
+  .fe-page .fe-tr .fe-box__row, .fe-page .fe-council .fe-box__row { grid-template-columns: minmax(0, 1fr); }
+  /* stacked: the seam between the two cells is a rule across, with a + at each end */
+  .fe-page .fe-box__row > .l-cell + .l-cell::before { display: block; left: 0; right: 0; top: 0; bottom: auto; width: auto; height: var(--hair); transform-origin: 0 50%; }
+  .fe-page .fe-box__row > .l-cell:first-child > .fe-x { margin-top: -4px; --xd: 0.8; }
+  .fe-page .fe-x--m { display: block; }
+  .fe-page .fe-box__art { padding: 40px var(--l-pad); }
+  .fe-page .fe-box__txt { padding: 40px var(--l-pad) 44px; }
+  .fe-page .fb-tr__art, .fe-page .fb-council__art { margin: 0; }
+}

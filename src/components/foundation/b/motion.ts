@@ -32,7 +32,7 @@ const once = (gsap: G, ST: MotionCtx["ScrollTrigger"], el: Element, start = "top
 };
 
 /* ── text arrivals ── */
-const mountReveals: Mount = (root, { reduced }) => {
+export const mountReveals: Mount = (root, { reduced }) => {
   const els = $$<HTMLElement>(root, "[data-fb-rv]");
   if (reduced) return;
   const io = new IntersectionObserver((es) => es.forEach((e) => {
@@ -46,7 +46,7 @@ const mountReveals: Mount = (root, { reduced }) => {
 };
 
 /* ── the pillars ── */
-const mountPillars: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
+export const mountPillars: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
   const items = $$<HTMLElement>(root, ".fb-pillar");
   if (reduced || !items.length) return;
   items.forEach((it, i) => {
@@ -124,7 +124,7 @@ const mountMission: Mount = (root, { ScrollTrigger, reduced }) => {
 };
 
 /* ── transparency: the glass ── */
-const mountGlass: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
+export const mountGlass: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
   const fig = root.querySelector<HTMLElement>("[data-glass]"); if (!fig) return;
   const svg = fig.querySelector("svg")!, scan = svg.querySelector<SVGGElement>(".fb-a-scan")!;
   const H = 4.4 * 34;   // the glass's height (Art.tsx: H × u)
@@ -151,7 +151,7 @@ const mountGlass: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
 };
 
 /* ── the Council ── */
-const mountCouncil: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
+export const mountCouncil: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
   const fig = root.querySelector<HTMLElement>("[data-council]"); if (!fig) return;
   const svg = fig.querySelector("svg")!;
   const pd = svg.querySelector<SVGCircleElement>(".fb-a-pulse--d")!, pu = svg.querySelector<SVGCircleElement>(".fb-a-pulse--u")!;
@@ -182,7 +182,7 @@ const mountCouncil: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
 };
 
 /* ── how the Foundation operates ── */
-const mountOperate: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
+export const mountOperate: Mount = (root, { gsap, ScrollTrigger, reduced }) => {
   const sec = root.querySelector<HTMLElement>("[data-op]"); if (!sec) return;
   const svg = sec.querySelector<SVGSVGElement>(".fb-art--operate")!, steps = $$<HTMLElement>(sec, ".fb-op__step");
   const fly = $$<SVGGElement>(svg, ".fb-op-flyc"), arcs = $$<SVGPathElement>(svg, ".fb-op-arc"), coins = $$(svg, ".fb-op-coin");

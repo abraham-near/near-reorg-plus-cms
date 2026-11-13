@@ -1,0 +1,88 @@
+/* Foundation E, section 6 (Operate.tsx, operate-motion.ts): how the Foundation operates. The drawing sticks on the left; the three activities pass on
+   the right along a dotted axis (a cartesian ruler) whose dots join into a line as the reading line passes; each step's dotted leader straightens as
+   it is reached. The reading line sits at --fe-now (operate-motion.ts: NOW). Without JS (or before it runs) it is a plain list beside a finished drawing.
+   Scoped under .fe-op. */
+.fe-op { --fe-gap: clamp(40px, 6vw, 112px); --fe-now: 55vh; --fe-ax: 64px; --fe-figh: min(37vw, 64vh, 580px); --fe-dot: rgb(38 38 38 / 0.5);
+  padding: clamp(96px, 15vh, 176px) var(--margin) clamp(48px, 8vh, 96px); }
+.fe-op__head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--fe-gap); align-items: end; }
+.fe-op__story { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--fe-gap); margin-top: clamp(48px, 8vh, 96px); }
+
+/* ---------------------------------------------------------------- the drawing */
+.fe-op__sticky { position: sticky; top: calc(var(--fe-now) - var(--fe-figh) * 0.5); display: flex; flex-direction: column; }
+.fe-op-art { display: block; width: 100%; height: auto; overflow: visible; }
+.fe-op-art--main { height: var(--fe-figh); }
+.fe-op-art * { vector-effect: non-scaling-stroke; }
+.fe-op-art polygon, .fe-op-art ellipse, .fe-op-art path { stroke-width: 1; }
+.fe-op-floor { fill: none; stroke: #111; stroke-opacity: 0.42; stroke-width: 1.7 !important; stroke-linecap: round; }
+.fe-op-traces path { fill: none; stroke: #111; stroke-dasharray: 0.5 4; stroke-linecap: round; stroke-width: 1.5 !important; }
+/* the ring draws in by its dash offset (pathLength 1): plain strokes, Chrome measures dashes in screen space under non-scaling-stroke */
+.fe-op-ring path { vector-effect: none; fill: none; stroke: #111; stroke-width: 1.15 !important; stroke-linejoin: round; }
+.fe-op-scaf { fill: none; stroke: #111; stroke-opacity: 0.62; stroke-dasharray: 2 2.6; }
+.fe-op-brace { fill: none; stroke: #111; stroke-dasharray: 3 3; }
+.fe-op-glyph { fill: none; stroke: #111; stroke-linejoin: round; stroke-linecap: round; }
+.fe-op-leads path { fill: none; stroke: #111; stroke-opacity: 0.5; stroke-dasharray: 1 3; stroke-linecap: round; }
+.fe-op-pulse { fill: none; stroke: var(--emerald); stroke-width: 1.6 !important; }
+.fe-op-peer { fill: var(--emerald); stroke: #111; stroke-width: 0.8 !important; }
+.fe-op-chip text { font-family: var(--fb-mono); font-size: 11px; letter-spacing: 0.07em; }
+.fe-op-chip, .fe-op-chip__in { transform-box: view-box; }
+.fe-op__count { display: none; align-self: flex-start; align-items: flex-start; gap: 6px; margin-top: 12px !important; font: var(--t-ui-w) var(--t-ui)/1.2 var(--fb-mono);
+  letter-spacing: 0.04em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fe-op__ci { display: inline-flex; flex-direction: column; height: 1.2em; overflow: hidden; color: var(--ink); --ci: 0; }
+.fe-op__ci > span { display: block; line-height: 1.2; transform: translateY(calc(var(--ci) * -100%)); transition: transform 0.6s var(--ease-settle); }
+.fe-op__mfig { display: none; }
+
+/* ---------------------------------------------------------------- the axis: dots that join into a line */
+.fe-op__list { position: relative; padding-left: var(--fe-ax); }
+.fe-op__axis { position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(var(--fe-dot) 0 1.5px, transparent 1.5px) 0 0 / 1px 6px repeat-y; }
+/* the ruler's minor ticks, every 48px, and a cross at each end */
+.fe-op__axis::before { content: ""; position: absolute; left: -3px; top: 0; bottom: 0; width: 7px;
+  background: linear-gradient(rgb(38 38 38 / 0.32) 0 1px, transparent 1px) 0 0 / 7px 48px repeat-y; }
+.fe-op__axis::after { content: ""; position: absolute; left: -5px; bottom: -5px; width: 11px; height: 11px;
+  background: linear-gradient(var(--ink), var(--ink)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 100% 1px no-repeat; }
+.fe-op__fill { position: absolute; left: 0; top: 0; width: 1px; height: 100%; background: var(--ink); }
+/* where the line is still joining: dashes, between the line and the dots */
+.fe-op__fill::after { content: ""; position: absolute; left: 0; top: 100%; width: 1px; height: 36px;
+  background: linear-gradient(var(--ink) 0 3.5px, transparent 3.5px) 0 0 / 1px 6px repeat-y; opacity: 0.8; }
+.fe-op.is-story .fe-op__fill { height: 0; }
+/* the reading line: it rides the axis (sticky), a green mark on it and a dotted line across to the drawing */
+.fe-op__now { display: none; }
+.fe-op.is-story .fe-op__now { position: sticky; z-index: 2; top: var(--fe-now); display: block; height: 0; margin-left: calc(-1 * var(--fe-ax)); }
+.fe-op__cursor { position: absolute; left: -5px; top: -5px; width: 11px; height: 11px; background: var(--emerald); box-shadow: inset 0 0 0 1px var(--ink); }
+.fe-op__cursor::before { content: ""; position: absolute; right: calc(100% + 6px); top: 5px; width: calc(var(--fe-gap) + 4vw); height: 1px;
+  background: linear-gradient(to left, var(--fe-dot) 0 1.5px, transparent 1.5px) 100% 0 / 6px 1px repeat-x; }
+/* each step's tick: a mark on the axis and a dotted leader to its number; reached, the mark fills and the leader goes straight */
+.fe-op__num { position: relative; }
+.fe-op__tick { position: absolute; left: calc(-1 * var(--fe-ax)); top: 50%; width: calc(var(--fe-ax) - 14px); height: 1px;
+  background: linear-gradient(to right, var(--fe-dot) 0 1.5px, transparent 1.5px) 0 0 / 6px 1px repeat-x; }
+.fe-op__tick::after { content: ""; position: absolute; inset: 0; background: var(--ink); transform: scaleX(1); transform-origin: 0 50%; }
+.fe-op__tick i { position: absolute; left: -4px; top: -4px; width: 9px; height: 9px; background: var(--ink); }
+.fe-op.is-story .fe-op__tick::after { transform: scaleX(0); transition: transform 0.7s var(--ease-settle); }
+.fe-op.is-story .fe-op__tick i { background: var(--paper-0); box-shadow: inset 0 0 0 1px var(--ink); transition: background-color 0.4s var(--ease-settle); }
+.fe-op.is-story .fe-op__num.is-hit .fe-op__tick::after { transform: scaleX(1); }
+.fe-op.is-story .fe-op__num.is-hit .fe-op__tick i { background: var(--ink); }
+
+/* ---------------------------------------------------------------- the steps */
+.fe-op__steps { margin: 0; padding: 0; list-style: none; }
+.fe-op__step { position: relative; padding: 40px 0; }
+.fe-op.is-story .fe-op__count { display: inline-flex; }
+.fe-op.is-story .fe-op__step { min-height: 76vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.28; transition: opacity 0.6s var(--ease-settle); }
+.fe-op.is-story .fe-op__step.is-on { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fe-op *, .fe-op *::before, .fe-op *::after { transition: none !important; }
+}
+
+/* ---------------------------------------------------------------- phones: no pin; each step carries the drawing at its own state */
+@media (max-width: 859px) {
+  .fe-op { --fe-ax: 26px; }
+  .fe-op__head, .fe-op__story { grid-template-columns: minmax(0, 1fr); }
+  .fe-op__head .l-lede { margin-top: 24px !important; }
+  .fe-op__story { margin-top: 32px; }
+  .fe-op__fig { display: none; }
+  .fe-op__mfig { display: block; margin: 0 -10px 18px calc(8px - var(--fe-ax)); }
+  .fe-op__mfig .fe-op-chip__in { transform: scale(1.22); }
+  .fe-op__cursor::before { display: none; }
+  .fe-op__step, .fe-op.is-story .fe-op__step { min-height: 0; display: block; padding: 28px 0 44px; opacity: 1; }
+  .fe-op__tick { width: calc(var(--fe-ax) - 10px); }
+}
