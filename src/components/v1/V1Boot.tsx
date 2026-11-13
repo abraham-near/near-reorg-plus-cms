@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { startWorld } from "./world/boot";
 import { mountRail } from "./rail/motion";
 import { mountStack } from "./stack/motion";
+import { mountStatementWords } from "./world/words";
 import { markReady, resetReady, type Dispose } from "./ctx";
 
 type Live = { refs: number; kill: number; dispose: Dispose };
@@ -38,6 +39,8 @@ function start(): Live {
       const hero = document.querySelector(".hero");
       if (hero) { const io = new IntersectionObserver(([e]) => quiet(e.isIntersecting), { threshold: 0.35 }); io.observe(hero); offs.push(() => io.disconnect()); }
     }
+    const words = mountStatementWords(ctx);     // opt-in (.statement[data-reveal="words"], home v5): the statement word by word, scrubbed
+    if (words) offs.push(words);
     const rail = await mountRail(ctx);
     if (rail) offs.push(rail);
     if (ac.signal.aborted) return;

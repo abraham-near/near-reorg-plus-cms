@@ -140,8 +140,8 @@ html[data-close-cover] .b10f { margin-top: -100vh; }
 .b10f .ic-dots circle, .b10f .ic-f { fill: currentColor; stroke: none; }
 .b10f .ic-g { fill: var(--ic-green, #00dc8d); stroke: none; transform-box: fill-box; transform-origin: center; }
 
-/* ---------------------------------------------------------------- the big `near`: between the margins, cut by the page end */
-.b10f-word { position: relative; width: 100%; aspect-ratio: 363 / 73.32; margin-top: var(--s72); overflow: visible; color: var(--fw-face); user-select: none; -webkit-user-select: none; }
+/* ---------------------------------------------------------------- the big `near`: between the margins, cut by the page end (86 of the word's 94 units show: only the round letters' feet are cut) */
+.b10f-word { position: relative; width: 100%; aspect-ratio: 363 / 86; margin-top: var(--s72); overflow: visible; color: var(--fw-face); user-select: none; -webkit-user-select: none; }
 .b10f-word svg { position: absolute; left: 0; top: 0; display: block; width: 100%; height: auto; }
 .b10f-word path { fill: currentColor; }
 .b10f-word canvas { position: absolute; left: 0; top: -24px; width: 100%; height: calc(100% + 24px); display: block; pointer-events: none; } /* room above the word for its rise */

@@ -28,3 +28,9 @@
   .layer[data-beats="split"] .rs__gate { display: block; left: 50%; width: var(--art-w); height: var(--art-h); aspect-ratio: auto; bottom: calc(100% - var(--rail-y) + 44px); }
   .layer[data-beats="split"] .rs__problem { bottom: auto; top: calc(var(--rail-y) + var(--tt)); }
 }
+
+/* ───────── the type, word by word (beats="split": layer.ts WORDS renders every text as words that rise and fade; no dots) ─────────
+   No soft-edge masks and no staircase windows: each word (.wd, or the staircase's .si) moves on its own, in em of its own size. */
+.layer[data-beats="split"] .rs .sw, .layer[data-beats="split"] .rs__problem .si { -webkit-mask-image: none; mask-image: none; }
+.layer[data-beats="split"] .rs .sk { overflow: visible; }
+.layer[data-beats="split"] .rs .wd { display: inline-block; will-change: transform, opacity; }

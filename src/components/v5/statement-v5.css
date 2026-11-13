@@ -1,0 +1,6 @@
+/* Home v5's intro statement, word by word (World.tsx: .statement[data-reveal="words"]; v1/world/words.ts scrubs it). v5's other styles: ./v5.css. */
+/* the whole statement no longer fades in on view (world.css, boot.ts fallbackFade): its words come in one by one instead */
+html[data-home="v5"] .statement[data-reveal="words"].is-pre { opacity: 1; transform: none; }
+/* no windows: each word rises and fades on its own */
+html[data-home="v5"] .statement.is-words .st__w { overflow: visible; }
+html[data-home="v5"] .statement.is-words :is(.st__wi, .statement__tile) { will-change: transform, opacity; }

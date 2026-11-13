@@ -41,7 +41,7 @@ html[data-home="v5"] :is(.rs__fin, .rva-fin > i, .rvd-fin) { display: none !impo
 
 /* ───────── the rail: the line, the station art and its copy sit lower, so the docked heading above gets air.
    The line goes as low as the copy under it allows: 64 % on short screens, up to 76 % on tall ones (the art's height follows: layer.ts --art-cap). ───────── */
-html[data-home="v5"] .rs { --rail-y: clamp(64%, calc(100% - var(--tt) - 1.57 * var(--h2) - 2.6 * var(--pp) - 10svh), 76%); }
+html[data-home="v5"] .rs { --rail-y: clamp(56%, calc(100% - var(--tt) - 1.57 * var(--h2) - 2.6 * var(--pp) - 16svh), 62%); }   /* a little higher (12 Nov): ~61 % at 1440 x 900, as home-v2 */
 
 /* the thesis ("AI is the frontend…") at the intro's size: the smaller of the two */
 html[data-home="v5"] .rs { --cs: calc(4.1 * var(--u)); }
@@ -52,7 +52,7 @@ html[data-home="v5"] .rail__h { font-size: calc(4.1 * var(--u)); }
   .statement--v5 { --st: clamp(25px, 7.1vw, 40px); }
   .statement--v5 .st__l { display: inline; white-space: normal; }
   .statement--v5 .statement__tile { width: 30px; margin-bottom: 22px; }
-  html[data-home="v5"] .rs { --cs: clamp(25px, 7.1vw, 40px); --rail-y: clamp(62%, calc(100% - var(--tt) - 1.57 * var(--h2) - 3.9 * var(--pp) - 7svh), 70%); }
+  html[data-home="v5"] .rs { --cs: clamp(25px, 7.1vw, 40px); --rail-y: clamp(56%, calc(100% - var(--tt) - 1.57 * var(--h2) - 3.9 * var(--pp) - 11svh), 64%); }
   html[data-home="v5"] .rail__h { font-size: clamp(25px, 7.1vw, 40px); }
 }
 
@@ -60,6 +60,8 @@ html[data-home="v5"] .rail__h { font-size: calc(4.1 * var(--u)); }
    heading up at 28 % of the screen instead of the middle (revenue/d/motion.ts reads --rvd-head-at). ───────── */
 html[data-home="v5"] .stk--v4 { padding-bottom: 40px; }
 html[data-home="v5"] .rvd { --rvd-head-at: .28; }
+/* the heading row under the header's pill (it floats over the stage: pill ~12-66 px from the top): in the scene the title and the lede start below it, never under it (13 Nov) */
+html[data-home="v5"] .rvd.is-scene :is(.rvd-h, .rvd-l) { padding-top: clamp(92px, 11vh, 120px); padding-bottom: clamp(20px, 3vh, 36px); }
 
 /* the rail's N tiles, as home-v2's (StoryRail horizon): NEAR's green tile with the black N, 48 px, in the playhead's square frame 8 px wider (56 px).
    V5Page passes steps="tiles" (v4's "line" drops them); v4.css turns them ink with a white N, undone here. */
@@ -80,3 +82,8 @@ html[data-home="v5"] .rs__art { bottom: calc(100% - var(--rail-y) + 58px); }
 
 /* the proof row and Go deeper: room between the figures and the next section (design review 12 Nov), inside the ruled frame so its lines run on */
 html[data-home="v5"] .l-deeper__head .l-head__cell { padding-top: clamp(96px, 14vh, 168px); }
+
+/* the answer ("On NEAR, that stack is user-owned, …") at the problem paragraph's height (12 Nov): its top on the paragraph's top, which sits 56 px over the
+   line and is four lines of --hp tall (rail.css .rs__problem); on phones the paragraph is under the line (rail-v5.css), so the answer goes there too */
+html[data-home="v5"] .layer[data-beats="split"] .rs__ans { top: calc(var(--rail-y) - 56px - 4.4 * var(--hp)); }
+@media (max-width: 760px) { html[data-home="v5"] .layer[data-beats="split"] .rs__ans { top: calc(var(--rail-y) + var(--tt)); } }

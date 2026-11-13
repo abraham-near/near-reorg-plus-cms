@@ -31,7 +31,7 @@ export function WorldV5() {
           </div>
         </div>
       </section>
-      <section className="statement statement--v5" aria-labelledby="st-h">
+      <section className="statement statement--v5" aria-labelledby="st-h" data-reveal="words">
         <div className="wrap statement__inner">
           <span className="statement__tile" aria-hidden="true"><svg className="statement__n" viewBox="0 0 73 73" focusable="false">{N}</svg></span>
           <h2 className="st" id="st-h">

@@ -41,7 +41,8 @@ export function mount(root: HTMLElement, { reduced }: MotionCtx) {
   }, on);
 
   /* ── the big `near` ── */
-  const offWord = wordmark(root, root.querySelector<HTMLElement>(".b10f-word"), reduced);
+  /* no arrival for the word (13 Nov): it is simply there, finished (the fill-in and the rise run only when `reduced` is false: wordmark's 3rd argument) */
+  const offWord = wordmark(root, root.querySelector<HTMLElement>(".b10f-word"), true);
 
   return () => {
     ac.abort(); io?.disconnect(); ro.disconnect(); icons.dispose(); offWord();

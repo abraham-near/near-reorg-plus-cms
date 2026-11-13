@@ -27,13 +27,19 @@
  *   92.3 - 95.2  identity leaves as the others do (its words up through their windows, the drawing set(a) 1 -> 2, the viewfinder unlocks); only the line, its ruler and the node remain
  *   95.8 - 106.3 THE TIDE: the cells under the line darken and merge into #262626 from just under the centre (S.tk 95.8 - 104.3), the dark rises from the line as a straight edge
  *                (S.tg 97.3 - 106.3); M.covered -> html[data-ly-dark]; the Stack band rises over the last TR.ov = 12.5 units (from 99.8)
- * Home v5 (.layer[data-beats="split"]): the thesis and the problem are two beats, and 9 - 43.5 run instead as (the rest is the same):
- *    9   - 13.3  lines 1, 2 AND 3 dissolve ("NEAR is where they connect." does not dock: NEAR leaves with its line); the node shrinks away (11 - 12.4)
- *   11   - 20    the world slides 50 -> 150 vw (the problem's place) while the thesis' dots drift off; the line stays ink across (S.ik)
- *   17.5 - 22.6  the problem climbs in; its drawing arrives 18 - 23.4 (S.ga 0 -> 1); holds to 29
- *   29   - 33.8  the paragraph dissolves; 30 - 36 the SAME drawing becomes the user's in place (S.own 0 -> 1: problem.ts own()); the world stays
- *   32.2 - 36.4  "On NEAR, that stack is user-owned, / from inference to settlement." sweeps in (NEAR is part of it); the marker 36 - 38.6; the ink ends at the gate 36 - 40.5
- *   43.8 - 47.2  the drawing rides the world out with the slide to the first station (S.ga 1 -> 2)
+ * Home v5 (.layer[data-beats="split"]): the thesis alone, then the problem with "NEAR is where they connect." docked over it; the world moves to the problem's place while
+ *   line 3 docks and never between the problem and the answer; 9 - 43.5 run instead as (the rest is the same):
+ *    9   - 13    lines 1 and 2 dissolve, the end labels sweep out; the node STAYS on the line (it rides the world out to the first station, as v4 "line")
+ *   10.5 - 18    "NEAR is where they connect." docks at the top left (as above), while the world slides 50 -> 150 vw; the line stays ink across (S.ik)
+ *   15   - 20.1  the problem climbs in; its drawing arrives 15.5 - 20.9 (S.ga 0 -> 1); holds to 26 under the docked line
+ *   26   - 30.8  the paragraph dissolves; "is where they connect." too (26.6 - 29.2); 27 - 33 the SAME drawing becomes the user's in place (S.own 0 -> 1: problem.ts own())
+ *   29.4 - 34.8  NEAR moves and resizes into "On NEAR, that stack is user-owned," (as above, the world standing); the rest sweeps in 33.4 - 37.6; the marker 37 - 39.6;
+ *                the ink ends at the gate 37 - 41.5
+ *   43.8 - 47.2  the drawing rides the world out with the slide to the first station (S.ga 1 -> 2), the node with it
+ *   43.5 - 46.1  the answer leaves too, word by word (NEAR with it): the stations run without it
+ * Home v5 (split) has no type in dots: every text moves word by word instead (WORDS: renderWords), scrubbed like the rest. A word comes in rising from below as it fades in, and
+ *   leaves rising as it fades out, the words one after another in reading order. The phrases and the end labels come in with the section's arrival (S.enter; Item.er), the
+ *   others on the same tweens as before (a in, o out); the stations' staircase becomes the same reveal (no windows). The line, its ticks and the hairlines keep their dots.
  * Home v5 (.layer[data-back="ridges"]): Lawrence's ridges panorama (home v2's "horizon") behind the rail instead of the dot globe: 205 vw wide, its foot on the line,
  *   moving at 0.3x the world's travel; the tide rises over it like everything else. Its look (strength, masks): v5/rail-v5.css */
 import type { V1Ctx, Dispose } from "../ctx";
@@ -85,6 +91,7 @@ type Item = {
   W: number; F: number; L: number; x0: number; r0: number; color: 0 | 1; kind: "css" | "line" | "stair"; dots: Dots | null; leaves: boolean; refWv: number;
   _e: number; _open?: boolean | null; _off?: boolean | null; sc?: number; pv?: Pt; msc?: number; kids?: Item[];
   st?: Stair; ws?: HTMLElement[]; si?: HTMLElement[]; Lx?: Int16Array; Jx?: Int16Array; kc?: Int32Array; fs?: number;
+  wd?: boolean; er?: [number, number]; wsf?: number;   /* v5 (WORDS): words instead of dots (si: the words), its entry over S.enter (er), the share of it spent staggering (wsf) */
 };
 type Edges = { p: number; tot: number; full: number; es: number };
 type Copy = { c: string[]; problem: string; on: string; mid: string; owned: string; tail: string; next: string; list: { key: VigKey; own: string; acc: string; line: string }[] };
@@ -106,6 +113,8 @@ type Trig = ReturnType<V1Ctx["ScrollTrigger"]["create"]>;
 const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c] as string));
 const stair = (words: string[]) => words.map((w) => `<span class="sk"><span class="si">${w}</span></span>`).join(" ");
 const stairText = (text: string) => stair(text.split(/\s+/).filter(Boolean).map(esc));
+/** v5: every word in its own span (.wd), the spaces kept as they are */
+const words = (text: string) => text.split(/(\s+)/).map((p) => (!p ? "" : /^\s+$/.test(p) ? p : `<span class="wd">${esc(p)}</span>`)).join("");
 const txt = (el: Element | null) => (el?.textContent || "").trim();
 
 function readCopy(sec: HTMLElement): Copy {
@@ -141,6 +150,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const STEPLINE = INKLINE && sec.dataset.steps === "line";   /* v4 "line": the steps in green over a whole ink line, no N tiles */
   const SPLIT = sec.dataset.beats === "split";                 /* v5: the thesis and the problem as two beats; the problem's drawing turns the user's in place (see the header) */
   const PHOTO = sec.dataset.back === "ridges";                 /* v5: the ridges panorama behind the rail instead of the dot globe */
+  const WORDS = SPLIT;                                         /* v5: the type moves word by word, never in dots (see the header) */
+  const TX = (t: string) => (WORDS ? words(t) : esc(t));   /* a text for the stage: v5 wraps its words */
   const html = document.documentElement;
   if (html.hasAttribute("data-rm") || ctx.reduced) return staticPage(sec);
   const { gsap, ScrollTrigger } = ctx;
@@ -164,6 +175,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     items.push(it); return it;
   }
   function setDots(it: Item, pts: Pt[], seed = 7) {
+    if (it.wd) { it.dots = null; return; }                  /* v5: words, no dots */
     const n = pts.length, rnd = mulberry32(seed + n), F = () => new Float32Array(n);
     const d: Dots = { n, hx: F(), hy: F(), rr: F(), dl: F(), ax: F(), tx: F(), ty: F(), tk: F(), tr: F(), ta: F() };
     for (let i = 0; i < n; i++) { d.hx[i] = pts[i][0]; d.hy[i] = pts[i][1]; d.rr[i] = 0.82 + rnd() * 0.34; d.dl[i] = rnd(); d.ax[i] = (rnd() - 0.5) * 2; }
@@ -183,20 +195,27 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   /* ───────────────────────────── the stage (DOM) ───────────────────────────── */
   function buildStage(copy: Copy): Stage {
     const stage = document.createElement("div"); stage.className = "rs"; stage.setAttribute("aria-hidden", "true");
+    /* v5: the answer runs on three lines ("On NEAR, that stack" / "is user-owned," / "from inference to settlement."): the break goes before the mid's last word,
+       so the marked phrase stays whole on the second line. The second line is its own span (the spans are inline-blocks: a <br> inside .rest2 would indent it under "NEAR") */
+    const mm = SPLIT ? copy.mid.match(/^(.*?)(\s*)(\S+)(\s*)$/) : null;
+    const ansTail = `<span class="rs__mk">${TX(copy.owned)}</span>${TX(copy.tail)}`;
+    const ansRest = mm
+      ? `<span class="rest2">${TX(mm[1])}</span><br><span class="rest3">${TX(mm[3] + mm[4])}${ansTail}</span>`
+      : `<span class="rest2">${TX(copy.mid)}${ansTail}</span>`;
     stage.innerHTML = `${PHOTO ? `<div class="rs__ridges"><i class="rs__plate"></i></div>` : ""}
   <canvas class="rs__cv"></canvas><span class="rs__rail"></span>
   <div class="rs__world" style="width:${RAIL.end}vw">
-    <span class="rs__end sw sw-t" style="--x:5vw"><b>AI</b> <em>the frontend</em></span><span class="rs__end rs__end--r sw sw-t" style="--x:95vw"><b>Blockchain</b> <em>the backend</em></span>
+    <span class="rs__end sw sw-t" style="--x:5vw"><b>${TX("AI")}</b> <em>${TX("the frontend")}</em></span><span class="rs__end rs__end--r sw sw-t" style="--x:95vw"><b>${TX("Blockchain")}</b> <em>${TX("the backend")}</em></span>
     ${copy.list.map((o, i) => `<div class="rs__st" style="--x:${RAIL.stations[i]}vw"><div class="rs__art va" data-art="${o.key}"></div>
       <p class="rs__title">${stair([...o.own.split(/\s+/).map(esc), `<span class="acc">${esc(o.acc)}</span>`])}</p><p class="rs__line">${stairText(o.line)}</p></div>`).join("")}
   </div>
   <div class="rs__conn">
-    <p class="cl cl0 sw sw-t">${esc(copy.c[0])}</p><p class="cl cl1 sw sw-t">${esc(copy.c[1])}</p>
-    <div class="rs__slot"><p class="cl cl2 sw sw-t"><span class="ns"></span><span class="rest1 sw sw-t">${esc(copy.c[2].slice(copy.c[2].indexOf("NEAR") + 4).trim())}</span></p></div>
+    <p class="cl cl0 sw sw-t">${TX(copy.c[0])}</p><p class="cl cl1 sw sw-t">${TX(copy.c[1])}</p>
+    <div class="rs__slot"><p class="cl cl2 sw sw-t"><span class="ns"></span><span class="rest1 sw sw-t">${TX(copy.c[2].slice(copy.c[2].indexOf("NEAR") + 4).trim())}</span></p></div>
   </div>
   <div class="rs__problem"><p>${stairText(copy.problem)}</p></div><div class="rs__gate"></div>
-  <p class="rs__ans sw sw-t"><span class="pre">${esc(copy.on)}${SPLIT ? "NEAR" : ""}</span><span class="ns ns2"></span><span class="rest2">${esc(copy.mid)}<span class="rs__mk">${esc(copy.owned)}</span>${esc(copy.tail)}</span>${copy.next ? `<br><span class="rs__next">${esc(copy.next)}</span>` : ""}</p>
-  <span class="rs__near sw sw-t">NEAR</span>
+  <p class="rs__ans sw sw-t"><span class="pre">${TX(copy.on)}</span><span class="ns ns2"></span>${ansRest}${copy.next ? `<br><span class="rs__next">${TX(copy.next)}</span>` : ""}</p>
+  <span class="rs__near sw sw-t">${TX("NEAR")}</span>
   <span class="rs__fin sw"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></span>
   <span class="rs__point"><img src="${ICON}" alt="" width="639" height="639"></span>
   <canvas class="rs__cv2"></canvas>
@@ -228,7 +247,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       const f = parseFloat(getComputedStyle(R.ans).fontSize), mkR = () => { const r = R!.mk.getBoundingClientRect(); return [r.top - org.top + 0.08 * f, r.bottom - org.top + 0.04 * f]; };
       let mk = mkR(); if (mk[0] < 96) { R.ans.style.top = (parseFloat(getComputedStyle(R.ans).top) + 96 - mk[0]).toFixed(1) + "px"; mk = mkR(); }
       // a second line (v4's .rs__next) sits under the marker: the viewfinder clears that instead
-      const low = R.next ? Math.max(mk[1], R.next.getBoundingClientRect().bottom - org.top + 0.04 * f) : mk[1];
+      // v5 (split): the answer sits beside the problem's drawing and leaves before the stations (v5.css), so the art is capped by the header (80 px + 16) only
+      const low = SPLIT ? 96 : R.next ? Math.max(mk[1], R.next.getBoundingClientRect().bottom - org.top + 0.04 * f) : mk[1];
       R.stage.style.setProperty("--art-cap", Math.max(140, M.railY - 12 - 44 - (low + 20)).toFixed(0) + "px"); }
     const save = { finS: S.finS }; S.finS = 1; R.fin.style.transform = "none";
     const mobile = M.W <= 760;
@@ -244,7 +264,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     { const sp = document.createElement("span"); sp.style.cssText = "position:absolute;visibility:hidden;white-space:pre"; sp.textContent = " "; R.cl[2].appendChild(sp); const spW = sp.getBoundingClientRect().width; sp.remove();
       R.ns.style.width = ""; const nc = getComputedStyle(R.near), nW = R.near.getBoundingClientRect().width - (parseFloat(nc.paddingLeft) + parseFloat(nc.paddingRight));
       const csPx = fs(R.near); M.sT = fs(R.ans) / csPx; M.dk = 1;   /* line 3 only moves to the top */
-      R.ns.style.width = (nW + spW).toFixed(2) + "px"; R.ns2.style.width = SPLIT ? "0px" : (nW * M.sT).toFixed(2) + "px"; M.nearW = nW; }
+      R.ns.style.width = (nW + spW).toFixed(2) + "px"; R.ns2.style.width = (nW * M.sT).toFixed(2) + "px"; M.nearW = nW; }
     const ns = rect(R.ns), cr = rect(R.near.offsetParent as Element);
     R.near.style.left = (ns.x - cr.x).toFixed(2) + "px"; R.near.style.top = (ns.y - cr.y).toFixed(2) + "px";
     const slot = rect(R.slot), ns2 = rect(R.ns2);
@@ -256,7 +276,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     { const it = I.c[2], r = rect(R.cl[2]); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w); it.L = it.F * 0.8; setDots(it, dotText(R.rest1), 5); }
     { const it = I.near, r = rect(R.near); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 70, 0.55); it.L = it.F * 0.8; setDots(it, dotText(R.near), 6); }
     /* "is where they connect." leaves from the docked pose (its dots sampled there; its mask is in the slot's own, scaled px) */
-    if (!SPLIT) R.slot.style.transform = `translate3d(0,${M.dockY.toFixed(2)}px,0) scale(${M.dk})`;   /* v5: it leaves from where it stands (no dock) */
+    R.slot.style.transform = `translate3d(0,${M.dockY.toFixed(2)}px,0) scale(${M.dk})`;
     { const it = I.rest1, r = rect(R.rest1); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 90); it.L = it.F * 0.8; it.msc = M.dk; setDots(it, sampleText(R.rest1, textPitch(R.rest1) * M.dk, M.org, M.dk), 7); it.refWv = 60; }
     R.slot.style.transform = "none";
     /* the problem: a staircase in; out word by word, each word an item of its own (mask + dots that drift away) */
@@ -313,7 +333,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   function makeItems() {
     const r = R!;
     const c = r.cl.map((el, i) => mkItem({ key: "c" + i, el, ge: true, r0: 1.55, leaves: i < 2 }));
-    const near = mkItem({ key: "near", el: r.near, ge: true, r0: 1.55, leaves: SPLIT });   /* v5: NEAR leaves with its line (the answer has its own) */
+    const near = mkItem({ key: "near", el: r.near, ge: true, r0: 1.55 });
     const rest1 = mkItem({ key: "rest1", el: r.rest1, a: 1, r0: 1.3, leaves: true });          /* open from the start (line 3's own mask brings it in); it leaves from the docked pose */
     const prob = mkItem({ key: "prob", el: r.problem, kind: "stair" });
     prob.kids = r.pws.map((el, i): Item => ({ key: "pw" + i, el, a: 1, o: 0, dr: 0, ge: false, dir: 1, space: "stage", W: 1, F: 30, L: 24, x0: 0, r0: 1.3, color: 0, kind: "css", dots: null, leaves: true, refWv: 62, _e: -1 }));
@@ -324,6 +344,21 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const tit: Item[] = [], ln: Item[] = [];
     for (let i = 0; i < 4; i++) { tit.push(mkItem({ key: "tit" + i, el: r.titles[i], kind: "stair" })); ln.push(mkItem({ key: "ln" + i, el: r.lines[i], kind: "stair" })); }
     I = { c, ends, tit, ln, near, rest1, prob, ans, rail1, fin };
+    if (WORDS) {
+      /* v5: the words of each text (the problem's and the stations' are their staircase's .si); the phrases and the end labels in reading order over the arrival */
+      const wordsOf = (it: Item, er?: [number, number], wsf = 0.55) => {
+        it.wd = true; it.er = er; it.wsf = wsf;
+        if (it.kind !== "stair") { it.si = [...it.el.querySelectorAll<HTMLElement>(".wd")]; it.kc = new Int32Array(it.si.length).fill(-1); }
+      };
+      wordsOf(c[0], [0.4, 0.78]); wordsOf(c[1], [0.47, 0.85]); wordsOf(c[2]);   /* line 3: its NEAR and its rest are items of their own */
+      wordsOf(near, [0.54, 0.8]); wordsOf(rest1, [0.58, 0.92]);
+      ends.forEach((it, i) => wordsOf(it, [0.62 + 0.04 * i, 0.96 + 0.04 * i]));
+      c[2].si = [];
+      wordsOf(prob, undefined, 0.6); prob.kids!.forEach((k) => { k.wd = true; });
+      wordsOf(ans, undefined, 0.6);
+      ans.si = ans.si!.map((el) => (el.parentElement === r.mk ? r.mk : el));   /* "user-owned" moves with its marker */
+      [...tit, ...ln].forEach((it) => wordsOf(it, undefined, 0.5));
+    }
   }
 
   /* ───────────────────────────── apply: S + items -> the page ───────────────────────────── */
@@ -349,6 +384,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     if (!open && !off) { const k = it.msc || 1, v = Math.round((es / k) * 2) / 2; if (it._e !== v) { it._e = v; setC(el, "--e", v + "px"); setC(el, "--f", (it.F / k).toFixed(1) + "px"); } }
   }
   function renderItem(it: Item, wx: number) {
+    if (it.wd) return renderWords(it);
     if (it.kids) {                                       /* the problem: out word by word, the last word first (each: reverse sweep, then its dots drift away) */
       const ks = it.kids, n = ks.length, ov = 0.4;
       for (let i = 0; i < n; i++) { const k = ks[i], r = (n - 1 - i) / n; k.o = clamp((it.o - r * (1 - ov)) / ov, 0, 1); k.dr = clamp((it.dr - r * 0.45) / 0.55, 0, 1); renderItem(k, wx); }
@@ -374,6 +410,23 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       if (ai <= 0 || oi >= 1) { el.style.visibility = "hidden"; continue; }
       const y = (1 - out3(ai)) * 105 - oi * oi * 105, op = s01(ai * 1.5) * (1 - s01(oi * 1.6));
       el.style.visibility = ""; el.style.transform = `translate3d(0,${y.toFixed(2)}%,0)`; el.style.opacity = op.toFixed(3);
+    }
+  }
+
+  /* v5: word by word, in reading order: a word rises into place from below as it fades in (a), and rises on as it fades out (o). Each word takes 1 - wsf of the item's
+     run, the starts spread over wsf of it. Writes only what changed (kc) */
+  const WY = 0.45;                                         /* the rise, in em of the word */
+  function renderWords(it: Item) {
+    const si = it.si!, kc = it.kc!, n = si.length, sf = n > 1 ? it.wsf ?? 0.55 : 0, d = 1 - sf;
+    for (let i = 0; i < n; i++) {
+      const s0 = n > 1 ? (sf * i) / (n - 1) : 0, ai = clamp((it.a - s0) / d, 0, 1), oi = clamp((it.o - s0) / d, 0, 1);
+      const key = Math.round(ai * 240) * 1000 + Math.round(oi * 240);
+      if (kc[i] === key) continue; kc[i] = key;
+      const el = si[i];
+      if (ai >= 1 && oi <= 0) { el.style.transform = ""; el.style.opacity = ""; el.style.visibility = ""; continue; }
+      if (ai <= 0 || oi >= 1) { el.style.visibility = "hidden"; continue; }
+      const y = (1 - out3(ai)) * WY - oi * oi * WY, op = s01(ai * 1.2) * (1 - s01(oi * 1.25));
+      el.style.visibility = ""; el.style.transform = `translate3d(0,${y.toFixed(3)}em,0)`; el.style.opacity = op.toFixed(3);
     }
   }
 
@@ -655,7 +708,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       if (last.po !== po) { last.po = po; R.play.style.opacity = po; } }
     /* v4 "line": the node stays centred on the line through every scene up to "user-owned", then leaves with the world as it slides to the first station
        (riding the line: x from the title on, and the tide's rise) */
-    if (STEPLINE) { const nx = -(M.W * Math.max(0, S.wv - RAIL.title)) / 100; put("pt", R.point, `translate3d(${nx.toFixed(2)}px,${ry}px,0) scale(${S.pt.toFixed(3)})`); }
+    if (STEPLINE || SPLIT) { const nx = -(M.W * Math.max(0, S.wv - RAIL.title)) / 100; put("pt", R.point, `translate3d(${nx.toFixed(2)}px,${ry}px,0) scale(${S.pt.toFixed(3)})`); }
     else put("pt", R.point, `scale(${S.pt.toFixed(3)})`);
     /* the slot (line 3) docks; NEAR: P0 -> P1 with the dock, then P1 -> P2 (the title) */
     { const d = S.dock, k = 1 + (M.dk - 1) * d; put("ts", R.slot, d < 1e-4 ? "none" : `translate3d(0,${(M.dockY * d).toFixed(2)}px,0) scale(${k.toFixed(4)})`); I.rest1.msc = k;
@@ -678,6 +731,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const c = ctx2; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, M.W, M.H);
     drawCover();                                        /* sets M.covered: the stage under the flat dark need not be drawn */
     if (!M.covered) {
+      if (WORDS) for (const it of items) if (it.er) it.a = clamp((S.enter - it.er[0]) / (it.er[1] - it.er[0]), 0, 1);   /* v5: the phrases come in with the arrival */
       for (const it of items) if (!(INKLINE && it === I.rail1)) renderItem(it, wx);   /* ink line: no dot sweep, it draws in from both ends */
       drawSurvey();
       flush();
@@ -700,25 +754,30 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     /* 9 - 13 lines 1 and 2 dissolve; the end labels sweep out; the node shrinks away (the line stays) */
     leave(tl, I.c[0], 9, 2.8, 1.5, 3); leave(tl, I.c[1], 9.8, 2.8, 1.5, 3);
     I.ends.forEach((it, i) => to(it, { o: 1, duration: 2.2, ease: "none" }, 9.6 + 0.6 * i));
-    if (!STEPLINE) to(S, { pt: 0, duration: 1.4, ease: "power2.in" }, 11);
+    if (!STEPLINE && !SPLIT) to(S, { pt: 0, duration: 1.4, ease: "power2.in" }, 11);   /* v5 (split): it stays on the line through the problem */
     if (SPLIT) buildSplit(); else buildDock();
     buildSteps();
   }
-  /* v5: two beats (see the header). The thesis leaves whole (line 3 and NEAR too), the world moves on to the problem's place; the problem and its drawing; then the paragraph
-     goes, the drawing becomes the user's where it stands and the answer comes in over it; the world only moves on with the first station */
+  /* v5: the thesis alone, then the problem under the docked "NEAR is where they connect." (see the header). The world moves on while line 3 docks; between the problem and
+     the answer it stands, and the problem's drawing becomes the user's where it is; NEAR moves into the answer as in the original */
   function buildSplit() {
     const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
-    leave(tl, I.near, 10.2, 2.8, 1.5, 3); leave(tl, I.rest1, 10.5, 2.8, 1.5, 3);
-    to(S, { wv: RAIL.title, duration: 9, ease: "power2.inOut" }, 11);
-    to(I.prob, { a: 1, duration: STP.span, ease: "none" }, 17.5);
-    to(S, { ga: 1, duration: 5.4, ease: "none" }, 18);
-    to(I.prob, { o: 1, duration: 3.4, ease: "none" }, 29); to(I.prob, { dr: 1, duration: 4, ease: "none" }, 29.8);
-    to(S, { own: 1, duration: 6, ease: "none" }, 30);
-    to(I.ans, { a: 1, duration: 4.2, ease: "none" }, 32.2);
-    to(S, { mark: 1, duration: 2.6, ease: "power3.inOut" }, 36);
-    to(S, { gf: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 36);
-    to(S, { ik: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 36);   /* the ink ends at the gate: the steps ahead turn grey */
+    to(S, { dock: 1, duration: 7.5, ease: "power2.inOut" }, 10.5);
+    to(S, { wv: RAIL.title, duration: 7.5, ease: "power2.inOut" }, 10.5);
+    to(I.prob, { a: 1, duration: STP.span, ease: "none" }, 15);
+    to(S, { ga: 1, duration: 5.4, ease: "none" }, 15.5);
+    to(I.prob, { o: 1, duration: 3.4, ease: "none" }, 26); to(I.prob, { dr: 1, duration: 4, ease: "none" }, 26.8);
+    leave(tl, I.rest1, 26.6, 2.6, 1.2, 2.8);
+    to(S, { own: 1, duration: 6, ease: "none" }, 27);
+    to(S, { nx: 1, duration: 5.4, ease: "none" }, 29.4);
+    to(I.ans, { a: 1, duration: 4.2, ease: "none" }, 33.4);
+    to(S, { mark: 1, duration: 2.6, ease: "power3.inOut" }, 37);
+    to(S, { gf: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 37);
+    to(S, { ik: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 37);   /* the ink ends at the gate: the steps ahead turn grey */
     to(S, { ga: 2, duration: 3.4, ease: "none" }, ARR[0] - SLIDE + 0.3);         /* the drawing leaves as the world slides on, as a station's does */
+    /* 43.5 - 46.1 the answer leaves word by word as the world slides on (before the first station's words, 46.6): not over the stations. NEAR goes in its place, after "On" */
+    to(I.ans, { o: 1, duration: 2.6, ease: "none" }, ARR[0] - SLIDE);
+    to(I.near, { o: 1, duration: 1.04, ease: "none" }, ARR[0] - SLIDE + 0.08);
   }
   function buildDock() {
     const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;

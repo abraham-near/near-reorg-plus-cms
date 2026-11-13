@@ -17,6 +17,7 @@ import "../v3/buttons.css";
 import "../v3/globe.css";
 import "./v5.css";
 import "./rail-v5.css";   /* the rail's ridges and the split beats (beats="split" back="ridges" below; layer.ts reads them) */
+import "./statement-v5.css";   /* the intro statement, word by word (World.tsx data-reveal="words"; v1/world/words.ts) */
 
 const REV = "a" as const;
 
@@ -25,7 +26,7 @@ export function V5Page() {
     <>
       {/* before V1Page's head script: no globe (it reads data-gl="off" as ?gl=0) and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/home-v5" spread stay soft />} world={<WorldV5 />} rail={<RailV4 exit={RAIL_EXIT.d} steps="tiles" beats="split" back="ridges" />} stack={<StackV4 still />}
+      <V1Page v="v3" header={<V3Header home="/home-v5" spread stay soft />} world={<WorldV5 />} rail={<RailV4 exit={RAIL_EXIT.d} steps="tiles" beats="split" back="ridges" />} stack={<StackV4 still steps />}
         afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: VOICES_MODE[REV], originRatio: ORIGIN_RATIO[REV] }} />} footer={<V3Footer />} />
     </>
   );
