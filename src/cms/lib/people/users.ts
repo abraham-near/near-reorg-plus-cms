@@ -2,6 +2,7 @@ import 'server-only'
 import type { Prisma, Role } from '@/generated/prisma/client'
 import { z } from 'zod'
 import { revokeUserApiTokens } from '@/cms/lib/api-tokens/revoke'
+import { revokeUserOAuthGrants } from '@/cms/lib/oauth/flow'
 import { audit, diffFields } from '@/cms/lib/audit'
 import { randomToken, sha256 } from '@/cms/lib/crypto'
 import { db } from '@/cms/lib/db'
@@ -98,6 +99,7 @@ export async function updateUser(actor: SessionUser, id: string, data: z.infer<t
     if (before.role !== after.role || (before.active && !after.active)) {
       await tx.session.deleteMany({ where: { userId: id } })
       tokensRevoked = (await revokeUserApiTokens(id, before.active && !after.active ? 'DEACTIVATED' : 'ROLE_CHANGE', tx)).count
+      tokensRevoked += (await revokeUserOAuthGrants(id, before.active && !after.active ? 'DEACTIVATED' : 'ROLE_CHANGE', tx)).count
     }
     return { before, after, tokensRevoked }
   })

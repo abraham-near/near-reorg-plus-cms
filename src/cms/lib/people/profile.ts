@@ -2,6 +2,7 @@ import 'server-only'
 import { Prisma } from '@/generated/prisma/client'
 import { z } from 'zod'
 import { revokeUserApiTokens } from '@/cms/lib/api-tokens/revoke'
+import { revokeUserOAuthGrants } from '@/cms/lib/oauth/flow'
 import { audit, diffFields } from '@/cms/lib/audit'
 import { db } from '@/cms/lib/db'
 import { HttpError } from '@/cms/lib/http'
@@ -83,6 +84,7 @@ export async function changeProfilePassword(
       }),
       revokeUserSessions(session.user.id, session.id),
       revokeUserApiTokens(session.user.id, 'PASSWORD_CHANGE'),
+      revokeUserOAuthGrants(session.user.id, 'PASSWORD_CHANGE'),
     ])
     revoked = result[1]
     tokensRevoked = result[2].count
