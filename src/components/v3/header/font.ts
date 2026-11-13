@@ -18,4 +18,5 @@ export const keplerLight = localFont({
   style: "italic",
   variable: "--font-kepler-light",
   display: "swap",
+  preload: false, // unused since every accent is Medium Condensed Italic Display (styles/versions.css)
 });

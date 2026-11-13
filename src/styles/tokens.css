@@ -23,8 +23,8 @@
   /* §2 Families (variables come from next/font in app/layout.tsx) */
   --font-sans: var(--font-montreal), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-montreal-mono), ui-monospace, monospace;
-  --font-accent: var(--font-kepler), Georgia, serif;
-  --font-accent-display: var(--font-kepler-display), var(--font-kepler), Georgia, serif;
+  --font-accent: var(--font-kepler-cn), Georgia, serif;               /* every Kepler accent: Medium Condensed Italic Display */
+  --font-accent-display: var(--font-kepler-cn), Georgia, serif;
 
   /* §3 Radius */
   --radius-sm: 4px;

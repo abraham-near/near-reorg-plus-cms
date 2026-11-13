@@ -27,6 +27,7 @@ export const keplerDisplay = localFont({
   style: "italic",
   variable: "--font-kepler-display",
   display: "swap",
+  preload: false, // unused: every accent is Medium Condensed Italic Display
 });
 
 // Text optical size for editorial titles and smaller accents.

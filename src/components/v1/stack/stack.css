@@ -6,7 +6,7 @@
 /* r17 drew weight 500 in Montreal Medium; this project sets 500 in Montreal Regular (the user's call), as everywhere else. */
 .stk {
   --color-ink: #262626; --color-green: #00dc8d; --color-on-dark: #f5f4f1; --color-on-dark-muted: rgb(245 244 241 / 0.65); --color-line-on-dark: rgb(245 244 241 / 0.18);
-  --font-accent-display: var(--font-kepler-display), Georgia, serif; --font-accent: var(--font-kepler), Georgia, serif;
+  --font-accent-display: var(--font-kepler-cn), Georgia, serif; --font-accent: var(--font-kepler-cn), Georgia, serif;
   /* type scale (fluid 390 -> 768 -> 1440) */
   --text-h2: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); --text-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); --text-h4: clamp(1.125rem, 0.996rem + 0.529vw, 1.25rem);
   --text-lede: clamp(1.125rem, 0.911rem + 0.446vw, 1.3125rem); --text-body: clamp(1rem, 0.929rem + 0.149vw, 1.0625rem); --text-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);
