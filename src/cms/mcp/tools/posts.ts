@@ -18,7 +18,9 @@ const META_KEYS = Object.keys(meta) as (keyof typeof meta)[]
 const pick = (a: Record<string, unknown>, keys: readonly string[]) => Object.fromEntries(keys.filter((k) => a[k] !== undefined).map((k) => [k, a[k]]))
 const path = (postId: string, sub = '') => `/api/admin/posts/${encodeURIComponent(postId)}${sub}`
 
-const slugify = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120)
+// Same rules as src/cms/lib/utils.ts (cut, then trim), kept here so the MCP process stays a plain HTTP client.
+const slugify = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').slice(0, 120).replace(/^-+|-+$/g, '')
+const fallbackSlug = () => `post-${Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('')}`
 
 // Lock is held only around the write; always released, even if the write fails.
 async function withLock<T>(api: Ctx['api'], postId: string, fn: () => Promise<T>): Promise<T> {
@@ -43,9 +45,9 @@ export const postTools: Def[] = [
     description: 'Create a new DRAFT blog post whose body is the given HTML. It is not public until publish_post or schedule_post.',
     shape: { title: z.string().min(1).max(500), slug: z.string().min(1).max(200).optional(), html: z.string().max(1_400_000), ...meta },
     run: async (a: { title: string; slug?: string; html: string } & Record<string, unknown>, { api }: Ctx) => {
-      const slug = a.slug ?? slugify(a.title)
-      if (!slug) throw new ToolError('Could not derive a slug from the title; pass slug explicitly')
-      const body = { title: a.title, slug, status: 'DRAFT', body: a.html, ...pick(a, META_KEYS) }
+      // Without an explicit slug the URL follows the title, and the CMS picks the next free one if it is taken.
+      const slug = a.slug ?? (slugify(a.title) || fallbackSlug())
+      const body = { title: a.title, slug, ...(a.slug ? {} : { autoSlug: true }), status: 'DRAFT', body: a.html, ...pick(a, META_KEYS) }
       return ok(shapePost(api.origin, await api.request<RawPost>('POST', '/api/admin/posts', { body }), true))
     },
   },

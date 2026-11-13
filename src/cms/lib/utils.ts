@@ -30,6 +30,14 @@ export function slugify(value: string): string {
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
     .slice(0, 120)
+    // Trim after cutting: a cut can land on a hyphen, and a trailing one is not a valid slug.
+    .replace(/^-+|-+$/g, '')
+}
+
+/** For titles with no Latin letters or digits ("日本語", "Привет"), whose slugify() is empty: "post-k3x9q2". */
+export function fallbackSlug(prefix = 'post'): string {
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  const bytes = crypto.getRandomValues(new Uint8Array(6))
+  return `${prefix}-${Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('')}`
 }

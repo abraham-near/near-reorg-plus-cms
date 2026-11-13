@@ -196,6 +196,33 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('posts API database integration'
     expect(await db.post.count({ where: { slug: sharedSlug } })).toBe(1)
   })
 
+  it('gives a URL that follows the title the next free variant, and only before the post was ever public', async () => {
+    const base = slug()
+    const first = await (await create(request('POST', { title: 'Same', slug: base, autoSlug: true }), ctx(''))).json()
+    const [second, third] = await Promise.all([
+      create(request('POST', { title: 'Same', slug: base, autoSlug: true }), ctx('')),
+      create(request('POST', { title: 'Same', slug: base, autoSlug: true }), ctx('')),
+    ])
+    expect([second.status, third.status]).toEqual([201, 201])
+    const slugs = [first.slug, (await second.json()).slug, (await third.json()).slug].sort()
+    expect(slugs).toEqual([base, `${base}-2`, `${base}-3`])
+    // A typed slug that is taken is still an error.
+    expect((await create(request('POST', { title: 'Same', slug: base }), ctx(''))).status).toBe(409)
+    // A published post never moves to another URL on its own.
+    const live = await fixture({ status: 'PUBLISHED', publishedAt: new Date(Date.now() - 1000) })
+    expect((await patch(request('PATCH', { slug: base, autoSlug: true }), ctx(live.id))).status).toBe(409)
+  })
+
+  it('names the invalid fields in validation errors (never their values)', async () => {
+    const post = await fixture()
+    const response = await patch(request('PATCH', { metaImage: 'javascript:alert(1)', bogus: 1 }), ctx(post.id))
+    expect(response.status).toBe(400)
+    const { error } = await response.json()
+    expect(error).toMatch(/^Validation failed: /)
+    expect(error).toContain('bogus')
+    expect(error).not.toContain('javascript')
+  })
+
   it('rejects removed fields: passwords, end dates and non-HTML bodies', async () => {
     const post = await fixture()
     for (const data of [{ visibility: 'PASSWORD' }, { visibility: 'NOINDEX' }, { password: 'strong-password-123' }, { unpublishAt: '2035-01-01T12:00:00Z' }, { seoTitle: 'x' }, { theme: 'Green' }]) {
@@ -217,6 +244,19 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('posts API database integration'
     expect((await create(badOrigin, ctx(''))).status).toBe(403)
     const large = request('POST', { title: 'x'.repeat(2_000_001) })
     expect((await create(large, ctx(''))).status).toBe(413)
+  })
+})
+
+describe('slugs', () => {
+  it('cut long titles before trimming, so a slug never ends in a hyphen', async () => {
+    const { slugify, isValidSlug, fallbackSlug } = await import('@/cms/lib/utils')
+    const long = `${'a'.repeat(119)} b`
+    expect(slugify(long)).toBe('a'.repeat(119))
+    expect(isValidSlug(slugify(long))).toBe(true)
+    expect(slugify('日本語のニュース')).toBe('')
+    expect(slugify('🚀 Lanzamiento')).toBe('lanzamiento')
+    expect(fallbackSlug()).toMatch(/^post-[a-z0-9]{6}$/)
+    expect(isValidSlug(fallbackSlug())).toBe(true)
   })
 })
 

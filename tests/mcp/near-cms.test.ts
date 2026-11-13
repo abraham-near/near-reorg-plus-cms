@@ -172,7 +172,7 @@ describe('create_draft', () => {
     const r = await call('create_draft', { title: 'Hello World', html: '<p>Hi</p>', metaImage: '/cms/a.png' })
     expect(r.isError).toBe(false)
     expect(calls.map((c) => `${c.method} ${c.url}`)).toEqual(['POST /api/admin/posts'])
-    expect(JSON.parse(calls[0].init.body as string)).toEqual({ title: 'Hello World', slug: 'hello-world', status: 'DRAFT', body: '<p>Hi</p>', metaImage: '/cms/a.png' })
+    expect(JSON.parse(calls[0].init.body as string)).toEqual({ title: 'Hello World', slug: 'hello-world', autoSlug: true, status: 'DRAFT', body: '<p>Hi</p>', metaImage: '/cms/a.png' })
     expect(r.text).toContain('"bodyHtml": "<p>old</p>"')
   })
 })

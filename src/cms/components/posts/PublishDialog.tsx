@@ -117,7 +117,7 @@ export default function PublishDialog({ open, onOpenChange, kind, initialMode, c
             <span className="grow" />
             <Button type="button" variant="outline" className="cms-press" disabled={busy} onClick={() => setMode('schedule')}>Schedule…</Button>
             <Button type="button" className="cms-press" disabled={busy} onClick={() => void finish(onPublishNow(), 'Your post is live')}>
-              {busy ? <><span aria-hidden className="cms-spin size-3 rounded-full border-2 border-white/40 border-t-white" />Publishing…</> : 'Publish now'}
+              {busy ? <span key="busy" className="inline-flex items-center gap-2"><span aria-hidden className="cms-spin size-3 rounded-full border-2 border-white/40 border-t-white" /><span>Publishing…</span></span> : <span key="label">Publish now</span>}
             </Button>
           </div>
         </div> : <div key="schedule" className="cms-fade-up px-7 pb-6 pt-4">

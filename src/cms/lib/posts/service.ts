@@ -62,18 +62,35 @@ function dates(input: PostInput, previous?: AdminPost) {
   return { status, publishedAt: publish }
 }
 
+/**
+ * Takes the slug for this post. A slug the person typed must be free (409 otherwise). A slug that
+ * only follows the title (autoSlug) takes the next free variant instead: "launch", "launch-2", …
+ * Each candidate is checked under an advisory lock, so two saves cannot take the same one.
+ */
+async function claimSlug(tx: Prisma.TransactionClient, slug: string, auto: boolean, postId?: string): Promise<string> {
+  for (let n = 1; n <= 50; n++) {
+    const suffix = n === 1 ? '' : `-${n}`
+    const candidate = `${slug.slice(0, 200 - suffix.length).replace(/-+$/, '')}${suffix}`
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${candidate}, 0))`
+    const owner = await tx.post.findUnique({ where: { slug: candidate }, select: { id: true } })
+    if (!owner || owner.id === postId) return candidate
+    if (!auto) break
+  }
+  throw new HttpError(409, 'That slug is already in use. Choose another URL for this post.')
+}
+
 async function prepare(tx: Prisma.TransactionClient, input: PostInput, user: SessionUser, previous?: AdminPost) {
   assertPublishing(input, user, previous)
   const when = dates(input, previous)
   if (user.via === 'token') assertTokenPostWrite(input, previous)
   if (input.slug !== undefined && input.slug !== previous?.slug && !isValidSlug(input.slug)) throw new HttpError(400, 'Use lowercase words and numbers separated by hyphens')
-  if (input.slug && input.slug !== previous?.slug) {
-    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${input.slug}, 0))`
-    if (await tx.post.findUnique({ where: { slug: input.slug }, select: { id: true } })) throw new HttpError(409, 'That slug is already in use')
-  }
+  // Only a post that has never been public lets its URL follow the title; a published URL never moves on its own.
+  const followsTitle = !!input.autoSlug && (!previous || (previous.status === 'DRAFT' && !previous.publishedAt))
+  if (input.slug && input.slug !== previous?.slug) input = { ...input, slug: await claimSlug(tx, input.slug, followsTitle, previous?.id) }
   await validateTaxonomy(tx, input)
-  const { categoryIds, tagIds, body, expectedUpdatedAt: _expected, ...fields } = input
+  const { categoryIds, tagIds, body, expectedUpdatedAt: _expected, autoSlug: _auto, ...fields } = input
   void _expected
+  void _auto
   return {
     ...fields,
     ...when,
@@ -94,7 +111,7 @@ async function unique<T>(fn: () => Promise<T>): Promise<T> {
 export async function createPost(input: ReturnType<typeof createPostSchema.parse>, user: SessionUser, req: Request) {
   const post = await unique(() => db.$transaction(async (tx) => {
     const data = await prepare(tx, input, user)
-    return tx.post.create({ data: { ...data, title: input.title, slug: input.slug, authorId: user.id }, select: postSelect })
+    return tx.post.create({ data: { ...data, title: input.title, slug: data.slug ?? input.slug, authorId: user.id }, select: postSelect })
   }, { timeout: 20_000 }))
   await audit(user, { action: 'CREATE', entityType: 'POST', entityId: post.id, entityTitle: post.title }, req)
   if (post.status === 'PUBLISHED') await audit(user, { action: 'PUBLISH', entityType: 'POST', entityId: post.id, entityTitle: post.title }, req)

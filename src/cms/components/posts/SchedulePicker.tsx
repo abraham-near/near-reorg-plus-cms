@@ -86,7 +86,8 @@ export default function SchedulePicker({ initial, allowPast = false, visibility,
         </select>
       </label>
     </div>
-    <p className="text-xs text-muted-foreground" aria-live="polite">{instant ? <>= {formatUtcLine(instant)}{others}</> : 'Enter a time'}{instant && inPast && !allowPast ? <span className="mt-1 block text-[var(--warning-fg)]">Choose a time in the future.</span> : null}</p>
+    {/* Every text that changes sits in its own keyed element (see the dateLabel note in PostForm.tsx). */}
+    <p className="text-xs text-muted-foreground" aria-live="polite">{instant ? <span key="utc">= {formatUtcLine(instant)}{others}</span> : <span key="none">Enter a time</span>}{instant && inPast && !allowPast ? <span key="past" className="mt-1 block text-[var(--warning-fg)]">Choose a time in the future.</span> : null}</p>
 
     <fieldset className="flex flex-col gap-1.5">
       <legend className="sr-only">Visibility</legend>
@@ -99,7 +100,7 @@ export default function SchedulePicker({ initial, allowPast = false, visibility,
     </fieldset>
 
     <Button type="button" className="cms-press h-10 w-full text-sm" disabled={busy || inPast || !instant} onClick={() => instant && onSubmit(instant.toISOString())}>
-      {busy ? <><span aria-hidden className="cms-spin size-3 rounded-full border-2 border-white/40 border-t-white" />Saving…</> : instant ? `${submitPrefix} ${formatScheduleLabel(instant, zone)}` : submitPrefix}
+      {busy ? <span key="busy" className="inline-flex items-center gap-2"><span aria-hidden className="cms-spin size-3 rounded-full border-2 border-white/40 border-t-white" /><span>Saving…</span></span> : <span key="label">{instant ? `${submitPrefix} ${formatScheduleLabel(instant, zone)}` : submitPrefix}</span>}
     </Button>
   </div>
 }
