@@ -9,6 +9,7 @@ import { GET as getLock, POST as lock, DELETE as unlock } from '@/app/(cms)/api/
 import { POST as bulk } from '@/app/(cms)/api/admin/posts/bulk/route'
 import { hashPassword } from '@/cms/lib/password'
 import { createPostSchema } from '@/cms/lib/posts/schema'
+import { createPost } from '@/cms/lib/posts/service'
 
 const mocks = vi.hoisted(() => ({ getSession: vi.fn(), revalidatePost: vi.fn() }))
 vi.mock('@/cms/lib/session', () => ({ getSession: mocks.getSession }))
@@ -211,6 +212,15 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('posts API database integration'
     // A published post never moves to another URL on its own.
     const live = await fixture({ status: 'PUBLISHED', publishedAt: new Date(Date.now() - 1000) })
     expect((await patch(request('PATCH', { slug: base, autoSlug: true }), ctx(live.id))).status).toBe(409)
+  })
+
+  it('lets one credential (Claude) publish at most 10 posts an hour', async () => {
+    const claude = { ...users.get('ADMIN')!, via: 'token' as const, apiTokenId: `${prefix}-credential` }
+    const publish = () => createPost(createPostSchema.parse({ title: 'Rate', slug: slug(), body: '<p>x</p>', status: 'PUBLISHED' }), claude, request('POST'))
+    for (let i = 0; i < 10; i++) await publish()
+    await expect(publish()).rejects.toMatchObject({ status: 429 })
+    // Drafts are not limited.
+    await expect(createPost(createPostSchema.parse({ title: 'Draft', slug: slug() }), claude, request('POST'))).resolves.toBeTruthy()
   })
 
   it('names the invalid fields in validation errors (never their values)', async () => {

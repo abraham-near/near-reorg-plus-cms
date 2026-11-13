@@ -8,6 +8,7 @@ import { audit, diffFields } from '@/cms/lib/audit'
 import { saveRevision } from '@/cms/lib/revisions'
 import { revalidatePost } from '@/cms/lib/cache-tags'
 import { isValidSlug } from '@/cms/lib/utils'
+import { rateLimit } from '@/cms/lib/rate-limit'
 import { prepareBody } from './body'
 import { postSelect, type AdminPost } from './select'
 import { createPostSchema, updatePostSchema, type PostInput } from './schema'
@@ -79,10 +80,26 @@ async function claimSlug(tx: Prisma.TransactionClient, slug: string, auto: boole
   throw new HttpError(409, 'That slug is already in use. Choose another URL for this post.')
 }
 
+/**
+ * Through a token (Claude), at most 10 publish/schedule/unpublish actions per hour per credential: if
+ * someone approves too much too fast, or a prompt injection slips through, the damage stays small.
+ */
+const TOKEN_PUBLISH_PER_HOUR = 10
+async function limitTokenPublishing(input: PostInput, user: SessionUser, previous?: AdminPost) {
+  const statusChanges = input.status !== undefined && input.status !== (previous?.status ?? 'DRAFT') && (input.status === 'PUBLISHED' || previous?.status === 'PUBLISHED')
+  const moves = input.publishedAt !== undefined && (input.status ?? previous?.status) === 'PUBLISHED'
+  if (!statusChanges && !moves) return
+  const { ok } = await rateLimit(`token-publish:${user.apiTokenId ?? user.id}`, TOKEN_PUBLISH_PER_HOUR, 3600)
+  if (!ok) throw new HttpError(429, `Claude can publish, schedule or unpublish at most ${TOKEN_PUBLISH_PER_HOUR} posts an hour. Wait, or do it in the CMS editor.`)
+}
+
 async function prepare(tx: Prisma.TransactionClient, input: PostInput, user: SessionUser, previous?: AdminPost) {
   assertPublishing(input, user, previous)
   const when = dates(input, previous)
-  if (user.via === 'token') assertTokenPostWrite(input, previous)
+  if (user.via === 'token') {
+    assertTokenPostWrite(input, previous)
+    await limitTokenPublishing(input, user, previous)
+  }
   if (input.slug !== undefined && input.slug !== previous?.slug && !isValidSlug(input.slug)) throw new HttpError(400, 'Use lowercase words and numbers separated by hyphens')
   // Only a post that has never been public lets its URL follow the title; a published URL never moves on its own.
   const followsTitle = !!input.autoSlug && (!previous || (previous.status === 'DRAFT' && !previous.publishedAt))

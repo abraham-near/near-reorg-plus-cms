@@ -39,9 +39,36 @@ async function loadEditable(api: Ctx['api'], postId: string) {
   return post
 }
 
+/**
+ * What the person approved: the post must still have this title and this version. A draft edited after
+ * the review (by a person, Claude or text injected in a document) is not published blindly: 409.
+ */
+const reviewed = { title: z.string().min(1).max(500).describe('The post\'s current title, exactly as shown to the person'), expectedUpdatedAt: iso.describe('updatedAt of the version the person reviewed (from get_post or create_draft)') }
+async function loadReviewed(api: Ctx['api'], a: { id: string; title: string; expectedUpdatedAt: string }) {
+  const post = await loadEditable(api, a.id)
+  if (post.title.trim() !== a.title.trim()) throw new ToolError(`The title does not match this post ("${post.title}"). Read it again with get_post and confirm with the person which post to publish.`)
+  if (Date.parse(post.updatedAt) !== Date.parse(a.expectedUpdatedAt)) throw new ToolError('This post changed after the person reviewed it. Read it again with get_post, show the person what changed and ask again.')
+  return post
+}
+
+const WRITE = ['post:write'] as const
+const PUBLISH = ['post:write', 'post:publish'] as const
+
+async function saveEdit(api: Ctx['api'], post: RawPost, a: { id: string; title?: string; html?: string; slug?: string } & Record<string, unknown>) {
+  const patch: Record<string, unknown> = { ...pick(a, ['title', ...META_KEYS]) }
+  if (a.slug !== undefined && a.slug !== post.slug) {
+    if (post.status === 'PUBLISHED') throw new ToolError(`This post is ${isLive(post) ? 'live' : 'scheduled'}: its URL (slug) can only change in the CMS editor (${api.origin}/admin/posts/${a.id}/edit).`)
+    patch.slug = a.slug
+  }
+  if (a.html !== undefined) patch.body = a.html
+  if (!Object.keys(patch).length) throw new ToolError('No changes supplied')
+  return withLock(api, a.id, () => api.request<RawPost>('PATCH', path(a.id), { body: { ...patch, expectedUpdatedAt: post.updatedAt } }))
+}
+const editShape = { id, title: z.string().min(1).max(500).optional(), html: z.string().min(1).max(1_400_000).optional(), slug: z.string().min(1).max(200).optional(), ...meta }
+
 export const postTools: Def[] = [
   {
-    name: 'create_draft', title: 'Create draft post', annotations: { idempotentHint: false },
+    name: 'create_draft', title: 'Create draft post', annotations: { destructiveHint: false, idempotentHint: false }, requires: [...WRITE],
     description: 'Create a new DRAFT blog post whose body is the given HTML. It is not public until publish_post or schedule_post.',
     shape: { title: z.string().min(1).max(500), slug: z.string().min(1).max(200).optional(), html: z.string().max(1_400_000), ...meta },
     run: async (a: { title: string; slug?: string; html: string } & Record<string, unknown>, { api }: Ctx) => {
@@ -52,29 +79,36 @@ export const postTools: Def[] = [
     },
   },
   {
-    name: 'update_post', title: 'Update post', annotations: { destructiveHint: false, idempotentHint: true },
-    description: 'Edit a draft, scheduled or live post. On a live post the change is public right away: first tell the person exactly what will change and wait for their yes. html replaces the whole body. The slug of a published post cannot change, and archived posts must be moved back to draft first. Every save keeps a revision the person can restore in the editor.',
-    shape: { id, title: z.string().min(1).max(500).optional(), html: z.string().min(1).max(1_400_000).optional(), slug: z.string().min(1).max(200).optional(), ...meta },
+    name: 'update_post', title: 'Update draft or scheduled post', annotations: { destructiveHint: false, idempotentHint: true }, requires: [...WRITE],
+    description: 'Edit a draft or a scheduled post (not live yet). html replaces the whole body. For a post that is live, use update_live_post. Archived posts must be moved back to draft first. Every save keeps a revision the person can restore in the editor.',
+    shape: editShape,
     run: async (a: { id: string; title?: string; html?: string; slug?: string } & Record<string, unknown>, { api }: Ctx) => {
       const post = await loadEditable(api, a.id)
-      const patch: Record<string, unknown> = { ...pick(a, ['title', ...META_KEYS]) }
-      if (a.slug !== undefined && a.slug !== post.slug) {
-        if (post.status === 'PUBLISHED') throw new ToolError(`This post is ${isLive(post) ? 'live' : 'scheduled'}: its URL (slug) can only change in the CMS editor (${api.origin}/admin/posts/${a.id}/edit).`)
-        patch.slug = a.slug
-      }
-      if (a.html !== undefined) patch.body = a.html
-      if (!Object.keys(patch).length) throw new ToolError('No changes supplied')
-      const saved = await withLock(api, a.id, () => api.request<RawPost>('PATCH', path(a.id), { body: { ...patch, expectedUpdatedAt: post.updatedAt } }))
-      return ok(shapePost(api.origin, saved, true))
+      if (isLive(post)) throw new ToolError('This post is live: changes are public at once. Tell the person exactly what will change, wait for their yes, then use update_live_post.')
+      return ok(shapePost(api.origin, await saveEdit(api, post, a), true))
     },
   },
   {
-    name: 'publish_post', title: 'Publish post now', annotations: { destructiveHint: false, idempotentHint: true },
-    description: 'Publish a draft, scheduled or archived post now. It goes live immediately: run the ready-to-publish checklist and get the person\'s explicit yes before calling.',
-    shape: { id },
-    run: async (a: { id: string }, { api }: Ctx) => {
+    name: 'update_live_post', title: 'Update a live post', annotations: { destructiveHint: true, idempotentHint: true }, requires: [...WRITE],
+    description: 'Edit a post that is live on the site: the change is public right away. Only after the person said yes to exactly these changes. changeSummary says in a sentence what changes (it is shown when approving and kept in the audit log). The URL (slug) of a live post cannot change.',
+    shape: { ...editShape, changeSummary: z.string().min(3).max(500) },
+    run: async (a: { id: string; changeSummary: string; title?: string; html?: string; slug?: string } & Record<string, unknown>, { api }: Ctx) => {
+      const post = await loadEditable(api, a.id)
+      if (!isLive(post)) throw new ToolError('This post is not live: use update_post.')
+      const { changeSummary: _summary, ...edit } = a
+      void _summary
+      return ok(shapePost(api.origin, await saveEdit(api, post, edit), true))
+    },
+  },
+  {
+    name: 'publish_post', title: 'Publish post now', annotations: { destructiveHint: true, idempotentHint: true }, requires: [...PUBLISH],
+    description: 'Publish a draft, scheduled or archived post now. It goes live immediately: run the ready-to-publish checklist and get the person\'s explicit yes before calling. Pass the title and updatedAt of the version the person reviewed; if the post changed since, this fails and you must show the changes and ask again.',
+    shape: { id, ...reviewed },
+    run: async (a: { id: string; title: string; expectedUpdatedAt: string }, { api }: Ctx) => {
       const post = await api.request<RawPost>('GET', path(a.id))
       if (isLive(post)) throw new ToolError('This post is already live.')
+      if (post.title.trim() !== a.title.trim()) throw new ToolError(`The title does not match this post ("${post.title}"). Read it again with get_post and confirm with the person which post to publish.`)
+      if (Date.parse(post.updatedAt) !== Date.parse(a.expectedUpdatedAt)) throw new ToolError('This post changed after the person reviewed it. Read it again with get_post, show the person what changed and ask again.')
       const now = Date.now()
       const body: Record<string, unknown> = { status: 'PUBLISHED', expectedUpdatedAt: post.updatedAt }
       // A post that was live before keeps its original date; a new or scheduled one goes out now.
@@ -83,21 +117,21 @@ export const postTools: Def[] = [
     },
   },
   {
-    name: 'schedule_post', title: 'Schedule post', annotations: { idempotentHint: true },
-    description: 'Schedule a draft to go live at a future time, or change the time of a post that is already scheduled. Confirm the exact date, time and time zone with the person before calling. publishAt is ISO 8601 with a UTC offset, e.g. 2026-11-03T15:00:00-05:00. To publish right away, use publish_post.',
-    shape: { id, publishAt: iso },
-    run: async (a: { id: string; publishAt: string }, { api }: Ctx) => {
+    name: 'schedule_post', title: 'Schedule post', annotations: { destructiveHint: true, idempotentHint: true }, requires: [...PUBLISH],
+    description: 'Schedule a draft to go live at a future time, or change the time of a post that is already scheduled. Confirm the exact date, time and time zone with the person before calling. publishAt is ISO 8601 with a UTC offset, e.g. 2026-11-03T15:00:00-05:00. Pass the title and updatedAt of the version the person reviewed. To publish right away, use publish_post.',
+    shape: { id, publishAt: iso, ...reviewed },
+    run: async (a: { id: string; publishAt: string; title: string; expectedUpdatedAt: string }, { api }: Ctx) => {
       const at = Date.parse(a.publishAt)
       if (!(at > Date.now())) throw new ToolError('publishAt must be in the future; to publish now, use publish_post')
-      const post = await loadEditable(api, a.id)
+      const post = await loadReviewed(api, a)
       if (isLive(post)) throw new ToolError('This post is already live. Scheduling it would take it off the site until then; ask the person, and use unpublish_post first if they agree.')
       const body = { status: 'PUBLISHED', publishedAt: a.publishAt, expectedUpdatedAt: post.updatedAt }
       return ok(shapePost(api.origin, await withLock(api, a.id, () => api.request<RawPost>('PATCH', path(a.id), { body }))))
     },
   },
   {
-    name: 'unpublish_post', title: 'Unpublish post', annotations: { destructiveHint: true, idempotentHint: true },
-    description: 'Take a post offline by moving it to DRAFT or ARCHIVED. This removes a live page from the public site.',
+    name: 'unpublish_post', title: 'Unpublish post', annotations: { destructiveHint: true, idempotentHint: true }, requires: [...PUBLISH],
+    description: 'Take a post offline by moving it to DRAFT or ARCHIVED. This removes a live page from the public site: only after the person\'s yes.',
     shape: { id, to: z.enum(['DRAFT', 'ARCHIVED']) },
     run: async (a: { id: string; to: 'DRAFT' | 'ARCHIVED' }, { api }: Ctx) => {
       const post = await api.request<RawPost>('GET', path(a.id))

@@ -38,6 +38,8 @@ async function connect(env: Record<string, string | undefined> = ENV) {
   return { client, call }
 }
 
+// What the person reviewed: publish/schedule must name the post's current title and version.
+const REVIEWED = { title: 'T', expectedUpdatedAt: '2026-01-01T00:00:00.000Z' }
 const post = (over: Record<string, unknown> = {}) => ({
   id: 'p1', slug: 's', title: 'T', status: 'DRAFT', visibility: 'PUBLIC', publishedAt: null,
   updatedAt: '2026-01-01T00:00:00.000Z', body: '<p>old</p>',
@@ -51,10 +53,12 @@ describe('tool list', () => {
   it('exposes the expected tools and nothing that deletes, restores or bulk-edits', async () => {
     const { client } = await connect()
     const names = (await client.listTools()).tools.map((t) => t.name)
-    expect([...names].sort()).toEqual(['whoami', 'list_posts', 'get_post', 'create_draft', 'update_post', 'publish_post', 'schedule_post', 'unpublish_post', 'upload_media', 'update_media', 'list_media', 'list_tags', 'list_categories', 'create_tag', 'create_category', 'list_upload_files', 'open_upload_folder', 'import_docx'].sort())
+    expect([...names].sort()).toEqual(['whoami', 'list_posts', 'get_post', 'create_draft', 'update_post', 'update_live_post', 'publish_post', 'schedule_post', 'unpublish_post', 'upload_media', 'update_media', 'list_media', 'list_tags', 'list_categories', 'create_tag', 'create_category', 'list_upload_files', 'open_upload_folder', 'import_docx'].sort())
     expect(names.filter((n) => /delete|remove|restore|bulk|replace|revoke|banner|preview|duplicate/.test(n))).toEqual([])
     const tools = (await client.listTools()).tools
-    expect(tools.find((t) => t.name === 'unpublish_post')?.annotations?.destructiveHint).toBe(true)
+    // Everything that changes the public site asks the person first (Claude's approval prompt).
+    for (const name of ['publish_post', 'schedule_post', 'unpublish_post', 'update_live_post']) expect(tools.find((t) => t.name === name)?.annotations?.destructiveHint).toBe(true)
+    for (const name of ['create_draft', 'update_post']) expect(tools.find((t) => t.name === name)?.annotations?.destructiveHint).toBe(false)
     expect(tools.find((t) => t.name === 'get_post')?.annotations?.readOnlyHint).toBe(true)
   })
 
@@ -205,12 +209,12 @@ describe('update_post', () => {
     expect(r.text).toMatch(/re-read/)
     expect(calls.at(-1)).toMatchObject({ method: 'DELETE', url: '/api/admin/posts/p1/lock' })
   })
-  it('edits live and scheduled posts and returns the editor and preview links', async () => {
-    for (const state of [LIVE, { status: 'PUBLISHED', publishedAt: '2099-01-01T00:00:00.000Z' }]) {
+  it('edits live (update_live_post) and scheduled (update_post) posts and returns the editor and preview links', async () => {
+    for (const [state, tool] of [[LIVE, 'update_live_post'], [{ status: 'PUBLISHED', publishedAt: '2099-01-01T00:00:00.000Z' }, 'update_post']] as const) {
       calls.length = 0
       respond = (m, u) => (m === 'GET' ? { json: post(state) } : u.pathname.endsWith('/lock') ? { json: {} } : { json: post({ ...state, title: 'N' }) })
       const { call } = await connect()
-      const r = await call('update_post', { id: 'p1', title: 'N', slug: 's' })
+      const r = await call(tool, { id: 'p1', title: 'N', slug: 's', ...(tool === 'update_live_post' ? { changeSummary: 'New title' } : {}) })
       expect(r.isError).toBe(false)
       expect(JSON.parse(calls[2].init.body as string)).not.toHaveProperty('slug')
       expect(r.text).toContain('http://localhost:3000/admin/posts/p1/edit')
@@ -218,11 +222,13 @@ describe('update_post', () => {
       expect(r.text).not.toContain('/blog/')
     }
   })
-  it('refuses a new slug on a published post, an empty body and archived posts, before writing', async () => {
+  it('refuses a new slug on a published post, an empty body, live posts through update_post and archived posts, before writing', async () => {
     respond = () => ({ json: post(LIVE) })
     let { call } = await connect()
-    expect((await call('update_post', { id: 'p1', slug: 'other' })).text).toMatch(/URL \(slug\)/)
-    expect((await call('update_post', { id: 'p1', html: '' })).isError).toBe(true)
+    expect((await call('update_live_post', { id: 'p1', slug: 'other', changeSummary: 'New URL' })).text).toMatch(/URL \(slug\)/)
+    expect((await call('update_live_post', { id: 'p1', html: '' , changeSummary: 'Empty' })).isError).toBe(true)
+    expect((await call('update_post', { id: 'p1', title: 'N' })).text).toMatch(/update_live_post/)
+    expect((await call('update_live_post', { id: 'p1', title: 'N' })).isError).toBe(true)
     respond = () => ({ json: post({ status: 'ARCHIVED' }) });
     ({ call } = await connect())
     expect((await call('update_post', { id: 'p1', title: 'N' })).text).toMatch(/archived/)
@@ -236,7 +242,7 @@ describe('publish_post', () => {
   it('publishes a draft now, through the lock', async () => {
     respond = route({})
     const { call } = await connect()
-    const r = await call('publish_post', { id: 'p1' })
+    const r = await call('publish_post', { id: 'p1', ...REVIEWED })
     expect(r.isError).toBe(false)
     expect(r.text).toContain('http://localhost:3000/admin/posts/p1/edit')
     const patch = calls.find((c) => c.method === 'PATCH')!
@@ -248,7 +254,7 @@ describe('publish_post', () => {
   it('keeps the original date of a post that was live before', async () => {
     respond = route({ status: 'ARCHIVED', publishedAt: '2024-05-01T00:00:00.000Z' })
     const { call } = await connect()
-    expect((await call('publish_post', { id: 'p1' })).isError).toBe(false)
+    expect((await call('publish_post', { id: 'p1', ...REVIEWED })).isError).toBe(false)
     const body = JSON.parse(calls.find((c) => c.method === 'PATCH')!.init.body as string)
     expect(body).not.toHaveProperty('publishedAt')
     expect(body).not.toHaveProperty('unpublishAt')
@@ -256,12 +262,12 @@ describe('publish_post', () => {
   it('brings a scheduled post forward to now and says when it is already live', async () => {
     respond = route({ status: 'PUBLISHED', publishedAt: '2099-01-01T00:00:00.000Z' })
     let { call } = await connect()
-    expect((await call('publish_post', { id: 'p1' })).isError).toBe(false)
+    expect((await call('publish_post', { id: 'p1', ...REVIEWED })).isError).toBe(false)
     expect(Date.parse(JSON.parse(calls.find((c) => c.method === 'PATCH')!.init.body as string).publishedAt)).toBeLessThan(Date.now() + 60_000)
     calls.length = 0
     respond = () => ({ json: post({ status: 'PUBLISHED', publishedAt: '2020-01-01T00:00:00.000Z' }) });
     ({ call } = await connect())
-    expect((await call('publish_post', { id: 'p1' })).text).toMatch(/already live/)
+    expect((await call('publish_post', { id: 'p1', ...REVIEWED })).text).toMatch(/already live/)
     expect(calls).toHaveLength(1)
   })
 })
@@ -270,7 +276,7 @@ describe('schedule_post', () => {
   it('rejects a time in the past, before any request', async () => {
     respond = () => ({ json: post() })
     const { call } = await connect()
-    const r = await call('schedule_post', { id: 'p1', publishAt: new Date(Date.now() - 60_000).toISOString() })
+    const r = await call('schedule_post', { id: 'p1', publishAt: new Date(Date.now() - 60_000).toISOString(), ...REVIEWED })
     expect(r.isError).toBe(true)
     expect(r.text).toMatch(/publish_post/)
     expect(calls).toHaveLength(0)
@@ -285,7 +291,7 @@ describe('schedule_post', () => {
       respond = (m) => ({ json: m === 'GET' ? post(state) : {} })
       const { call } = await connect()
       const at = new Date(Date.now() + 10 * 60_000).toISOString()
-      expect((await call('schedule_post', { id: 'p1', publishAt: at })).isError).toBe(false)
+      expect((await call('schedule_post', { id: 'p1', publishAt: at, ...REVIEWED })).isError).toBe(false)
       const patch = calls.find((c) => c.method === 'PATCH')!
       expect(JSON.parse(patch.init.body as string)).toMatchObject({ status: 'PUBLISHED', publishedAt: at, expectedUpdatedAt: '2026-01-01T00:00:00.000Z' })
       expect(calls.at(-1)?.method).toBe('DELETE')
@@ -294,8 +300,18 @@ describe('schedule_post', () => {
   it('does not take a live post off the site to schedule it', async () => {
     respond = () => ({ json: post({ status: 'PUBLISHED', publishedAt: '2020-01-01T00:00:00.000Z' }) })
     const { call } = await connect()
-    expect((await call('schedule_post', { id: 'p1', publishAt: new Date(Date.now() + 3_600_000).toISOString() })).text).toMatch(/already live/)
+    expect((await call('schedule_post', { id: 'p1', publishAt: new Date(Date.now() + 3_600_000).toISOString(), ...REVIEWED })).text).toMatch(/already live/)
     expect(calls).toHaveLength(1)
+  })
+  it('refuses to publish or schedule a post that changed after the review, or another post, before writing', async () => {
+    respond = () => ({ json: post() })
+    const { call } = await connect()
+    const at = new Date(Date.now() + 3_600_000).toISOString()
+    for (const [tool, extra] of [['publish_post', {}], ['schedule_post', { publishAt: at }]] as const) {
+      expect((await call(tool, { id: 'p1', ...extra, ...REVIEWED, expectedUpdatedAt: '2025-12-31T00:00:00.000Z' })).text).toMatch(/changed after the person reviewed/)
+      expect((await call(tool, { id: 'p1', ...extra, ...REVIEWED, title: 'Another post' })).text).toMatch(/title does not match/)
+    }
+    expect(calls.every((c) => c.method === 'GET')).toBe(true)
   })
 })
 
