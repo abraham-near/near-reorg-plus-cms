@@ -1,0 +1,56 @@
+/* home-v6's transition studies (D109): on desktop with motion the hero's foot has no fade on these pages; each study's own pieces. Below 1280 px
+   or with reduced motion the studies don't run and the page is plain v6 (still, foot fade). Tokens only. */
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  /* a longer pin for the hand-over (World.tsx sets --tx-pin per study); the film runs across all of it */
+  html[data-js] .hero--v6[data-tx] { height: calc(100vh + var(--tx-pin-vh)); height: calc(100svh + var(--tx-pin)); }
+  html[data-js] .hero--v6[data-tx] .hero__bg::after { background: none; }
+  /* the intro overlaps the pin's last screen, so it rises onto the stage as soon as the study has turned it to paper (its first line enters at
+     txEnd = pin + 28 - over %, where every study ends: index.ts). Transparent, so nothing of it covers the study before then; D adds its own paper below. */
+  html[data-js] .pin[data-tx] > .statement { position: relative; z-index: 3; margin-top: calc(-1 * var(--tx-over-vh, 100vh)); margin-top: calc(-1 * var(--tx-over, 100svh)); }
+}
+.tx-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+/* A · the line: two paper curtains from the edges, a green thread fixed to the viewport */
+.txl-curtain { position: absolute; top: 0; bottom: 0; background: var(--paper); transform: scaleX(0); will-change: transform; }
+.txl-curtain--l { left: 0; right: auto; transform-origin: 0 50%; }
+.txl-curtain--r { left: auto; right: 0; transform-origin: 100% 50%; }
+.txl-thread { position: fixed; top: 0; left: 0; z-index: 4; width: 0; height: 0; pointer-events: none; visibility: hidden; }
+.txl-thread__line { position: absolute; left: -1px; top: 0; width: 2px; height: 1px; background: var(--color-green); transform-origin: 0 0; will-change: transform; }
+.txl-thread__dot { position: absolute; left: 0; top: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--color-green); will-change: transform; }
+
+/* B · the grid: the lower sections' geometry (v3/proof-deeper: margins clamp(20px, 5.56vw, 96px), 1 px rules, a 9 px + where lines meet).
+   Over the picture a rule needs to read on pale mist and dark forest alike: ink at the grid's strength with a pale edge beside it. */
+.txg { --txg-m: clamp(20px, 5.56vw, 96px); --txg-line: color-mix(in srgb, var(--color-ink) 24%, transparent); --txg-edge: color-mix(in srgb, var(--color-on-dark) 45%, transparent); }
+.txg > * { position: absolute; display: block; will-change: transform; }
+.txg-paper { top: 0; bottom: 0; background: var(--paper); transform: scaleY(0); transform-origin: 50% 100%; }
+.txg-band { transform: scaleX(0); transform-origin: 0 50%; }
+.txg-rule--v { top: 0; bottom: 0; width: 1px; background: var(--txg-line); box-shadow: 1px 0 0 var(--txg-edge); transform: scaleY(0); transform-origin: 50% 0; }
+.txg-rule--h { height: 1px; background: var(--txg-line); box-shadow: 0 1px 0 var(--txg-edge); transform: scaleX(0); transform-origin: 0 50%; }
+.txg-x { width: 9px; height: 9px; opacity: 0;
+  background: linear-gradient(var(--color-ink), var(--color-ink)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--color-ink), var(--color-ink)) 0 50% / 100% 1px no-repeat;
+  filter: drop-shadow(0 0 1px var(--txg-edge)); }
+
+/* C · horizon: paper from the top and the bottom meeting on the horizon; the rule (fixed, so it can come to rest above the intro) and its + */
+.txh-curtain { left: 0; right: 0; background: var(--paper); transform: scaleY(0); will-change: transform; }
+.txh-curtain--t { top: 0; bottom: auto; transform-origin: 50% 0; }
+.txh-curtain--b { top: auto; bottom: 0; transform-origin: 50% 100%; }
+.txh-rule { --txh-m: clamp(20px, 5.56vw, 96px); position: fixed; left: 0; top: 0; z-index: 4; width: 100%; height: 0; pointer-events: none; visibility: hidden; }
+.txh-rule__line { position: absolute; left: 0; top: 0; width: 100%; height: 1px; background: color-mix(in srgb, var(--color-ink) 24%, transparent); transform-origin: 0 50%; will-change: transform; }
+.txh-x { position: absolute; left: 0; top: 0; width: 9px; height: 9px; opacity: 0; will-change: transform;
+  background: linear-gradient(var(--color-ink), var(--color-ink)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--color-ink), var(--color-ink)) 0 50% / 100% 1px no-repeat; }
+
+/* D · paper over: on desktop with motion the intro pulls up one screen, over the pinned stage, as a sheet of paper with a hard top edge: the
+   grid's hairline across the screen and a + at each page margin */
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  html[data-js] .pin[data-tx="d"] > .statement { --txp-m: clamp(20px, 5.56vw, 96px); background: var(--paper); align-items: flex-start; padding-top: calc(var(--nav-h) + 9svh); }   /* the words close behind the sheet's edge, not a quarter-screen of paper later */
+  html[data-js] .pin[data-tx="d"] > .statement::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: color-mix(in srgb, var(--color-ink) 40%, transparent); pointer-events: none; }
+  html[data-js] .pin[data-tx="d"] > .statement::after {
+    content: ""; position: absolute; left: calc(var(--txp-m) - 4px); right: calc(var(--txp-m) - 4px); top: -4px; height: 9px; pointer-events: none;
+    background:
+      linear-gradient(var(--color-ink), var(--color-ink)) 4px 0 / 1px 9px no-repeat, linear-gradient(var(--color-ink), var(--color-ink)) 0 4px / 9px 1px no-repeat,
+      linear-gradient(var(--color-ink), var(--color-ink)) right 4px top 0 / 1px 9px no-repeat, linear-gradient(var(--color-ink), var(--color-ink)) right 0 top 4px / 9px 1px no-repeat;
+  }
+}
+
+/* E · halftone: the canvas over the picture */
+.txd { width: 100%; height: 100%; }

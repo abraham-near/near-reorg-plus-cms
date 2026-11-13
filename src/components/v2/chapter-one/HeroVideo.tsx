@@ -16,7 +16,8 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // Phones/tablets keep the still with a gentle parallax.
 export const HERO_VIDEO = "/videos/home/home-hero-ridges-crane-v1.mp4";
 
-export function HeroVideo({ src, fps: FPS = 24 }: { src?: string; fps?: number }) {
+// `end`: where the move ends, as a ScrollTrigger end on the hero's root (home-v6's transition studies stretch it over a longer pin; D109)
+export function HeroVideo({ src, fps: FPS = 24, end = "top -120%" }: { src?: string; fps?: number; end?: string }) {
   const anchor = useRef<HTMLSpanElement>(null);
 
   useGSAP(() => {
@@ -45,7 +46,7 @@ export function HeroVideo({ src, fps: FPS = 24 }: { src?: string; fps?: number }
       // The move runs from the top of the page until the photo has closed on the line (ChapterOneMotion: the curtains
       // run from -75% to -120%), so it keeps moving through the close-in and never freezes on screen (D35)
       const st = ScrollTrigger.create({
-        trigger: root, start: "top top", end: "top -120%",
+        trigger: root, start: "top top", end,
         onUpdate: (s) => { target = s.progress; if (!raf) raf = requestAnimationFrame(tick); },
       });
       const frame = (t: number) => Math.round(t * FPS) / FPS;
@@ -82,7 +83,7 @@ export function HeroVideo({ src, fps: FPS = 24 }: { src?: string; fps?: number }
       };
     });
     return () => mm.revert();
-  }, { scope: anchor, dependencies: [src, FPS] });
+  }, { scope: anchor, dependencies: [src, FPS, end] });
 
   return <span ref={anchor} hidden />;
 }
