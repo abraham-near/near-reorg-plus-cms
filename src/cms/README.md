@@ -83,6 +83,15 @@ Setup:
 2. Set `GOOGLE_SERVICE_ACCOUNT_JSON` to the key, base64-encoded.
 3. If the Workspace restricts sharing outside the organization, allow the service account's address.
 
+The service account can read every Doc shared with it, so it is never a shortcut to someone else's Doc. The person importing must be able to open it in Google themselves: as owner, shared with their CMS email, or shared with their domain or "anyone with the link". Group shares cannot be checked. The audit log records the Doc id of each import.
+
+The real safeguards for publishing are:
+- the `cms:publish` scope (untick it when connecting to keep Claude to drafts);
+- Claude's own approval prompt (set the publish tools to "Needs approval");
+- the hourly limit and the email to the owner.
+
+The title and version check in the publish tools stops stale or mistaken publishes, but a model can supply those values itself.
+
 Fetches go through `safeFetch` (`src/cms/lib/safe-fetch.ts`): allowlisted https hosts only, resolved addresses checked against private and metadata ranges, no automatic redirects, size and time caps.
 
 The document is untrusted:

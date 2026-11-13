@@ -43,7 +43,7 @@ export type ImportSummary = {
   source: 'service-account' | 'public-link' | 'upload'
 }
 
-export async function importDocxAsDraft(bytes: Uint8Array, input: { name: string | null; source: ImportSummary['source'] }, user: SessionUser, req: Request): Promise<ImportSummary> {
+export async function importDocxAsDraft(bytes: Uint8Array, input: { name: string | null; source: ImportSummary['source']; documentId?: string }, user: SessionUser, req: Request): Promise<ImportSummary> {
   let parsed
   try { parsed = parseDocx(bytes) } catch (error) {
     if (error instanceof DocxError) throw new HttpError(400, error.message)
@@ -88,7 +88,7 @@ export async function importDocxAsDraft(bytes: Uint8Array, input: { name: string
   const post = await createPost(createPostSchema.parse({
     title, slug: slugify(title) || fallbackSlug(), autoSlug: true, status: 'DRAFT', body, ...(first ? { featuredImage: first.url } : {}),
   }), user, req)
-  await audit(user, { action: 'IMPORT', entityType: 'POST', entityId: post.id, entityTitle: post.title, diff: { source: input.source, images: stored.size, skipped: skipped.length, hiddenTextRemoved: parsed.hiddenRemoved } }, req)
+  await audit(user, { action: 'IMPORT', entityType: 'POST', entityId: post.id, entityTitle: post.title, diff: { source: input.source, ...(input.documentId ? { documentId: input.documentId } : {}), images: stored.size, skipped: skipped.length, hiddenTextRemoved: parsed.hiddenRemoved } }, req)
 
   return {
     postId: post.id, title: post.title, status: 'DRAFT', words: countWords(parsed.blocks), images: stored.size,

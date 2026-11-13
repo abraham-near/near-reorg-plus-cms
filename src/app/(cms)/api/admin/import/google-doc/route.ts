@@ -19,6 +19,6 @@ export const POST = route(async (req) => {
   const id = parseGoogleDocId(url)
   const limit = await rateLimit(`gdoc-import:${user.id}`, 10, 600)
   if (!limit.ok) throw new HttpError(429, 'Too many imports. Wait a few minutes and try again.')
-  const doc = await fetchGoogleDoc(id)
-  return json(await importDocxAsDraft(doc.bytes, { name: doc.name, source: doc.source }, user, req), 201)
+  const doc = await fetchGoogleDoc(id, user.email)
+  return json(await importDocxAsDraft(doc.bytes, { name: doc.name, source: doc.source, documentId: id }, user, req), 201)
 }, { token: true })

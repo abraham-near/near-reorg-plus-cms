@@ -48,6 +48,7 @@ describe('fetching a Google Doc', async () => {
   const DOCX = Buffer.from(zipSync({ 'word/document.xml': strToU8('<w:document><w:body></w:body></w:document>') }))
   const key = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({ type: 'pkcs8', format: 'pem' }).toString()
   const SA = Buffer.from(JSON.stringify({ client_email: 'near-cms@proj.iam.gserviceaccount.com', private_key: key })).toString('base64')
+  const ME = 'editor@near.org'
   const res = (status: number, body: string | Buffer, headers: Record<string, string> = {}) => ({ status, headers, body: Buffer.isBuffer(body) ? body : Buffer.from(body), url: new URL('https://x') })
 
   beforeEach(() => {
@@ -68,15 +69,15 @@ describe('fetching a Google Doc', async () => {
         return res(200, JSON.stringify({ access_token: 'ya29.x', expires_in: 3600 }))
       }
       if (url.includes('/export?mimeType=')) return res(200, DOCX)
-      return res(200, JSON.stringify({ id: 'x', name: 'Launch', mimeType: 'application/vnd.google-apps.document' }))
+      return res(200, JSON.stringify({ id: 'x', name: 'Launch', mimeType: 'application/vnd.google-apps.document', owners: [{ emailAddress: 'owner@near.org' }], permissions: [{ type: 'user', emailAddress: ME }] }))
     })
-    expect(await fetchGoogleDoc('doc1')).toMatchObject({ name: 'Launch', source: 'service-account' })
+    expect(await fetchGoogleDoc('doc1', ME)).toMatchObject({ name: 'Launch', source: 'service-account' })
     for (const [url] of mocks.safeFetch.mock.calls) expect(url).toMatch(/^https:\/\/(oauth2|www)\.googleapis\.com\//)
   })
 
   it('falls back to the public export for "Anyone with the link" Docs', async () => {
     mocks.safeFetch.mockResolvedValue(res(200, DOCX))
-    expect(await fetchGoogleDoc('doc2')).toMatchObject({ source: 'public-link' })
+    expect(await fetchGoogleDoc('doc2', ME)).toMatchObject({ source: 'public-link' })
     expect(mocks.safeFetch.mock.calls[0][0]).toBe('https://docs.google.com/document/d/doc2/export?format=docx')
     // Only Google's download host may be a redirect target; the sign-in page is not.
     const allowRedirect = mocks.safeFetch.mock.calls[0][1].allowRedirect as (to: URL) => boolean
@@ -91,7 +92,7 @@ describe('fetching a Google Doc', async () => {
       if (url.includes('googleapis.com/drive')) return res(404, '{"error":"notFound"}')
       return res(302, '<html>Sign in</html>', { location: 'https://accounts.google.com/ServiceLogin' })
     })
-    const error = await fetchGoogleDoc('doc3').catch((e) => e)
+    const error = await fetchGoogleDoc('doc3', ME).catch((e) => e)
     expect(error).toMatchObject({ status: 403 })
     expect(error.message).toContain('near-cms@proj.iam.gserviceaccount.com')
     expect(error.message).not.toMatch(/Sign in|html/)
@@ -99,19 +100,37 @@ describe('fetching a Google Doc', async () => {
 
   it('can turn the public export off, and refuses Docs owned outside the organization when asked to', async () => {
     process.env.CMS_GOOGLE_PUBLIC_EXPORT = 'false'
-    await expect(fetchGoogleDoc('doc4')).rejects.toMatchObject({ status: 403 })
+    await expect(fetchGoogleDoc('doc4', ME)).rejects.toMatchObject({ status: 403 })
     expect(mocks.safeFetch).not.toHaveBeenCalled()
     process.env.GOOGLE_SERVICE_ACCOUNT_JSON = SA
     process.env.CMS_GOOGLE_OWNER_DOMAINS = 'near.org'
-    mocks.safeFetch.mockImplementation(async (url: string) => (url.startsWith('https://oauth2') ? res(200, JSON.stringify({ access_token: 't' })) : res(200, JSON.stringify({ mimeType: 'application/vnd.google-apps.document', owners: [{ emailAddress: 'x@evil.test' }] }))))
-    await expect(fetchGoogleDoc('doc5')).rejects.toThrow(/outside the organization/)
+    mocks.safeFetch.mockImplementation(async (url: string) => (url.startsWith('https://oauth2') ? res(200, JSON.stringify({ access_token: 't' })) : res(200, JSON.stringify({ mimeType: 'application/vnd.google-apps.document', owners: [{ emailAddress: 'x@evil.test' }], permissions: [{ type: 'anyone' }] }))))
+    await expect(fetchGoogleDoc('doc5', ME)).rejects.toThrow(/outside the organization/)
+  })
+
+  it('does not let someone import a Doc they cannot open in Google themselves', async () => {
+    process.env.GOOGLE_SERVICE_ACCOUNT_JSON = SA
+    const meta = (file: object) => mocks.safeFetch.mockImplementation(async (url: string) => {
+      if (url.startsWith('https://oauth2.googleapis.com/token')) return res(200, JSON.stringify({ access_token: 't' }))
+      if (url.includes('/export?mimeType=')) return res(200, DOCX)
+      return res(200, JSON.stringify({ mimeType: 'application/vnd.google-apps.document', ...file }))
+    })
+    // Shared with the CMS only (by a colleague): refused, and nothing is downloaded.
+    meta({ owners: [{ emailAddress: 'colleague@near.org' }], permissions: [{ type: 'user', emailAddress: 'colleague@near.org' }, { type: 'user', emailAddress: 'near-cms@proj.iam.gserviceaccount.com' }] })
+    await expect(fetchGoogleDoc('doc8', ME)).rejects.toThrow(/does not have access/)
+    expect(mocks.safeFetch.mock.calls.some(([url]) => String(url).includes('/export'))).toBe(false)
+    // The owner, someone it is shared with, or the whole domain: allowed.
+    for (const file of [{ owners: [{ emailAddress: ME }] }, { permissions: [{ type: 'domain', domain: 'near.org' }] }, { permissions: [{ type: 'user', emailAddress: 'EDITOR@near.org' }] }]) {
+      meta(file)
+      await expect(fetchGoogleDoc('doc9', ME)).resolves.toMatchObject({ source: 'service-account' })
+    }
   })
 
   it('reports Docs that are too large or slow, in words the person can act on', async () => {
     mocks.safeFetch.mockRejectedValue(new SafeFetchError('too large', 'too-large'))
-    await expect(fetchGoogleDoc('doc6')).rejects.toMatchObject({ status: 413 })
+    await expect(fetchGoogleDoc('doc6', ME)).rejects.toMatchObject({ status: 413 })
     mocks.safeFetch.mockRejectedValue(new SafeFetchError('slow', 'timeout'))
-    await expect(fetchGoogleDoc('doc7')).rejects.toMatchObject({ status: 504 })
+    await expect(fetchGoogleDoc('doc7', ME)).rejects.toMatchObject({ status: 504 })
   })
 })
 

@@ -50,8 +50,27 @@ function tooLarge(): never {
 
 const ownerDomains = () => (process.env.CMS_GOOGLE_OWNER_DOMAINS ?? '').split(',').map((d) => d.trim().toLowerCase()).filter(Boolean)
 
+type DriveFile = {
+  name?: string; mimeType?: string; size?: string
+  owners?: { emailAddress?: string }[]
+  permissions?: { type?: string; emailAddress?: string; domain?: string }[]
+}
+
+/**
+ * The service account can read every Doc anyone shared with it, so it must not become a way to read
+ * someone else's Doc: the person importing must have access in Google themselves (owner, shared with
+ * their address, or open to their domain or to anyone with the link). Group shares cannot be checked.
+ */
+function personCanRead(file: DriveFile, email: string): boolean {
+  const me = email.toLowerCase()
+  const domain = me.split('@')[1]
+  if (file.owners?.some((o) => o.emailAddress?.toLowerCase() === me)) return true
+  return !!file.permissions?.some((p) =>
+    (p.type === 'user' && p.emailAddress?.toLowerCase() === me) || (p.type === 'domain' && p.domain?.toLowerCase() === domain) || p.type === 'anyone')
+}
+
 /** Through the service account. null when the Doc is not shared with it (or no account is configured). */
-async function viaServiceAccount(id: string): Promise<FetchedDoc | null> {
+async function viaServiceAccount(id: string, email: string): Promise<FetchedDoc | null> {
   if (!serviceAccountEmail()) return null
   let token: string
   try { token = await googleAccessToken() } catch {
@@ -60,10 +79,13 @@ async function viaServiceAccount(id: string): Promise<FetchedDoc | null> {
   }
   const headers = { authorization: `Bearer ${token}` }
   const opts = { allow: ['www.googleapis.com'], headers, timeoutMs: FETCH_TIMEOUT_MS }
-  const meta = await safeFetch(`https://www.googleapis.com/drive/v3/files/${id}?fields=id,name,mimeType,size,owners(emailAddress)&supportsAllDrives=true`, { ...opts, maxBytes: 64 * 1024 })
+  const meta = await safeFetch(`https://www.googleapis.com/drive/v3/files/${id}?fields=id,name,mimeType,size,owners(emailAddress),permissions(type,emailAddress,domain)&supportsAllDrives=true`, { ...opts, maxBytes: 64 * 1024 })
   if (meta.status === 404 || meta.status === 403) return null
   if (meta.status !== 200) throw new HttpError(502, 'Google Drive did not answer. Try again in a minute.')
-  const file = JSON.parse(meta.body.toString('utf8')) as { name?: string; mimeType?: string; size?: string; owners?: { emailAddress?: string }[] }
+  const file = JSON.parse(meta.body.toString('utf8')) as DriveFile
+  if (!personCanRead(file, email)) {
+    throw new HttpError(403, `Your Google account (${email}) does not have access to this Doc. Ask its owner to share it with you, then try again.`)
+  }
   // Optional: only Docs owned by people in these domains (CMS_GOOGLE_OWNER_DOMAINS=near.org,…).
   const domains = ownerDomains()
   if (domains.length && !file.owners?.some((o) => domains.includes(o.emailAddress?.split('@')[1]?.toLowerCase() ?? ''))) {
@@ -97,9 +119,9 @@ async function viaPublicLink(id: string): Promise<FetchedDoc | null> {
 }
 
 /** The Doc as .docx bytes, or an HttpError the person can act on. */
-export async function fetchGoogleDoc(id: string): Promise<FetchedDoc> {
+export async function fetchGoogleDoc(id: string, email: string): Promise<FetchedDoc> {
   try {
-    return (await viaServiceAccount(id)) ?? (await viaPublicLink(id)) ?? notShared()
+    return (await viaServiceAccount(id, email)) ?? (await viaPublicLink(id)) ?? notShared()
   } catch (error) {
     if (error instanceof HttpError) throw error
     if (error instanceof SafeFetchError && error.reason === 'too-large') tooLarge()
