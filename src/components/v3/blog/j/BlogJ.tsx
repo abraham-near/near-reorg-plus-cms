@@ -7,12 +7,12 @@
 //   - the body: the rail (sticky): search (live, a clear button, "/" to focus it), the type filter (a vertical radio group; the green dot slides to the
 //     chosen type; each type shows how many posts match the search), Sort (Newest / Oldest / A–Z) and View (Grid / List) as small text toggles; the
 //     newsletter waits at the rail's foot. The feed: its head (how many are showing, the active filters as chips you can remove), the latest post as the
-//     lead while browsing, then the posts as open cards (photo, type, title, source) or as rows, six to a page, numbered pages at the foot.
+//     lead while browsing, then the posts as open cards (photo, type, title, source) three to a row, 18 to a page, or as rows, six to a page; numbered pages at the foot.
 //   - below 1024 px the rail folds into a bar over the feed: the search full width and a Filters button that opens type, sort and view in place.
 // The state rides in the URL (?q=, ?type=, ?sort=, ?view=, ?page=) so a filtered view can be shared or come back to.
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { prefersReduced, useScrollMotion } from "@/lib/motion/scroll";
-import { BLOG, POSTS, byType, type FilterKey, type Post } from "../data";
+import { BLOG, POSTS, type FilterKey, type Post } from "../data";
 import { KIND } from "./parts";
 import { Arrow } from "../parts";
 import { Card, GridIcon, Lead, ListIcon, Newsletter, Row, Seg, TypeList, fold } from "./parts";
@@ -21,25 +21,27 @@ import "./blog-j.css";
 
 type Sort = "new" | "old" | "az";
 type View = "grid" | "list";
-const PER = 6;          // posts to a page (the lead counts)
+const PER = 6;          // the list view: posts to a page (the lead counts)
+const GRID = 18;        // the grid view: cards to a page, six rows of three (the lead, on page 1, comes on top of them)
 const OFFSET = 104;     // the floating header (16 px inset + 64 px bar) and some air: where the feed's head lands when we bring it into view
 // the categories: Blog (the reads), Press (the customer stories), Watch (the talks); labels in ./parts.tsx KIND
 const TYPES: { key: FilterKey; label: string }[] = [{ key: "all", label: "All" }, { key: "read", label: KIND.read }, { key: "story", label: KIND.story }, { key: "watch", label: KIND.watch }];
 const SORTS: { key: Sort; label: string }[] = [{ key: "new", label: "Newest" }, { key: "old", label: "Oldest" }, { key: "az", label: "A–Z" }];
 const VIEWS: { key: View; label: string; icon: ReactNode }[] = [{ key: "grid", label: "Grid", icon: <GridIcon /> }, { key: "list", label: "List", icon: <ListIcon /> }];
 // the head's figures: counts of data.ts, nothing more
-const FIGS = [
-  { n: POSTS.length, c: "Posts" },
-  { n: byType("read").length, c: KIND.read },
-  { n: byType("story").length, c: KIND.story },
-  { n: byType("watch").length, c: KIND.watch },
+const NONE: Post[] = [];
+const figs = (all: Post[]) => [
+  { n: all.length, c: "Posts" },
+  { n: all.filter((p) => p.type === "read").length, c: KIND.read },
+  { n: all.filter((p) => p.type === "story").length, c: KIND.story },
+  { n: all.filter((p) => p.type === "watch").length, c: KIND.watch },
 ];
 const plural = (n: number) => `${n} ${n === 1 ? "post" : "posts"}`;
 const matches = (p: Post, q: string) => !q || fold(`${p.title} ${p.source} ${KIND[p.type]}`).includes(q);
-/** the grid view's rhythm on a six-column grid: rows of three, and a row of two first when the count asks for it (5 = 2 + 3, 4 = 2 + 2) */
-const widths = (n: number): (2 | 3)[] => Array.from({ length: n }, (_, i) => (n % 3 === 0 ? 3 : n % 3 === 2 ? (i < 2 ? 2 : 3) : 2));
 
-export function BlogJ() {
+/** `live`: the CMS's published posts (as Blog), listed first, before data.ts's */
+export function BlogJ({ live = NONE }: { live?: Post[] }) {
+  const all = [...live, ...POSTS], FIGS = figs(all);
   const ref = useRef<HTMLDivElement>(null), motion = useRef<JMotion | null>(null);
   const input = useRef<HTMLInputElement>(null), head = useRef<HTMLHeadingElement>(null);
   const [f, setF] = useState<FilterKey>("all");
@@ -55,19 +57,21 @@ export function BlogJ() {
 
   /* ── the list ── */
   const q = fold(raw.trim());
-  const counts = useMemo(() => Object.fromEntries(TYPES.map((t) => [t.key, POSTS.filter((p) => (t.key === "all" || p.type === t.key) && matches(p, q)).length])) as Record<FilterKey, number>, [q]);
-  const list = useMemo(() => {
-    const l = POSTS.filter((p) => (f === "all" || p.type === f) && matches(p, q));
-    if (sort === "az") return l.sort((a, b) => a.title.localeCompare(b.title, "en", { sensitivity: "base" }));
-    return sort === "old" ? l.reverse() : l;   // Newest: data.ts's order
-  }, [f, q, sort]);
-  const pages = Math.max(1, Math.ceil(list.length / PER)), pg = Math.min(page, pages);
-  const slice = list.slice((pg - 1) * PER, pg * PER);
-  const lead = sort === "new" && !q && pg === 1 && slice.length ? slice[0] : null;
+  // plain values: the React Compiler memoizes them
+  const counts = Object.fromEntries(TYPES.map((t) => [t.key, all.filter((p) => (t.key === "all" || p.type === t.key) && matches(p, q)).length])) as Record<FilterKey, number>;
+  const filtered = all.filter((p) => (f === "all" || p.type === f) && matches(p, q));
+  const list = sort === "az" ? filtered.sort((a, b) => a.title.localeCompare(b.title, "en", { sensitivity: "base" })) : sort === "old" ? filtered.reverse() : filtered;   // Newest: the CMS's posts, then data.ts's order
+  // pages: the list view six to a page (the lead counts); the grid view 18 cards to a page, plus the lead on page 1 while browsing
+  const grid = view === "grid", leadable = sort === "new" && !q;
+  const per = grid ? GRID : PER, first = grid && leadable ? GRID + 1 : per;
+  const start = (n: number) => (n <= 1 ? 0 : first + (n - 2) * per);
+  const pages = Math.max(1, 1 + Math.ceil(Math.max(0, list.length - first) / per)), pg = Math.min(page, pages);
+  const slice = list.slice(start(pg), start(pg) + (pg === 1 ? first : per));
+  const lead = leadable && pg === 1 && slice.length ? slice[0] : null;
   const rest = lead ? slice.slice(1) : slice;
-  const w = widths(rest.length);
-  const cols = w.map((x, j) => (w.slice(0, j).reduce((a, y) => a + (y === 2 ? 3 : 2), 0) % 6) / (x === 2 ? 3 : 2));   // each card's column in its row: arrivals in turn
-  const from = list.length ? (pg - 1) * PER + 1 : 0, to = (pg - 1) * PER + slice.length;
+  const w = rest.map(() => 3 as const);           // the grid: three to a row, always
+  const cols = rest.map((_, j) => j % 3);          // each card's column in its row: arrivals in turn
+  const from = list.length ? start(pg) + 1 : 0, to = start(pg) + slice.length;
   const label = TYPES.find((t) => t.key === f)!.label;
   const term = raw.trim();
 

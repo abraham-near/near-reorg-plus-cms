@@ -21,7 +21,7 @@ const COPY = {
   ext: " (another NEAR site)",
 };
 const WAYS = [
-  { name: "Blog", href: "/blog-j" },
+  { name: "Blog", href: "/blog" },
   { name: "near.com", href: "https://near.com" },
 ];
 const LEGAL = [{ name: "Terms of Use", href: "/terms" }, { name: "Privacy Policy", href: "/privacy" }];
