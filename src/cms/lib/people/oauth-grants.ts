@@ -15,7 +15,9 @@ export type ConnectedApp = {
 
 export async function listOwnConnections(userId: string): Promise<ConnectedApp[]> {
   const rows = await db.oAuthGrant.findMany({
-    where: { userId, OR: [{ revokedAt: null }, { revokedAt: { gt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }] },
+    // Only connections Claude actually completed (a code exchanged for tokens): an Allow whose code was
+    // never used gives nobody access and would only be confusing here.
+    where: { userId, tokens: { some: {} }, OR: [{ revokedAt: null }, { revokedAt: { gt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }] },
     orderBy: [{ revokedAt: { sort: 'desc', nulls: 'first' } }, { createdAt: 'desc' }],
     take: 30,
   })

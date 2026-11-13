@@ -16,9 +16,10 @@ type Props = { searchParams: Promise<{ req?: string }> }
 
 /** The "Allow Claude to use your CMS account?" screen of the connector's sign-in. */
 export default async function ConsentPage({ searchParams }: Props) {
-  if (!mcpEnabled()) notFound()
+  // Read the request first: the page then renders per request (a feature check alone would be baked at build).
   const { req } = await searchParams
   const session = await getSession()
+  if (!mcpEnabled()) notFound()
   if (!session) redirect(`/admin/login?next=${encodeURIComponent(`/admin/oauth/consent?req=${req ?? ''}`)}`)
   const pending = await pendingAuthorization(req)
   if (!pending) {

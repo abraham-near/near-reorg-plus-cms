@@ -88,7 +88,7 @@ export default function ConnectClaude({ tokens, enabled, cmsOrigin, connector }:
       </details>
 
       <section aria-labelledby="try-heading" className="space-y-3 rounded-xl border bg-card p-6">
-        <h2 id="try-heading" className="text-lg font-semibold"><span className="text-muted-foreground">3.</span> Try it</h2>
+        <h2 id="try-heading" className="text-lg font-semibold">Try it</h2>
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
           <li>Ask Claude: <em>“Get started with the NEAR CMS”</em>. In Claude Code you can also type <code className={code}>/mcp__near-cms__onboarding</code>.</li>
           <li>Other prompts: <strong>draft_from_google_doc</strong> (a Google Doc to a draft, with its images) and <strong>ready_to_publish</strong> (check a draft, then publish or schedule it once you say yes).</li>
