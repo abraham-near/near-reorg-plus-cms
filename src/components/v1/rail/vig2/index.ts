@@ -15,7 +15,8 @@ import { create as intelligence } from "./intelligence";
 import { create as identity } from "./identity";
 
 export type VigKey = "problem" | "data" | "assets" | "intelligence" | "identity";
-export type Vignette = { el: HTMLElement; set: (a: number) => void; idle: (t: number, w: number) => void; dispose?: () => void };
+/** own(o): optional, the problem's only (home v5, .layer[data-beats="split"]): 0 someone else's stack, 1 the user's; drawn in place at rest */
+export type Vignette = { el: HTMLElement; set: (a: number) => void; idle: (t: number, w: number) => void; own?: (o: number) => void; dispose?: () => void };
 
 /** the four stations, in rail order (the problem is the gate's) */
 export const KEYS: VigKey[] = ["data", "assets", "intelligence", "identity"];

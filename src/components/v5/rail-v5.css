@@ -1,0 +1,30 @@
+/* Home v5's rail (V5Page.tsx: <RailV4 beats="split" back="ridges" />). Scoped to the flags the section carries, so v1 / v3 / v4 never see it; v5's other styles are in ./v5.css.
+   The stage itself is built by rail/layer.ts (see its header for the beats). */
+
+/* ───────── the ridges behind the scroll (home v2's "horizon": RailLooks.module.css) instead of the dot globe ─────────
+   One wide panorama (no repeat): 205 vw wide covers the screen plus 0.3x the world's travel (layer.ts moves .rs__plate); its foot sits on the line, so the line reads
+   as its horizon. Held well back so the dots, the line and the drawings read over it: low strength, a little greyed, its sky fading into the paper (the header's
+   band stays clean), and faded out at the screen's edges so it slides in from beyond the frame. The stage's lowest layer: the tide's dark rises over it. */
+.layer[data-back="ridges"] .rs__ridges {
+  position: absolute; left: 0; top: 0; width: 100%; height: var(--rail-y); overflow: hidden; pointer-events: none; opacity: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.layer[data-back="ridges"] .rs__plate {
+  position: absolute; left: 0; top: 0; width: 205vw; height: 100%; will-change: transform;
+  background: url("/v1/rail/rail-ridges.webp") no-repeat left bottom / 205vw auto;   /* = /images/home/rail/home-rail-ridges-wide-v1.webp (same file; already loaded for the rail's field) */
+  opacity: .3; filter: grayscale(.35) contrast(.88);
+  /* the sky fades from the top of the band, or from the photo's own top where the photo is shorter than the band (phones: 205 vw x 1648/3840 = 88 vw tall), so it never shows an edge */
+  -webkit-mask: linear-gradient(180deg, transparent 0, transparent 16%, #000 62%) left bottom / 100% min(100%, 88vw) no-repeat;
+  mask: linear-gradient(180deg, transparent 0, transparent 16%, #000 62%) left bottom / 100% min(100%, 88vw) no-repeat;
+}
+@media (max-width: 760px) {
+  .layer[data-back="ridges"] .rs__plate { opacity: .36; }
+}
+
+/* ───────── the problem on phones (beats="split") ─────────
+   v1 / v4 drop the problem's drawing on phones; here it is the beat (the drawing becomes the user's in place), so it stands above the line like a station's, and the
+   paragraph sits under the line, where a station's words go. */
+@media (max-width: 760px) {
+  .layer[data-beats="split"] .rs__gate { display: block; left: 50%; width: var(--art-w); height: var(--art-h); aspect-ratio: auto; bottom: calc(100% - var(--rail-y) + 44px); }
+  .layer[data-beats="split"] .rs__problem { bottom: auto; top: calc(var(--rail-y) + var(--tt)); }
+}

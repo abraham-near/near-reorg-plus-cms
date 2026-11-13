@@ -60,3 +60,23 @@ html[data-home="v5"] .rail__h { font-size: calc(4.1 * var(--u)); }
    heading up at 28 % of the screen instead of the middle (revenue/d/motion.ts reads --rvd-head-at). ───────── */
 html[data-home="v5"] .stk--v4 { padding-bottom: 40px; }
 html[data-home="v5"] .rvd { --rvd-head-at: .28; }
+
+/* the rail's N tiles, as home-v2's (StoryRail horizon): NEAR's green tile with the black N, 48 px, in the playhead's square frame 8 px wider (56 px).
+   V5Page passes steps="tiles" (v4's "line" drops them); v4.css turns them ink with a white N, undone here. */
+html[data-home="v5"] .rs { --tile: 48px; --hub: 48px; }
+html[data-home="v5"] .layer--v4 :is(.rs__point, .rs__dot) { background: var(--green); }
+html[data-home="v5"] .layer--v4 :is(.rs__point, .rs__dot) img { filter: none; }
+@media (max-width: 760px) { html[data-home="v5"] .rs { --tile: 40px; --hub: 40px; } }
+
+/* the stations, cleaner (design review 12 Nov): no tags on the drawings (PRIVATE, SWAP, SIGNED PROOF, 35+ CHAINS), no key on identity; the drawing sits higher
+   and "Own your ___" lower, so the N tile and its frame (56 px across the line) have air on both sides */
+html[data-home="v5"] .layer :is(#v2d-tag, .a-tag, [data-art="intelligence"] .tag, .i-tag, .i-key) { display: none !important; }
+html[data-home="v5"] .rs { --tt: 54px; }
+html[data-home="v5"] .rs__art { bottom: calc(100% - var(--rail-y) + 58px); }
+@media (max-width: 760px) {
+  html[data-home="v5"] .rs { --tt: 44px; }
+  html[data-home="v5"] .rs__art { bottom: calc(100% - var(--rail-y) + 44px); }
+}
+
+/* the proof row and Go deeper: room between the figures and the next section (design review 12 Nov), inside the ruled frame so its lines run on */
+html[data-home="v5"] .l-deeper__head .l-head__cell { padding-top: clamp(96px, 14vh, 168px); }

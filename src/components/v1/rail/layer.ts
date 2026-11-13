@@ -26,7 +26,16 @@
  *                (set(a) 0 -> 1), "Own your ___." and its sentence climb the staircase; the old one rides the slide out (set(a) 1 -> 2, the words up through their windows)          [459:2850 ...]
  *   92.3 - 95.2  identity leaves as the others do (its words up through their windows, the drawing set(a) 1 -> 2, the viewfinder unlocks); only the line, its ruler and the node remain
  *   95.8 - 106.3 THE TIDE: the cells under the line darken and merge into #262626 from just under the centre (S.tk 95.8 - 104.3), the dark rises from the line as a straight edge
- *                (S.tg 97.3 - 106.3); M.covered -> html[data-ly-dark]; the Stack band rises over the last TR.ov = 12.5 units (from 99.8) */
+ *                (S.tg 97.3 - 106.3); M.covered -> html[data-ly-dark]; the Stack band rises over the last TR.ov = 12.5 units (from 99.8)
+ * Home v5 (.layer[data-beats="split"]): the thesis and the problem are two beats, and 9 - 43.5 run instead as (the rest is the same):
+ *    9   - 13.3  lines 1, 2 AND 3 dissolve ("NEAR is where they connect." does not dock: NEAR leaves with its line); the node shrinks away (11 - 12.4)
+ *   11   - 20    the world slides 50 -> 150 vw (the problem's place) while the thesis' dots drift off; the line stays ink across (S.ik)
+ *   17.5 - 22.6  the problem climbs in; its drawing arrives 18 - 23.4 (S.ga 0 -> 1); holds to 29
+ *   29   - 33.8  the paragraph dissolves; 30 - 36 the SAME drawing becomes the user's in place (S.own 0 -> 1: problem.ts own()); the world stays
+ *   32.2 - 36.4  "On NEAR, that stack is user-owned, / from inference to settlement." sweeps in (NEAR is part of it); the marker 36 - 38.6; the ink ends at the gate 36 - 40.5
+ *   43.8 - 47.2  the drawing rides the world out with the slide to the first station (S.ga 1 -> 2)
+ * Home v5 (.layer[data-back="ridges"]): Lawrence's ridges panorama (home v2's "horizon") behind the rail instead of the dot globe: 205 vw wide, its foot on the line,
+ *   moving at 0.3x the world's travel; the tide rises over it like everything else. Its look (strength, masks): v5/rail-v5.css */
 import type { V1Ctx, Dispose } from "../ctx";
 import { sampleText, samplePoly, mulberry32, type Pt, type Org } from "./sample";
 import { loadTone, buildField, nearestDot, type Field, type Tone } from "./field";
@@ -83,7 +92,7 @@ type Stage = {
   stage: HTMLElement; cv: HTMLCanvasElement; cv2: HTMLCanvasElement; rail: HTMLElement; world: HTMLElement; track: HTMLElement; ends: HTMLElement[]; arts: HTMLElement[]; vig: Vignette[];
   titles: HTMLElement[]; lines: HTMLElement[]; dots: HTMLElement[]; cl: HTMLElement[]; slot: HTMLElement; ns: HTMLElement; ns2: HTMLElement; rest1: HTMLElement; near: HTMLElement;
   pre: HTMLElement; rest2: HTMLElement; next: HTMLElement | null; gate: HTMLElement; gvig: Vignette | null; problem: HTMLElement; pws: HTMLElement[]; ans: HTMLElement; mk: HTMLElement; fin: HTMLElement;
-  point: HTMLElement; play: HTMLElement; playRect: SVGRectElement;
+  point: HTMLElement; play: HTMLElement; playRect: SVGRectElement; ridges: HTMLElement | null; plate: HTMLElement | null;
 };
 type Rect = { x: number; y: number; w: number; h: number };
 type Metrics = {
@@ -130,6 +139,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
      (the frontend's, the backend's) and meet under the node as the section arrives */
   const INKLINE = sec.dataset.line === "ink", LINE_C = INKLINE ? INK : GREEN;
   const STEPLINE = INKLINE && sec.dataset.steps === "line";   /* v4 "line": the steps in green over a whole ink line, no N tiles */
+  const SPLIT = sec.dataset.beats === "split";                 /* v5: the thesis and the problem as two beats; the problem's drawing turns the user's in place (see the header) */
+  const PHOTO = sec.dataset.back === "ridges";                 /* v5: the ridges panorama behind the rail instead of the dot globe */
   const html = document.documentElement;
   if (html.hasAttribute("data-rm") || ctx.reduced) return staticPage(sec);
   const { gsap, ScrollTrigger } = ctx;
@@ -137,7 +148,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   ctx.signal.addEventListener("abort", () => ac.abort(), { once: true, signal: sig });
 
   /* the animated state (everything the timeline moves that is not an item). gy / gq: the background world's turn and exit (rail/railglobe.ts) */
-  const S = { enter: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gy: 0, gq: 0, ga: 0 };
+  /* own: the problem's drawing becomes the user's (v5); ik: how far the ink line reaches (world vw; v5 keeps it across the screen while the world slides to the problem) */
+  const S = { enter: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
   const M = {} as Metrics;
   let R: Stage | null = null, field: Field | null = null, toneImg: Tone | null = null, P: Lattice | null = null, RGl: RailGlobe | null = null;
   const items: Item[] = [];
@@ -171,7 +183,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   /* ───────────────────────────── the stage (DOM) ───────────────────────────── */
   function buildStage(copy: Copy): Stage {
     const stage = document.createElement("div"); stage.className = "rs"; stage.setAttribute("aria-hidden", "true");
-    stage.innerHTML = `
+    stage.innerHTML = `${PHOTO ? `<div class="rs__ridges"><i class="rs__plate"></i></div>` : ""}
   <canvas class="rs__cv"></canvas><span class="rs__rail"></span>
   <div class="rs__world" style="width:${RAIL.end}vw">
     <span class="rs__end sw sw-t" style="--x:5vw"><b>AI</b> <em>the frontend</em></span><span class="rs__end rs__end--r sw sw-t" style="--x:95vw"><b>Blockchain</b> <em>the backend</em></span>
@@ -183,7 +195,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     <div class="rs__slot"><p class="cl cl2 sw sw-t"><span class="ns"></span><span class="rest1 sw sw-t">${esc(copy.c[2].slice(copy.c[2].indexOf("NEAR") + 4).trim())}</span></p></div>
   </div>
   <div class="rs__problem"><p>${stairText(copy.problem)}</p></div><div class="rs__gate"></div>
-  <p class="rs__ans sw sw-t"><span class="pre">${esc(copy.on)}</span><span class="ns ns2"></span><span class="rest2">${esc(copy.mid)}<span class="rs__mk">${esc(copy.owned)}</span>${esc(copy.tail)}</span>${copy.next ? `<br><span class="rs__next">${esc(copy.next)}</span>` : ""}</p>
+  <p class="rs__ans sw sw-t"><span class="pre">${esc(copy.on)}${SPLIT ? "NEAR" : ""}</span><span class="ns ns2"></span><span class="rest2">${esc(copy.mid)}<span class="rs__mk">${esc(copy.owned)}</span>${esc(copy.tail)}</span>${copy.next ? `<br><span class="rs__next">${esc(copy.next)}</span>` : ""}</p>
   <span class="rs__near sw sw-t">NEAR</span>
   <span class="rs__fin sw"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></span>
   <span class="rs__point"><img src="${ICON}" alt="" width="639" height="639"></span>
@@ -198,7 +210,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       arts, vig: arts.map((h, i) => createVignette(copy.list[i].key, h)), titles: qa(".rs__title"), lines: qa(".rs__line"), dots: qa(".rs__dot"),
       cl: qa(".rs__conn .cl"), slot: q(".rs__slot"), ns: q(".ns"), ns2: q(".ns2"), rest1: q(".rest1"), near: q(".rs__near"), pre: q(".pre"), rest2: q(".rest2"), next: stage.querySelector<HTMLElement>(".rs__next"),
       gate, gvig: createVignette("problem", gate), problem: q(".rs__problem"), pws: qa(".rs__problem .si"), ans: q(".rs__ans"), mk: q(".rs__mk"), fin: q(".rs__fin"), point: q(".rs__point"),
-      play: q(".rs__play"), playRect: q<SVGRectElement>(".rs__play rect"),
+      play: q(".rs__play"), playRect: q<SVGRectElement>(".rs__play rect"), ridges: stage.querySelector<HTMLElement>(".rs__ridges"), plate: stage.querySelector<HTMLElement>(".rs__plate"),
     };
   }
 
@@ -232,7 +244,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     { const sp = document.createElement("span"); sp.style.cssText = "position:absolute;visibility:hidden;white-space:pre"; sp.textContent = " "; R.cl[2].appendChild(sp); const spW = sp.getBoundingClientRect().width; sp.remove();
       R.ns.style.width = ""; const nc = getComputedStyle(R.near), nW = R.near.getBoundingClientRect().width - (parseFloat(nc.paddingLeft) + parseFloat(nc.paddingRight));
       const csPx = fs(R.near); M.sT = fs(R.ans) / csPx; M.dk = 1;   /* line 3 only moves to the top */
-      R.ns.style.width = (nW + spW).toFixed(2) + "px"; R.ns2.style.width = (nW * M.sT).toFixed(2) + "px"; M.nearW = nW; }
+      R.ns.style.width = (nW + spW).toFixed(2) + "px"; R.ns2.style.width = SPLIT ? "0px" : (nW * M.sT).toFixed(2) + "px"; M.nearW = nW; }
     const ns = rect(R.ns), cr = rect(R.near.offsetParent as Element);
     R.near.style.left = (ns.x - cr.x).toFixed(2) + "px"; R.near.style.top = (ns.y - cr.y).toFixed(2) + "px";
     const slot = rect(R.slot), ns2 = rect(R.ns2);
@@ -244,7 +256,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     { const it = I.c[2], r = rect(R.cl[2]); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w); it.L = it.F * 0.8; setDots(it, dotText(R.rest1), 5); }
     { const it = I.near, r = rect(R.near); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 70, 0.55); it.L = it.F * 0.8; setDots(it, dotText(R.near), 6); }
     /* "is where they connect." leaves from the docked pose (its dots sampled there; its mask is in the slot's own, scaled px) */
-    R.slot.style.transform = `translate3d(0,${M.dockY.toFixed(2)}px,0) scale(${M.dk})`;
+    if (!SPLIT) R.slot.style.transform = `translate3d(0,${M.dockY.toFixed(2)}px,0) scale(${M.dk})`;   /* v5: it leaves from where it stands (no dock) */
     { const it = I.rest1, r = rect(R.rest1); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 90); it.L = it.F * 0.8; it.msc = M.dk; setDots(it, sampleText(R.rest1, textPitch(R.rest1) * M.dk, M.org, M.dk), 7); it.refWv = 60; }
     R.slot.style.transform = "none";
     /* the problem: a staircase in; out word by word, each word an item of its own (mask + dots that drift away) */
@@ -301,7 +313,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   function makeItems() {
     const r = R!;
     const c = r.cl.map((el, i) => mkItem({ key: "c" + i, el, ge: true, r0: 1.55, leaves: i < 2 }));
-    const near = mkItem({ key: "near", el: r.near, ge: true, r0: 1.55 });
+    const near = mkItem({ key: "near", el: r.near, ge: true, r0: 1.55, leaves: SPLIT });   /* v5: NEAR leaves with its line (the answer has its own) */
     const rest1 = mkItem({ key: "rest1", el: r.rest1, a: 1, r0: 1.3, leaves: true });          /* open from the start (line 3's own mask brings it in); it leaves from the docked pose */
     const prob = mkItem({ key: "prob", el: r.problem, kind: "stair" });
     prob.kids = r.pws.map((el, i): Item => ({ key: "pw" + i, el, a: 1, o: 0, dr: 0, ge: false, dir: 1, space: "stage", W: 1, F: 30, L: 24, x0: 0, r0: 1.3, color: 0, kind: "css", dots: null, leaves: true, refWv: 62, _e: -1 }));
@@ -503,8 +515,10 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
        runs station to station, grey ahead, and the track ends at the last station (before the Stack) */
     const sx = (v: number) => M.cx + (v - S.wv) * M.vw, xs = sx(RAIL.title + 20), xEnd = Math.min(Wd, sx(RAIL.stations[3]));
     const xa = clamp(xs, 0, xf), xg = Math.min(xf, xEnd);
-    if (xEnd > xf) lineRun(c, it, ed, xf, xEnd, Math.round(Y0) + 0.5, GREY, 1);
-    lineRun(c, it, ed, 0, xa, y, INK, 1.5);
+    /* v5: the ink reaches S.ik (across the screen until the answer, then back to the gate), the grey of the steps ahead only beyond it */
+    const xi = SPLIT ? Math.max(xa, clamp(sx(S.ik), 0, Wd)) : xa, xq = Math.max(xf, xi);
+    if (xEnd > xq) lineRun(c, it, ed, xq, xEnd, Math.round(Y0) + 0.5, GREY, 1);
+    lineRun(c, it, ed, 0, xi, y, INK, 1.5);
     if (xg > xa) lineRun(c, it, ed, xa, xg, Math.round(Y0), GREEN, 2);
     drawSteps(c, Wd, xs, xf, Math.round(Y0));
   }
@@ -648,11 +662,19 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       const P1 = M.P1, P2 = M.P2, np = s01(S.nx / 0.72), ns = s01(S.nx), x = lerp(P1[0] * d, P2[0], np), y = lerp(P1[1] * d, P2[1], np), sc = lerp(1 + (P1[2] - 1) * d, P2[2], ns);   /* the place first, the size last (it never crosses "On", it closes on the comma) */
       put("tn", R.near, Math.abs(x) + Math.abs(y) < 0.01 && Math.abs(sc - 1) < 1e-4 ? "none" : `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${sc.toFixed(4)})`); }
     R.dots.forEach((el, i) => put("d" + i, el, `scale(${S.sd[i].toFixed(3)})`));
+    /* v5: the ridges hang back at 0.3x the world's travel (0 -> 105 vw over the whole rail); they come in with the section's arrival */
+    if (R.plate && R.ridges) {
+      put("rg", R.plate, `translate3d(${(-0.3 * (clamp(S.wv, 50, RAIL.stations[3]) - 50) * M.vw).toFixed(2)}px,0,0)`);
+      const ro = s01(S.enter * 1.25).toFixed(3); if (last.ro !== ro) { last.ro = ro; R.ridges.style.opacity = ro; }
+    }
+    /* v5: the problem's drawing stays where it is from the problem to the answer (the world stands at the title), then rides the world out to the first station */
+    if (SPLIT) put("tg", R.gate, `translateX(-50%) translate3d(${(-Math.max(0, S.wv - RAIL.title) * M.vw).toFixed(2)}px,0,0)`);
     put("fs", R.fin, `scale(${S.finS.toFixed(4)})`); I.fin.sc = S.finS;
     const mk = S.mark.toFixed(3); if (last.mk !== mk) { last.mk = mk; setC(R.mk, "--mark", mk); }
     /* the illustrations: a pure function of the playhead (the vig2 contract) */
     R.vig.forEach((v, i) => { const a = S.va[i]; if (last["va" + i] !== a) { last["va" + i] = a; v.set(a); } });
     if (R.gvig && last.ga !== S.ga) { last.ga = S.ga; R.gvig.set(S.ga); }      /* the problem's illustration (the layer beneath), beside the paragraph */
+    if (SPLIT && R.gvig?.own && last.own !== S.own) { last.own = S.own; R.gvig.own(S.own); }   /* v5: and it becomes the user's, in place */
     const c = ctx2; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, M.W, M.H);
     drawCover();                                        /* sets M.covered: the stage under the flat dark need not be drawn */
     if (!M.covered) {
@@ -669,7 +691,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     tl.to(it, { o: 1, duration: o, ease: "none" }, at);
     if (drDur) tl.to(it, { dr: 1, duration: drDur, ease: "none" }, at + drAt);
   }
+  let tl0!: Tl;
   function build(tl: Tl) {
+    tl0 = tl;
     const to = (t: object, v: gsap.TweenVars, at: number) => tl.to(t, v, at);
     /* 0.3 - 2.5 the green node pops (the approach has swept in everything else of 384:8605); f1 holds to 9 */
     to(S, { pt: 1, duration: 2.2, ease: "back.out(2)" }, 0.3);
@@ -677,6 +701,27 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     leave(tl, I.c[0], 9, 2.8, 1.5, 3); leave(tl, I.c[1], 9.8, 2.8, 1.5, 3);
     I.ends.forEach((it, i) => to(it, { o: 1, duration: 2.2, ease: "none" }, 9.6 + 0.6 * i));
     if (!STEPLINE) to(S, { pt: 0, duration: 1.4, ease: "power2.in" }, 11);
+    if (SPLIT) buildSplit(); else buildDock();
+    buildSteps();
+  }
+  /* v5: two beats (see the header). The thesis leaves whole (line 3 and NEAR too), the world moves on to the problem's place; the problem and its drawing; then the paragraph
+     goes, the drawing becomes the user's where it stands and the answer comes in over it; the world only moves on with the first station */
+  function buildSplit() {
+    const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
+    leave(tl, I.near, 10.2, 2.8, 1.5, 3); leave(tl, I.rest1, 10.5, 2.8, 1.5, 3);
+    to(S, { wv: RAIL.title, duration: 9, ease: "power2.inOut" }, 11);
+    to(I.prob, { a: 1, duration: STP.span, ease: "none" }, 17.5);
+    to(S, { ga: 1, duration: 5.4, ease: "none" }, 18);
+    to(I.prob, { o: 1, duration: 3.4, ease: "none" }, 29); to(I.prob, { dr: 1, duration: 4, ease: "none" }, 29.8);
+    to(S, { own: 1, duration: 6, ease: "none" }, 30);
+    to(I.ans, { a: 1, duration: 4.2, ease: "none" }, 32.2);
+    to(S, { mark: 1, duration: 2.6, ease: "power3.inOut" }, 36);
+    to(S, { gf: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 36);
+    to(S, { ik: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 36);   /* the ink ends at the gate: the steps ahead turn grey */
+    to(S, { ga: 2, duration: 3.4, ease: "none" }, ARR[0] - SLIDE + 0.3);         /* the drawing leaves as the world slides on, as a station's does */
+  }
+  function buildDock() {
+    const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
     /* 10.5 - 18 "NEAR is where they connect." docks at the top left (384:9085) */
     to(S, { dock: 1, duration: 7.5, ease: "power2.inOut" }, 10.5);
     /* 14.5 - 19.6 the problem climbs in, word by word, bottom -> top; it holds to 26 */
@@ -693,6 +738,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     to(S, { mark: 1, duration: 2.6, ease: "power3.inOut" }, 37);
     /* the green has stopped at the first screen's edge (100 vw) while the world slid to the title; with the marker it runs on a little past the title (Lawrence's gate + 20) */
     to(S, { gf: RAIL.title + 20, duration: 4.5, ease: "power2.out" }, 37);
+  }
+  function buildSteps() {
+    const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
     /* 43.5 - 85 the four stations (459:2850 ...): the world slides 55 vw (SLIDE units) and lands on each; the old station leaves as the slide starts, the new one arrives as it lands */
     ARR.forEach((at, i) => {
       const s0 = at - SLIDE;
@@ -794,7 +842,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     toneImg = await loadTone(RIDGES).catch(() => null);
     if (sig.aborted) { dispose(); return null; }
     R = buildStage(copy);
-    RGl = WORLD ? mountRailGlobe(R.stage, { quiet: R.fin }) : null;                      /* the faint world, the stage's lowest layer (async: it draws once its globe is ready) */
+    RGl = WORLD && !PHOTO ? mountRailGlobe(R.stage, { quiet: R.fin }) : null;   /* v5: the ridges instead */                      /* the faint world, the stage's lowest layer (async: it draws once its globe is ready) */
     html.setAttribute("data-rail", "");
     makeItems();
     layout();

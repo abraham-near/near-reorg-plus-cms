@@ -51,7 +51,7 @@ export const GROUPS: Group[] = [
     pages: [
       { href: "/404-a", n: "A", name: "Lost in the mist", note: "Home v5's forest hero as the 404: a huge mist-grey 404 that fog drifts across, “Lost in the mist.”, one line of sub, Back home plus Blog and near.com.", tags: ["Photo", "Hero type", "Slow mist"], img: "/extra/404-a.webp" },
       { href: "/404-b", n: "B", name: "404 in blocks", note: "The number in isometric blocks, in the rail's hand: one emerald rim, a NOT FOUND tag, one line and Back home.", tags: ["Isometric", "Minimal", "Rise in"], img: "/extra/404-b.webp" },
-      { href: "/404-c", n: "C", name: "Typographic", note: "A huge “404” in the hero's type (Montreal, the last 4 in Kepler italic, the emerald square) on paper, one line, Back home and the blog, a faint corner of the dot globe.", tags: ["Light", "Typographic", "Hero type"], img: "/extra/404-c.webp" },
+      { href: "/404-c", n: "C", name: "Ruled", note: "The blog's ruled grid: one digit per cell (the 0 on ink with the emerald square), crosshairs where lines meet, one line, Back home and the blog.", tags: ["Ruled grid", "Crosshairs", "Rows draw in"], img: "/extra/404-c.webp" },
     ],
   },
   {

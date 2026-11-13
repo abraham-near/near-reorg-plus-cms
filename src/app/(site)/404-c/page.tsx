@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { NotFoundC } from "@/components/notfound/c/NotFoundC";
 
-// 404 proposal C · typographic: a very large "404" in home v5's hero type on paper, one line, Back home and the blog (components/notfound/c).
+// 404 proposal C · ruled: the blog's ruled grid, one digit per cell, one line, Back home and the blog (components/notfound/c).
 export const metadata: Metadata = {
   title: "404 C",
-  description: "This page wandered off.",
+  description: "This page doesn’t exist.",
   robots: { index: false, follow: false },
 };
 

@@ -10,12 +10,13 @@ import { V3Footer } from "../v3/footer/Footer";
 import { RailV4 } from "../v4/Rail";
 import { StackV4 } from "../v4/Stack";
 import { V4_DEEPER } from "../v4/content";
-import { RAIL_EXIT, RAIL_STEPS, VOICES_MODE, ORIGIN_RATIO } from "../v4/revenue/variants";
+import { RAIL_EXIT, VOICES_MODE, ORIGIN_RATIO } from "../v4/revenue/variants";
 import { RevenueD } from "../v4/revenue/d/RevenueD";
 import { WorldV5 } from "./World";
 import "../v3/buttons.css";
 import "../v3/globe.css";
 import "./v5.css";
+import "./rail-v5.css";   /* the rail's ridges and the split beats (beats="split" back="ridges" below; layer.ts reads them) */
 
 const REV = "a" as const;
 
@@ -24,7 +25,7 @@ export function V5Page() {
     <>
       {/* before V1Page's head script: no globe (it reads data-gl="off" as ?gl=0) and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/home-v5" spread stay soft />} world={<WorldV5 />} rail={<RailV4 exit={RAIL_EXIT.d} steps={RAIL_STEPS[REV]} />} stack={<StackV4 still />}
+      <V1Page v="v3" header={<V3Header home="/home-v5" spread stay soft />} world={<WorldV5 />} rail={<RailV4 exit={RAIL_EXIT.d} steps="tiles" beats="split" back="ridges" />} stack={<StackV4 still />}
         afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: VOICES_MODE[REV], originRatio: ORIGIN_RATIO[REV] }} />} footer={<V3Footer />} />
     </>
   );

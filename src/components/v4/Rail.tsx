@@ -5,9 +5,11 @@ import "./v4.css";
 
 /** exit: how the rail closes into the Stack (rail/layer.ts drawExit): no dots in v4 */
 /** steps: "line" drops the N tiles (the centre and the stations) and marks the steps in green over the ink line */
-export function RailV4({ exit, steps }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop"; steps?: "tiles" | "line" }) {
+/** beats: "split" (home v5) runs the thesis and the problem as two separate beats (the thesis leaves whole, nothing docks; the problem's drawing becomes the user's in place) */
+/** back: "ridges" (home v5) puts Lawrence's ridges panorama behind the rail instead of the dot globe */
+export function RailV4({ exit, steps, beats, back }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges" }) {
   return (
-    <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps}>
+    <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps} data-beats={beats} data-back={back}>
       <div className="rail__static">
         <h2 className="rail__h" id="ly-h"><span className="rail__s">AI is the frontend.</span> <span className="rail__s">Blockchain is the backend.</span> <span className="rail__s">NEAR is where they connect.</span></h2>
         <p className="rail__problem">Whoever runs the stack beneath your agents can see your most sensitive data, control your assets, and capture the value you create.</p>

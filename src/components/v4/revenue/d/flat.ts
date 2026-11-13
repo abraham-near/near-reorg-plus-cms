@@ -21,13 +21,14 @@ const VX = -PAD_L, VY = -PH - PAD_T, VW = N + PAD_L + PAD_R, VH = PH + PAD_T + P
 const pct = (t: number, z: number) => { const [a, b] = P(t, z); return { left: `${(((a - VX) / VW) * 100).toFixed(3)}%`, top: `${(((b - VY) / VH) * 100).toFixed(3)}%` }; };
 
 const COL_H = MONTHS.map((v) => (v / maxL) * PH);
-// the line: from nothing at the left edge, through each month's running total (at the bar's centre), to the total at the right edge
+// the line: from nothing at the left edge, through each month's running total (at the bar's centre), and it stops there, on the last month: a running total
+// only climbs, so no flat run out to the right edge (design review 12 Nov: "cut it where the dot is")
 const RUN: [number, number][] = [[0, 0]];   // [t, z]
 MONTHS.reduce((acc, v, i) => { const c = acc + v; RUN.push([i + 0.5, (c / maxR) * PH]); return c; }, 0);
-RUN.push([N, RUN[RUN.length - 1][1]]);
+const T_END = RUN[RUN.length - 1][0];
 
 function line(q: number) {
-  const th = N * Math.max(0, Math.min(1, q));
+  const th = T_END * Math.max(0, Math.min(1, q));
   const pts: [number, number][] = [];
   for (let k = 0; k < RUN.length; k++) {
     const [t, z] = RUN[k];
@@ -48,7 +49,7 @@ export const FLAT: ChartGeo = {
   GRID: Array.from({ length: N - 1 }, (_, i) => seg(P(i + 1, 0), P(i + 1, -0.14))).join(""),
   TICKS_L: REV.axisL.map((v) => ({ v, at: pct(0, (v / maxL) * PH) })),
   TICKS_R: REV.axisR.map((v) => ({ v, at: pct(N, ((v * 1000) / maxR) * PH) })),
-  END: pct(N, RUN[RUN.length - 1][1]),
+  END: pct(T_END, RUN[RUN.length - 1][1]),
   column: (i, h) => ({ l: "", r: "", t: rect(i + 0.5 - BW, i + 0.5 + BW, h) }),
   line,
 };

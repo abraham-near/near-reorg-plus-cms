@@ -20,6 +20,11 @@
  *                     coin's green face along an iso axis (0.9 s of every 6.6 s) · the middle cube's tag lights green as the bead lands in it (4.2 s, synced) ·
  *                     the back cube's tag double-blinks like a status light (5 s). Floats are upward only (the rest pose is the trough, nothing sinks into an arrow).
  *                     LIVE-only DOM: a face clip + a glint group in the coin, a green copy of each cube tag's top face. Off v4 nothing is added and idle is as before.
+ *   v5 (OWN: the host is inside .layer[data-beats="split"]): the same drawing becomes the user's in place, own(o) 0 -> 1 (layer.ts S.own), at rest:
+ *                     o = 0 is someone else's stack: no green at all (the coin's green wipe is held back; the dark tags are theirs) ·
+ *                     .00-.45 the green wipes across the coin as it lifts 5 px and settles · .22-.75 the cubes' tops turn green, back to front ·
+ *                     .50-.90 the dark tags turn green (the UI's last). The green copies sit inside their parts, so they leave with them (set(a) 1 -> 2).
+ *                     OWN-only DOM: a green copy of each cube's top face and of each tag. Off v5 nothing is added and own() is never called.
  */
 import type { Vignette } from "./index";
 import { mountArt, liveTf, q } from "./art";
@@ -49,7 +54,8 @@ type Draw = { node: SVGGraphicsElement; d: number; o: number };
 export function create(host: HTMLElement): Vignette {
   const uid = ++UID;
   const LIVE = !!host.closest(".layer--v4");
-  let a = 0, ready = false;
+  const OWN = !!host.closest('.layer[data-beats="split"]');
+  let a = 0, ow = 0, ready = false;   /* ow: own(o), v5 */
   /* LIVE idle state: the field's line (1 = drawn), the leds, the glint (position, opacity), the guides' flow */
   let iType = 1, iLedA = 0, iLedB = 0, iGlU = -70, iGlO = 0, iFlow = 0, iLastT = -1, iPrevW = 0, flowW = NaN;
   let X: { leds: Part[]; glint: Part; guidesG: SVGGraphicsElement } | null = null;
@@ -60,6 +66,7 @@ export function create(host: HTMLElement): Vignette {
     floor: Part; cubes: Part[]; tags: Part[]; tls: Draw[]; gclip: Part; guides: Part; coin: Part; wipe: Part; ring: Draw;
     plate: Part[]; ui: Part[]; uls: Draw[]; uitag: Part; al: Draw[]; ah: Part[]; pulse: Part;
   } | null = null;
+  let O: { tops: Draw[]; tags: Draw[] } | null = null;   /* v5 (OWN): the green copies */
 
   function build(svg: SVGSVGElement) {
     const { $, $$ } = q(svg);
@@ -103,6 +110,20 @@ export function create(host: HTMLElement): Vignette {
       const greenClip = $(".pb-green").parentNode as SVGGElement;
       greenClip.parentNode!.insertBefore(wrap, greenClip.nextSibling);
       X = { leds, glint: part(gl), guidesG: N.guides.node };
+    }
+    if (OWN) {
+      /* a green copy of each cube's top face (over the white one, under its tag), and of each tag (inside it, so it rides the tag's scale and fade) */
+      const G = "#00DC8D";
+      const tops = $$(".pb-cube").map((g) => {
+        const top = g.querySelector<SVGGraphicsElement>('path[fill="white"]')!, c = top.cloneNode(false) as SVGGraphicsElement;
+        c.setAttribute("fill", G); c.style.opacity = "0"; top.parentNode!.insertBefore(c, top.nextSibling); return draw(c);
+      });
+      const tags = [...$$(".pb-cube .pb-tag"), $(".pb-uitag")].map((g) => {
+        const c = document.createElementNS(SVGNS, "g") as SVGGraphicsElement; c.setAttribute("class", "pb-own"); c.style.opacity = "0";
+        for (const ch of [...g.children]) { if (ch.classList.contains("pb-led")) continue; const k = ch.cloneNode(true) as Element; if (k.getAttribute("fill") === "#111111") k.setAttribute("fill", G); c.appendChild(k); }
+        g.appendChild(c); return draw(c);
+      });
+      O = { tops, tags };
     }
   }
 
@@ -164,11 +185,16 @@ export function create(host: HTMLElement): Vignette {
       drawq(N.uls[k], q, 0);
     }
     /* the coin comes down; its inner ring draws; the green wipes across (edge along the iso vertical, left -> right); reverse on leave */
-    { const i = out3(seg(A, 0.42, 0.66)), l = seg(L, 0.18, 0.46);
-      wT(N.coin, 0, -26 * (1 - i) - 20 * in2(l) + iCoin); wO(N.coin, seg(A, 0.42, 0.56) * (1 - l));
+    { const i = out3(seg(A, 0.42, 0.66)), l = seg(L, 0.18, 0.46), lift = OWN ? -5 * Math.sin(Math.PI * seg(ow, 0, 0.5)) : 0;
+      wT(N.coin, 0, -26 * (1 - i) - 20 * in2(l) + iCoin + lift); wO(N.coin, seg(A, 0.42, 0.56) * (1 - l));
       drawq(N.ring, io2(seg(A, 0.56, 0.70)), 0);
-      const gw = io2(seg(A, 0.66, 0.84)) * (1 - io2(seg(L, 0.04, 0.20)));
+      const gw = (OWN ? io2(seg(ow, 0, 0.45)) : io2(seg(A, 0.66, 0.84))) * (1 - io2(seg(L, 0.04, 0.20)));   /* v5: the green comes with own, not with the arrival */
       wT(N.wipe, 250 + 152 * gw, 0); }
+    /* v5: the cubes' tops, then the tags, turn green */
+    if (O) {
+      for (let k = 0; k < O.tops.length; k++) wO(O.tops[k], io2(seg(ow, 0.22 + k * 0.1, 0.55 + k * 0.1)));
+      for (let k = 0; k < O.tags.length; k++) wO(O.tags[k], io2(seg(ow, 0.5 + k * 0.08, 0.74 + k * 0.08)));
+    }
     /* the arrows: the upper one (plate -> coin) then the lower one (coin -> middle cube); they draw down, heads land; on leave they drain down */
     const ARR: [number, number, number][] = [[0.74, 0.86, 0.06], [0.60, 0.74, 0.0]];   /* [draw from, draw to, leave delay]: index 0 = lower line, 1 = upper */
     for (let k = 0; k < 2; k++) {
@@ -185,10 +211,12 @@ export function create(host: HTMLElement): Vignette {
         else if (iPh >= 0.5) { const s = (iPh - 0.5) / 0.5; y = 354 + iCoin * (1 - s) + 50 * s; o = Math.sin(Math.PI * s); }
         o *= iW * restK;
       }
-      wO(p, o); wT(p, 0, y, LIVE && iW > 0 ? 1.5 : 1); }
+      wO(p, o); wT(p, 0, y, LIVE && iW > 0 ? 1.5 : 1);
+      if (OWN) { const f = ow > 0.5 ? "#00DC8D" : "#FFFFFF"; if (p.node.getAttribute("fill") !== f) p.node.setAttribute("fill", f); } }   /* v5: the bead is green only once the stack is the user's */
     /* LIVE extras (absent off v4) */
     if (X) {
-      wO(X.leds[0], iLedA * iW); wO(X.leds[1], iLedB * iW);
+      const lw = OWN ? 0 : iW;   /* v5: the tags' own green says it; no status lights */
+      wO(X.leds[0], iLedA * lw); wO(X.leds[1], iLedB * lw);
       wO(X.glint, iGlO * iW); wT(X.glint, iGlU * 0.866, -iGlU * 0.5);
       const f = iW > 0 ? iFlow : NaN;
       if (!(f === flowW || (f !== f && flowW !== flowW))) { flowW = f; X.guidesG.style.strokeDashoffset = f === f ? f.toFixed(3) : ""; }
@@ -236,6 +264,7 @@ export function create(host: HTMLElement): Vignette {
   return {
     el: art.el,
     set(v) { if (art.dead()) return; a = v < 0 ? 0 : v > 2 ? 2 : v; apply(); },
+    own(v) { if (art.dead() || !OWN) return; ow = v < 0 ? 0 : v > 1 ? 1 : v; apply(); },
     idle(t, w) {
       w = w > 0 ? (w > 1 ? 1 : w) : 0;
       if (!ready || art.dead()) return;
