@@ -136,13 +136,45 @@ export async function writeObject(key: string, buf: Buffer, mime: string, dispos
 
 export const webpName = (filename: string) => `${filename.replace(/\.[^.]+$/, '') || 'image'}.webp`
 
+/** Raster formats an import may bring in (photos and screenshots). No SVG: it is a document, not a picture. */
+const STRICT_IMAGES = new Set(['jpg', 'png', 'gif', 'webp'])
+/** Pixel budget for an imported image (about 6300 × 6300): larger ones are refused, not decoded. */
+const STRICT_MAX_PIXELS = 40_000_000
+
+/**
+ * Images that arrive from documents someone else wrote (Google Doc import): always decoded and
+ * re-encoded to WebP, refused if they do not decode cleanly, and only the re-encoded copy is kept, so
+ * no metadata (GPS, camera, comments) and no hidden payload survive.
+ */
+async function storeStrictImage(buf: Buffer, ext: string, filename: string, uploadedById: string | null) {
+  if (!STRICT_IMAGES.has(ext)) throw new HttpError(415, 'Only PNG, JPEG, GIF and WebP images can be imported')
+  const hash = createHash('sha1').update(buf).digest('hex').slice(0, 16)
+  const key = `cms/${hash}.webp`
+  const existing = await db.media.findFirst({ where: { key } })
+  if (existing) return existing
+  let out: { data: Buffer; info: { width: number; height: number } }
+  try {
+    out = await sharp(buf, { failOn: 'warning', limitInputPixels: STRICT_MAX_PIXELS, animated: false })
+      .rotate()
+      .resize({ width: IMAGE_MAX_SIDE, height: IMAGE_MAX_SIDE, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: WEBP_QUALITY, effort: 5, smartSubsample: true })
+      .toBuffer({ resolveWithObject: true })
+  } catch {
+    throw new HttpError(415, 'This image could not be read')
+  }
+  await writeObject(key, out.data, 'image/webp', contentDisposition(webpName(filename), true))
+  return db.media.create({
+    data: { key, url: `/${key}`, filename: webpName(filename), mimeType: 'image/webp', size: out.data.length, width: out.info.width, height: out.info.height, uploadedById },
+  })
+}
+
 /**
  * Validates and stores an uploaded file, returning its Media row. Uploading the same bytes twice
  * returns the existing row (keys come from the hash of the bytes as uploaded). Photos are stored as an
  * optimized WebP (`cms/<hash>.webp`) plus the original (`cms/<hash>.<ext>`, originalKey). Without bucket
  * credentials (local dev) files are written to public/cms, which app/cms serves in development.
  */
-export async function storeUpload(file: File, uploadedById: string | null, opts: { imagesOnly?: boolean } = {}) {
+export async function storeUpload(file: File, uploadedById: string | null, opts: { imagesOnly?: boolean; strict?: boolean } = {}) {
   if (file.size === 0) throw new HttpError(400, 'Empty file')
   if (file.size > MAX_UPLOAD_BYTES) throw new HttpError(413, 'File too large')
   const filename = cleanFilename(file.name)
@@ -151,6 +183,7 @@ export async function storeUpload(file: File, uploadedById: string | null, opts:
   if (!kind) throw new HttpError(415, 'Unsupported or unrecognized file type')
   if (opts.imagesOnly && !kind.image) throw new HttpError(415, 'Only images are allowed here')
   if (buf.length > kind.max) throw new HttpError(413, `File too large (max ${Math.round(kind.max / MB)} MB for ${kind.ext})`)
+  if (opts.strict) return storeStrictImage(buf, kind.ext, filename, uploadedById)
   if (kind.ext === 'svg') buf = Buffer.from(sanitizeSvg(buf.toString('utf8')))
 
   const hash = createHash('sha1').update(buf).digest('hex').slice(0, 16)

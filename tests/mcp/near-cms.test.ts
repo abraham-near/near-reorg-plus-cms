@@ -53,7 +53,7 @@ describe('tool list', () => {
   it('exposes the expected tools and nothing that deletes, restores or bulk-edits', async () => {
     const { client } = await connect()
     const names = (await client.listTools()).tools.map((t) => t.name)
-    expect([...names].sort()).toEqual(['whoami', 'list_posts', 'get_post', 'create_draft', 'update_post', 'update_live_post', 'publish_post', 'schedule_post', 'unpublish_post', 'upload_media', 'update_media', 'list_media', 'list_tags', 'list_categories', 'create_tag', 'create_category', 'list_upload_files', 'open_upload_folder', 'import_docx'].sort())
+    expect([...names].sort()).toEqual(['whoami', 'list_posts', 'get_post', 'create_draft', 'update_post', 'update_live_post', 'publish_post', 'schedule_post', 'unpublish_post', 'upload_media', 'update_media', 'list_media', 'list_tags', 'list_categories', 'create_tag', 'create_category', 'list_upload_files', 'open_upload_folder', 'import_docx', 'import_google_doc'].sort())
     expect(names.filter((n) => /delete|remove|restore|bulk|replace|revoke|banner|preview|duplicate/.test(n))).toEqual([])
     const tools = (await client.listTools()).tools
     // Everything that changes the public site asks the person first (Claude's approval prompt).
@@ -359,3 +359,16 @@ describe('upload guard', () => {
     expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBeUndefined()
   })
 })
+
+describe('import_google_doc', () => {
+  it('posts only the link and returns the draft links, never publishing', async () => {
+    respond = () => ({ status: 201, json: { postId: 'p9', title: 'From Doc', status: 'DRAFT', images: 2, warnings: [] } })
+    const { call } = await connect()
+    const r = await call('import_google_doc', { url: 'https://docs.google.com/document/d/abc/edit' })
+    expect(r.isError).toBe(false)
+    expect(calls.map((c) => `${c.method} ${c.url}`)).toEqual(['POST /api/admin/import/google-doc'])
+    expect(JSON.parse(calls[0].init.body as string)).toEqual({ url: 'https://docs.google.com/document/d/abc/edit' })
+    expect(r.text).toContain('http://localhost:3000/admin/posts/p9/preview')
+  })
+})
+

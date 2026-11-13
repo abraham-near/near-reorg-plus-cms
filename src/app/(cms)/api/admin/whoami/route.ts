@@ -1,6 +1,7 @@
 import { requireActor } from '@/cms/lib/auth'
 import { db } from '@/cms/lib/db'
 import { cmsOrigin } from '@/cms/lib/email'
+import { serviceAccountEmail } from '@/cms/lib/import/google-auth'
 import { json, route } from '@/cms/lib/http'
 import { PERMISSIONS, canActor } from '@/cms/lib/permissions'
 
@@ -13,5 +14,7 @@ export const GET = route(async (req) => {
     token,
     capabilities: PERMISSIONS.filter((permission) => canActor(user, permission)),
     cmsOrigin: cmsOrigin(),
+    // How a Google Doc can reach the CMS: shared with this address as Viewer, or (if allowed) public by link.
+    googleImport: { serviceAccountEmail: serviceAccountEmail(), publicLinks: process.env.CMS_GOOGLE_PUBLIC_EXPORT !== 'false' },
   })
 }, { token: true })
