@@ -37,7 +37,7 @@ export function toArticle(p: LivePost, more: PostCard[], layout = DEFAULT_LAYOUT
     dateIso: p.publishedAt.slice(0, 10),
     tags: p.tags.map((t) => ({ name: t.name, href: "" })),
     hero: p.image ? { src: p.image.src, alt: p.image.alt, w: p.image.w ?? undefined, h: p.image.h ?? undefined } : null,
-    takeaways: [],
+    takeaways: p.takeaways,
     body: { html: p.html },
     sections: p.sections,
     readMin: p.readMin,

@@ -22,9 +22,14 @@ import { RawHtmlBlock } from './RawHtmlBlock'
 import { ImageView } from '../node-views/ImageView'
 
 const lowlight = createLowlight(common)
+export type ImageSize = 'wide' | 'bleed'
+export const imageSize = (value: unknown): ImageSize | null => (value === 'wide' || value === 'bleed' ? value : null)
 const SafeImage = Image.extend({
   addAttributes() { return { ...this.parent?.(), src: { default: null, parseHTML: (element) => safeUrl(element.getAttribute('src')), renderHTML: (attrs) => { const src = safeUrl(attrs.src)
-    return src ? { src } : {} } } } },
+    return src ? { src } : {} } },
+  // how far the image reaches in layouts that support it (Cover): none = the text column, "wide", "bleed" (edge to edge)
+  size: { default: null, parseHTML: (element) => imageSize(element.getAttribute('data-size')), renderHTML: (attrs) => { const size = imageSize(attrs.size)
+    return size ? { 'data-size': size } : {} } } } },
   addNodeView() { return ReactNodeViewRenderer(ImageView) },
 })
 

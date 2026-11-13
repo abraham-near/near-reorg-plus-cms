@@ -188,6 +188,10 @@ model Post {
   metaDescription String?
   /// Social share image (Open Graph / X). Falls back to featuredImage.
   metaImage       String?
+  /// Up to three short key points, shown after the dek by the layouts that have them (Cover).
+  takeaways       String[]       @default([])
+  /// The public layout: "a" Ruled, "b" Cover, "c" Notebook; null = the site default (Cover).
+  layout          String?
   status          Status         @default(DRAFT)
   visibility      Visibility     @default(PUBLIC)
   publishedAt     DateTime?

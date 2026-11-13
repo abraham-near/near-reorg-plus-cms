@@ -49,7 +49,7 @@ export const imageUrls = (html: string) => [...html.matchAll(/<img\b[^>]*?\ssrc=
 // The CMS's own sanitizer settings (src/cms/lib/sanitize.ts), and its embed hosts: an iframe from anywhere else is dropped.
 const PURIFY = {
   ADD_TAGS: ["iframe", "figure", "figcaption", "video", "source"],
-  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "target", "rel", "controls", "loop", "muted", "playsinline", "poster", "colspan", "rowspan", "data-type", "data-callout", "data-footnote"],
+  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "target", "rel", "controls", "loop", "muted", "playsinline", "poster", "colspan", "rowspan", "data-type", "data-callout", "data-footnote", "data-size"],
   FORBID_TAGS: ["style", "form", "input", "button", "textarea", "select", "object", "embed", "base", "meta", "link"],
   FORBID_ATTR: ["style"],
   ALLOW_DATA_ATTR: false,
@@ -122,9 +122,11 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
     if (!img.getAttribute("alt")) img.setAttribute("alt", m?.alt || "");
   });
 
-  // a figure in the layouts' markup around one image (its own proportions: .pb-fig--free)
+  // a figure in the layouts' markup around one image (its own proportions: .pb-fig--free), as wide as the editor set it (data-size: wide / bleed)
   const figure = (img: Element, cap: string | null) => {
-    const fig = el("figure", "pb-fig pb-fig--free"); fig.setAttribute("data-size", "col"); fig.setAttribute("data-reveal", "");
+    const asked = img.getAttribute("data-size"), size = asked === "wide" || asked === "bleed" ? asked : "col";
+    img.removeAttribute("data-size");
+    const fig = el("figure", size === "bleed" ? "pb-fig" : "pb-fig pb-fig--free"); fig.setAttribute("data-size", size); fig.setAttribute("data-reveal", "");
     const ph = el("div", "pb-fig__ph"); img.classList.add("pb-fig__img"); ph.append(img); fig.append(ph);
     if (cap) { const c = el("figcaption", "pb-cap"); c.textContent = cap; fig.append(c); }
     return fig;
@@ -159,6 +161,12 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
         if (ps.length > 1 && last && /^[—–-]\s*/.test(text(last))) {
           const by = el("figcaption", "pb-quote__by"); by.textContent = text(last).replace(/^[—–-]\s*/, ""); last.remove(); fig.append(by);
         }
+        break;
+      }
+      case "IMG": {
+        // an image on its own line (a block image): a figure, the title as its caption
+        const cap = b.getAttribute("title"); b.removeAttribute("title");
+        const at = el("i"); b.replaceWith(at); at.replaceWith(figure(b, cap));   // hold its place while figure() moves it
         break;
       }
       case "FIGURE": {

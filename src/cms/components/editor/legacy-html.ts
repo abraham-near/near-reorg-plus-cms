@@ -29,6 +29,8 @@ export function htmlForEditor(html: string): string {
   return [...template.content.childNodes].map((node) => {
     if (node.nodeType !== 1) return node.nodeType === 3 && node.textContent ? escapeHtml(node.textContent) : ''
     const element = node as Element
+    // an image on its own line (HTML written elsewhere: imports, the API): the editor's images are inline, so give it its paragraph
+    if (element.tagName === 'IMG') return `<p>${element.outerHTML}</p>`
     return needsPreservation(element)
       ? `<div data-type="raw-html" data-content="${escapeHtml(element.outerHTML)}"></div>`
       : element.outerHTML

@@ -20,6 +20,7 @@ export type LivePost = PostCard & {
   metaTitle: string | null; metaDescription: string | null; metaImage: string | null;
   categories: Term[]; tags: Term[];
   html: string; sections: Section[]; readMin: number; summary: string;
+  takeaways: string[]; layout: string | null;
 };
 
 const liveWhere = (now: Date): Prisma.PostWhereInput => ({ status: "PUBLISHED", OR: [{ publishedAt: null }, { publishedAt: { lte: now } }] });
@@ -78,7 +79,7 @@ export async function getLivePost(slug: string): Promise<LivePost | null> {
   const p = await db.post.findFirst({
     where: { slug, status: "PUBLISHED" },
     select: {
-      ...cardSelect, body: true, visibility: true, updatedAt: true, metaTitle: true, metaDescription: true, metaImage: true,
+      ...cardSelect, body: true, visibility: true, updatedAt: true, metaTitle: true, metaDescription: true, metaImage: true, takeaways: true, layout: true,
       tags: { orderBy: { name: "asc" }, select: { name: true, slug: true } },
     },
   });
@@ -93,6 +94,7 @@ export async function getLivePost(slug: string): Promise<LivePost | null> {
     metaTitle: p.metaTitle, metaDescription: p.metaDescription, metaImage: p.metaImage,
     categories: p.categories.map((c) => c.category), tags: p.tags,
     html: body.html, sections: body.sections, readMin: body.readMin, summary: body.summary,
+    takeaways: p.takeaways.filter((t) => t.trim()).slice(0, 3), layout: p.layout,
   };
 }
 
