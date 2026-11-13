@@ -42,6 +42,8 @@ export const GROUPS: Group[] = [
       { href: "/foundation-b", n: "B", name: "Foundation · Devolve", note: "The hero's isometric block breaks into the ecosystem as you scroll; a staircase of pillars, a sticky story for how it operates.", tags: ["Iso illustrations", "Pinned hero", "Sticky story"], img: "/extra/foundation-b.webp" },
       { href: "/foundation-c", n: "C", name: "Foundation · The Stiftung", note: "A dark hero: green columns rise on the Foundation's plinth; pillars on a horizontal run, a heading that shrinks, a glass vault.", tags: ["Dark hero", "Horizontal pin", "Iso illustrations"], img: "/extra/foundation-c.webp" },
       { href: "/foundation-d", n: "D", name: "Foundation · People around the world", note: "The world laid flat in dots, places and people linked across it, the Foundation small in Zug; tilting cards, a sliding run of activities.", tags: ["Dot world", "Parallax", "Iso illustrations"], img: "/extra/foundation-d.webp" },
+      { href: "/foundation-e", n: "E", name: "Foundation · Living columns", note: "B's page with C's plinth and columns in the hero, alive without scrolling; scrolled, they settle into the pillars' stair, now boxes on the ruled grid. C's \"smaller\" statement on two lines.", tags: ["B + C", "Idle motion", "Ruled stair"], img: "/extra/foundation-e.webp" },
+      { href: "/foundation-f", n: "F", name: "Foundation · Figma", note: "The Figma page (2026_10_Near_Web): the terrace photo hero with two buttons, three pillars on the ruled grid, the mission on a green band, Zug and three facts; then A's Council, operations and ecosystem, and the homepage's close.", tags: ["Figma", "Photo hero", "Green band"], img: "/extra/foundation-f.webp" },
     ],
   },
   {
@@ -52,6 +54,24 @@ export const GROUPS: Group[] = [
       { href: "/404-a", n: "A", name: "Lost in the mist", note: "Home v5's forest hero as the 404: a huge mist-grey 404 that fog drifts across, “Lost in the mist.”, one line of sub, Back home plus Blog and near.com.", tags: ["Photo", "Hero type", "Slow mist"], img: "/extra/404-a.webp" },
       { href: "/404-b", n: "B", name: "404 in blocks", note: "The number in isometric blocks, in the rail's hand: one emerald rim, a NOT FOUND tag, one line and Back home.", tags: ["Isometric", "Minimal", "Rise in"], img: "/extra/404-b.webp" },
       { href: "/404-c", n: "C", name: "Ruled", note: "The blog's ruled grid: one digit per cell (the 0 on ink with the emerald square), crosshairs where lines meet, one line, Back home and the blog.", tags: ["Ruled grid", "Crosshairs", "Rows draw in"], img: "/extra/404-c.webp" },
+    ],
+  },
+  {
+    id: "contact",
+    title: "Contact",
+    note: "The contact page in the official pages' hand: home v5's header and footer, Blog J's head, rail and open feed.",
+    pages: [
+      { href: "/contact", n: "C", name: "Contact", note: "Get in touch: five routes (builders, press, partnerships, careers, community) as rows with real links, then a form that checks itself and shows its success in place. No backend: nothing is sent.", tags: ["Blog J's rail", "Form", "Preview only"], img: "/extra/contact.webp" },
+    ],
+  },
+  {
+    id: "analytics",
+    title: "Analytics",
+    note: "near.org/analytics in the official pages' hand (home v5, Blog J), three versions of the doc's lean overview. Sample figures: no live feed yet.",
+    pages: [
+      { href: "/analytics", n: "A", name: "Analytics · Overview", note: "The doc read literally on the ruled grid: three core stats, the revenue and status cards side by side, the tools, SVRN and the ETPs. Quiet motion: rows draw in, numbers count up once.", tags: ["Ruled grid", "Top 3 stats", "Quiet"], img: "/extra/analytics-a.webp" },
+      { href: "/analytics-b", n: "B", name: "Analytics · Instrument panel", note: "Mono and tabular: all five stats in a ticker beside the headline, a revenue chart with a crosshair readout, status.near.org-style uptime bars with tooltips, the tools as a dense table.", tags: ["Ticker", "Chart readouts", "Uptime bars"], img: "/extra/analytics-b.webp" },
+      { href: "/analytics-c", n: "C", name: "Analytics · Living network", note: "The creative one: an isometric network of shards that commits blocks on its own, the five stats as a pinned scroll story with a drawing each, tilting cards and a heartbeat on the status card.", tags: ["Isometric", "Scroll story", "Microinteractions"], img: "/extra/analytics-c.webp" },
     ],
   },
   {
