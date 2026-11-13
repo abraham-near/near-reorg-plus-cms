@@ -7,15 +7,12 @@ type Props = {
   /** The address people paste in Claude (<CMS_ORIGIN>/api/mcp). */
   url: string
   connections: ConnectedApp[]
-  /** The Google account Docs are shared with, when one is configured. */
-  googleEmail: string | null
-  googlePublicLinks: boolean
 }
 
 const card = 'space-y-4 rounded-xl border bg-card p-6'
 
 /** Settings › Claude, for people who are not technical: one way to connect Claude Desktop, and how to use it. */
-export default function ConnectClaude({ enabled, url, connections, googleEmail, googlePublicLinks }: Props) {
+export default function ConnectClaude({ enabled, url, connections }: Props) {
   if (!enabled) {
     return (
       <section className={card}>
@@ -66,19 +63,21 @@ export default function ConnectClaude({ enabled, url, connections, googleEmail, 
       <section aria-labelledby="use-heading" className={card}>
         <h2 id="use-heading" className="text-lg font-semibold">How to use it</h2>
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
-          <li>Paste your text: <em>“Create a draft in the NEAR CMS with this text: …”</em></li>
-          <li>With images, send a Google Doc: <em>“Import this Google Doc into the CMS: https://docs.google.com/document/d/…”</em></li>
+          <li>Paste your text: <em>“Create a draft in the NEAR CMS with this text: …”</em> Claude gives you a link to the draft.</li>
+          <li>Ask for changes: <em>“Make the title shorter and add the Ecosystem category.”</em></li>
           <li>Publish: <em>“Schedule it for Monday at 10:00 Mexico City time.”</em> Claude repeats the details and waits for your yes.</li>
         </ul>
         <div className="space-y-2 rounded-lg bg-muted/40 p-4 text-sm">
-          <p className="font-medium">About images</p>
+          <p className="font-medium">Images are added by you, in the CMS</p>
           <p className="text-muted-foreground">
-            Images you paste or attach in the Claude chat cannot reach the CMS. Put your text and images in a Google Doc and give Claude its link.
-            {googleEmail ? ' Share the Doc with this address as Viewer:' : googlePublicLinks ? ' In the Doc, click Share and set General access to “Anyone with the link”.' : ''}
+            Claude can’t move pictures from the chat into the CMS: images you paste or attach in Claude stay in Claude. So Claude writes the text, and you add the pictures yourself:
           </p>
-          {googleEmail && <CopyField value={googleEmail} label="Address to share Google Docs with" />}
-          {googleEmail && googlePublicLinks && <p className="text-xs text-muted-foreground">Setting the Doc to “Anyone with the link” also works, but then anyone with the link can read it.</p>}
-          <p className="text-muted-foreground">You can also add images yourself in the CMS editor after Claude creates the draft.</p>
+          <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
+            <li>Open the draft with the link Claude gives you (or from Posts in the CMS).</li>
+            <li>Click <strong>Add cover</strong> for the main image, or type <strong>/</strong> in the text and choose <strong>Image</strong> to add one inside the post.</li>
+            <li>Upload the picture from your computer, or pick one from Media, and write a short description of it.</li>
+          </ol>
+          <p className="text-muted-foreground">Then you can ask Claude to publish or schedule it, or do it from the editor.</p>
         </div>
       </section>
 
@@ -89,7 +88,6 @@ export default function ConnectClaude({ enabled, url, connections, googleEmail, 
             <p className="mb-1.5 font-medium">Claude can</p>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               <li>Create and edit drafts</li>
-              <li>Turn a Google Doc into a draft with its images</li>
               <li>Publish now or schedule, after you say yes</li>
               <li>Edit a published post, after showing you the changes</li>
               <li>Add categories, tags and image descriptions</li>
@@ -98,6 +96,7 @@ export default function ConnectClaude({ enabled, url, connections, googleEmail, 
           <div>
             <p className="mb-1.5 font-medium">Only you can</p>
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+              <li>Add images to a post</li>
               <li>Delete anything</li>
               <li>Change the address (URL) of a published post</li>
               <li>Go back to an earlier version of a post</li>

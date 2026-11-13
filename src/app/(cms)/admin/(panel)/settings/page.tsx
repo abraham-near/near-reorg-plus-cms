@@ -5,7 +5,6 @@ import ConnectClaude from '@/cms/components/users/ConnectClaude'
 import SettingsTabs from '@/cms/components/users/SettingsTabs'
 import { SETTINGS_TABS, type SettingsTab } from '@/cms/components/users/settings-tabs'
 import { requirePagePermission } from '@/cms/lib/auth'
-import { serviceAccountEmail } from '@/cms/lib/import/google-auth'
 import { mcpEnabled, mcpResource } from '@/cms/lib/oauth/config'
 import { listOwnConnections } from '@/cms/lib/people/oauth-grants'
 import { can } from '@/cms/lib/permissions'
@@ -38,8 +37,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         initial={initial}
         panels={{
           profile: <><ProfileSettings profile={profile} /><ProfileSessions sessions={sessions} /></>,
-          ...(canTokens ? { claude: <ConnectClaude enabled={connectorOn} url={connectorOn ? mcpResource() : ''} connections={connections}
-            googleEmail={serviceAccountEmail()} googlePublicLinks={process.env.CMS_GOOGLE_PUBLIC_EXPORT !== 'false'} /> } : {}),
+          ...(canTokens ? { claude: <ConnectClaude enabled={connectorOn} url={connectorOn ? mcpResource() : ''} connections={connections} /> } : {}),
         }}
       />
     </div>

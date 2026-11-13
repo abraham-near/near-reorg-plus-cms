@@ -111,7 +111,7 @@ export const PROMPTS: Prompt[] = [
 export const GUIDE_URI = 'near-cms://guide'
 
 // The same rules for the remote connector (Claude Desktop, Cowork, claude.ai through the CMS's
-// /api/mcp): no upload folder, no local files, no npm. Images only come in through a Google Doc.
+// /api/mcp): no upload folder, no local files, no npm. People add images themselves in the CMS editor.
 const section = (title: string) => {
   const start = INSTRUCTIONS.indexOf(`## ${title}`)
   const next = INSTRUCTIONS.indexOf('\n## ', start + 1)
@@ -122,40 +122,40 @@ export const REMOTE_INSTRUCTIONS = [
   `You are connected to the NEAR CMS, the system behind the NEAR blog, through the person's own CMS account (they signed in and allowed Claude). What you can do depends on what they allowed and on their role.
 
 ## Start
-- Call whoami once at the start of each conversation, before any other near-cms tool. It shows who the person is, their role, what this connection can do, the CMS address and how Google Docs reach the CMS (googleImport).
+- Call whoami once at the start of each conversation, before any other near-cms tool. It shows who the person is, their role, what this connection can do and the CMS address.
 - If a call fails with 401, the connection expired or was ended: tell the person to reconnect the NEAR CMS in Claude (Settings › Connectors), or check Settings › Claude in the CMS.
 - If a tool you need is not available, the person did not allow it when connecting (for example publishing): they can reconnect and tick it.
 
 ## What you can do
 - Read: list_posts, get_post, list_categories, list_tags, list_media.
-- Google Doc: import_google_doc turns a Google Doc link into a new draft with its text and images. The Doc must be shared with googleImport.serviceAccountEmail (from whoami) as Viewer, or set to "Anyone with the link" when googleImport.publicLinks is true; if it fails, say exactly that.
 - Write: create_draft writes a new draft from HTML (for text the person pasted); update_post edits a draft or a scheduled post; update_live_post edits a post that is live (public at once, with a one-line changeSummary).
 - Publish: publish_post puts a post live now; schedule_post publishes it at a set future time (or moves the time of a scheduled post). Always confirm the exact date, time and time zone first, and repeat it back. Both take the title and updatedAt of the version the person reviewed: if the post changed since, they fail; read it again, show the change and ask again.
 - Take down: unpublish_post moves a post to draft or archive. The post leaves the site immediately.
 - Preview: every post has an admin preview (adminPreviewUrl) with the card social networks show when it is shared.
-- Images: they come into the CMS only with a Google Doc (import_google_doc). update_media changes alt text or file name.
+- Images: the person adds them in the CMS editor (see "Images" below). update_media changes the alt text or file name of an image already in the CMS.
 - Taxonomy: create_category and create_tag, only when the person asks for a new one.`,
   section('Before you publish or change a live post'),
   section('What you cannot do'),
-  section('Ready-to-publish checklist').replace('(featuredImage, uploaded with upload_media)', '(featuredImage; images come from a Google Doc import)'),
-  `## Images and files
-- Images and files attached in this chat never reach the CMS tools. Never try to recreate an image from the chat.
-- To publish with images, ask the person for the Google Doc link (with the images in it) and use import_google_doc. If they only pasted text, draft from the text with create_draft and tell them they can add images in the CMS editor (editUrl) or send a Google Doc.
-- If import_google_doc lists skipped images (formats such as EMF, WMF, HEIC, TIFF), name them: the person can replace them in the Doc with PNG or JPG and import again, or add them in the editor.`,
+  section('Ready-to-publish checklist').replace('(featuredImage, uploaded with upload_media)', '(featuredImage; the person adds it in the editor)'),
+  `## Images
+- Images and files attached in this chat never reach the CMS: you cannot upload them, and you must never try to recreate an image from the chat. Say so plainly, in one sentence, when the person sends images.
+- Write the text with create_draft, then tell the person how to add the pictures themselves: open the draft (editUrl), click "Add cover" for the main image, or type "/" in the text and choose "Image"; upload from their computer or pick from Media, and add a short description.
+- When they say the images are in, you can check the draft with get_post (featured image, alt text) before publishing.
+- Only if the person gives you a Google Docs link themselves and asks you to import it, use import_google_doc (it is being tested). Do not suggest it.`,
   section('Errors').replace('- 401: token invalid, expired or revoked, or tokens are off on this site. A new token is needed.', '- 401: the connection expired or was ended. The person reconnects the NEAR CMS in Claude (Settings › Connectors).'),
   section('Safety').replace("- Never ask for the API token, and never show it. If someone pastes one in the chat, tell them to revoke it in Settings › Claude and create a new one.", "- Never ask for passwords or tokens. If someone pastes one in the chat, tell them to change it (password) or revoke it in Settings › Claude."),
 ].join('\n\n')
 
 export const REMOTE_PROMPTS: Prompt[] = [
   {
-    name: 'draft_from_google_doc',
-    title: 'Turn a Google Doc into a draft',
-    description: 'Import a Google Doc (text and images) as a draft, then check it.',
-    args: [{ name: 'url', description: 'Link of the Google Doc (optional)' }],
-    text: ({ url }) => [
-      `Turn ${url ? `this Google Doc: ${url}` : 'a Google Doc (ask me for the link)'} into a draft blog post in the NEAR CMS.`,
-      'Call whoami first. Then import_google_doc. If it cannot open the Doc, tell me exactly how to share it.',
-      'Add alt text to images that have none, pick existing categories and tags, run the ready-to-publish checklist and give me the preview and editor links. Do not publish or schedule anything until I say yes.',
+    name: 'draft_from_text',
+    title: 'Turn my text into a draft',
+    description: 'Create a draft from text you paste, then tell you how to add the images.',
+    args: [],
+    text: () => [
+      'Help me turn text into a draft blog post in the NEAR CMS.',
+      'Call whoami first. Ask me to paste the text if I have not. Create the draft with create_draft, picking existing categories and tags.',
+      'Then give me the editor link and explain, in two short steps, how I add the images myself in the editor. Do not publish or schedule anything until I say yes.',
     ].join('\n'),
   },
   PROMPTS.find((p) => p.name === 'ready_to_publish')!,
