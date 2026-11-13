@@ -132,13 +132,48 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
     return fig;
   };
 
+  // two images side by side, one caption (the editor's "Image pair": two images on one line)
+  const pair = (imgs: Element[]) => {
+    const fig = el("figure", "pb-pair"); fig.setAttribute("data-reveal", "");
+    const row = el("div", "pb-pair__row");
+    const cap = imgs.map((img) => img.getAttribute("title")).find((t) => t && t.trim()) ?? null;
+    for (const img of imgs) { img.removeAttribute("title"); img.removeAttribute("data-size"); img.classList.add("pb-fig__img"); const ph = el("div", "pb-fig__ph"); ph.append(img); row.append(ph); }
+    fig.append(row);
+    if (cap) { const c = el("figcaption", "pb-cap"); c.textContent = cap; fig.append(c); }
+    return fig;
+  };
+  // the figures band (the editor's "Figures"): numbers with labels, and a note
+  const stats = (b: Element) => {
+    const box = el("div", "pb-stats"); box.setAttribute("data-reveal", "");
+    const list = el("ul", "pb-stats__list");
+    for (const li of b.querySelectorAll("li")) {
+      const n = text(li.querySelector("strong") ?? el("i")), l = text(li.querySelector("span") ?? el("i"));
+      if (!n && !l) continue;
+      const item = el("li", "pb-stat"), sn = el("strong", "pb-stat__n"), sl = el("span", "pb-stat__l");
+      sn.textContent = n; sl.textContent = l; item.append(sn, sl); list.append(item);
+    }
+    box.append(list);
+    const note = text(b.querySelector("figcaption") ?? el("i"));
+    if (note) { const p = el("p", "pb-stats__note"); p.textContent = note; box.append(p); }
+    return list.children.length ? box : null;
+  };
+  // a callout: its first paragraph is the title, the rest the text
+  const callout = (b: Element) => {
+    b.className = "pb-callout"; b.setAttribute("data-reveal", "");
+    const ps = [...b.children].filter((c) => c.tagName === "P" && text(c));
+    [...b.children].filter((c) => c.tagName === "P" && !text(c)).forEach((c) => c.remove());
+    ps.forEach((p, i) => p.classList.add(i === 0 && ps.length > 1 ? "pb-callout__t" : "pb-callout__b"));
+  };
+
   for (const b of [...frag.children]) {
     switch (b.tagName) {
       case "P": {
         // a paragraph that only holds images (the editor's inline images): one figure each, the title as its caption
         const imgs = [...b.querySelectorAll("img")];
         if (imgs.length && !text(b) && [...b.children].every((c) => c.tagName === "IMG" || c.tagName === "BR")) {
-          b.replaceWith(...imgs.map((img) => { const cap = img.getAttribute("title"); img.removeAttribute("title"); return figure(img, cap); }));
+          // two images on one line: a pair side by side (the first title is its caption); otherwise one figure each
+          if (imgs.length === 2) b.replaceWith(pair(imgs));
+          else b.replaceWith(...imgs.map((img) => { const cap = img.getAttribute("title"); img.removeAttribute("title"); return figure(img, cap); }));
         } else b.classList.add("pb-p");
         break;
       }
@@ -170,6 +205,7 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
         break;
       }
       case "FIGURE": {
+        if (b.getAttribute("data-type") === "figures") { const s = stats(b); if (s) b.replaceWith(s); else b.remove(); break; }
         if (b.querySelector("iframe, video")) { b.classList.add("pb-embed"); break; }
         const img = b.querySelector("img");
         if (!img) break;
@@ -197,7 +233,7 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
         } else if (b.hasAttribute("data-callout")) b.classList.add("pb-callout");
         break;
       }
-      case "ASIDE": if (b.hasAttribute("data-callout")) b.classList.add("pb-callout"); break;
+      case "ASIDE": if (b.hasAttribute("data-callout") || b.getAttribute("data-type") === "callout") callout(b); break;
     }
   }
 

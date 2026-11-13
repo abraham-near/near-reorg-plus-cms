@@ -20,6 +20,7 @@ import { common, createLowlight } from 'lowlight'
 import { safeUrl } from '@/cms/lib/sanitize'
 import { RawHtmlBlock } from './RawHtmlBlock'
 import { ImageView } from '../node-views/ImageView'
+import { Callout, FiguresBlock } from './StoryBlocks'
 
 const lowlight = createLowlight(common)
 export type ImageSize = 'wide' | 'bleed'
@@ -41,13 +42,14 @@ export interface EditorExtensionOptions {
 }
 
 /** Placeholder of an empty block: headings name their level, other text blocks hint at "/". */
-export function placeholderFor(node: { type: { name: string }; attrs: Record<string, unknown> }, parent: string, editorEmpty: boolean, emptyText = EMPTY_DOC_PLACEHOLDER): string {
+export function placeholderFor(node: { type: { name: string }; attrs: Record<string, unknown> }, parent: string, editorEmpty: boolean, emptyText = EMPTY_DOC_PLACEHOLDER, index = 0): string {
   if (node.type.name === 'heading') return `Heading ${node.attrs.level}`
   if (node.type.name !== 'paragraph') return ''
   if (editorEmpty) return emptyText
   if (parent === 'listItem') return 'List'
   if (parent === 'taskItem') return 'To-do'
-  if (parent === 'blockquote') return 'Quote'
+  if (parent === 'blockquote') return index === 0 ? 'Quote' : '— Who said it, their role'
+  if (parent === 'callout') return index === 0 ? 'Callout title' : 'The note'
   if (parent === 'tableCell' || parent === 'tableHeader') return ''
   return 'Type / for blocks'
 }
@@ -63,13 +65,14 @@ export function getExtensions(options: EditorExtensionOptions | string = {}) {
     CodeBlockLowlight.configure({ lowlight }),
     Table.configure({ resizable: true, HTMLAttributes: { class: 'cms-editor-table' } }), TableRow, TableHeader, TableCell,
     TaskList, SafeTaskItem,
-    EmbedBlock, DragHandle, FindReplace, BlockKeymap, ImageUpload,
+    EmbedBlock, Callout, FiguresBlock, DragHandle, FindReplace, BlockKeymap, ImageUpload,
     Placeholder.configure({
       includeChildren: true,
       showOnlyCurrent: true,
       placeholder: ({ editor, node, pos }) => {
-        const parent = pos > 0 ? editor.state.doc.resolve(pos).parent.type.name : 'doc'
-        return placeholderFor(node, parent, editor.isEmpty, placeholder || EMPTY_DOC_PLACEHOLDER)
+        // the decorations can be built for a newer doc than editor.state holds (an insert in flight): out of range, treat it as top level
+        const at = pos > 0 && pos <= editor.state.doc.content.size ? editor.state.doc.resolve(pos) : null
+        return placeholderFor(node, at ? at.parent.type.name : 'doc', editor.isEmpty, placeholder || EMPTY_DOC_PLACEHOLDER, at ? at.index() : 0)
       },
     }),
     // Keeps HTML the editor cannot model (written through the API) instead of dropping it.
