@@ -29,3 +29,6 @@ html[data-home="v5"] .layer[data-type="even"] :is(.rail__h, .rail__problem, .rai
    (intelligence: -4 - 394 of 412), from their svg geometry. The drawn width is the box's, or its height x the viewBox's aspect where that is less (495 x 328, 412 x 294) */
 html[data-home="v5"] .layer[data-square="early"] .rs__art[data-art="identity"] { translate: calc(-.106 * min(var(--art-w), var(--art-h) * 1.509)) 0; }
 html[data-home="v5"] .layer[data-square="early"] .rs__art[data-art="intelligence"] { translate: calc(.0267 * min(var(--art-w), var(--art-h) * 1.401)) 0; }
+
+/* the playhead's square over every tile that lands in it (D128): the stations' tiles (.rs__track, z 5) and NEAR's (z 4) grow up behind its outline, never over it */
+.layer[data-square="early"] .rs__play { z-index: 6; }

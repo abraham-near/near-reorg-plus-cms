@@ -86,6 +86,9 @@ export type DeeperContent = {
   voicesMode?: "short" | "marquee" | "pins" | "deck";
   /** Origin's photo at a set shape (v4): "4/3" half and half, "16/9" the photo on 7 of 12 columns; the row is as tall as the photo (none = v3's tall row) */
   originRatio?: "4/3" | "16/9";
+  /** the page this runs on, as data-scope on the wrapper (v6: its own tweaks in v6/v6.css). A plain attribute, not html:has(...): a :has() on the root
+   *  restyles the whole page on every DOM change, every frame while a figure counts up (D134) */
+  scope?: string;
 };
 const Who = ({ q }: { q: Voice }) => (
   <figcaption className="l-who"><i className="l-who__dot" aria-hidden="true" /><span className="l-who__n">{q.name}</span>{q.role && <span className="l-who__r">{q.role}</span>}</figcaption>
@@ -187,7 +190,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
   };
   useScrollMotion(ref, mount);
   return (
-    <div ref={ref} className="l-page">
+    <div ref={ref} className="l-page" data-scope={c.scope}>
       {c.lead}
       <section className="l-sec l-proof" id="proof" aria-labelledby="l-proof-t">
         <h2 id="l-proof-t" className="sr-only">NEAR in numbers</h2>

@@ -52,8 +52,8 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
   let dead = false;
 
   /* ---------- geometry: hairline width and dots, in screen px ---------- */
-  function layout(st: St) {
-    let s = st.i.getBoundingClientRect().width;
+  function layout(st: St, w?: number) {
+    let s = w ?? st.i.getBoundingClientRect().width;
     st.measured = s > 0;
     if (!s) s = 24;
     st.size = s;
@@ -61,6 +61,16 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
     const px = s <= 18 ? 1 : s <= 22 ? 1.1 : 1.25; // 1.1 at 20 px, so the 20 px menu rows read as fine as 16 and 24
     const gap = (s <= 18 ? 2.3 : s <= 26 ? 2.6 : s <= 40 ? 2.9 : 3.4) * k;
     const r = (s <= 18 ? 0.6 : s <= 26 ? 0.7 : s <= 40 ? 0.8 : 1) * k;
+    /* the geometry first, every read before any write: a read after a write (getTotalLength after a style or DOM change) restyles the whole page, once per
+       path (D134: the footer's icons froze the page for seconds) */
+    const geo = st.strokes.map((node) => {
+      let L = 0;
+      try { L = node.getTotalLength(); } catch { L = 0; }
+      const closed = /^(circle|ellipse|rect|polygon)$/.test(node.localName) || /z\s*$/i.test(node.getAttribute("d") || "");
+      const n = Math.max(2, Math.round(L / gap)), last = closed ? n - 1 : n, pts: [number, number, number][] = [];
+      for (let j = 0; j <= last; j++) { const f = j / n, p = node.getPointAtLength(L * f); pts.push([p.x, p.y, f]); }
+      return { node, L, pts };
+    });
     st.svg.style.setProperty("--ic-sw", (px * k).toFixed(3));
     // the green spark never shrinks below a 2 px dot on screen
     st.accs.forEach((n) => {
@@ -68,27 +78,21 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
       if (n.r0 == null) n.r0 = parseFloat(n.getAttribute("r") || "") || 0;
       n.setAttribute("r", Math.max(n.r0, 1.0 * k).toFixed(3));
     });
-    st.gDots.textContent = "";
-    st.paths = st.strokes.map((node) => {
-      let L = 0;
-      try { L = node.getTotalLength(); } catch { L = 0; }
-      const closed = /^(circle|ellipse|rect|polygon)$/.test(node.localName) || /z\s*$/i.test(node.getAttribute("d") || "");
-      const n = Math.max(2, Math.round(L / gap));
-      let host: SVGGElement = st.gDots;
+    const frag = document.createDocumentFragment();
+    st.paths = geo.map(({ node, L, pts }) => {
+      let host: SVGGElement | DocumentFragment = frag;
       const tf = node.getAttribute("transform");
-      if (tf) { host = el<SVGGElement>("g"); host.setAttribute("transform", tf); st.gDots.appendChild(host); }
-      const dots: Dot[] = [];
-      const last = closed ? n - 1 : n;
-      for (let j = 0; j <= last; j++) {
-        const f = j / n, p = node.getPointAtLength(L * f);
+      if (tf) { const g = el<SVGGElement>("g"); g.setAttribute("transform", tf); frag.appendChild(g); host = g; }
+      const dots: Dot[] = pts.map(([x, y, f]) => {
         const d = el<SVGCircleElement>("circle");
-        d.setAttribute("cx", p.x.toFixed(2)); d.setAttribute("cy", p.y.toFixed(2)); d.setAttribute("r", r.toFixed(3));
+        d.setAttribute("cx", x.toFixed(2)); d.setAttribute("cy", y.toFixed(2)); d.setAttribute("r", r.toFixed(3));
         host.appendChild(d);
-        dots.push({ n: d, f });
-      }
+        return { n: d, f };
+      });
       node.style.strokeDasharray = L + " " + (L + 2);
       return { node, L, dots, r, a: 0, b: 1 };
     });
+    st.gDots.replaceChildren(frag);
     // timeline windows: paths overlap with a small stagger, all inside [0, 0.8]
     const count = st.paths.length || 1;
     const stagger = Math.min(0.12, 0.34 / count);
@@ -201,20 +205,23 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
   let rt = 0;
   addEventListener("resize", () => {
     clearTimeout(rt);
-    rt = window.setTimeout(() => all.forEach((st) => {
-      const s = st.i.getBoundingClientRect().width;
-      if (s && Math.abs(s - st.size) > 0.5) { layout(st); render(st, st.T); }
-    }), 200);
+    rt = window.setTimeout(() => {
+      const ws = all.map((st) => st.i.getBoundingClientRect().width);   /* every size first (D134) */
+      all.forEach((st, k) => { const s = ws[k]; if (s && Math.abs(s - st.size) > 0.5) { layout(st, s); render(st, st.T); } });
+    }, 200);
   }, on);
 
   return {
     /** a panel just opened: its icons draw from dots now, one after the other */
     draw(panel: Element) {
       let n = 0;
-      panel.querySelectorAll("i[data-icon]").forEach((i) => {
-        const st = stOf.get(i); if (!st || !st.paths) return;
+      /* sizes read together first; an icon laid out at its size already keeps its dots (D134: every icon re-laid out, a write then a read each, froze the page) */
+      const sts = [...panel.querySelectorAll("i[data-icon]")].map((i) => stOf.get(i)).filter((st): st is St => !!st && !!st.paths);
+      const ws = sts.map((st) => st.i.getBoundingClientRect().width);
+      sts.forEach((st, k) => {
+        const i = st.i;
         io.unobserve(i);
-        layout(st);
+        if (!st.measured || Math.abs(ws[k] - st.size) > 0.5) layout(st, ws[k]);
         if (reduced) { render(st, 1); return; }
         cancelAnimationFrame(st.raf); st.busy = false; render(st, 0);
         draw(st, Math.min(480, 40 * n++));

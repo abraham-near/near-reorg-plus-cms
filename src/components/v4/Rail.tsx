@@ -12,7 +12,7 @@ import "./v4.css";
 /** square: "early" (home v6, with beats="split") draws the playhead's square round NEAR's tile from the start; it holds the centre as the line travels (rail/layer.ts EARLY) */
 /** words: "lines" (home v6, with beats="split") moves the type line by line, not word by word, and brings line 3 in after a beat (rail/layer.ts LINES) */
 /** type: "even" (home v6) sets the thesis, the problem and the answer (all the type above the line) in one size (v6/rail-v6.css) */
-export function RailV4({ exit, steps, beats, back, near, square, type, words }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges"; near?: "out"; square?: "early"; type?: "even"; words?: "lines" }) {
+export function RailV4({ exit, steps, beats, back, near, square, type, words }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop" | "wipe"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges"; near?: "out"; square?: "early"; type?: "even"; words?: "lines" }) {
   return (
     <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps} data-beats={beats} data-back={back} data-near={near} data-square={square} data-type={type} data-words={words}>
       <div className="rail__static">

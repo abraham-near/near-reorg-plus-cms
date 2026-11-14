@@ -107,8 +107,10 @@ export function canvasLoop(stage: HTMLElement, draw: (ctx: CanvasRenderingContex
   layout();
   const ro = new ResizeObserver(layout);
   ro.observe(stage);
+  /* the loop runs only while the stage is within half a screen (D134: it ran every frame of the whole page, the hero long gone) */
+  let near = true;
   const tick = () => {
-    raf = requestAnimationFrame(tick);
+    raf = near ? requestAnimationFrame(tick) : 0;
     const k = `${key()}|${w}|${h}`;
     if (k === last) return;
     last = k;
@@ -116,8 +118,10 @@ export function canvasLoop(stage: HTMLElement, draw: (ctx: CanvasRenderingContex
     ctx.clearRect(0, 0, w, h);
     draw(ctx, w, h);
   };
+  const io = new IntersectionObserver(([en]) => { near = en.isIntersecting; if (near && !raf) raf = requestAnimationFrame(tick); }, { rootMargin: "50% 0px" });
+  io.observe(stage);
   raf = requestAnimationFrame(tick);
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.remove(); };
+  return () => { cancelAnimationFrame(raf); raf = 0; io.disconnect(); ro.disconnect(); canvas.remove(); };
 }
 
 /** The grid's 1 px rule from (x1, y1) toward (x2, y2), drawn to fraction k: ink at the grid's strength (24 %) with a pale edge beside it, so it

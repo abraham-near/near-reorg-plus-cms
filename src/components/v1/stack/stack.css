@@ -208,4 +208,8 @@ html[data-rail] .stk { background: linear-gradient(transparent 0 var(--ov, 0px),
 /* the build-in of the text (tabs, panel): a quiet rise as each block comes into view; without JS / reduced motion everything is simply there */
 html[data-stk-in] .stk [data-rise] { opacity: 0; transform: translateY(var(--space-3)); transition: opacity var(--dur-4) var(--ease-settle), transform var(--dur-5) var(--ease-settle); }
 html[data-stk-in] .stk [data-rise].is-in { opacity: 1; transform: none; }
+/* the held band (data-sticky, home v6, D134; v1/stack/motion.ts): its content sticks at the band's top padding for --stk-hold (1.8 screens), the room for it
+   after the content. CSS sticky stays with the scroll on the compositor, where GSAP's pin, switched from the main thread, lagged a frame and jumped */
+.stk[data-sticky] .stk-inner { position: sticky; top: var(--top); }
+.stk[data-sticky]::after { content: ""; display: block; height: var(--stk-hold, 0px); }
 @media (prefers-reduced-motion: reduce) { html[data-stk-in] .stk [data-rise] { opacity: 1; transform: none; } }

@@ -70,5 +70,11 @@ html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transfo
   html[data-js] .statement[data-hold] .statement__hold { padding-block: calc(var(--nav-h) + 2svh) 6svh; }
 }
 
-/* the newsletter (shared ProofDeeper close): no "Email address" title above the field on v6, and no space for it (Lawrence, D120). It stays for screen readers */
-html[data-home="v5"]:has(.hero--v6) .l-close__nl .l-form__label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+/* the newsletter (shared ProofDeeper close): no "Email address" title above the field on v6, and no space for it (Lawrence, D120). It stays for screen readers.
+   Scoped by ProofDeeper's data-scope (V6Page), not html:has(.hero--v6): a :has() on the root restyled the whole page on every DOM change (D134) */
+.l-page[data-scope="v6"] .l-close__nl .l-form__label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* Origin ("Built by the people who helped invent modern AI", shared ProofDeeper): the source box stays (its rule, its height), empty; the source line and
+   the footnote mark that pointed to it go (Lawrence, D131). v5 keeps both */
+.l-page[data-scope="v6"] .l-origin .l-src > * { visibility: hidden; }
+.l-page[data-scope="v6"] .l-origin .l-mark { display: none; }

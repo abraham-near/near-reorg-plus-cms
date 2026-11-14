@@ -43,8 +43,9 @@
  *   world slides (10.5 - 18), the square travels on empty, and the tile lands in it again 34.2 - 35.8 (S.gp) with the answer; it rides out with the slide to the
  *   first station as before, whose tile lands in the square in turn. The line is green from the left edge to the square's left edge throughout (D100, D117), ink beyond it
  * Home v6 (data-words="lines", D116): the type moves line by line, not word by word: the words of a line move together (renderWords: their line, measured in layout;
- *   the staircases: their own lines), the lines one after another, top first, in and out. Lines 1 and 2 (and the end labels) come in with the arrival; then a beat
- *   while the tile pops and its square draws; line 3 ("NEAR is where they connect.") comes in whole after that, 4.2 - 6.8; lines 1 and 2 leave a unit later (10 - 13.6);
+ *   the staircases: their own lines), the lines one after another, top first, in and out. Lines 1 and 2 (and the end labels) come in with the arrival; then a beat;
+ *   then line 3 ("NEAR is where they connect.") comes in whole, 4.2 - 6.8, with the tile popping (4.2 - 6.4) and its square drawing (5 - 6.6, once the pop's overshoot has settled) in step (D126; they
+ *   came in during the beat before); lines 1 and 2 leave a unit later (10 - 13.6);
  *   line 3 leaves whole (17.5 - 19.7)
  * Home v5 (split) has no type in dots: every text moves word by word instead (WORDS: renderWords), scrubbed like the rest. A word comes in rising from below as it fades in, and
  *   leaves rising as it fades out, the words one after another in reading order. The phrases and the end labels come in with the section's arrival (S.enter; Item.er), the
@@ -57,6 +58,7 @@ import { loadTone, buildField, nearestDot, type Field, type Tone } from "./field
 import { makeLattice, xOf, jRange, type Lattice } from "./planet";
 import { createVignette, type Vignette, type VigKey } from "./vig2";
 import { mountRailGlobe, type RailGlobe } from "./railglobe";
+import { TIDES } from "./tide";
 
 const WORLD = true;                                   /* the background world behind the top half (rail/railglobe.ts); false turns it off */
 const ICON = "/v1/rail/icon.svg";
@@ -116,6 +118,11 @@ type Metrics = {
   playHW: number; finHW: number; tall: number; quiet: { x0: number; x1: number; y0: number; y1: number }[]; riseEnd: number; rise: number; Y0: number; pa: number; A: [number, number];
   Dv: number; kx: number; Dmax: number; Wf: number; Xc: number; covered: boolean;
 };
+/* the "wipe" exit (D133): the line rises from the tide's start (sine, over TR.t0 - TR.g1) and the hard edge runs from it down to the foot of the screen
+   while it does, over the first WIPE_K of S.tk (about 2 units); the Stack's text (--tide-q) runs from TIDE_Q0 units in until the line, with its tile, has
+   left the top (D133 critic: the wipe came before the rise, as two beats, and the text landed well after the line had gone) */
+const WIPE_K = 0.42, TIDE_Q0 = 1.0, TILE_OUT = 24;
+const NAV_Y = 72;   /* the foot of the header's pill (v3 header: 16 px from the top, 56 px tall): the header reads its ground every few frames and cross-fades over 0.6 s, so starting at the pill's foot centres the fade on the line passing it */
 type Tl = ReturnType<V1Ctx["gsap"]["timeline"]>;
 type Trig = ReturnType<V1Ctx["ScrollTrigger"]["create"]>;
 
@@ -710,7 +717,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
        frame     the stations' viewfinder opens from the node (its tile's round corners squaring off) to the whole screen
        seam      a seam drops from the node, then the dark parts from it to both sides
        ruler     the line's own ruler: its ticks grow down from the line, the centre first, thicken and merge into the dark
-       drop      the four steps fall: the line's four quarters drop down the screen in turn, the dark behind each */
+       drop      the four steps fall: the line's four quarters drop down the screen in turn, the dark behind each
+       wipe      (v6, D133) a hard-edged wipe: the dark runs down from the line to the foot of the screen as the line rises */
+  function wipeFront() { return M.Y0 + (M.H + 4 - M.Y0) * clamp(S.tk / WIPE_K, 0, 1); }
+  /* when the line (and its tile) leaves the top on the "wipe" exit's rise: S.tg = sine.inOut over TR.t0 - TR.g1 reaches (railY + TILE_OUT) / riseEnd */
+  function tideOut() { const y = clamp((M.railY + TILE_OUT) / M.riseEnd, 0, 1); return TR.t0 + (Math.acos(1 - 2 * y) / Math.PI) * (TR.g1 - TR.t0); }
   function drawExit(c: CanvasRenderingContext2D, Wd: number, H: number, Y0: number) {
     const p = S.tk, rise = M.rise, lit = 1 - s01((p - 0.8) / 0.2);
     const band = (y0: number) => { c.beginPath(); c.rect(-2, y0, Wd + 4, H - y0 + 4); c.clip(); };   /* everything stays under the line */
@@ -742,6 +753,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
         const g = lit * (1 - s01((t - 0.82) / 0.18));
         if (g > 0.01) { c.globalAlpha = g; c.fillStyle = GREEN; c.fillRect(x + 1, top - 1 + h, w - 2, 2); c.fillStyle = DARK; c.globalAlpha = 1; }
       }
+    } else if (EXIT === "wipe") {              /* a hard edge from the line down to the foot of the screen; the tide then lifts the line (and the dark with it) */
+      band(Y0);
+      c.fillRect(-2, Y0 - 1, Wd + 4, wipeFront() - Y0 + 1);
         } else if (EXIT === "ruler") {             /* the line's own ruler: each tick grows down from the line, the centre first, thickens and merges with its neighbours */
       c.beginPath(); c.rect(-2, Y0, Wd + 4, H - Y0 + 4); c.clip();
       const step = RU.step, { cx, Xc } = M, k0 = Math.ceil((Xc - cx - 2) / step) - 1, k1 = Math.floor((Xc + cx + 2) / step) + 1, full = H + M.riseEnd - M.railY + 24;
@@ -760,6 +774,14 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const wx = -(M.W * (S.wv - 50)) / 100; M.Xc = M.W * S.wv / 100;
     M.rise = S.tg > 0.00002 ? M.riseEnd * S.tg : 0; M.Y0 = M.railY - M.rise;
     const ry = (-M.rise).toFixed(2);
+    /* v6 (the Stack band's data-enter="tide", D132): where the line is on the screen, for the Stack's heading, which rises in under the tide and shows only below the line
+       (v6/stack/StackEnterV6.tsx); handed over in ./tide.ts's map (D134) */
+    if (TIDE) {   /* and (D133) the dark's foot (the wipe's edge, or the screen's foot), and how far the tide has gone (0 as the dark starts, 1 as the line leaves the top) */
+      const t = main?.time() ?? 0, td = TIDES.get(band!) ?? { y: 0, f: 0, q: 0 };
+      td.y = M.Y0; td.f = EXIT === "wipe" ? wipeFront() : M.H + 4;
+      td.q = EXIT === "wipe" ? clamp((t - TR.t0 - TIDE_Q0) / (tideOut() - TR.t0 - TIDE_Q0), 0, 1) : clamp((t - TR.t0) / (TR.g1 - TR.t0), 0, 1);
+      TIDES.set(band!, td);
+    }
     put("tw", R.world, `translate3d(${wx.toFixed(2)}px,0,0)`);
     put("tt", R.track, `translate3d(${wx.toFixed(2)}px,${ry}px,0)`);
     put("tp", R.play, M.rise ? `translate3d(0,${ry}px,0)` : "none");
@@ -802,6 +824,12 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       flush();
     }
     if (last.cov !== M.covered) { last.cov = M.covered; html.toggleAttribute("data-ly-dark", M.covered === true); }
+    /* the "wipe" exit (v6, D134): the dark is under the header's pill as soon as the line has risen past it, well before the screen counts as covered; the
+       rail says so (data-nav-tone, read by v3/header/motion.ts), so the pill turns dark with the ground under it instead of after it */
+    if (EXIT === "wipe") {
+      const nd = M.covered || (S.tk > 0 && M.Y0 < NAV_Y);
+      if (last.nd !== nd) { last.nd = nd; if (nd) sec?.setAttribute("data-nav-tone", "dark"); else sec?.removeAttribute("data-nav-tone"); }
+    }
     if (RGl) RGl.update(S.enter, EG, S.gy, S.gq, I.fin.a);         /* the background world (it renders on its own rAF, only when something changed) */
   }
 
@@ -815,9 +843,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     tl0 = tl;
     const to = (t: object, v: gsap.TweenVars, at: number) => tl.to(t, v, at);
     /* 0.3 - 2.5 the green node pops (the approach has swept in everything else of 384:8605); f1 holds to 9 */
-    to(S, { pt: 1, duration: 2.2, ease: "back.out(2)" }, 0.3);
+    /* v6 with line 3 after a beat (D126): the tile pops and its square draws with line 3 ("NEAR is where they connect.", 4.2 - 6.8), not before it */
+    const NODE = EARLY && LINES ? 4.2 : 0.3;
+    to(S, { pt: 1, duration: 2.2, ease: "back.out(2)" }, NODE);
     if (EARLY) {
-      to(S, { pf: 1, duration: 1.8, ease: "power2.out" }, 2.3);                         /* v6: the square draws round the tile once it has settled, and stays */
+      to(S, { pf: 1, duration: LINES ? 1.6 : 1.8, ease: "power2.out" }, LINES ? 5 : 2.3);           /* v6: the square draws round the tile once it has settled (with line 3, D126), and stays */
       to(S, { gp: 1, duration: 1.6, ease: "back.out(2)" }, 34.2);                      /* the tile lands in it again with the answer's first word ("On NEAR") */
       to(S, { rk: 0, duration: 2.5, ease: "power1.inOut" }, 10);                        /* the ink right of the square fades to the grey ahead as the thesis leaves (D118) */
     }
@@ -858,7 +888,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
     to(S, { wv: RAIL.title, duration: 7.5, ease: "power2.inOut" }, 10.5);
     if (LINES) {   /* line 3 after a beat, whole; and out whole */
-      to(I.near, { a: 1, duration: 2.6, ease: "none" }, 4.2); to(I.rest1, { a: 1, duration: 2.6, ease: "none" }, 4.2);   /* once the tile and its square have settled (4.1) */
+      to(I.near, { a: 1, duration: 2.6, ease: "none" }, 4.2); to(I.rest1, { a: 1, duration: 2.6, ease: "none" }, 4.2);   /* with the tile and its square (D126) */
       to(I.near, { o: 1, duration: 2.2, ease: "none" }, 17.5); leave(tl, I.rest1, 17.5, 2.2, 1.2, 2.8);
     } else {
       to(I.near, { o: 1, duration: 1.1, ease: "none" }, 17.5);
@@ -923,7 +953,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     /* 95.8 - 106.3 THE WORLD BECOMES THE STACK: S.tk the cells under the line darken and merge from just under the centre outwards; S.tg the tide: the dark rises from the line as a straight edge,
        carrying the line and the node, until the line has left the top. The Stack slides in under the last TR.ov units (the band's overlap), on the same ground */
     to(S, { tk: 1, duration: TR.k1 - TR.t0, ease: "power1.out" }, TR.t0);
-    to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
+    if (EXIT === "wipe") to(S, { tg: 1, duration: TR.g1 - TR.t0, ease: "sine.inOut" }, TR.t0);   /* the line rises with the wipe from the start (D133) */
+    else to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
     /* the background world (rail/railglobe.ts): ONE turn from the thesis (0) to identity's exit (95.2), linear; it leaves with identity (92.3 - 95.2) */
     to(S, { gy: 1, duration: ID_OUT + 2.9, ease: "none" }, 0);
     to(S, { gq: 1, duration: 2.9, ease: "none" }, ID_OUT);
@@ -977,6 +1008,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const trigs: Trig[] = [];
   let main: Tl | null = null, enterTl: Tl | null = null, rsTm = 0, disposed = false;
   const band = document.querySelector<HTMLElement>(".stk");
+  const TIDE = !!band?.hasAttribute("data-enter");
   const dispose: Dispose = () => {
     if (disposed) return; disposed = true;
     ac.abort();
@@ -987,8 +1019,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     try { RGl?.dispose(); } catch (e) { console.warn("[rail] globe dispose", e); }
     RGl = null;
     if (R) { for (const v of [...R.vig, R.gvig]) { try { v?.dispose?.(); } catch (e) { console.warn("[rail] vignette dispose", e); } } R.stage.remove(); R = null; }
-    band?.style.removeProperty("--ov");
+    band?.style.removeProperty("--ov"); if (band) TIDES.delete(band);
     for (const a of ["data-rail", "data-ly-ready", "data-ly-dark"]) html.removeAttribute(a);
+    sec.removeAttribute("data-nav-tone");
   };
 
   try {
@@ -1014,8 +1047,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   main = gsap.timeline({ paused: true });
   build(main);
   enterTl = gsap.timeline({ paused: true }); enterTl.to(S, { enter: 1, duration: 1, ease: "none" }, 0); enterTl.eventCallback("onUpdate", apply);
-  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true }));
-  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1 }));
+  /* a refresh sets the timelines' playheads without their onUpdate (events suppressed): draw then too, or a page reloaded past the rail kept its first frame
+     on screen until the scroll came back into the rail (D134) */
+  const redraw = () => { if (!disposed) apply(); };
+  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true, onRefresh: redraw }));
+  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1, onRefresh: redraw }));
   apply(); html.setAttribute("data-ly-ready", "");
   requestAnimationFrame(() => { if (!disposed) ScrollTrigger.refresh(); });
   idleLoop(main);

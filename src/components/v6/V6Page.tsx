@@ -9,9 +9,11 @@ import { V3Footer } from "../v3/footer/Footer";
 import { RailV4 } from "../v4/Rail";
 import { StackV4 } from "../v4/Stack";
 import { V4_DEEPER } from "../v4/content";
-import { RAIL_EXIT, VOICES_MODE, ORIGIN_RATIO } from "../v4/revenue/variants";
+import { VOICES_MODE, ORIGIN_RATIO } from "../v4/revenue/variants";
 import { RevenueD } from "../v4/revenue/d/RevenueD";
 import { WorldV6 } from "./World";
+import { StackArtV6 } from "./stack/StackArtV6";
+import { StackEnterV6 } from "./stack/StackEnterV6";
 import type { TxKey } from "./tx";
 import "../v3/buttons.css";
 import "../v3/globe.css";
@@ -29,8 +31,8 @@ export function V6Page({ tx }: { tx?: TxKey } = {}) {
     <>
       {/* as v5: no globe, and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/home-v6" spread stay soft />} world={<WorldV6 tx={tx} />} rail={<RailV4 exit={RAIL_EXIT.d} steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" />} stack={<StackV4 still steps />}
-        afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: VOICES_MODE[REV], originRatio: ORIGIN_RATIO[REV] }} />} footer={<V3Footer />} />
+      <V1Page v="v3" header={<V3Header home="/home-v6" spread stay soft />} world={<WorldV6 tx={tx} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV6 /><StackEnterV6 /></>} />}
+        afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: VOICES_MODE[REV], originRatio: ORIGIN_RATIO[REV], scope: "v6" }} />} footer={<V3Footer />} />
     </>
   );
 }

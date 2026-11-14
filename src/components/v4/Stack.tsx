@@ -3,6 +3,7 @@
 import { StackIso } from "../v1/stack/StackIso";
 import "../v1/stack/stack.css";
 import "./stack-live.css";
+import type { ReactNode } from "react";
 
 type Layer = { key: string; n: string; name: string; role: string; url: string; host: string; line: string; features: [string, string][] };
 const LAYERS: Layer[] = [
@@ -47,10 +48,13 @@ const ExtMark = () => (
   <svg viewBox="0 0 10 10" width="9" height="9" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" fill="none" stroke="currentColor" strokeWidth="1.2"></path></svg>
 );
 
-/** still: the drawing without its build-in and its live loop (home v5). steps: on desktop the band pins and the scroll steps through the four layers (home v2's pinned Stack; v1/stack/motion.ts) */
-export function StackV4({ still = false, steps = false }: { still?: boolean; steps?: boolean }) {
+/** still: the drawing without its build-in and its live loop (home v5). steps: on desktop the band pins and the scroll steps through the four layers (home v2's pinned Stack; v1/stack/motion.ts).
+ *  art: another drawing in place of v1's (home v6: ../v6/stack/StackArtV6.tsx, D124). enter "tide" (home v6, D132): the heading rises in under the rail's tide and the
+ *  columns' text comes in line by line (../v6/stack/StackEnterV6.tsx, stack-v6.css). stick (home v6, D134): the steps hold with CSS sticky, not GSAP's pin
+ *  (../v1/stack/motion.ts) */
+export function StackV4({ still = false, steps = false, art, enter, stick = false }: { still?: boolean; steps?: boolean; art?: ReactNode; enter?: "tide"; stick?: boolean }) {
   return (
-    <section className="stk stk--v4" id="stack" aria-labelledby="stack-title" data-stack="" data-still={still ? "" : undefined} data-steps={steps ? "" : undefined} data-tone="dark" data-nav-tone="dark" data-active-layer="protocol">
+    <section className="stk stk--v4" id="stack" aria-labelledby="stack-title" data-stack="" data-still={still ? "" : undefined} data-steps={steps ? "" : undefined} data-enter={enter} data-stick={stick ? "" : undefined} data-tone="dark" data-nav-tone="dark" data-active-layer="protocol">
       <div className="stk-inner">
         <div className="stk-grid">
           <header className="stk-head" data-rise="">
@@ -60,7 +64,7 @@ export function StackV4({ still = false, steps = false }: { still?: boolean; ste
           <div className="stk-track" data-track="">
             <div className="stk-pin" data-pin="">
               <div className="stk-cols">
-                <div className="stk-art"><StackIso /></div>
+                <div className="stk-art">{art ?? <StackIso />}</div>
                 <div className="stk-list" data-rise="" role="tablist" aria-orientation="vertical" aria-label="The four layers">
                   {LAYERS.map((l, i) => (
                     <button key={l.key} type="button" role="tab" id={`stack-tab-${l.key}`} aria-controls={`stack-panel-${l.key}`} aria-selected={i === 0} tabIndex={i === 0 ? 0 : -1}

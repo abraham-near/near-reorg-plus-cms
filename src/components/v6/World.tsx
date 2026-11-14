@@ -32,8 +32,10 @@ export function WorldV6({ tx }: { tx?: TxKey } = {}) {
     <div className="pin" data-tx={tx} style={T ? ({ "--tx-over": `${T.over}svh`, "--tx-over-vh": `${T.over}vh` } as CSSProperties) : undefined}>
       <div className="stage" aria-hidden="true"><canvas /></div>
       <div className="globe" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element -- the poster (?gl=0 / no WebGL), a plain SVG */}
-        <img className="globe__poster" src="/v1/world/poster-globe-a.svg" alt="" width={1000} height={1000} decoding="async" />
+        {/* the poster (?gl=0 / no WebGL), a plain SVG. v6 never shows it (v5.css hides the globe); lazy, so the hidden 170 KB file isn't fetched ahead of the
+            hero's film (D134) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="globe__poster" src="/v1/world/poster-globe-a.svg" alt="" width={1000} height={1000} decoding="async" loading="lazy" />
       </div>
       <section className="hero hero--v5 hero--v6" aria-labelledby="hero-h" data-ch="root" data-tx={tx} style={pinStyle}>
         <div className="hero__bg" aria-hidden="true" data-ch="stage">
