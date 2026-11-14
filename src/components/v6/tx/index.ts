@@ -7,12 +7,13 @@ import { TxHalftone } from "./TxHalftone";
 import { TxCells } from "./TxCells";
 import { TxMosaic } from "./TxMosaic";
 import { TxGridFine } from "./TxGridFine";
+import { TxDepth } from "./TxDepth";
 
 // home-v6's hero-to-intro transition studies (D109; F and G, two more takes on B's grid, D110; H, B with fine marks, D111), one page each at /home-v6/<key>; the index is /home-v6/transitions.
 // `pin`: the sticky range in % of the screen (the hero is 100 svh + pin). `over`: how far the intro pulls up over the pin's end (% of the screen,
 // tx.css), so its first line enters at txEnd() = pin + 28 - over (its N tile sits ~28 % of a screen into it). Each study, and the film, ends there.
-export type TxKey = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
-export type Tx = { key: TxKey; name: string; note: string; basis: string; refs: { label: string; href: string }[]; pin: number; over: number; C: ComponentType<{ pin: number; end: number }> };
+export type TxKey = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i";
+export type Tx = { key: TxKey; name: string; note: string; basis: string; refs: { label: string; href: string }[]; pin: number; over: number; end?: number; C: ComponentType<{ pin: number; end: number }> };   /* end: where the study and the film end, when not txEnd's default */
 
 export const TX: Record<TxKey, Tx> = {
   a: {
@@ -68,6 +69,12 @@ export const TX: Record<TxKey, Tx> = {
     basis: "B, with print marks (ticks, crop corners, order numbers) added to the page's grid (v3/proof-deeper: 1 px rules, the +, 24 px padding, the labels' face, the green line).",
     refs: [{ label: "The grid on /home-v6 (proof strip, Go deeper, Origin)", href: "/home-v6" }],
   },
+  i: {
+    key: "i", name: "Into the grid · depth", pin: 220, over: 128, end: 150, C: TxDepth,
+    note: "B in layers: one blended line (dark on the mist and the paper, pale on the forest), drawn on sooner and slower, faint at first, with soft heads; faint dashed guides and ruler ticks behind it; the film wipes off in B's overlapping boxes, the intro rising behind it (seen only where the boxes have gone) faster than the scroll, to rest higher; the grid stays over the paper until the film is gone, then draws off with soft ends.",
+    basis: "B (D109, D112), with Lawrence's notes (D121, D122): one line, soft leading edges, B's box wipe, a layered, technical hand-over.",
+    refs: [{ label: "B · Into the grid", href: "/home-v6/b" }],
+  },
 };
-export const txEnd = (t: Tx) => t.pin + 28 - t.over;
+export const txEnd = (t: Tx) => t.end ?? t.pin + 28 - t.over;
 export const TX_KEYS = Object.keys(TX) as TxKey[];

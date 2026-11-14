@@ -8,6 +8,7 @@ import type { CSSProperties } from "react";
 import { HeroVideo } from "../v2/chapter-one/HeroVideo";
 import { HeroLayer } from "../v2/chapter-one/layer/HeroLayer";
 import { HeroRise } from "./HeroRise";
+import { StatementWipe } from "./StatementWipe";
 import { TX, txEnd, type TxKey } from "./tx";
 import "../v1/world/world.css";
 import "../v5/v5.css";
@@ -53,7 +54,10 @@ export function WorldV6({ tx }: { tx?: TxKey } = {}) {
           </div>
         </div>
       </section>
-      <section className="statement statement--v5" aria-labelledby="st-h" data-reveal="words">
+      {/* the intro holds on the screen while its faint text is wiped to ink, then the marker wipes in (D113: StatementWipe, v6.css) */}
+      <section className="statement statement--v5" aria-labelledby="st-h" data-reveal="wipe" data-hold="">
+        <StatementWipe />
+        <div className="statement__hold">
         <div className="wrap statement__inner">
           <span className="statement__tile" aria-hidden="true"><svg className="statement__n" viewBox="0 0 73 73" focusable="false">{N}</svg></span>
           <h2 className="st" id="st-h">
@@ -64,6 +68,7 @@ export function WorldV6({ tx }: { tx?: TxKey } = {}) {
             <span className="st__l">and permissionless to the core, NEAR is the</span>{" "}
             <span className="st__l">infrastructure for a <span className="st__mark">user-owned agent economy.</span></span>
           </h2>
+        </div>
         </div>
       </section>
     </div>

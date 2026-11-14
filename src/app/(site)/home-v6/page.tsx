@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   description: "AI is starting to act for you. NEAR keeps your assets, your data, and your intelligence in your hands.",
 };
 
-// The hero hands over to the intro with transition B, "Into the grid" (D112; the studies are on /home-v6/transitions)
-const TX_IN_USE = "b" as const;
+// The hero hands over to the intro with transition I, "Into the grid · depth" (D121, built on B: D112; the studies are on /home-v6/transitions)
+const TX_IN_USE = "i" as const;
 
 export default function HomeV6() {
   return <V6Page tx={TX_IN_USE} />;

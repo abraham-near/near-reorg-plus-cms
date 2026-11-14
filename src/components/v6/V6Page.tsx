@@ -19,6 +19,7 @@ import "../v5/v5.css";
 import "../v5/rail-v5.css";
 import "../v5/statement-v5.css";
 import "./v6.css";
+import "./rail-v6.css";
 
 const REV = "a" as const;
 
@@ -28,7 +29,7 @@ export function V6Page({ tx }: { tx?: TxKey } = {}) {
     <>
       {/* as v5: no globe, and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/home-v6" spread stay soft />} world={<WorldV6 tx={tx} />} rail={<RailV4 exit={RAIL_EXIT.d} steps="tiles" beats="split" back="ridges" />} stack={<StackV4 still steps />}
+      <V1Page v="v3" header={<V3Header home="/home-v6" spread stay soft />} world={<WorldV6 tx={tx} />} rail={<RailV4 exit={RAIL_EXIT.d} steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" />} stack={<StackV4 still steps />}
         afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: VOICES_MODE[REV], originRatio: ORIGIN_RATIO[REV] }} />} footer={<V3Footer />} />
     </>
   );

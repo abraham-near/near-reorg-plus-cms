@@ -46,3 +46,29 @@
       linear-gradient(180deg, transparent 74%, color-mix(in srgb, var(--paper) 55%, transparent) 89%, var(--paper) 100%);
   }
 }
+
+/* ───────── the intro, held and read in (D113: StatementWipe.tsx) ─────────
+   With motion allowed, the section is a screen plus --st-hold tall and its content sticks: it locks on the screen when it gets there, while the text, faint, is
+   wiped to ink and the marker wipes in; then it scrolls on. Without motion it is v5's intro (one screen, the text in ink). */
+.statement[data-hold] { --st-hold: 150svh; --st-faint: color-mix(in srgb, var(--ink) 20%, var(--paper)); }
+.statement[data-hold] .statement__hold { width: 100%; }
+html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html[data-js] .pin:has(> .statement[data-hold]) { overflow: clip; }
+  html[data-js] .statement[data-hold] { display: block; min-height: 0; padding-block: 0; height: calc(100vh + 150vh); height: calc(100svh + var(--st-hold)); }
+  html[data-js] .statement[data-hold] .statement__hold {
+    position: sticky; top: 0; display: flex; align-items: center; height: 100vh; height: 100svh; padding-block: calc(var(--nav-h) + 3svh) 6svh;
+  }
+  /* faint from the first paint (before the words are split and the script takes over), the marker not yet laid */
+  html[data-js] .statement[data-hold] .st { color: var(--st-faint); }
+  html[data-js] .statement[data-hold] .st__mark { --mark: 0; }
+  /* the words paint their own two tones through their letters (the script sets each one's gradient) */
+  .statement.is-wipe .st__wi { color: transparent; -webkit-background-clip: text; background-clip: text; background-image: linear-gradient(var(--st-faint), var(--st-faint)); }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 760px) {
+  .statement[data-hold] { --st-hold: 120svh; }
+  html[data-js] .statement[data-hold] .statement__hold { padding-block: calc(var(--nav-h) + 2svh) 6svh; }
+}
+
+/* the newsletter (shared ProofDeeper close): no "Email address" title above the field on v6, and no space for it (Lawrence, D120). It stays for screen readers */
+html[data-home="v5"]:has(.hero--v6) .l-close__nl .l-form__label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

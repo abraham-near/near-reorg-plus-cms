@@ -92,9 +92,9 @@ export function film(stage: HTMLElement) {
 }
 
 /** A canvas over the stage, redrawn on each animation frame whose `key` has changed. Returns the cleanup. */
-export function canvasLoop(stage: HTMLElement, draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void, key: () => string, onLayout?: () => void) {
+export function canvasLoop(stage: HTMLElement, draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void, key: () => string, onLayout?: () => void, cls = "") {
   const canvas = document.createElement("canvas");
-  canvas.className = "tx-overlay txd";
+  canvas.className = `tx-overlay txd${cls ? " " + cls : ""}`;
   canvas.setAttribute("aria-hidden", "true");
   stage.appendChild(canvas);
   const ctx = canvas.getContext("2d")!;
