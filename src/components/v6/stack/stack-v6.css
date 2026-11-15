@@ -224,3 +224,8 @@ html[data-stk-in] .stk[data-enter="tide"]:not([data-entering]) .is-in :is(.stk-t
 /* D134 · the mask that keeps the boxes under a front box from showing through it is needed only while something is lit (the front boxes are drawn again,
    apart, over the parted pillar, D131); unlit it only cost every repaint of the drawing an offscreen pass */
 .stk6:not([data-lit]) [mask] { mask: none; }
+
+/* D149 · lit matte: a three.js canvas (StackMatteV6.tsx) over the drawing draws its pieces lit; the drawing still runs and takes the pointer, unseen */
+.stk6[data-gl] { opacity: 0; }
+.stk-art > .s6-gl { position: absolute; pointer-events: none; display: block; }
+.stk-art > .s6-gl[hidden] { display: none; }

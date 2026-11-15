@@ -4,6 +4,7 @@ import { useEffect, useRef, type CSSProperties } from "react";
 import { VIEWBOX, PILLAR, CUBES, INTENTS, COM, AI, COVERS, FRONT, type Box } from "./geometry";
 import { TIPS, PRODUCTS } from "./tips";
 import { EDGES, UNDER_FRONT, fullEdges, type BoxEdges } from "./edges";
+import { StackMatteV6 } from "./StackMatteV6";
 import "./stack-v6.css";
 
 // Home v6's Stack drawing (D124), after the near.org CMS preview's "The NEAR Stack": v1's drawing (same geometry, same greens) with
@@ -136,7 +137,8 @@ const Ring = ({ k, only, mark }: { k: keyof typeof BOXES; only?: number[]; mark?
 /* a front box (FRONT): its original hides while the copy over the parted pillar shows, so its outline isn't drawn twice */
 const fb = (k: keyof typeof FRONT, i: number) => (FRONT[k].includes(i) ? "s6-fb" : undefined);
 
-export function StackArtV6() {
+/* look: "matte" draws the pieces lit, in three.js, over this drawing (D149: StackMatteV6); "flat", the drawing as it is */
+export function StackArtV6({ look = "flat" }: { look?: "flat" | "matte" }) {
   const svgRef = useRef<SVGSVGElement>(null), tipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -307,10 +309,28 @@ export function StackArtV6() {
       const c = t?.closest<SVGElement>(".s6-cube[data-in]");
       if (c && built) return ["cube", c.dataset.cube];
       const s = t?.closest<SVGElement>(".s6-ring[data-fill] .s6-seg");
-      if (s) return PRODUCTS.has(s.dataset.seg!) ? ["ai", s.dataset.seg] : ["ai"];   /* a box that is no product of its own (tips.ts) lights the whole ring */
+      /* each box lights on its own and the others fade, a product or not (Lawrence, D152; D124 lit the whole ring for a box that is no product of its own) */
+      if (s) return ["ai", s.dataset.seg];
       const r = t?.closest<SVGElement>(".s6-ring[data-fill]");
       if (r) return [r.dataset.ring!];
       return null;
+    };
+    /* a ring's own openings, and the narrow space between two rings, hit nothing: the pointer crossing one, from a piece to the next, put the light out and
+       back on, a flash (the whole drawing at rest for as long as it took; D152 critic). So while a ring is lit, the pointer over nothing keeps the light as
+       it is when it is in a gap: a ring's piece close on one side (34 units) and another across from it (70: the openings are 46 to 47 long, NEAR Intents'
+       hole beside the pillar 66). Not beside the drawing: a hold on one side only kept a ring lit 20 to 30 px out into the band; both sides within 34
+       dropped the light just past each piece's end, where the far side was still out of reach (D152 critic). Probed along the drawing's three axes, about
+       every 11 units; the axis that held last is tried first */
+    const NEAR = [12, 23, 34], FAR = [12, 23, 34, 46, 58, 70], AXES = [0, 1, 2, 3, 4, 5].map((i) => [Math.cos((i * Math.PI) / 6), Math.sin((i * Math.PI) / 6)]);
+    let lastAxis = 0;
+    const nearRing = (e: PointerEvent) => {
+      const k = svg.getBoundingClientRect().width / vw;
+      const side = (dx: number, dy: number, reach: number[]) => reach.some((d) => !!document.elementFromPoint(e.clientX + dx * d * k, e.clientY + dy * d * k)?.closest(".s6-ring[data-fill]"));
+      for (let n = 0; n < AXES.length; n++) {
+        const a = (lastAxis + n) % AXES.length, [dx, dy] = AXES[a];
+        if ((side(dx, dy, NEAR) && side(-dx, -dy, FAR)) || (side(-dx, -dy, NEAR) && side(dx, dy, FAR))) { lastAxis = a; return true; }
+      }
+      return false;
     };
     const showTip = (key: string | null, e: PointerEvent) => {
       const d = key ? TIPS[key] : null;
@@ -335,9 +355,13 @@ export function StackArtV6() {
       if (e.pointerType === "touch") return;
       over = true; lastMove = e;
       const h = hit(e);
-      if (!h) { setLit(null); showTip(null, e); return; }
+      if (!h) {
+        if (/^(intents|ai|com):/.test(litKey) && nearRing(e)) { if (tip.hasAttribute("data-show")) showTip(tip.dataset.key!, e); return; }   /* in a gap: held */
+        setLit(null); showTip(null, e); return;
+      }
       setLit(h[0], h[1]);
-      showTip(h[0] === "cube" ? `cube${h[1]}` : h[1] ?? h[0], e);
+      /* a NEAR AI box that is no product of its own (tips.ts) shows the ring's box (IronClaw is never named, D4) */
+      showTip(h[0] === "cube" ? `cube${h[1]}` : h[0] === "ai" && h[1] && !PRODUCTS.has(h[1]) ? "ai" : h[1] ?? h[0], e);
     };
     const onLeave = () => { over = false; lastMove = null; tip.removeAttribute("data-show"); art.removeAttribute("data-tip"); setLit(null); syncHl(); };
     /* on the drawing's box, not the svg: parted, the bottom cube hangs past the svg's box, where the svg takes no pointer (D141b: its last 10–16 px
@@ -402,6 +426,7 @@ export function StackArtV6() {
         {/* the hovered cube once more, over everything (the rings' front boxes too): only it shows (D129) */}
         <Pillar copy="top" />
       </svg>
+      {look === "matte" && <StackMatteV6 />}
       <div ref={tipRef} className="s6-tip" aria-hidden="true">
         <span className="s6-tip__h"><span className="s6-tip__dot" /><span className="s6-tip__t" /></span>
         <span className="s6-tip__sub" hidden />

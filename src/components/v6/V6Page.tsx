@@ -32,7 +32,7 @@ export function V6Page({ tx, st }: { tx?: TxKey; st?: StKey } = {}) {
     <>
       {/* as v5: no globe, and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/home-v6" spread stay soft />} world={<WorldV6 tx={tx} st={st} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV6 /><StackEnterV6 /></>} />}
+      <V1Page v="v3" header={<V3Header home="/home-v6" spread stay soft />} world={<WorldV6 tx={tx} st={st} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV6 look="matte" /><StackEnterV6 /></>} />}
         afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: "timer", originRatio: ORIGIN_RATIO[REV], scope: "v6" }} />} footer={<V3Footer />} />
     </>
   );
