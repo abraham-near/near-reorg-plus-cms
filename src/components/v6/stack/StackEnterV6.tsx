@@ -100,7 +100,7 @@ export function StackEnterV6() {
         const it = css ? 0 : inner.getBoundingClientRect().top;   /* without it: where the page has the inner box */
         const key = td ? `${td.q.toFixed(4)}|${td.y.toFixed(1)}|${td.f.toFixed(1)}|${css ? "c" : it.toFixed(1)}|${innerHeight}` : "-";
         if (key === last) return; last = key;
-        if (!td) { clear(); return; }   /* no tide (the rail isn't running): the page as it is */
+        if (!td) { clear(); band.removeAttribute("data-s6-settled"); return; }   /* no tide (the rail isn't running): the page as it is */
         const { q, y: ty, f: tf } = td, H = innerHeight, E = ease(q);
         const rest = off.map((o) => top + o);              /* each part's top on the screen once the band has landed */
         let at = rest[0] + (H - rest[0]) * (1 - E);        /* the heading: from the foot of the screen to its place */
@@ -108,6 +108,9 @@ export function StackEnterV6() {
         const cols = at + (rest[1] - rest[0]) * (1 + SPREAD * (1 - E));
         const want = [at, cols, cols + (rest[2] - rest[1])];
         const done = q >= 1 && ty < 0 && tf >= H;
+        /* the text has settled (D135): the drawing starts its build and 01 NEAR Protocol lights now, not once the band lands (StackArtV6). Let go only
+           well back (q under .9: about 300 px at 1440 × 900; .97 was 120, D135 critic), so a to-and-fro at the end doesn't restart the build */
+        if (done) band.setAttribute("data-s6-settled", ""); else if (q < 0.9) band.removeAttribute("data-s6-settled");
         /* how far below its resting place the page has the inner box (before it lands); the CSS hold takes this up where it runs */
         const low = css ? 0 : Math.max(0, it - top);
         const hgt = parts.map((el) => el.offsetHeight);
@@ -148,7 +151,7 @@ export function StackEnterV6() {
       return () => {
         cancelAnimationFrame(raf); raf = 0; near = false; io.disconnect();
         removeEventListener("resize", measure); ScrollTrigger.removeEventListener("refresh", measure); ro.disconnect();
-        band.removeAttribute("data-entering"); clear();
+        band.removeAttribute("data-entering"); band.removeAttribute("data-s6-settled"); clear();
         for (const k of ["--s6-s0", "--s6-s1", "--s6-c"]) band.style.removeProperty(k);
       };
     });

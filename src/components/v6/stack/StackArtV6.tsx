@@ -55,7 +55,8 @@ const Pillar = ({ copy, clip }: { copy: string; clip?: string }) => (
    them), so what shows through a ghost cube is soft. Behind the pillar: the band and the rings' back boxes (their front boxes are drawn over it, sharp) */
 const SOFT = 1.8;   /* the blur, in drawing units (about 1.6 px at 1440; the critic found 1.4 all but invisible at 1x) */
 /* the rings' front boxes (FRONT): their faces, and their extent (the backdrop's blur region) */
-const FRONT_FACES = (["intents", "ai", "com"] as const).flatMap((k) => FRONT[k].flatMap((i) => (k === "ai" ? AI[i].slice(1) : k === "intents" ? INTENTS[i] : COM[i]) as string[]));
+const FRONT_KEYED = (["intents", "ai", "com"] as const).flatMap((k) => FRONT[k].flatMap((i) => ((k === "ai" ? AI[i].slice(1) : k === "intents" ? INTENTS[i] : COM[i]) as string[]).map((f) => [k, f] as const)));
+const FRONT_FACES = FRONT_KEYED.map(([, f]) => f);
 const FRONT_BOX = (() => {
   const p = FRONT_FACES.flatMap((f) => f.split(" ").map((q) => q.split(",").map(Number)));
   const pad = 12, x = Math.min(...p.map((q) => q[0])) - pad, y = Math.min(...p.map((q) => q[1])) - pad;
@@ -149,9 +150,19 @@ export function StackArtV6() {
 
     // ---- the build
     let cubesIn = 0, ringsIn = 0, built = false;
-    const showCubes = (n: number) => { cubesIn = n; for (let i = 0; i < CUBES; i++) all(`.s6-cube[data-cube="${i}"]`).forEach((e) => e.toggleAttribute("data-in", i >= CUBES - n)); };
-    /* a ring comes in green, outlined, from the first frame (data-fill: it can be hovered), fading up as it drops into place (stack-v6.css; D127: no dark phase) */
-    const showRing = (k: number, on: boolean) => rings[k].forEach((r) => { r.toggleAttribute("data-in", on); r.toggleAttribute("data-fill", on); });
+    /* a piece coming in (D135): its outline fades up as it drops, its green a beat later and slower (data-new, stack-v6.css); the mark goes once it has */
+    const NEW_MS = 1200, newT = new Map<Element, number>();
+    const arrive = (e: Element, on: boolean) => {
+      if (on && !e.hasAttribute("data-in")) {
+        e.setAttribute("data-new", ""); window.clearTimeout(newT.get(e));
+        newT.set(e, window.setTimeout(() => { e.removeAttribute("data-new"); newT.delete(e); }, NEW_MS));
+      }
+      e.toggleAttribute("data-in", on);
+    };
+    const showCubes = (n: number) => { cubesIn = n; for (let i = 0; i < CUBES; i++) all(`.s6-cube[data-cube="${i}"]`).forEach((e) => arrive(e, i >= CUBES - n)); };
+    /* a ring comes in (data-fill: it can be hovered at once), its outline first and its green after (D135; D127 had it green from the first frame) */
+    const RING_KEYS = ["intents", "ai", "com"] as const;
+    const showRing = (k: number, on: boolean) => { rings[k].forEach((r) => { arrive(r, on); r.toggleAttribute("data-fill", on); }); svg.toggleAttribute(`data-has-${RING_KEYS[k]}`, on); };
     /* the target, from the scroll. Pinned (desktop: motion.ts pins the band for 1.8 screens and steps the list, a quarter each): nothing while the band comes
        into frame (and no row lit: data-s6-pre); once it lands (the pin starts), 01 NEAR Protocol lights and the pillar drops in, a canned run of its six cubes;
        then each ring just after its row takes over (02 NEAR Intents, 03 NEAR AI, 04 near.com). Scrolling back takes them away in the same places (D127).
@@ -161,7 +172,9 @@ export function StackArtV6() {
     const target = () => {
       if (!PINNED.matches) { root.removeAttribute("data-s6-pre"); return entered ? { c: CUBES, r: 3 } : { c: 0, r: 0 }; }
       const p = -root.getBoundingClientRect().top / (PIN * window.innerHeight);
-      landed = p >= (landed ? -0.02 : 0);                       /* landed at the pin's start; let go a little above it, so a to-and-fro on the line doesn't flicker it */
+      /* landed at the pin's start (let go a little above it, so a to-and-fro on the line doesn't flicker it), or as soon as the text has settled
+         (D135: StackEnterV6's data-s6-settled, while the band is still coming up under it) */
+      landed = p >= (landed ? -0.02 : 0) || root.hasAttribute("data-s6-settled");
       root.toggleAttribute("data-s6-pre", !landed);
       if (!landed) return { c: 0, r: 0 };
       /* a ring goes only 3 % (about 50 px) back of where it came, so scrolling to and fro on the line doesn't flicker it */
@@ -223,12 +236,13 @@ export function StackArtV6() {
       near.observe(root);
       window.addEventListener("resize", onScroll);
     }
-    const moLayer = new MutationObserver(() => syncHl());
-    moLayer.observe(root, { attributes: true, attributeFilter: ["data-hl"] });
+    const moLayer = new MutationObserver((ms) => { if (ms.some((m) => m.attributeName === "data-hl")) syncHl(); if (ms.some((m) => m.attributeName === "data-s6-settled")) onScroll(); });
+    moLayer.observe(root, { attributes: true, attributeFilter: ["data-hl", "data-s6-settled"] });
     const onPin = () => sync();
     PINNED.addEventListener("change", onPin);
 
     // ---- the highlight
+    let spreadAt = 0;   /* when the pillar last began to part (its cubes move for .5 s: stack-v6.css) */
     let litKey = "", over = false, lastMove: PointerEvent | null = null;   /* the pointer's last place over the drawing: what to light once built, if it's resting there */
     function setLit(kind: string | null, sub?: string) {
       const key = kind ? `${kind}:${sub ?? ""}` : "";
@@ -238,6 +252,7 @@ export function StackArtV6() {
       if (kind === "ai" && sub) svg!.setAttribute("data-seg-lit", sub); else svg!.removeAttribute("data-seg-lit");
       if (kind === "cube") all(`.s6-cube[data-cube="${sub}"]`).forEach((e) => e.setAttribute("data-on", ""));
       if (kind === "ai" && sub) all(`.s6-seg[data-seg="${sub}"]`).forEach((e) => e.setAttribute("data-on", ""));
+      if (kind === "cube" && !svg!.hasAttribute("data-spread")) spreadAt = performance.now();
       svg!.toggleAttribute("data-spread", kind === "cube");
       /* the newly lit piece runs hot for a moment, then settles to its own green (D130; stack-v6.css s6-hot) */
       svg!.querySelectorAll("[data-hot]").forEach((e) => e.removeAttribute("data-hot"));
@@ -267,11 +282,25 @@ export function StackArtV6() {
       for (let i = 0; i < CUBES; i++) { const c = i * H + H / 2 + off(i), dd = Math.abs(y - c); if (dd < d) { d = dd; best = i; } }
       return best;
     };
+    /* the parted cube whose drawn shape is under a point: its outline at its parted place, the top-most first (the upper cube is drawn over the lower one's
+       top face, which its bottom point overlaps) */
+    const shownCube = (x: number, y: number) => {
+      const ax = Math.abs(x); if (ax > PILLAR.half) return -1;
+      const k = PILLAR.rise * (1 - ax / PILLAR.half);
+      for (let i = 0; i < CUBES; i++) { const y0 = i * H + off(i); if (y >= y0 - k && y <= y0 + H + k) return i; }
+      return -1;
+    };
     const hit = (e: PointerEvent): [string, string?] | null => {
       if (svg.hasAttribute("data-spread")) {
         const p = toDrawing(e), lit = litKey.startsWith("cube:") ? Number(litKey.slice(5)) : -1;
-        /* the lit cube holds while the pointer is anywhere it has been on its way out (unparted to parted), so the end cubes, which move furthest, don't slip from under it */
-        if (lit >= 0 && Math.abs(p.x) <= PILLAR.half && p.y >= lit * H - PILLAR.rise + Math.min(0, off(lit)) && p.y <= (lit + 1) * H + PILLAR.rise + Math.max(0, off(lit))) return ["cube", String(lit)];
+        /* the lit cube holds while the pointer is anywhere it has been on its way out (unparted to parted), so the end cubes, which move furthest, don't slip
+           from under it. Once parted, the pointer on any part of another cube that shows takes it at once (D141, Lawrence: the hold ran on into the next
+           cube, so the switch came late); the hold is left only for the gaps */
+        const held = lit >= 0 && Math.abs(p.x) <= PILLAR.half && p.y >= lit * H - PILLAR.rise + Math.min(0, off(lit)) && p.y <= (lit + 1) * H + PILLAR.rise + Math.max(0, off(lit));
+        const parting = !RM && performance.now() - spreadAt < 520;
+        if (held && parting) return ["cube", String(lit)];
+        const s = shownCube(p.x, p.y); if (s >= 0) return ["cube", String(s)];
+        if (held) return ["cube", String(lit)];
         const i = partedCube(p.x, p.y); if (i >= 0) return ["cube", String(i)];
       }
       const t = e.target instanceof Element ? e.target : null;
@@ -285,23 +314,22 @@ export function StackArtV6() {
     };
     const showTip = (key: string | null, e: PointerEvent) => {
       const d = key ? TIPS[key] : null;
-      if (!d) { tip.removeAttribute("data-show"); return; }
+      if (!d) { tip.removeAttribute("data-show"); art.removeAttribute("data-tip"); return; }
       if (tip.dataset.key !== key) {
         tip.dataset.key = key!; tip.dataset.kind = d.kind ?? "card";
         tip.querySelector(".s6-tip__t")!.textContent = d.title;
         const set = (sel: string, text?: string) => { const el = tip.querySelector<HTMLElement>(sel)!; el.textContent = text ?? ""; el.hidden = !text; };
-        set(".s6-tip__sub", d.sub); set(".s6-tip__body", d.body); set(".s6-tip__note", d.note);
-        /* the facts: a row each, label and value (D131) */
-        const rows = tip.querySelector<HTMLElement>(".s6-tip__rows")!;
-        rows.replaceChildren(...(d.rows ?? []).flatMap(([l, v]) => { const dt = document.createElement("dt"), dd = document.createElement("dd"); dt.textContent = l; dd.textContent = v; return [dt, dd]; }));
-        rows.hidden = !d.rows?.length;
+        set(".s6-tip__sub", d.sub); set(".s6-tip__body", d.body); set(".s6-tip__facts", d.facts);   /* the facts in sentences (D136) */
       }
-      /* beside the pointer, as on the reference (D127): 16 px right of it, centred on it; left of it where it would run off the screen's right; kept on screen */
-      const a = art.getBoundingClientRect(), w = tip.offsetWidth, ht = tip.offsetHeight, gap = 16;
-      const x = e.clientX + gap + w <= window.innerWidth - 8 ? e.clientX + gap : e.clientX - gap - w;
-      const y = Math.min(Math.max(e.clientY - ht / 2, 8), window.innerHeight - 8 - ht);
+      /* beside the pointer: to its left (D136, Lawrence; D127 had it to the right), 16 px off, centred on it; kept on the screen and under the nav pill.
+         Where the left has no room (narrow screens), it goes to the right rather than over the pointer (D136 critic) */
+      const a = art.getBoundingClientRect(), w = tip.offsetWidth, ht = tip.offsetHeight, gap = 16, NAV = 80;
+      const left = e.clientX - gap - w;
+      const x = left >= 8 ? left : Math.min(e.clientX + gap, window.innerWidth - 8 - w);
+      const y = Math.max(Math.min(e.clientY - ht / 2, window.innerHeight - 8 - ht), NAV);
       tip.style.transform = `translate(${Math.round(x - a.left)}px, ${Math.round(y - a.top)}px)`;
       tip.setAttribute("data-show", "");
+      art.setAttribute("data-tip", "");   /* above the list and the panels, which paint later (D136 critic) */
     };
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === "touch") return;
@@ -311,19 +339,21 @@ export function StackArtV6() {
       setLit(h[0], h[1]);
       showTip(h[0] === "cube" ? `cube${h[1]}` : h[1] ?? h[0], e);
     };
-    const onLeave = () => { over = false; lastMove = null; tip.removeAttribute("data-show"); setLit(null); syncHl(); };
-    svg.addEventListener("pointermove", onMove);
+    const onLeave = () => { over = false; lastMove = null; tip.removeAttribute("data-show"); art.removeAttribute("data-tip"); setLit(null); syncHl(); };
+    /* on the drawing's box, not the svg: parted, the bottom cube hangs past the svg's box, where the svg takes no pointer (D141b: its last 10–16 px
+       didn't light it). The box holds only the svg and the hover box, which takes no pointer */
+    art.addEventListener("pointermove", onMove);
     /* the drawing moving under a still pointer (a scroll) gives no pointermove, only pointerover: take it as a move. Otherwise motion.ts's pointerover
        writes data-hl, the row's highlight lights the pillar, the lit pillar takes no pointer, the pointer is "out", the light goes off, and round again,
        every frame (the critic's strobe, D130) */
-    svg.addEventListener("pointerover", onMove);
-    svg.addEventListener("pointerleave", onLeave);
+    art.addEventListener("pointerover", onMove);
+    art.addEventListener("pointerleave", onLeave);
 
     return () => {
       window.clearTimeout(stepping); cancelAnimationFrame(raf); io?.disconnect(); moLayer.disconnect(); PINNED.removeEventListener("change", onPin);
       near?.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll);
-      svg.removeEventListener("pointermove", onMove); svg.removeEventListener("pointerover", onMove); svg.removeEventListener("pointerleave", onLeave); svg.removeEventListener("animationend", onHotEnd);
-      svg.removeAttribute("data-build"); root.removeAttribute("data-s6-pre");
+      art.removeEventListener("pointermove", onMove); art.removeEventListener("pointerover", onMove); art.removeEventListener("pointerleave", onLeave); svg.removeEventListener("animationend", onHotEnd);
+      svg.removeAttribute("data-build"); root.removeAttribute("data-s6-pre"); art.removeAttribute("data-tip");
     };
   }, []);
 
@@ -341,7 +371,8 @@ export function StackArtV6() {
             {/* with the faces' own 1 px same-colour edge (stack-v6.css), so no sliver of the back box is under a see-through front box's edge */}
             {FRONT_FACES.map((f, i) => <polygon key={i} points={f} fill="#000" stroke="#000" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
           </mask>
-          <clipPath id="stk6-under">{FRONT_FACES.map((f, i) => <polygon key={i} points={f} />)}</clipPath>
+          {/* by ring (data-for): a ring not in yet takes its part out (stack-v6.css), so nothing blurs where it has not arrived (D136) */}
+          <clipPath id="stk6-under">{FRONT_KEYED.map(([k, f], i) => <polygon key={i} data-for={k} points={f} />)}</clipPath>
           <filter id="stk6-soft-front" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB" {...FRONT_BOX}><feGaussianBlur stdDeviation={SOFT} /></filter>
           <clipPath id="stk6-see-ai">{AI.map(([seg, ...b], i) => b.map((f, j) => <polygon key={`${i}-${j}`} className="s6-sil-ai" data-for={seg} points={f} />))}</clipPath>
           <filter id="stk6-soft-ai" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB" {...AI_BOX}><feGaussianBlur stdDeviation={SOFT} /></filter>
@@ -375,8 +406,7 @@ export function StackArtV6() {
         <span className="s6-tip__h"><span className="s6-tip__dot" /><span className="s6-tip__t" /></span>
         <span className="s6-tip__sub" hidden />
         <span className="s6-tip__body" hidden />
-        <dl className="s6-tip__rows" hidden />
-        <span className="s6-tip__note" hidden />
+        <span className="s6-tip__facts" hidden />
       </div>
     </>
   );

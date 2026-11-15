@@ -7,9 +7,10 @@
 // - VERIFIED (shown): only what spec/PRODUCT.md backs. The REF copy names IronClaw (discontinued: never shown, D4 / PRODUCT §7) and claims that
 //   are unconfirmed (Nightshade 3.0, Private Shard, Chain Signatures and "30+ chains" (F3: 35+), Agent Market, FIPS-204, global contracts, state
 //   witnesses). D16: unverified claims are left out, not marked. Listed in spec/TASKS.md; Lawrence's call (D124).
-// D131: every piece has a box, and every box the same design: a title, a green line (what it is), then its key facts as rows (label, value), and where a
-// figure is dated, a note with the date. The cubes the reference gave unconfirmed topics (0, 3, 5) carry verified protocol facts instead.
-export type Tip = { kind?: "pill" | "card"; title: string; sub?: string; body?: string; rows?: [string, string][]; note?: string };
+// D131: every piece has a box, and every box the same design: a title, a green line (what it is), then its key facts. The cubes the reference gave
+// unconfirmed topics (0, 3, 5) carry verified protocol facts instead. D136 (Lawrence: "not a two column bullet point. make it complete sentences"): the
+// facts are a sentence or two, with a figure's date in its sentence, in place of D131's label / value rows and date note. The same facts, nothing added.
+export type Tip = { kind?: "pill" | "card"; title: string; sub?: string; body?: string; facts?: string };
 
 const USE_REF_COPY = false;
 
@@ -55,22 +56,22 @@ const REF: Record<string, Tip> = {
 };
 
 const VERIFIED: Record<string, Tip> = {
-  cube0: { title: "NEAR Protocol", sub: "The sharded, fast-finality base layer.", rows: [["On mainnet", "Since 2020"], ["Transactions", "5.47B+"]] },   // F8, F20
-  cube1: { title: "Dynamic resharding", sub: "Capacity is a property of the network, not a governance decision.", rows: [["Live on mainnet", "Since July 2026"], ["Shards", "10"]] },   // F9
-  cube2: { title: "Speed", sub: "Fast blocks, fast finality.", rows: [["Blocks", "~600 ms"], ["Finality", "1.2 s, by protocol design"]] },   // F5, F6
-  cube3: { title: "Scale", sub: "Throughput, tested in the open.", rows: [["Benchmark", "1M+ TPS"], ["Setup", "70 shards, public and reproducible"]], note: "Benchmark run December 2025" },   // F7
-  cube4: { title: "Quantum security", sub: "Accounts can sign with post-quantum keys.", rows: [["Scheme", "ML-DSA"], ["Status", "Live on mainnet"]] },   // F10
-  cube5: { title: "Low fees", sub: "A base-layer transaction costs under a cent.", rows: [["Average L1 fee", "~$0.0055"]], note: "L1 transactions, as of 30 Oct 2026" },   // F15
+  cube0: { title: "NEAR Protocol", sub: "The sharded, fast-finality base layer.", facts: "NEAR Protocol has been on mainnet since 2020, and more than 5.47 billion transactions have run on it since then." },   // F8, F20
+  cube1: { title: "Dynamic resharding", sub: "Capacity is a property of the network, not a governance decision.", facts: "Dynamic resharding has been live on mainnet since July 2026, and the network now runs on 10 shards." },   // F9
+  cube2: { title: "Speed", sub: "Fast blocks, fast finality.", facts: "A new block lands about every 600 milliseconds, and finality takes 1.2 seconds by protocol design." },   // F5, F6
+  cube3: { title: "Scale", sub: "Throughput, tested in the open.", facts: "In December 2025, a public, reproducible benchmark on 70 shards passed one million transactions per second." },   // F7
+  cube4: { title: "Quantum security", sub: "Accounts can sign with post-quantum keys.", facts: "Post-quantum ML-DSA account keys are live on mainnet today." },   // F10
+  cube5: { title: "Low fees", sub: "A base-layer transaction costs under a cent.", facts: "The average L1 transaction fee was about $0.0055 as of 30 October 2026." },   // F15
   intents: {
     title: "NEAR Intents", sub: "The universal liquidity protocol: say what you want, the network finds the route.",
-    rows: [["Settled, all-time", "$36.8B+"], ["Chains", "35+"], ["Assets", "120+"]], note: "Volume as of 31 Oct 2026",
+    facts: "NEAR Intents has settled more than $36.8 billion in all-time cross-chain volume as of 31 October 2026. It reaches more than 35 chains and 120 assets.",
   },   // F1, F3, F4
   ai: {
     title: "NEAR AI", sub: "Private inference and agents inside encrypted enclaves, with verifiable outputs.",
-    rows: [["Since", "2017, when NEAR began as an AI lab"], ["Roots", "A co-founder co-authored the Transformer paper"]],
+    facts: "NEAR began in 2017 as an AI lab, and one of its co-founders co-authored the Transformer paper.",
   },   // F18
-  cloud: { title: "NEAR AI Cloud", sub: "Private inference on confidential hardware.", rows: [["Attestation", "On every request"], ["Hardware", "Intel TDX, NVIDIA confidential GPUs"]] },   // F17
-  com: { title: "near.com", sub: "One account for every chain.", rows: [["Swaps", "Confidential"], ["Also", "Transfers, perps, yield, RWAs"]] },   // PRODUCT §3
+  cloud: { title: "NEAR AI Cloud", sub: "Private inference on confidential hardware.", facts: "Inference runs on Intel TDX and NVIDIA confidential GPUs, with attestation on every request." },   // F17
+  com: { title: "near.com", sub: "One account for every chain.", facts: "Swaps on near.com are confidential, and the same account handles transfers, perps, yield and RWAs." },   // PRODUCT §3
 };
 
 export const TIPS = USE_REF_COPY ? REF : VERIFIED;

@@ -52,6 +52,7 @@
    wiped to ink and the marker wipes in; then it scrolls on. Without motion it is v5's intro (one screen, the text in ink). */
 .statement[data-hold] { --st-hold: 150svh; --st-faint: color-mix(in srgb, var(--ink) 20%, var(--paper)); }
 .statement[data-hold] .statement__hold { width: 100%; }
+.statement .st__rest { display: contents; }   /* the statement's lines after the lead: no box of its own (World.tsx; the intro studies give it one, D145) */
 html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: no-preference) {
   html[data-js] .pin:has(> .statement[data-hold]) { overflow: clip; }
@@ -78,3 +79,8 @@ html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transfo
    the footnote mark that pointed to it go (Lawrence, D131). v5 keeps both */
 .l-page[data-scope="v6"] .l-origin .l-src > * { visibility: hidden; }
 .l-page[data-scope="v6"] .l-origin .l-mark { display: none; }
+
+/* Get into NEAR (shared ProofDeeper): no "02 · docs.near.org" line under the picture; the picture runs down to the row's foot in its place (Lawrence, D142).
+   The row's height is the list's; the picture fills it, cropped (object-fit: cover). v5 keeps the line */
+.l-page[data-scope="v6"] .l-gi__cap { display: none; }
+.l-page[data-scope="v6"] .l-gi__frame { flex: 1 1 auto; aspect-ratio: auto; }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./Selector.module.css";
 import { COUNT, GROUPS } from "./extra/pages";
 
@@ -47,6 +48,7 @@ export default function Selector() {
         <div className={styles.topr}>
           <p className={styles.label}>Homepage directions</p>
           <a className={styles.toplink} href="/home-v6/transitions">Hero transitions <span aria-hidden="true">→</span></a>
+          <Link className={styles.toplink} href="/home-v6/intro">Intro layouts <span aria-hidden="true">→</span></Link>
           <a className={styles.toplink} href="/extra">Extra pages <span aria-hidden="true">→</span></a>
         </div>
       </header>

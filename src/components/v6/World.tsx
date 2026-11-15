@@ -10,10 +10,12 @@ import { HeroLayer } from "../v2/chapter-one/layer/HeroLayer";
 import { HeroRise } from "./HeroRise";
 import { StatementWipe } from "./StatementWipe";
 import { TX, txEnd, type TxKey } from "./tx";
+import type { StKey } from "./intro";
 import "../v1/world/world.css";
 import "../v5/v5.css";
 import "./v6.css";
 import "./tx/tx.css";
+import "./intro/intro.css";
 
 const POSTER = "/images/home/home-hero-ridges-take-j-v2.webp";   /* the video's first frame: first paint, LCP, and the still */
 const VIDEO = "/videos/home/home-hero-ridges-take-j-v2.mp4";
@@ -25,7 +27,8 @@ const i = (n: number) => ({ "--i": n }) as CSSProperties;
 
 // `tx`: one of the hero-to-intro transition studies (D109, ./tx): a longer pin (--tx-pin), the film stretched across it, no fade at the foot,
 // and the study's own pieces in the stage. Without it: /home-v6 as built (D108), with the paper rising at the foot (HeroRise).
-export function WorldV6({ tx }: { tx?: TxKey } = {}) {
+// `st`: one of the intro layout studies (D144, ./intro), at /home-v6/intro/<key>: the same words, wipe and marker, laid out another way (intro.css).
+export function WorldV6({ tx, st }: { tx?: TxKey; st?: StKey } = {}) {
   const T = tx ? TX[tx] : null;
   const pinStyle = T ? ({ "--tx-pin": `${T.pin}svh`, "--tx-pin-vh": `${T.pin}vh` } as CSSProperties) : undefined;
   return (
@@ -57,18 +60,21 @@ export function WorldV6({ tx }: { tx?: TxKey } = {}) {
         </div>
       </section>
       {/* the intro holds on the screen while its faint text is wiped to ink, then the marker wipes in (D113: StatementWipe, v6.css) */}
-      <section className="statement statement--v5" aria-labelledby="st-h" data-reveal="wipe" data-hold="">
+      <section className="statement statement--v5" aria-labelledby="st-h" data-reveal="wipe" data-hold="" data-st={st}>
         <StatementWipe />
         <div className="statement__hold">
         <div className="wrap statement__inner">
           <span className="statement__tile" aria-hidden="true"><svg className="statement__n" viewBox="0 0 73 73" focusable="false">{N}</svg></span>
           <h2 className="st" id="st-h">
-            <span className="st__l">One account, any chain, private by design.</span>{" "}
-            <span className="st__l">NEAR encrypts your prompts and transactions</span>{" "}
-            <span className="st__l">so you and your agents can think and trade in</span>{" "}
-            <span className="st__l">confidence. Fully sharded, quantum-ready,</span>{" "}
-            <span className="st__l">and permissionless to the core, NEAR is the</span>{" "}
-            <span className="st__l">infrastructure for a <span className="st__mark">user-owned agent economy.</span></span>
+            {/* the lead, and the rest in a wrapper with no box of its own (display: contents; the intro studies lay the two out apart, D145) */}
+            <span className="st__l st__lead">One account, any chain, private by design.</span>{" "}
+            <span className="st__rest">
+              <span className="st__l">NEAR encrypts your prompts and transactions</span>{" "}
+              <span className="st__l">so you and your agents can think and trade in</span>{" "}
+              <span className="st__l">confidence. Fully sharded, quantum-ready,</span>{" "}
+              <span className="st__l">and permissionless to the core, NEAR is the</span>{" "}
+              <span className="st__l">infrastructure for a <span className="st__mark">user-owned agent economy.</span></span>
+            </span>
           </h2>
         </div>
         </div>

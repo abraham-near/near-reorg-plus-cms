@@ -15,6 +15,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 const INK: [number, number] = [0, 0.7];       /* the hold's progress over which the ink front runs */
 const MARK: [number, number] = [0.72, 0.86];  /* then the marker (the last 14 % is a rest before it scrolls on) */
 const EDGE = 0.45;                            /* the front's soft edge, half its width, in em of the statement */
+// Each word is wiped to its own ink: --st-ink where a layout sets one (D144: intro study F, the lead in ink and the rest in grey), else --ink.
 
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
 const s01 = (t: number) => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
@@ -53,7 +54,7 @@ function mount(sec: HTMLElement) {
     let top = -1e9, lineX = 0, base = 0, lineEnd = 0;
     for (const el of words) {
       const r = el.getBoundingClientRect();
-      if (r.top - top > 3) { base += lineEnd - lineX; lineX = r.left; top = r.top; }
+      if (Math.abs(r.top - top) > 3) { base += lineEnd - lineX; lineX = r.left; top = r.top; }   /* a new line, down or (a layout in columns, D144) back up */
       at.push(base + r.left - lineX); wd.push(r.width); lineEnd = r.right;
     }
     total = Math.max(1, base + lineEnd - lineX);
@@ -67,9 +68,9 @@ function mount(sec: HTMLElement) {
     for (let i = 0; i < words.length; i++) {
       const x = clamp(Math.round((front - at[i]) * 2) / 2, -edge - 1, wd[i] + edge + 1);
       if (cache[i] === x) continue; cache[i] = x;
-      words[i].style.backgroundImage = x >= wd[i] + edge ? "linear-gradient(var(--ink), var(--ink))"
+      words[i].style.backgroundImage = x >= wd[i] + edge ? "linear-gradient(var(--st-ink, var(--ink)), var(--st-ink, var(--ink)))"
         : x <= -edge ? "linear-gradient(var(--st-faint), var(--st-faint))"
-        : `linear-gradient(90deg, var(--ink) ${(x - edge).toFixed(1)}px, var(--st-faint) ${(x + edge).toFixed(1)}px)`;
+        : `linear-gradient(90deg, var(--st-ink, var(--ink)) ${(x - edge).toFixed(1)}px, var(--st-faint) ${(x + edge).toFixed(1)}px)`;
     }
     if (mark) { const m = s01((p - MARK[0]) / (MARK[1] - MARK[0])).toFixed(3); if (m !== lastMark) { lastMark = m; mark.style.setProperty("--mark", m); } }
   };

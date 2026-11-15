@@ -1,9 +1,11 @@
 /* Home v6's Stack drawing (StackArtV6.tsx, D124, D127), after the near.org CMS preview's: our greens (tokens.css --stack-*), a cream outline at half on every
    face, pieces that go dark (near black, outline showing) when another is hovered, cubes that part and ghost, and the hover box. */
 .stk-art:has(> .stk6) { position: relative; }
+/* the hover box over the list and the panels: they come later and, held (s6-comp), each paints as its own layer (D136 critic: the panel text showed through) */
+.stk-art:has(> .stk6)[data-tip] { z-index: 3; }
 .stk6 {
   --s6-line: 245 244 241;               /* the outline: the band's cream (--color-on-dark) */
-  --s6-dark: #151515;                   /* a piece put back: near black, below the band's ink, outline showing (as the reference) */
+  --s6-dark: #1d1d1d;                   /* a piece put back, outline showing: halfway between the band (--color-ink #262626) and D136's #131313 (D137, Lawrence: too dark) */
   --s6-ease: cubic-bezier(.2, .7, .2, 1);
   --s6-out: cubic-bezier(.22, .61, .36, 1);   /* a piece going back (dark, ghost): easing out (D130) */
   --s6-back: .56s;                            /* ... over this long (D131: 30 % quicker than D130's .8 s) */
@@ -41,14 +43,19 @@ svg.stk6 .s6-e {
 .stk6[data-lit="intents"] .s6-ring:not([data-ring="intents"]),
 .stk6[data-lit="ai"] .s6-ring:not([data-ring="ai"]),
 .stk6[data-lit="com"] .s6-ring:not([data-ring="com"]) { --t: var(--s6-dark); --l: var(--s6-dark); --r: var(--s6-dark); }
+/* the cap's top face, dark, a little lighter than the rest of the dark pillar (#1d1d1d), so the N on it shows (D138, Lawrence) */
+.stk6:is([data-lit="intents"], [data-lit="ai"], [data-lit="com"]) .s6-cube[data-cube="0"] .s6-t { --f: #2a2a2a; }
 /* a dark ring (D129): a little see-through as a whole (its own joints don't double up), so a pillar piece behind it shows faintly; its outline 20 % back and
-   fading outward, NEAR Intents (the middle) brightest, near.com (the outside) faintest. The pillar, dark, stays solid */
+   fading outward, NEAR Intents (the middle) brightest, near.com (the outside) faintest. The pillar, dark, stays solid. (D136 tried the dark pieces as black
+   at half, see-through; Lawrence undid it for a solid fill halfway between the band and black: --s6-dark) */
 .stk6 :is(.s6-body, .s6-seg) { transition: opacity .3s ease; }
 .stk6:is([data-lit="cube"], [data-lit="col"]) .s6-ring,
 .stk6[data-lit="intents"] .s6-ring:not([data-ring="intents"]),
 .stk6[data-lit="ai"] .s6-ring:not([data-ring="ai"]),
 .stk6[data-lit="com"] .s6-ring:not([data-ring="com"]) { --body: .84; }
 .stk6 .s6-ring > .s6-body { opacity: var(--body, 1); }
+/* so a dark ring, seen at .84 over the band, reads the same #1d1d1d as the dark pillar (D136 critic, D137): .84 x + .16 x 38 = 29 */
+.stk6 .s6-ring { --s6-dark: #1b1b1b; }
 /* going dark, easing out (D130; it was a quick .16 s), so a piece the pointer has just left sinks back rather than snapping off; --s6-back long */
 .stk6:is([data-lit="cube"], [data-lit="col"]) .s6-ring :is(polygon, .s6-e, .s6-body),
 .stk6:is([data-lit="intents"], [data-lit="ai"], [data-lit="com"]) .s6-col :is(polygon, .s6-e),
@@ -71,10 +78,10 @@ svg.stk6 .s6-e {
 }
 /* a ghost product fades as one piece (group opacity, D131): only its outside shows, no inside faces or joints; its outline .9 of that (.23 on screen) */
 .stk6[data-seg-lit] .s6-seg:not([data-on]) { opacity: .26; --so: .9; }
-/* the N on the cap (part of the top cube, D130) goes back with its cube */
+/* the N on the cap (part of the top cube, D130): dimmed when the pillar goes dark (a ring lit). On a ghost cap (another cube lit, the cap a mixed-back
+   green) it stays black, full (D139, Lawrence; it went back to .3 with its cube) */
 .stk6 .s6-icon { transition: opacity .3s ease; }
-.stk6:is([data-lit="intents"], [data-lit="ai"], [data-lit="com"]) .s6-icon,
-.stk6[data-lit="cube"] .s6-cube:not([data-on]) > .s6-icon { opacity: .3; transition: opacity var(--s6-back) var(--s6-out); }
+.stk6:is([data-lit="intents"], [data-lit="ai"], [data-lit="com"]) .s6-icon { opacity: .3; transition: opacity var(--s6-back) var(--s6-out); }
 
 /* the pillar parts: the copy in front of everything shows (the drawn-in copies hide) and its cubes spread (--s6-gap apart, about cube --s6-mid: set by the
    script). Closing, the front copy stays whole while its cubes close, then the drawn-in copies take over (D130). A row's hover on the protocol shows the front copy
@@ -91,6 +98,10 @@ svg.stk6 .s6-e {
 .stk6[data-lit] > .s6-ring .s6-fb { visibility: hidden; transition: none; }   /* their originals: one outline, not two */
 /* what the rings' front boxes are over (the pillar, as it is: at rest, dark, or parted with its ghosts; and what is behind it), softened, seen only through
    them (D131: a dark box blurs what is behind it as a ghost does). The rings never overlap one another, so the pillar is all a dark box is ever over */
+/* D136: a ring not in yet has no part in it (its front boxes' clip taken out), so the pillar never blurs where a ring has not arrived */
+.stk6[data-build]:not([data-has-intents]) #stk6-under [data-for="intents"],
+.stk6[data-build]:not([data-has-ai]) #stk6-under [data-for="ai"],
+.stk6[data-build]:not([data-has-com]) #stk6-under [data-for="com"] { display: none; }
 .stk6 .s6-under { pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0s linear .5s, visibility 0s linear .5s; }
 .stk6[data-lit] .s6-under { opacity: 1; visibility: visible; transition: none; }
 .stk6 :is(.s6-base, .s6-cover) { transition: opacity 0s linear .5s; }
@@ -101,9 +112,8 @@ svg.stk6 .s6-e {
 .stk6 .s6-top .s6-cube:not([data-on]) { visibility: hidden; }
 .stk6[data-spread] .s6-front .s6-cube[data-on] { visibility: hidden; }   /* under its copy: one outline */
 .stk6[data-spread] .s6-top .s6-cube[data-on] { --so: .46; }              /* its outline a touch over the ghosts' (.4) */
-/* the NEAR Protocol row hovered: the whole pillar is the hovered piece, so all of it on top */
-.stk6[data-lit="col"] .s6-top, .stk6[data-lit="col"] .s6-top .s6-cube { visibility: visible; }
-.stk6[data-lit="col"] .s6-front { visibility: hidden; }
+/* the NEAR Protocol row lit (hovered, or on its own when the text settles): the whole pillar green, in its place: the rings' front boxes stay over it and
+   it shows soft through them, as anything behind a dark box does (D140, Lawrence; it was all on top, .s6-top). Only a hovered cube comes to the front */
 .stk6[data-spread] :is(.s6-front .s6-cube, .s6-top .s6-cube, .s6-behind .s6-cube, .s6-sil) { transform: translateY(calc((var(--i) - var(--s6-mid)) * var(--s6-gap))); }
 /* behind the parted pillar, seen through its ghost cubes: the same, softened (D130). Its clip (.s6-sil) parts with the cubes; it comes and goes with them */
 .stk6 .s6-see { pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0s linear .5s, visibility 0s linear .5s; }
@@ -131,11 +141,25 @@ svg.stk6 .s6-e {
 .stk6 [data-hot] .s6-e { animation: s6-hot-e .65s; transition: none; }
 
 /* the build (data-build: the script runs): a cube drops in from 48 units above; a ring fades up (quickly) as it comes down 56 units, easing into place (D127) */
-.stk6 .s6-ring { transition: opacity .25s ease-out, transform .8s var(--s6-ease); }   /* the fade leads the drop: no dim, dark-looking start over the band */
+.stk6 .s6-ring { transition: opacity .42s ease-out, transform .56s var(--s6-ease); }   /* D136: 30 % quicker (.6 s, .8 s) */
 .stk6[data-build] .s6-cube:not([data-in]) { opacity: 0; transform: translateY(-48px); pointer-events: none; }
 .stk6[data-build] .s6-ring:not([data-in]) { opacity: 0; transform: translateY(-56px); pointer-events: none; }
+/* D135: as a piece comes in, its wireframe (the cream outline) fades up with it as it drops; its green fills in a beat later and slower (data-new, set
+   for the arrival only, so a hover's quick changes keep their own pace). Out of the build, the faces are clear */
+.stk6[data-build] :is(.s6-cube, .s6-ring):not([data-in]) :is(polygon, .s6-icon) { fill-opacity: 0; stroke-opacity: 0; opacity: 0; }
+/* the green starts while the outline is still coming up (D135 critic: at .3 s they barely overlapped); the outline's own fade is .6 s. Not while something is
+   lit: a piece going dark keeps its own easing (--s6-back) */
+/* D136: the whole arrival 30 % quicker (Lawrence): the outline .42 s (was .6), the drop .35 s (.5), the green .13 s in over .84 s (.18 s, 1.2 s) */
+.stk6[data-build] .s6-cube[data-new] { transition: transform .35s var(--s6-ease), opacity .42s ease; }
+/* D143: a face's stroke (its own green, 1 px, there to close the hairline seams between faces once solid) stays off while the green fades in and comes on
+   at once as it lands (.13 + .84 s). Faded with the fill, half see-through over the half see-through fill and its neighbour's, it drew a lighter line on
+   every edge and corner of the piece for the length of the fade (Lawrence) */
+.stk6[data-build]:not([data-lit]) :is(.s6-cube, .s6-ring)[data-new] polygon {
+  transition: fill .16s ease, stroke .16s ease, fill-opacity .84s cubic-bezier(.4, 0, .2, 1) .13s, stroke-opacity 0s linear .97s; }
+.stk6[data-build] .s6-cube[data-new] .s6-icon { transition: opacity .84s cubic-bezier(.4, 0, .2, 1) .13s; }
 
-/* the list while the pinned band comes into frame (data-s6-pre): no row lit; 01 NEAR Protocol lights as it lands, with the pillar's drop (D127) */
+/* the list while the pinned band comes into frame (data-s6-pre): no row lit; 01 NEAR Protocol lights green as the text settles, with the pillar's drop
+   (D127; D135: on the text's settling, not the band's landing) */
 [data-stack]:has(.stk6) .stk-tab { transition: color var(--dur-2) var(--ease-out), background-color .2s ease, border-top-color .2s ease; }
 [data-stack][data-s6-pre] .stk-tab[aria-selected="true"] { background: none; color: var(--color-on-dark-muted); border-top-color: var(--color-line-on-dark); }
 
@@ -151,12 +175,9 @@ svg.stk6 .s6-e {
 .s6-tip__dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--color-green); }
 .s6-tip__sub { display: block; margin-top: 6px; font-size: var(--text-caption); line-height: 1.45; color: rgb(0 220 141 / .9); text-wrap: pretty; }
 .s6-tip__body { display: block; margin-top: 4px; font-size: var(--text-caption); line-height: 1.45; color: rgb(245 244 241 / .65); text-wrap: pretty; }
-/* the facts (D131): label left, muted; value right, in the band's cream; a hairline above them; a dated figure's note under them */
-.s6-tip__rows { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 10px 0 0; padding-top: 10px; border-top: 1px solid rgb(245 244 241 / .14); font-size: var(--text-caption); line-height: 1.4; }
-.s6-tip__rows dt { color: rgb(245 244 241 / .6); white-space: nowrap; }
-.s6-tip__rows dd { margin: 0; text-align: right; color: var(--color-on-dark); font-variant-numeric: tabular-nums; text-wrap: balance; }
-.s6-tip__note { display: block; margin-top: 8px; font-size: var(--text-caption); line-height: 1.4; color: rgb(245 244 241 / .45); }
-.s6-tip :is(.s6-tip__sub, .s6-tip__body, .s6-tip__rows, .s6-tip__note)[hidden] { display: none; }
+/* the facts (D136): a sentence or two in the band's cream, a hairline above them (D131's label / value rows and date note before) */
+.s6-tip__facts { display: block; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgb(245 244 241 / .14); font-size: var(--text-caption); line-height: 1.5; color: rgb(245 244 241 / .82); text-wrap: pretty; }
+.s6-tip :is(.s6-tip__sub, .s6-tip__body, .s6-tip__facts)[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .stk6 :is(polygon, .s6-e, .s6-seg, .s6-cube, .s6-sil, .s6-ring, .s6-body, .s6-icon, .s6-front, .s6-over, .s6-under, .s6-see, .s6-see-ai, .s6-base, .s6-cover), .s6-tip, [data-stack]:has(.stk6) .stk-tab { transition: none !important; }
@@ -193,7 +214,8 @@ html[data-stk-in] .stk[data-enter="tide"]:not([data-entering]) .is-in :is(.stk-t
    StackEnterV6 does it on the main thread */
 @keyframes s6-comp { from { transform: translateY(var(--s6-c, 0px)); } to { transform: none; } }
 @supports (animation-timeline: scroll()) {
-  html[data-stk-in] .stk[data-entering][data-sticky] :is(.stk-head, .stk-list, .stk-panels) {
+  /* D135: the drawing too, so it is in its place on the screen when the text settles and its build starts (it was still coming up, half under the fold) */
+  html[data-stk-in] .stk[data-entering][data-sticky] :is(.stk-head, .stk-list, .stk-panels, .stk-art) {
     animation: s6-comp auto linear both;
     animation-timeline: scroll(root block);
     animation-range: var(--s6-s0, 0px) var(--s6-s1, 0px);
