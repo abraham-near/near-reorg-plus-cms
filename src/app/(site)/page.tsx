@@ -5,8 +5,8 @@ import { COUNT, GROUPS } from "./extra/pages";
 const EXTRA_LINE = GROUPS.map((g) => `${g.title} (${g.pages.length})`).join(" · ");
 
 // The index: the pages chosen so far, the homepage (home v5 on the forest) and the blog (direction J, at /blog), with Lawrence's home v6 (v5 with the
-// ridges hero, Lawrence001) beside the homepage. The other homes (/home-v1…v4) still exist, unlisted. Plain <a> on purpose: each page loads fresh (their
-// global CSS and their boots never meet).
+// ridges hero, Lawrence001) and home v7 (v6 copied, where the next changes go, D153) beside the homepage. The other homes (/home-v1…v4) still exist,
+// unlisted. Plain <a> on purpose: each page loads fresh (their global CSS and their boots never meet).
 const VERSIONS = [
   {
     href: "/home-v5",
@@ -25,8 +25,16 @@ const VERSIONS = [
     img: "/selector-v6.webp",
   },
   {
-    href: "/blog",
+    href: "/home-v7",
     n: "03",
+    name: "Home v7 · Next",
+    note: "Home v6 copied whole, where the next changes go, so v6 stays as it is. It looks the same as v6 until the next change lands.",
+    tags: ["Working copy", "From v6", "Lit matte Stack"],
+    img: "/selector-v6.webp",
+  },
+  {
+    href: "/blog",
+    n: "04",
     name: "Blog",
     note: "Reading rail, open: a sticky rail of search, type, sort and view beside the feed, open cards on whitespace, pages of six. The CMS's posts first.",
     tags: ["Sidebar", "Blog / Press / Watch", "CMS posts"],
@@ -48,8 +56,8 @@ export default function Selector() {
       </header>
 
       <div className={styles.intro}>
-        <h1 className={styles.h}>The homepage, home v6 and the blog<span className={styles.sq} aria-hidden="true" /></h1>
-        <p className={styles.sub}>The chosen homepage, the October 2026 copy on a misty forest; home v6, that page with the ridges film; and the blog they lead to.</p>
+        <h1 className={styles.h}>The homepage, home v6 and v7, and the blog<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>The chosen homepage, the October 2026 copy on a misty forest; home v6, that page with the ridges film, and home v7, where its next changes go; and the blog they lead to.</p>
       </div>
 
       <ul className={styles.grid}>
