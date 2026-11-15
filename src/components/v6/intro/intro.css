@@ -146,10 +146,10 @@
 /* ───────── G · Lead and follow, on twelve columns (C): the lead across all twelve, the tile set into its first line; the follow in columns 5–12 ───────── */
 .statement[data-st="g"] { --lead: calc(5 * var(--u)); --st: calc(2.5 * var(--u)); }   /* the lead and its tile fit the twelve columns (5.3 u ran 18 px past) */
 .statement[data-st="g"] .statement__tile {
-  position: absolute; left: var(--m); top: calc((var(--lead-lh) - .72) * .5 * var(--lead)); width: calc(.72 * var(--lead)); margin: 0; border-radius: calc(.11 * var(--lead));
-}
+  position: absolute; left: var(--m); top: calc((var(--lead-lh) - .792) * .5 * var(--lead)); width: calc(.792 * var(--lead)); margin: 0; border-radius: calc(.121 * var(--lead));
+}   /* the lead's cap height, 10 % up (D147), centred on it: 3.6 % over the cap and under the baseline */
 .statement[data-st="g"] .statement__inner { position: relative; }
-.statement[data-st="g"] .st__lead { padding-left: .98em !important; }
+.statement[data-st="g"] .st__lead { padding-left: 1.052em !important; }   /* the tile and the same .26 em gap */
 @media (min-width: 761px) {
   .statement[data-st="g"] .statement__inner { row-gap: calc(4.2 * var(--u)); }
   .statement[data-st="g"] .st__lead { grid-column: 1 / -1; white-space: nowrap; }
@@ -161,7 +161,7 @@
 .statement[data-st="h"] .st__lead { white-space: normal; max-width: 10.6em; }   /* two lines, broken after "chain," */
 @media (min-width: 761px) {
   .statement[data-st="h"] .statement__inner { grid-template-rows: auto auto; row-gap: calc(.5 * var(--lead)); }
-  .statement[data-st="h"] .statement__tile { grid-column: 1; grid-row: 1; width: calc(1.1 * .72 * var(--lead)); border-radius: calc(1.1 * .1 * var(--lead)); }   /* the lead's cap height, 10 % up (D146) */
+  .statement[data-st="h"] .statement__tile { grid-column: 1; grid-row: 1; width: calc(.72 * var(--lead)); border-radius: calc(.1 * var(--lead)); }   /* the lead's cap height */
   .statement[data-st="h"] .st { grid-row: 2; grid-template-rows: auto; }
   .statement[data-st="h"] .st__lead { grid-column: 1 / span 6; }
   /* the deck's cap height on the lead's: its top drops by the difference in their half-leading and cap tops */
@@ -266,7 +266,7 @@
   .statement[data-st="l"] .st__rest { grid-column: 3 / -1; }
   /* the one-line leads (G, K) break after "chain,"; G's tile stands above it; I and J's six lines re-wrap */
   .statement:is([data-st="g"], [data-st="k"]) .st__lead { white-space: normal; padding-right: calc(100% - 10.6em); }   /* the box stays full width (K's rule under it) */
-  .statement[data-st="g"] .statement__tile { grid-column: 1; position: static; width: 34px; margin-bottom: calc(2.4 * var(--u)); border-radius: 6px; }
+  .statement[data-st="g"] .statement__tile { grid-column: 1; position: static; width: 37px; margin-bottom: calc(2.4 * var(--u)); border-radius: 6.6px; }   /* 10 % over 34 px (D147) */
   .statement[data-st="g"] .st { grid-row: 2 / span 2; }
   .statement[data-st="g"] .st__lead { padding-left: 0 !important; }
   .statement:is([data-st="i"], [data-st="j"]) .st__l { display: inline; white-space: normal; }
@@ -279,11 +279,10 @@
   .statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st__lead { margin-bottom: 22px; }
   .statement:is([data-st="i"], [data-st="j"]) { --st: clamp(24px, 6.6vw, 38px); --top: 24px; }
   .statement:is([data-st="k"], [data-st="l"]) { --top: 24px; }
-  .statement[data-st="g"] .statement__tile { position: static; width: 30px; margin-bottom: 22px; border-radius: 6px; }   /* above the lead: set into a wrapping lead it indented every line */
+  .statement[data-st="g"] .statement__tile { position: static; width: 33px; margin-bottom: 22px; border-radius: 6.6px; }   /* above the lead: set into a wrapping lead it indented every line; 10 % over 30 px (D147) */
   .statement[data-st="g"] .st__lead { padding-left: 0 !important; }
   .statement[data-st="i"] .statement__tile { width: 64px; border-radius: 10px; }
   .statement[data-st="j"] .statement__tile { width: 44px; }
   .statement[data-st="k"] .statement__tile, .statement[data-st="l"] .statement__tile { width: 56px; border-radius: 9px; }
-  .statement[data-st="h"] .statement__tile { width: 33px; border-radius: 6.6px; }   /* phones: 10 % over the 30 px tile (D146) */
   .statement[data-st="k"] .st__lead { position: relative; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
 }

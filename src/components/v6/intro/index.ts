@@ -42,14 +42,14 @@ export const ST: Record<StKey, St> = {
     refs: [{ label: "Linear · statement on the page margin, lead in ink, rest in grey", href: "https://linear.app" }, { label: "Stripe · hero, lead dark, rest muted", href: "https://stripe.com" }, { label: "Attio · Platform (lead in ink, the rest after a break)", href: "https://attio.com" }],
   },
   g: {
-    key: "g", round: 2, name: "Lead and follow, on twelve columns", tag: "From C",
-    note: "C on the page's twelve columns: the lead across all twelve with the tile set into its first line at cap height; the follow at half its size from column 5, its left edge on a column line. Two sizes, 2 : 1.",
+    key: "g", round: 2, name: "Lead and follow, on twelve columns", tag: "In use on /home-v6",
+    note: "C on the page's twelve columns: the lead across all twelve with the tile set into its first line at cap height; the follow at half its size from column 5, its left edge on a column line. Two sizes, 2 : 1. The tile 10 % over the cap height; the layout in use on /home-v6 (D147).",
     basis: "An asymmetric grid: one wide field for the display line, a narrower one for reading; the empty columns 1–4 under the lead hold the step down.",
     refs: [{ label: "Daylight · letter (big heading over a column set to the right)", href: "https://daylightcomputer.com" }, { label: "Attio · Platform (lead in ink, the rest after a break)", href: "https://attio.com" }],
   },
   h: {
-    key: "h", round: 2, name: "Headline and deck", tag: "In use on /home-v6",
-    note: "The lead as a headline over two lines in columns 1–7; the rest beside it in columns 8–12 at half the size, their cap heights on one line. The tile above the headline, 10 % over its cap height. The layout in use on /home-v6 (D146).",
+    key: "h", round: 2, name: "Headline and deck", tag: "From C",
+    note: "The lead as a headline over two lines in columns 1–7; the rest beside it in columns 8–12 at half the size, their cap heights on one line. The tile above the headline, at its cap height.",
     basis: "The editorial headline-and-deck pair: two fields side by side, hung from one line, one size twice the other.",
     refs: [{ label: "Daylight · letter (big heading over a column set to the right)", href: "https://daylightcomputer.com" }],
   },
