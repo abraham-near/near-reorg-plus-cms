@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.env*
+!.env.example
+*.log
+coverage
+tests
+.claude
+src/generated
+public/cms

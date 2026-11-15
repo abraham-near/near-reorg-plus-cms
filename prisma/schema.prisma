@@ -46,6 +46,8 @@ model User {
   revisions       Revision[]
   apiTokens       ApiToken[]               @relation("ApiTokenOwner")
   revokedTokens   ApiToken[]               @relation("ApiTokenRevoker")
+  oauthGrants     OAuthGrant[]             @relation("OAuthGrantOwner")
+  revokedGrants   OAuthGrant[]             @relation("OAuthGrantRevoker")
 }
 
 /// Personal API tokens (Claude MCP). The token is shown once; only its SHA-256 is stored.
@@ -72,6 +74,96 @@ model ApiToken {
 
   @@index([userId, revokedAt])
   @@index([expiresAt])
+}
+
+/// OAuth clients that may ask people to connect (Claude custom connectors). CIMD: identified by the
+/// URL of their metadata document, fetched and cached; DCR: registered through /api/oauth/register
+/// (off unless CMS_OAUTH_DCR_ENABLED); STATIC: configured in the environment.
+model OAuthClient {
+  id           String          @id @default(cuid())
+  clientId     String          @unique
+  kind         OAuthClientKind
+  name         String
+  redirectUris String[]
+  /// When a CIMD document must be fetched again.
+  cacheUntil   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+enum OAuthClientKind {
+  CIMD
+  DCR
+  STATIC
+}
+
+/// One "Connect" attempt: the authorization request while the person signs in and consents, then
+/// its single-use code. Only hashes of the request id and of the code are stored.
+model OAuthAuthorization {
+  id            String    @id @default(cuid())
+  requestHash   String    @unique
+  clientId      String
+  redirectUri   String
+  state         String?
+  codeChallenge String
+  scopes        String[]
+  resource      String
+  userId        String?
+  codeHash      String?   @unique
+  codeExpiresAt DateTime?
+  usedAt        DateTime?
+  grantId       String?
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+
+  @@index([expiresAt])
+}
+
+/// A person's consent for one client (e.g. Claude) to act for them with some scopes, until it
+/// expires or is revoked. The counterpart of ApiToken for OAuth: its id is what the audit log and
+/// edit locks record as the credential.
+model OAuthGrant {
+  id            String       @id @default(cuid())
+  userId        String
+  clientId      String
+  clientName    String
+  scopes        String[]
+  resource      String
+  expiresAt     DateTime
+  lastUsedAt    DateTime?
+  lastUsedIp    String?
+  lastUsedAgent String?
+  revokedAt     DateTime?
+  revokedById   String?
+  /// USER, ADMIN, ROLE_CHANGE, DEACTIVATED, PASSWORD_RESET, PASSWORD_CHANGE, CODE_REUSE or REFRESH_REUSE.
+  revokeReason  String?
+  createdAt     DateTime     @default(now())
+  user          User         @relation("OAuthGrantOwner", fields: [userId], references: [id], onDelete: Cascade)
+  revokedBy     User?        @relation("OAuthGrantRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+  tokens        OAuthToken[]
+
+  @@index([userId, revokedAt])
+}
+
+/// Access and refresh tokens of a grant. Opaque random strings; only their SHA-256 is stored.
+/// A refresh token is used once (usedAt), then replaced.
+model OAuthToken {
+  id        String         @id @default(cuid())
+  grantId   String
+  kind      OAuthTokenKind
+  tokenHash String         @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime       @default(now())
+  grant     OAuthGrant     @relation(fields: [grantId], references: [id], onDelete: Cascade)
+
+  @@index([grantId])
+  @@index([expiresAt])
+}
+
+enum OAuthTokenKind {
+  ACCESS
+  REFRESH
 }
 
 /// Server-side sessions: the cookie holds a random token, the table holds its SHA-256.
@@ -250,25 +342,25 @@ model Tag {
 }
 
 model Media {
-  id           String   @id @default(cuid())
+  id               String   @id @default(cuid())
   /// Object key in the bucket, e.g. "cms/9f6b6507069105af.jpg".
-  key          String   @unique
+  key              String   @unique
   /// Public path served by src/app/(cms)/cms/[...path], e.g. "/cms/9f6b6507069105af.jpg".
-  url          String   @unique
-  filename     String
-  mimeType     String
-  size         Int
-  width        Int?
-  height       Int?
-  alt          String?
+  url              String   @unique
+  filename         String
+  mimeType         String
+  size             Int
+  width            Int?
+  height           Int?
+  alt              String?
   /// The file as uploaded, kept when the served copy was optimized (images become WebP, max 2000 px).
   /// Same bucket, e.g. "cms/9f6b6507069105af.jpg"; posts never reference it.
   originalKey      String?
   originalMimeType String?
   originalSize     Int?
-  uploadedById String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  uploadedById     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([mimeType])
 }

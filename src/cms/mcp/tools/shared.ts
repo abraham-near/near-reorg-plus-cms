@@ -2,6 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { ZodRawShape } from 'zod'
 import type { Api } from '../client'
 import type { Config } from '../config'
+import type { Permission } from '../../lib/permissions'
 
 export type Ctx = { api: Api; uploadDir: string | null }
 export type Annot = { readOnlyHint?: boolean; destructiveHint?: boolean; idempotentHint?: boolean }
@@ -30,6 +31,8 @@ export type Def = {
   description: string
   shape: ZodRawShape
   annotations: Annot
+  /** What the credential must allow for this tool to be offered at all (the CMS still checks every call). */
+  requires: Permission[]
   run: (args: never, ctx: Ctx) => Promise<Result>
 }
 

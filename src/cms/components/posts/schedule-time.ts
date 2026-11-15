@@ -8,7 +8,9 @@ const partFormatters = new Map<string, Intl.DateTimeFormat>()
 function partFormatter(timeZone: string) {
   let formatter = partFormatters.get(timeZone)
   if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-US', { timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    const options = { hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' } as const
+    // An unknown zone (some systems report "Etc/Unknown") would throw while rendering: fall back to UTC.
+    try { formatter = new Intl.DateTimeFormat('en-US', { ...options, timeZone }) } catch { formatter = new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'UTC' }) }
     partFormatters.set(timeZone, formatter)
   }
   return formatter
@@ -96,7 +98,11 @@ export function relativeTime(date: Date, now: Date): string {
 
 /** The browser's IANA zone ("UTC" when unknown). */
 export function browserTimeZone(): string {
-  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' } catch { return 'UTC' }
+  try {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+    new Intl.DateTimeFormat('en-US', { timeZone: zone })
+    return zone
+  } catch { return 'UTC' }
 }
 
 /** Every IANA zone the runtime knows, always including `extra` (the browser zone) and UTC. */

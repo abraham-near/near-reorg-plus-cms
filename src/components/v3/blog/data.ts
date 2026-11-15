@@ -1,7 +1,7 @@
 // The blog index's posts: v3's Go deeper items (proof-deeper/ProofDeeper.tsx ITEMS), copy and data verbatim, in the same order (newest first).
 // No dates, authors or figures of our own: an item without its own url goes to the NEAR blog.
 export type Type = "story" | "read" | "watch";
-export type Post = { id: string; type: Type; title: string; source: string; url?: string; note?: string };
+export type Post = { id: string; type: Type; title: string; source: string; url?: string; note?: string; pic?: string | null };   // pic: a CMS post's own photo (null: none)
 export type FilterKey = "all" | Type;
 
 export const BLOG = "https://www.near.org/blog";
@@ -27,6 +27,8 @@ export const POSTS: Post[] = [
 ];
 
 export const img = (id: string) => `/v3/deeper/${id}.webp`;
+/** a post's photo: its own (a CMS post), else the Go deeper image by id; null when a CMS post has none */
+export const picOf = (p: Post) => (p.pic === undefined ? img(p.id) : p.pic);
 export const href = (p: Post) => p.url || BLOG;
 export const isExt = (h: string) => /^https?:/.test(h);
 export const byType = (f: FilterKey) => POSTS.filter((p) => f === "all" || p.type === f);

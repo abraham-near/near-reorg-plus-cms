@@ -1,0 +1,94 @@
+/* Contact (Contact.tsx): Blog J's page (v3/blog/j/blog-j.css: the head, the rail, the feed, the fields) holding the routes and the form. Scoped to .ct.
+   Tokens and pieces from v3/blog/blog.css (.bl): paper, ink, one emerald, Montreal, the Kepler .accent, .bl-btn, .bl-link.
+   Lines: one hairline under the head (Blog J's), hairlines between the routes, one hairline under each field. Nothing else is ruled. */
+.ct { --ct-gap: clamp(24px, 2.8vw, 44px); }
+
+/* ---------------------------------------------------------------- the head: the two ways in sit in the feed's column */
+.ct-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+
+/* ---------------------------------------------------------------- the rail: "On this page" (Blog J's type list, as links) */
+.ct-nav__list { display: flex; flex-direction: column; }
+.ct .ct-nav__a { text-decoration: none; }
+.ct .ct-nav__a[aria-current="location"] { color: var(--ink); }
+.ct .ct-nav__a:focus-visible { outline-offset: 2px; border-radius: 3px; }
+@media (hover: hover) { .ct .ct-nav__a:hover { color: var(--ink); } }
+
+/* ---------------------------------------------------------------- the feed: two parts, air between them */
+.ct-sec + .ct-sec { margin-top: clamp(88px, 13vh, 136px); }
+.ct-route, .ct-write { scroll-margin-top: var(--j-top); }
+
+/* the routes: rows with a hairline between them; the words on the left, the links on the right */
+.ct-routes { display: flex; flex-direction: column; }
+.ct-route { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 15rem); column-gap: var(--ct-gap); padding: 32px 0; }
+.ct-route:first-child { padding-top: 4px; }
+.ct-route + .ct-route { border-top: var(--hair) solid var(--j-line); }
+.ct-route__body { min-width: 0; }
+.ct-route__t { margin-top: 14px; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; }
+.ct-route__p { margin-top: 10px; max-width: 34em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.ct-go { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 30px; }
+.ct-go .bl-link { gap: 8px; }
+/* hover: the green dot opens before the label (Blog J's posts) */
+@media (hover: hover) { .ct-route:hover .bj-kind::before { width: 6px; margin-right: 0; scale: 1; } }
+.ct-route:focus-within .bj-kind::before { width: 6px; margin-right: 0; scale: 1; }
+
+/* ---------------------------------------------------------------- the form: Blog J's fields (one hairline, it inks up on focus), three to a row */
+.ct-slot { position: relative; }
+.ct-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--ct-gap); row-gap: 12px; transition: opacity 0.3s var(--ease-tick); }
+.ct-f { min-width: 0; }
+.ct-f--msg, .ct-send { grid-column: 1 / -1; }
+.ct-f__top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ct-count { font-size: var(--t-caption); line-height: 1.2; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ct-field { gap: 0; }
+.ct .ct-field :is(select, textarea) { flex: 1; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; outline: none; appearance: none; -webkit-appearance: none;
+  font: 400 var(--t-body)/1.55 var(--sans); letter-spacing: -0.005em; color: var(--ink); caret-color: var(--emerald-deep); }
+.ct-field textarea::placeholder { color: var(--muted); opacity: 0.75; }
+.ct .ct-field :is(select, textarea):focus-visible { outline: none; }
+.ct .ct-field:has(:focus-visible)::after { height: 2px; }
+/* the select: the whole line is the control; a small chevron at its end */
+.ct-field--sel select { height: 100%; padding-right: 28px; cursor: pointer; }
+.ct-chev { position: absolute; right: 2px; top: 50%; width: 12px; height: 12px; margin-top: -6px; fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+/* the message: taller, it grows down if pulled */
+.ct-field--msg { height: auto; align-items: stretch; }
+.ct-field--msg textarea { min-height: 9.5rem; padding: 12px 0 14px; resize: vertical; }
+@media (hover: hover) {
+  .ct-field:hover:not(:focus-within) { background-image: linear-gradient(var(--graphite), var(--graphite)); }
+}
+/* an error: the line stays inked, the message under it. Its line is always reserved, so nothing moves when one appears */
+.ct-f.is-invalid .bj-field::after { transform: none; }
+.ct .ct-err, .ct .ct-err:empty { min-height: 1.3em; margin-top: 10px; }
+.ct-err svg { flex: none; }
+/* the send row */
+.ct-send { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 16px; }
+.ct .ct-fine { margin-top: 0; max-width: 30em; }
+
+/* success, in place: over the fields (they keep their room), an emerald hairline on top */
+.ct-done-wrap { position: absolute; inset: 0; pointer-events: none; }
+.ct-slot.is-done .ct-fields { opacity: 0; visibility: hidden; }
+.ct-done { padding-top: 32px; pointer-events: auto; background: linear-gradient(var(--emerald), var(--emerald)) 0 0 / 100% 1px no-repeat; }
+:where(.bl-j[data-motion]) .ct-done { animation: bl-rise 0.6s var(--ease-settle) both; }
+.ct-done__ic { display: block; color: var(--green-text); }
+.ct-done__t { margin-top: 18px; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; overflow-wrap: anywhere; }
+.ct .ct-done__t:focus { outline: none; }
+.ct .ct-done__t:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; border-radius: 2px; }
+.ct-done__p { margin-top: 12px; max-width: 34em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; overflow-wrap: anywhere; }
+.ct-done__p b { font-weight: 500; color: var(--ink); }
+.ct .ct-pre { display: block; margin-top: 10px; }
+.ct-again { margin-top: 28px; border: 0; cursor: pointer; }
+
+/* ---------------------------------------------------------------- below 1024: one column; the rail's list becomes a row of text links (Blog J's toggles) */
+@media (max-width: 1023px) {
+  .ct .bj-rail__in { display: block; padding-bottom: clamp(40px, 6vh, 56px); }
+  .ct-nav__list { flex-direction: row; flex-wrap: wrap; gap: 0 22px; }
+  .ct .ct-nav__a { position: relative; width: auto; padding: 8px 0; }
+  .ct .ct-nav__a .bj-type__n, .ct .ct-nav__dot { display: none; }
+  .ct .ct-nav__a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 1px; background: var(--ink); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.45s var(--ease-settle); }
+  .ct .ct-nav__a[aria-current="location"]::after { transform: none; }
+  .ct-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ct-f--topic { grid-column: 1 / -1; }
+}
+@media (max-width: 599px) {
+  .ct-route { grid-template-columns: minmax(0, 1fr); padding: 28px 0; }
+  .ct-go { flex-direction: row; flex-wrap: wrap; gap: 0 24px; padding-top: 14px; }
+  .ct-fields { grid-template-columns: minmax(0, 1fr); }
+  .ct-send { flex-direction: column; align-items: flex-start; }
+}

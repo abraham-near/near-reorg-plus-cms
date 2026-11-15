@@ -4,39 +4,33 @@ import { COUNT, GROUPS } from "./extra/pages";
 
 const EXTRA_LINE = GROUPS.map((g) => `${g.title} (${g.pages.length})`).join(" · ");
 
-// The index: a choice between the homepage directions in play (v6 = v5 with the ridges hero, Lawrence001; 3D render, the new copy, and v5 on the forest; /home-v1 and /home-v3 still exist, unlisted). Plain <a> on purpose: each version loads fresh (their global CSS and their boots never meet).
+// The index: the pages chosen so far, the homepage (home v5 on the forest) and the blog (direction J, at /blog), with Lawrence's home v6 (v5 with the
+// ridges hero, Lawrence001) beside the homepage. The other homes (/home-v1…v4) still exist, unlisted. Plain <a> on purpose: each page loads fresh (their
+// global CSS and their boots never meet).
 const VERSIONS = [
   {
-    href: "/home-v6",
+    href: "/home-v5",
     n: "01",
-    name: "Ridges",
+    name: "Homepage",
+    note: "The new copy on a forest hero: the wordmark header that spreads, a six-line intro, a still Stack and the revenue story with a flat chart.",
+    tags: ["Forest hero", "Wordmark header", "Flat chart"],
+    img: "/selector-v5.webp",
+  },
+  {
+    href: "/home-v6",
+    n: "02",
+    name: "Home v6 · Ridges",
     note: "v5 with Lawrence's ridges hero: the camera pulls down misty forest ridges as you scroll, under a plexus of points tracked to the land, and hands over to the intro through the page's grid.",
     tags: ["Scroll-scrubbed film", "Tracked vectors", "Oct 2026 copy"],
     img: "/selector-v6.webp",
   },
   {
-    href: "/home-v2",
-    n: "02",
-    name: "3D render",
-    note: "Rendered in 3D: filmed landscapes scrubbed by the scroll, glass and chrome objects, and a rendered Stack.",
-    tags: ["Rendered film", "3D scenes", "Scroll-scrubbed"],
-    img: "/selector-v2.webp",
-  },
-  {
-    href: "/home-v4",
+    href: "/blog",
     n: "03",
-    name: "New copy",
-    note: "Flat + b10 with the October 2026 copy: a new intro, rail and Stack, a revenue row, updated figures and six voices.",
-    tags: ["Oct 2026 copy", "Revenue row", "Six voices"],
-    img: "/selector-v4.webp",
-  },
-  {
-    href: "/home-v5",
-    n: "04",
-    name: "Mist forest",
-    note: "The new copy on a forest hero: the wordmark header that spreads, a six-line intro, a still Stack and the revenue story with a flat chart.",
-    tags: ["Forest hero", "Wordmark header", "Flat chart"],
-    img: "/selector-v5.webp",
+    name: "Blog",
+    note: "Reading rail, open: a sticky rail of search, type, sort and view beside the feed, open cards on whitespace, pages of six. The CMS's posts first.",
+    tags: ["Sidebar", "Blog / Press / Watch", "CMS posts"],
+    img: "/extra/blog-j.webp",
   },
 ];
 
@@ -46,7 +40,7 @@ export default function Selector() {
       <header className={styles.top}>
         <img className={styles.logo} src="/brand/logo.svg" alt="NEAR" width={88} height={23} />
         <div className={styles.topr}>
-          <p className={styles.label}>Homepage directions</p>
+          <p className={styles.label}>The site</p>
           <a className={styles.toplink} href="/home-v6/transitions">Hero transitions <span aria-hidden="true">→</span></a>
           <Link className={styles.toplink} href="/home-v6/intro">Intro layouts <span aria-hidden="true">→</span></Link>
           <a className={styles.toplink} href="/extra">Extra pages <span aria-hidden="true">→</span></a>
@@ -54,8 +48,8 @@ export default function Selector() {
       </header>
 
       <div className={styles.intro}>
-        <h1 className={styles.h}>Four versions of the homepage<span className={styles.sq} aria-hidden="true" /></h1>
-        <p className={styles.sub}>The ridges film under the new copy, rendered in 3D, flat with b10’s navigation and the October 2026 copy, or that copy on a misty forest.</p>
+        <h1 className={styles.h}>The homepage, home v6 and the blog<span className={styles.sq} aria-hidden="true" /></h1>
+        <p className={styles.sub}>The chosen homepage, the October 2026 copy on a misty forest; home v6, that page with the ridges film; and the blog they lead to.</p>
       </div>
 
       <ul className={styles.grid}>

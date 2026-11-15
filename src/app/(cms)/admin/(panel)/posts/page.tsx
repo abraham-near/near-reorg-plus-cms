@@ -90,7 +90,8 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
       visibility: post.visibility,
       publishedAt: post.publishedAt?.toISOString() ?? null,
       updatedAt: post.updatedAt.toISOString(),
-      locked: !!post.lockedById && !!post.lockedAt && now.getTime() - post.lockedAt.getTime() < LOCK_TTL_MS,
+      // Your own lock is not "being edited" by someone else (it lingers a moment after you leave the editor).
+      locked: !!post.lockedById && post.lockedById !== user.id && !!post.lockedAt && now.getTime() - post.lockedAt.getTime() < LOCK_TTL_MS,
       author: authorName ? { name: authorName, initials: initialsOf(authorName) } : null,
       category: post.categories[0]?.category.name ?? null,
     }

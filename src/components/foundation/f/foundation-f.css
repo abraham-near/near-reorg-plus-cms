@@ -1,0 +1,93 @@
+/* Foundation F (FoundationF.tsx): the Figma page "Foundation / Page · HTML complete" (2026_10_Near_Web, node 846:554), 1440 px frame. Sections 5–7 and the
+   close use version A's and the homepage's styles (../foundation.css, proof-deeper.css). Scoped under .ff-page. */
+.ff-page { --ff-mono: var(--font-montreal-mono), ui-monospace, monospace; --ff-ink: #1c1917; --ff-text: #262626; --ff-muted: #6c675f; }
+
+/* the mono labels (Structure, Mission, Stiftung, the facts): 13 px, tracked, upper case */
+.ff-k { margin: 0; font: 400 13px/1.25 var(--ff-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--ff-muted); }
+.ff-body { margin: 0; font-size: 17px; line-height: 1.6; color: var(--ff-text); text-wrap: pretty; }
+.ff-page .accent { font-family: var(--font-acc); font-style: italic; font-weight: 500; }
+.ff-sq { display: inline-block; width: 0.22em; height: 0.22em; margin-left: 0.12em; background: var(--emerald); vertical-align: baseline; }
+.ff-sq--w { background: #fff; }
+
+/* ================================================================ 1 · hero: the photo (scrims painted in) behind the copy */
+.ff-hero { position: relative; z-index: 0; min-height: 759px; padding: 153px var(--margin) 120px; overflow: clip; }   /* the photo stays inside the hero as it drifts */
+.ff-hero__img { position: absolute; z-index: -1; left: 0; top: -140px; width: 100%; height: calc(100% + 140px); object-fit: cover; object-position: 70% 60%; pointer-events: none; }   /* 140 px of slack above: the parallax moves it down that far */
+.ff-hero__in { max-width: 768px; }
+.ff-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 28px; padding: 8px 11px 8px 0; font: 400 11px/1 var(--ff-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ff-ink); }
+.ff-eyebrow i { width: 6px; height: 6px; background: var(--emerald); }
+.ff-h1 { margin: 0; max-width: 768px; font-family: var(--font-text); font-weight: 400; font-size: clamp(44px, 5vw, 72px); line-height: 0.945; letter-spacing: -0.045em; color: var(--ff-ink); }
+.ff-h1 .accent { font-size: 1.16em; line-height: 0.81; letter-spacing: -0.03em; }
+.ff-l { display: block; white-space: nowrap; }   /* the Figma page's three lines */
+.ff-h1 .ff-sq { width: 16px; height: 16px; margin-left: 0.3em; }
+.ff-lede { margin: 60px 0 0; max-width: 609px; font-size: clamp(18px, 1.46vw, 21px); line-height: 1.5; color: var(--ff-text); }
+.ff-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin: 40px 0 0; }
+.ff-btn { display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 10px 16px; border: 1px solid rgb(28 25 23 / 0.5); border-radius: 100px; font-size: 15px; line-height: 24px; color: var(--ff-ink); text-decoration: none;
+  transition: background-color 0.25s var(--ease-settle, ease), border-color 0.25s var(--ease-settle, ease); }
+.ff-btn:hover { background: rgb(28 25 23 / 0.06); }
+.ff-btn--green { background: var(--emerald); border-color: var(--emerald); }
+.ff-btn--green:hover { background: #00c983; border-color: #00c983; }
+.ff-btn:focus-visible { outline: 2px solid var(--ff-ink); outline-offset: 3px; }
+
+/* ================================================================ 2 · pillars: one ruled row, three cells */
+.ff-pillars { padding-top: 0; }
+.ff-pillars__row { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0; list-style: none; border-bottom: var(--hair) solid var(--l-line); background: rgb(245 244 241 / 0.6); }
+.ff-pillar { display: flex; flex-direction: column; gap: 14px; padding: 48px 40px; }
+.ff-pillar__ic { display: block; width: 32px; height: 32px; margin-bottom: 4px; }
+/* the icons arrive with their row (the grid marks it .is-in), one after another */
+:where(.l-page[data-motion]) .ff-pillars__row .ff-pillar__ic { opacity: 0; transform: translateY(10px) scale(0.86); }
+:where(.l-page[data-motion]) .ff-pillars__row.is-in .ff-pillar__ic { opacity: 1; transform: none; transition: opacity 0.6s ease 0.35s, transform 0.9s var(--ease-settle, cubic-bezier(.2,.8,.2,1)) 0.35s; }
+:where(.l-page[data-motion]) .ff-pillars__row.is-in .ff-pillar:nth-child(2) .ff-pillar__ic { transition-delay: 0.47s; }
+:where(.l-page[data-motion]) .ff-pillars__row.is-in .ff-pillar:nth-child(3) .ff-pillar__ic { transition-delay: 0.59s; }
+.ff-h3 { margin: 0; font-family: var(--font-text); font-weight: 400; font-size: 28px; line-height: 1.2; letter-spacing: -0.005em; color: var(--ff-ink); }
+
+/* ================================================================ 3 · mission: the green band */
+.ff-mission { background: var(--emerald); padding: 132px var(--margin); }
+.ff-mission__stage { display: grid; grid-template-columns: minmax(0, 632fr) minmax(0, 569fr); column-gap: 86px; align-items: start; }
+.ff-mission .ff-k { color: var(--ff-text); }
+.ff-mission__h { margin: 28px 0 0; font-family: var(--font-text); font-weight: 400; font-size: clamp(48px, 5.56vw, 80px); line-height: 1.04; letter-spacing: -0.02em; color: var(--ff-text); }
+.ff-ml { display: block; white-space: nowrap; }
+.ff-mission__h .accent { display: inline-block; font-size: 1.19em; line-height: 0.71; letter-spacing: -0.03em; transform-origin: 0 80%; }
+.ff-mission__h .ff-sq { width: 0.2em; height: 0.2em; }
+.ff-mission__r { display: flex; flex-direction: column; gap: 20px; }
+.ff-mission__lead { margin: 0; font-size: 21px; line-height: 1.55; color: var(--ff-text); }
+.ff-sn { transition: opacity 0.3s linear; }
+/* desktop, with motion: the band holds the screen; the two lines start the width of the screen and shrink to the left (motion.ts) */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  :root[data-js] .ff-mission { height: 240vh; padding: 0; }
+  :root[data-js] .ff-mission__stage { position: sticky; top: 0; display: block; height: 100vh; height: 100svh; min-height: 640px; overflow: hidden; }
+  :root[data-js] .ff-mission__l { position: absolute; left: var(--margin); right: 0; top: 0; }
+  :root[data-js] .ff-mission__k { position: absolute; left: 0; top: 0; opacity: 0; }
+  :root[data-js] .ff-mission__h { position: absolute; left: 0; top: 0; margin: 0; font-size: 7.8vw; line-height: 0.98; transform-origin: 0 0; will-change: transform; }
+  :root[data-js] .ff-mission__r { position: absolute; left: 54%; right: var(--margin); top: 50%; translate: 0 -50%; max-width: 569px; }
+}
+
+/* ================================================================ 4 · transparency: photo | text, three facts */
+.ff-tr__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ff-tr__ph { padding: 0; min-height: 480px; }
+.ff-tr__ph .l-ph { position: absolute; inset: 0; }
+.ff-tr__ph .l-img { width: 100%; height: 100%; object-fit: cover; }
+.ff-tr__body { display: flex; flex-direction: column; gap: 24px; padding: 86px 24px 64px 48px; }
+.ff-tr__h { margin: 16px 0 0; font-family: var(--font-text); font-weight: 400; font-size: clamp(36px, 3.6vw, 52px); line-height: 1.06; letter-spacing: -0.02em; color: var(--ff-ink); max-width: 11em; }
+.ff-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0; list-style: none; border-bottom: var(--hair) solid var(--l-line); }
+.ff-fact { display: flex; flex-direction: column; gap: 10px; padding: 20px 24px 24px; }
+.ff-fact__t { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ff-text); }
+
+/* ================================================================ phones and tablets */
+@media (max-width: 1023px) {
+  .ff-mission__stage { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
+  .ff-ml { display: inline; white-space: normal; }
+  .ff-tr__row { grid-template-columns: minmax(0, 1fr); }
+  .ff-tr__ph { min-height: 0; aspect-ratio: 4 / 3; }
+}
+@media (max-width: 859px) {
+  .ff-hero { min-height: 0; padding: 120px var(--margin) 64px; }
+  .ff-l { display: inline; white-space: normal; }
+  .ff-hero__img { top: 0; height: 100%; object-position: 72% 50%; opacity: 0.3; }   /* phones: the copy sits over the people; the photo steps back */
+  .ff-lede { margin-top: 32px; }
+  .ff-pillars__row, .ff-facts { grid-template-columns: minmax(0, 1fr); }
+  .ff-pillars__row .l-cell + .l-cell, .ff-facts .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .ff-pillars__row .l-cell + .l-cell::before, .ff-facts .l-cell + .l-cell::before { display: none; }
+  .ff-pillar { padding: 32px 24px; }
+  .ff-mission { padding: 88px var(--margin); }
+  .ff-tr__body { padding: 40px 24px 48px; }
+}

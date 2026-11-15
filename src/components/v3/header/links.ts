@@ -33,7 +33,7 @@ export const GROUPS: Group[] = [
       ] },
       { name: "Learn", items: [
         { name: "Research", desc: "White paper and protocol work", href: "/research", icon: "research" },
-        { name: "Blog", desc: "News and deep dives", href: "/blog-a", icon: "blog" },
+        { name: "Blog", desc: "News and deep dives", href: "/blog", icon: "blog" },
         { name: "Analytics", desc: "Live onchain metrics", href: "/analytics", icon: "analytics" },
       ] },
       { name: "Connect", items: [

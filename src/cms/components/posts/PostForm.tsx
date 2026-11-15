@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Archive, ArchiveRestore, CalendarClock, ChevronDown, ChevronRight, Eye, History, ImagePlus, LockKeyhole, MoreHorizontal, RotateCcw, Trash2, Undo2, X } from 'lucide-react'
@@ -15,7 +15,7 @@ import { Label } from '@/cms/components/ui/label'
 import { Textarea } from '@/cms/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/cms/components/ui/tooltip'
 import { AdminApiError, adminFetch } from '@/cms/lib/client'
-import { cn, slugify } from '@/cms/lib/utils'
+import { cn, fallbackSlug, slugify } from '@/cms/lib/utils'
 import { useNow } from '@/cms/lib/useStoredState'
 import { safeUrl } from '@/cms/lib/sanitize'
 import PostProperties, { AutoTextarea, PostStatusChip, type DisplayStatus } from './PostProperties'
@@ -47,6 +47,31 @@ function formFromPost(post: PostRecord | null): Form {
     body: post?.body ?? '',
   }
 }
+/** True when the post's URL still follows its title: a draft never published whose slug is the title's (maybe with a -2 suffix or a post-xxxxxx fallback). */
+function slugFollowsTitle(post: PostRecord | null): boolean {
+  if (!post) return true
+  if (post.status !== 'DRAFT' || post.publishedAt) return false
+  const base = slugify(post.title)
+  return base ? post.slug === base || new RegExp(`^${base}-\\d+$`).test(post.slug) : /^post-[a-z0-9]{6}$/.test(post.slug)
+}
+
+// Reloading /admin/posts/new after its first save reopens that draft (the URL stays /new while you
+// write, see persist()). Per tab, and only on the first editor mount after a real page load.
+const NEW_DRAFT_KEY = 'cms:new-post-draft'
+let documentChecked = false
+function reloadedDraftId(): string | null {
+  if (documentChecked) return null
+  documentChecked = true
+  try {
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+    return nav?.type === 'reload' ? sessionStorage.getItem(NEW_DRAFT_KEY) : null
+  } catch { return null }
+}
+function rememberNewDraft(id: string | null) {
+  try { if (id) sessionStorage.setItem(NEW_DRAFT_KEY, id)
+    else sessionStorage.removeItem(NEW_DRAFT_KEY) } catch { /* private mode: reload just opens a blank editor */ }
+}
+
 const isMac = () => typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
 const menuItem = 'flex h-8 cursor-pointer select-none items-center gap-2 rounded-md px-2 text-[13px] outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-muted'
 const portalContainer = () => typeof document === 'undefined' ? undefined : document.querySelector<HTMLElement>('.admin-wrapper') ?? undefined
@@ -65,6 +90,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   const [savedAt, setSavedAt] = useState<Date | null>(() => initialPost ? new Date(initialPost.updatedAt) : null)
   const [error, setError] = useState('')
   const [conflict, setConflict] = useState(false)
+  const [gone, setGone] = useState(false)
   const [mediaField, setMediaField] = useState<'featuredImage' | 'metaImage' | null>(null)
   const [lock, setLock] = useState<'checking' | 'ready' | 'blocked'>(initialPost && permissions.write ? 'checking' : 'ready')
   const [lockMessage, setLockMessage] = useState('')
@@ -72,6 +98,10 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   const [revisionsOpen, setRevisionsOpen] = useState(false)
   const [categoryOpen, setCategoryOpen] = useState(false)
   const [editorWords, setEditorWords] = useState<number | null>(null)
+  // The URL follows the title until the post is published or someone edits the URL by hand.
+  const [slugAuto, setSlugAuto] = useState(() => slugFollowsTitle(initialPost))
+  const fallbackSlugRef = useRef('')
+  const seoRef = useRef<HTMLDetailsElement>(null)
   const titleRef = useRef<HTMLTextAreaElement>(null)
   const excerptRef = useRef<HTMLTextAreaElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -83,12 +113,50 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   const revRef = useRef(0)
   const inflight = useRef<Promise<void> | null>(null)
   const afterPublishClose = useRef<(() => void) | null>(null)
+  const slugAutoRef = useRef(slugAuto)
+  const lockMessageRef = useRef(lockMessage)
+  // Next keeps up to 3 visited pages alive but hidden (cacheComponents + <Activity>). A hidden editor
+  // must not refresh or navigate the visible page, and when it is shown again it must catch up.
+  const activeRef = useRef(false)
+  const shownRef = useRef(0)
   useEffect(() => {
     postRef.current = post
     formRef.current = form
     dirtyRef.current = dirty
     lockRef.current = lock
+    slugAutoRef.current = slugAuto
+    lockMessageRef.current = lockMessage
   })
+
+  // Reloading /admin/posts/new after its first save: reopen that draft instead of a blank page.
+  useEffect(() => {
+    if (initialPost) return
+    const id = reloadedDraftId()
+    if (id) router.replace(`/admin/posts/${encodeURIComponent(id)}/edit`)
+    else rememberNewDraft(null)
+  }, [initialPost, router])
+  useEffect(() => { if (initialPost) reloadedDraftId() }, [initialPost])
+
+  /** Reads the saved post again: taken when it is newer and nothing local is unsaved, else flagged as a conflict. */
+  async function catchUp() {
+    const current = postRef.current
+    if (!current) return
+    try {
+      const fresh = await adminFetch<PostRecord>(`/api/admin/posts/${current.id}`)
+      if (fresh.updatedAt === postRef.current?.updatedAt) return
+      if (dirtyRef.current) setConflict(true)
+      else acceptPost(fresh)
+    } catch (error) {
+      if (error instanceof AdminApiError && error.status === 404) setGone(true)
+    }
+  }
+  const catchUpFromEffect = useEffectEvent(() => catchUp())
+  useLayoutEffect(() => {
+    activeRef.current = true
+    shownRef.current += 1
+    if (shownRef.current > 1) void catchUpFromEffect()
+    return () => { activeRef.current = false }
+  }, [])
 
   const postId = post?.id
   const editable = permissions.write && lock === 'ready' && !busy
@@ -96,24 +164,36 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   const live = post?.status === 'PUBLISHED' && !scheduled
   const wasLive = !!post?.publishedAt && !!now && new Date(post.publishedAt) <= now
   const displayStatus: DisplayStatus = !post || post.status === 'DRAFT' ? 'Draft' : post.status === 'ARCHIVED' ? 'Archived' : scheduled ? 'Scheduled' : 'Published'
-  const canAutosave = permissions.write && lock === 'ready' && (!post || post.status === 'DRAFT') && !conflict
+  const canAutosave = permissions.write && lock === 'ready' && (!post || post.status === 'DRAFT') && !conflict && !gone
 
   // Edit lock: acquire, renew every 30 s, release on unmount and on full page loads.
   useEffect(() => {
     if (!postId || !permissions.write) return
     let active = true
+    // Only a lock this editor holds is released: leaving a post someone else is editing must not free theirs.
+    let held = false
     async function acquire() {
       try {
         await adminFetch(`/api/admin/posts/${postId}/lock`, { method: 'POST', json: {} })
-        if (active) { setLock('ready'); setLockMessage('') }
+        held = true
+        if (!active) return
+        // Edit access came back after someone else had it: load their saves before typing over them.
+        if (lockRef.current === 'blocked') await catchUpFromEffect()
+        setLock('ready')
+        setLockMessage('')
       } catch (error) {
+        held = false
         if (active) {
           setLock('blocked')
           setLockMessage(error instanceof AdminApiError && error.status === 423 ? (error.message.includes('API token') ? 'Claude (an API token) is saving this post. Retry in a minute.' : 'Another editor holds this post’s edit lock.') : 'The edit lock could not be renewed. Retry before saving.')
         }
       }
     }
-    const release = () => { void adminFetch(`/api/admin/posts/${postId}/lock`, { method: 'DELETE', json: {}, keepalive: true }).catch(() => {}) }
+    const release = () => {
+      if (!held) return
+      held = false
+      void adminFetch(`/api/admin/posts/${postId}/lock`, { method: 'DELETE', json: {}, keepalive: true }).catch(() => {})
+    }
     void acquire()
     const timer = setInterval(acquire, 30_000)
     // A full page load (reload, typed URL, closed tab) does not unmount React: release the lock then too.
@@ -149,6 +229,8 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
     postRef.current = saved
     setPost(saved)
     setForm(formFromPost(saved))
+    setSlugAuto(slugFollowsTitle(saved))
+    setConflict(false)
     setDirty(false)
     setSavedAt(new Date())
     setSaveFailed(false)
@@ -158,23 +240,39 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   /** The one save path (autosave, ⌘S, Update, publish, schedule, archive). Saves queue behind each other. */
   async function persist(options: SaveOptions = {}): Promise<PostRecord | null> {
     if (!permissions.write) return null
-    while (inflight.current) await inflight.current
+    // Publish/Schedule disable the form before waiting for a running autosave, so a second click cannot queue a second save.
+    if (options.blocking) setBusy(true)
+    try {
+      while (inflight.current) await inflight.current
+      return await persistNow(options)
+    } finally {
+      if (options.blocking) setBusy(false)
+    }
+  }
+  async function persistNow(options: SaveOptions): Promise<PostRecord | null> {
     const current = postRef.current
-    if (lockRef.current !== 'ready') return null
+    if (lockRef.current !== 'ready') {
+      // An autosave just waits for the lock; a click must say why nothing happened (it shows inside the publish dialog too).
+      if (!options.auto) setError(lockMessageRef.current || 'You do not have edit access to this post right now. Retry in a moment.')
+      return null
+    }
     if (options.auto && (!dirtyRef.current || (current && current.status !== 'DRAFT'))) return null
     const values = formRef.current
-    if (!values.title.trim() || !values.slug.trim()) {
+    if (!values.title.trim()) {
       if (!options.auto) { setError('Add a title before saving.')
         titleRef.current?.focus() }
       return null
     }
+    if (!values.slug.trim()) {
+      if (!options.auto) setError('Add a URL for this post (under the title, in URL).')
+      return null
+    }
     const rev = revRef.current
     const status = options.status ?? current?.status ?? 'DRAFT'
-    const json = { ...values, status, ...(current ? { expectedUpdatedAt: current.updatedAt } : {}), ...(options.publishedAt !== undefined ? { publishedAt: options.publishedAt } : {}) }
+    const json = { ...values, ...(slugAutoRef.current ? { autoSlug: true } : {}), status, ...(current ? { expectedUpdatedAt: current.updatedAt } : {}), ...(options.publishedAt !== undefined ? { publishedAt: options.publishedAt } : {}) }
     let done = () => {}
     inflight.current = new Promise<void>((resolve) => { done = resolve })
     setSaving(true)
-    if (options.blocking) setBusy(true)
     try {
       const saved = await adminFetch<PostRecord>(current ? `/api/admin/posts/${current.id}` : '/api/admin/posts', { method: current ? 'PATCH' : 'POST', json })
       postRef.current = saved
@@ -189,23 +287,30 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
         // Status changes take the server's view of the post; plain saves keep the form as typed (no cursor jumps).
         if (options.blocking) setForm(formFromPost(saved))
       }
-      // A new post becomes a draft at its edit URL without remounting the editor (keeps focus and content).
+      // The server may have taken the next free URL (launch-2): show it, unless the URL was edited meanwhile.
+      if (saved.slug !== values.slug) setForm((form) => form.slug === values.slug ? { ...form, slug: saved.slug } : form)
+      // A new post keeps its /admin/posts/new URL while you write: changing the URL by hand desynchronized
+      // Next's router (New post reopened the previous post). Reload reopens it (rememberNewDraft).
       if (!current) {
-        window.history.replaceState(null, '', `/admin/posts/${saved.id}/edit`)
+        rememberNewDraft(saved.id)
         document.title = document.title.replace(/^New post/, 'Edit post')
       }
+      // The sidebar's Recent drafts and the lists read the title and status: refresh them (client state is kept).
+      if (activeRef.current && (!current || current.title !== saved.title || current.status !== saved.status || current.publishedAt !== saved.publishedAt)) router.refresh()
       return saved
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Could not save the post'
       setSaveFailed(true)
       setError(message)
       if (error instanceof AdminApiError && error.status === 409 && message.startsWith('Post changed')) setConflict(true)
+      if (error instanceof AdminApiError && error.status === 404) setGone(true)
       if (error instanceof AdminApiError && error.status === 423) { setLock('blocked')
         setLockMessage(message) }
+      // A field in the collapsed "Search & social" section is invalid: open it so the field can be fixed.
+      if (/Validation failed:.*\bmeta(Title|Description|Image)\b/.test(message) && seoRef.current) seoRef.current.open = true
       return null
     } finally {
       setSaving(false)
-      if (options.blocking) setBusy(false)
       inflight.current = null
       done()
     }
@@ -254,7 +359,9 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       setDirty(false)
       setIsDirty(false)
       toast.success('Post deleted')
-      router.push('/admin/posts')
+      // replace, not push: Back must not return to the editor of a post that no longer exists.
+      router.replace('/admin/posts')
+      router.refresh()
     } catch (error) { toast.error(error instanceof Error ? error.message : 'Could not delete post') }
     finally { setBusy(false) }
   }
@@ -262,6 +369,8 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
     if (!postId) return
     try {
       await adminFetch(`/api/admin/posts/${postId}/lock`, { method: 'POST', json: { override } })
+      // Load what the previous holder saved before letting this editor type over it.
+      await catchUp()
       setLock('ready')
       setLockMessage('')
     } catch (error) { setLockMessage(error instanceof Error ? error.message : 'Could not acquire the lock') }
@@ -344,10 +453,12 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   const cover = safeUrl(form.featuredImage)
   const socialImage = safeUrl(form.metaImage)
   const dateLabel = !post || post.status !== 'PUBLISHED' || !post.publishedAt
-    ? <span className="text-muted-foreground">Empty · publishes when you click Publish</span>
-    : !now ? <span className="text-muted-foreground">…</span>
-      : scheduled ? <span className="inline-flex items-center gap-1.5"><CalendarClock className="size-3.5 text-[var(--status-scheduled)]" aria-hidden />Scheduled · {formatLocalDateTime(post.publishedAt)}</span>
-        : <span>{formatLocalDateTime(post.publishedAt)}</span>
+    // Each variant has its own key: React swaps the whole element instead of removing a bare text node,
+    // which crashes when a translator or extension has rewritten that text (see src/app/(cms)/layout.tsx).
+    ? <span key="empty" className="text-muted-foreground">Empty · publishes when you click Publish</span>
+    : !now ? <span key="pending" className="text-muted-foreground">…</span>
+      : scheduled ? <span key="scheduled" className="inline-flex items-center gap-1.5"><CalendarClock className="size-3.5 text-[var(--status-scheduled)]" aria-hidden /><span>Scheduled · {formatLocalDateTime(post.publishedAt)}</span></span>
+        : <span key="published">{formatLocalDateTime(post.publishedAt)}</span>
   const onOpenDate = permissions.publish && editable && post?.status !== 'ARCHIVED'
     ? () => openPublish(scheduled ? 'reschedule' : live ? 'date' : 'publish', 'schedule')
     : undefined
@@ -355,11 +466,11 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
 
   let primary: React.ReactNode = null
   if (permissions.publish && (live || scheduled)) {
-    primary = <Button type="button" size="sm" className="cms-press" disabled={!editable || !dirty} onClick={() => void saveNow()}>{busy ? 'Saving…' : 'Update'}</Button>
+    primary = <Button key="update" type="button" size="sm" className="cms-press" disabled={!editable || !dirty} onClick={() => void saveNow()}><span key={busy ? 'saving' : 'idle'}>{busy ? 'Saving…' : 'Update'}</span></Button>
   } else if (permissions.publish) {
-    primary = <Button type="button" size="sm" className="cms-press" disabled={!editable} onClick={() => openPublish('publish', 'checklist')}>Publish<ChevronDown className="size-3.5" aria-hidden /></Button>
+    primary = <Button key="publish" type="button" size="sm" className="cms-press" disabled={!editable} onClick={() => openPublish('publish', 'checklist')}><span>Publish</span><ChevronDown className="size-3.5" aria-hidden /></Button>
   } else if (permissions.write) {
-    primary = <Button type="button" size="sm" className="cms-press" disabled={!editable || !dirty} onClick={() => void saveNow()}>Save</Button>
+    primary = <Button key="save" type="button" size="sm" className="cms-press" disabled={!editable || !dirty} onClick={() => void saveNow()}><span>Save</span></Button>
   }
 
   return <div className="min-h-full">
@@ -392,11 +503,12 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       </DropdownMenu.Root>}
     </header>
 
-    {(lock !== 'ready' || !permissions.write || error || conflict) && <div className="mx-auto mt-4 w-full max-w-[720px] space-y-2 px-6">
+    {(lock !== 'ready' || !permissions.write || error || conflict || gone) && <div className="mx-auto mt-4 w-full max-w-[720px] space-y-2 px-6">
+      {gone && <div role="alert" className="cms-fade-up flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"><p className="flex-1">This post no longer exists: it was deleted. Copy anything you want to keep.</p><Button type="button" size="sm" variant="outline" className="cms-press" asChild><Link href="/admin/posts">Go to posts</Link></Button></div>}
       {lock !== 'ready' && <div role="status" className="cms-fade-up flex flex-wrap items-center gap-3 rounded-lg bg-muted px-4 py-3 text-sm"><LockKeyhole className="size-4" aria-hidden /><p className="flex-1">{lock === 'checking' ? 'Checking edit access…' : lockMessage}</p>{lock === 'blocked' && <><Button type="button" variant="outline" size="sm" className="cms-press" onClick={() => takeLock(false)}>Retry</Button>{permissions.overrideLock && <Button type="button" size="sm" className="cms-press" onClick={() => { if (window.confirm('Take over this post? The other editor will lose their editing lock.')) void takeLock(true) }}>Take over lock</Button>}</>}</div>}
       {!permissions.write && <p className="rounded-lg bg-muted px-4 py-3 text-sm">You have read-only access to posts.</p>}
       {(error || conflict) && <div role="alert" className="cms-fade-up flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-        <p className="flex-1">{conflict ? 'Someone else saved this post after you opened it. Reload to get their version (copy anything you want to keep first); autosave is paused.' : error}</p>
+        <p className="flex-1">{conflict ? 'This post was saved somewhere else (another tab, another person or Claude) after you opened it. Reload to get that version (copy anything you want to keep first); autosave is paused.' : error}</p>
         {conflict ? <Button type="button" size="sm" variant="outline" className="cms-press" onClick={() => window.location.reload()}><RotateCcw />Reload</Button>
           : <Button type="button" size="icon-xs" variant="ghost" aria-label="Dismiss" onClick={() => setError('')}><X /></Button>}
       </div>}
@@ -417,8 +529,10 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           onChange={(event) => {
             const title = event.target.value.replace(/\n/g, ' ')
             // Until a post has been published, its URL follows the title (unless someone edited the URL by hand).
-            const followTitle = !post || (post.status === 'DRAFT' && !post.publishedAt)
-            setForm((current) => ({ ...current, title, slug: followTitle && current.slug === slugify(current.title) ? slugify(title) : current.slug }))
+            // Titles with no Latin letters get one stable post-xxxxxx URL; the server adds -2, -3… if taken.
+            const followTitle = slugAuto && (!post || (post.status === 'DRAFT' && !post.publishedAt))
+            if (followTitle && !fallbackSlugRef.current) fallbackSlugRef.current = fallbackSlug()
+            setForm((current) => ({ ...current, title, slug: followTitle ? slugify(title) || fallbackSlugRef.current : current.slug }))
             markChanged()
           }}
           onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault()
@@ -428,7 +542,8 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
         <PostProperties status={displayStatus} editable={editable} manageTaxonomy={permissions.manageTaxonomy} categories={categories} tags={tags}
           categoryIds={form.categoryIds} onCategoryIds={(ids) => update('categoryIds', ids)} categoryOpen={categoryOpen} onCategoryOpenChange={setCategoryOpen}
           tagIds={form.tagIds} onTagIds={(ids) => update('tagIds', ids)} dateLabel={dateLabel} onOpenDate={onOpenDate}
-          slug={form.slug} onSlug={(slug) => update('slug', slug)} wasLive={wasLive} savedSlug={post?.slug ?? null}
+          slug={form.slug} onSlug={(slug) => { setSlugAuto(false)
+            update('slug', slug) }} wasLive={wasLive} savedSlug={post?.slug ?? null}
           visibility={form.visibility} onVisibility={(value) => update('visibility', value)}
           excerpt={form.excerpt} onExcerpt={(value) => update('excerpt', value)} excerptRef={excerptRef} onNavigate={guardNavigation} />
 
@@ -436,7 +551,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           <BlockEditor label="Post body" value={form.body} onChange={(value) => update('body', value)} editable={editable} onWordCount={setEditorWords} />
         </div>
 
-        <details className="group mt-14 border-t border-[var(--border-soft)] pt-3">
+        <details ref={seoRef} className="group mt-14 border-t border-[var(--border-soft)] pt-3">
           <summary className="-mx-1.5 flex cursor-pointer list-none items-center gap-2 rounded-md px-1.5 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
             <ChevronRight className="size-4 transition-transform duration-[var(--dur-base)] group-open:rotate-90" aria-hidden />Search &amp; social
             <span className="hidden font-normal sm:inline">· how the post looks in search results and when shared</span>
@@ -479,4 +594,17 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       if (mediaField && url) update(mediaField, url)
       setMediaField(null) }} />
   </div>
+}
+
+/**
+ * Mounts the editor with a key that gives a fresh form on every click into it, while Back/Forward
+ * restore what you were doing. Next keeps visited pages alive (cacheComponents), and the state slot
+ * of /admin/posts/[id]/edit does not include the id, so without this "New post" or another post
+ * could reopen a previous form (and save into the previous post).
+ */
+export function PostEditor(props: Parameters<typeof PostForm>[0]) {
+  const { bfcacheId } = useRouter()
+  const { newPostRun } = useNavigationGuard()
+  const key = props.initialPost ? `${props.initialPost.id}:${bfcacheId}` : `new:${bfcacheId}:${newPostRun}`
+  return <PostForm key={key} {...props} />
 }

@@ -48,7 +48,10 @@ describe('plain text fields', () => {
   })
   it('stores titles and taxonomy names as typed', () => {
     expect(createPostSchema.parse({ title: 'Tom & Jerry <3', slug: 'x' }).title).toBe('Tom & Jerry <3')
-    expect(taxonomyCreateSchema.parse({ name: '<b>News</b>' }).name).toBe('News')
+    expect(createPostSchema.parse({ title: 'Using Vec<u8> in Rust', slug: 'x' }).title).toBe('Using Vec<u8> in Rust')
+    expect(createPostSchema.parse({ title: 'Two\r\nlines\u0007', slug: 'x' }).title).toBe('Two lines')
+    expect(createPostSchema.parse({ title: 't', slug: 'x', excerpt: 'Para one\nPara two' }).excerpt).toBe('Para one\nPara two')
+    expect(taxonomyCreateSchema.parse({ name: '<b>News</b>' }).name).toBe('<b>News</b>')
   })
   it('rejects image URLs that could break out of an attribute', () => {
     expect(createPostSchema.safeParse({ title: 't', slug: 'x', featuredImage: 'https://example.com/a.png" onerror="x' }).success).toBe(false)

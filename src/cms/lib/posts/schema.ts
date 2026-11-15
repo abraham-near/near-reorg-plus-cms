@@ -1,19 +1,22 @@
 import { z } from 'zod'
-import { safeUrl, stripTags } from '@/cms/lib/sanitize'
+import { cleanText, safeUrl } from '@/cms/lib/sanitize'
 
-const plain = (max: number) => z.string().max(max).transform(stripTags)
-const nullableText = (max: number) => plain(max).nullable().optional()
+// Stored as typed (see cleanText): never HTML, rendered as text everywhere.
+const line = (max: number) => z.string().max(max).transform((v) => cleanText(v, { singleLine: true }))
+const nullableText = (max: number, singleLine = false) => z.string().max(max).transform((v) => cleanText(v, { singleLine })).nullable().optional()
 const url = z.string().max(2048).refine((v) => v === '' || (safeUrl(v) !== null && !/[\s"'<>`]/.test(v)), 'Unsafe URL').transform((v) => v ? safeUrl(v)! : null).nullable().optional()
 const date = z.iso.datetime({ offset: true }).nullable().optional()
 const ids = z.array(z.string().min(1).max(100)).max(100).refine((v) => new Set(v).size === v.length, 'Duplicate IDs').optional()
 
 export const postFields = {
-  title: plain(500).pipe(z.string().trim().min(1)),
+  title: line(500).pipe(z.string().trim().min(1)),
   slug: z.string().min(1).max(200),
+  /** The slug follows the title: if it is taken, the server picks the next free one (-2, -3…). */
+  autoSlug: z.boolean().optional(),
   body: z.string().max(1_500_000).optional(),
   excerpt: nullableText(10_000),
   featuredImage: url,
-  metaTitle: nullableText(500),
+  metaTitle: nullableText(500, true),
   metaDescription: nullableText(5000),
   metaImage: url,
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),

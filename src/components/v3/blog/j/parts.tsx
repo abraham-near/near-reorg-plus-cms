@@ -3,7 +3,7 @@
 // (grid view), as a row (list view) and as the lead, the vertical type filter (the green dot slides to the chosen type), the small text toggles
 // (Sort, View: the chosen one inks up over a hairline) and the newsletter (the homepage close's copy, verbatim, as E has it).
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
-import { ACTION, href, img, type FilterKey, type Post, type Type } from "../data";
+import { ACTION, href, picOf, type FilterKey, type Post, type Type } from "../data";
 
 /** J's categories (the final index): the reads are Blog, the customer stories Press, the talks Watch */
 export const KIND: Record<Type, string> = { read: "Blog", story: "Press", watch: "Watch" };
@@ -12,7 +12,7 @@ import { Arrow, ExtSr } from "../parts";
 /** a photo in its rounded frame (it zooms a little inside it on hover) */
 export const Pic = ({ p, cls = "", eager }: { p: Post; cls?: string; eager?: boolean }) => (
   <span className={`bj-ph ${cls}`}>
-    <img className="bj-img" src={img(p.id)} alt="" loading={eager ? "eager" : "lazy"} decoding="async" />
+    {picOf(p) && <img className="bj-img" src={picOf(p)!} alt="" loading={eager ? "eager" : "lazy"} decoding="async" />}
     {p.type === "watch" && <span className="bj-play" aria-hidden="true"><i /></span>}
   </span>
 );

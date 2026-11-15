@@ -1,17 +1,24 @@
 import { requireActor } from '@/cms/lib/auth'
 import { db } from '@/cms/lib/db'
 import { cmsOrigin } from '@/cms/lib/email'
+import { serviceAccountEmail } from '@/cms/lib/import/google-auth'
 import { json, route } from '@/cms/lib/http'
 import { PERMISSIONS, canActor } from '@/cms/lib/permissions'
 
 /** Who is calling and what they can do: lets the MCP server check its setup. */
 export const GET = route(async (req) => {
   const { user } = await requireActor(req, 'admin:access')
-  const token = user.apiTokenId ? await db.apiToken.findUnique({ where: { id: user.apiTokenId }, select: { name: true, prefix: true, expiresAt: true } }) : null
+  const oauth = user.authKind === 'oauth' && user.apiTokenId
+  const token = user.apiTokenId && !oauth ? await db.apiToken.findUnique({ where: { id: user.apiTokenId }, select: { name: true, prefix: true, expiresAt: true } }) : null
+  // Through the Claude connector: which app, what the person allowed, until when.
+  const connection = oauth ? await db.oAuthGrant.findUnique({ where: { id: user.apiTokenId! }, select: { clientName: true, scopes: true, expiresAt: true, createdAt: true } }) : null
   return json({
     user: { name: user.name, email: user.email, role: user.role },
     token,
+    ...(connection ? { connection } : {}),
     capabilities: PERMISSIONS.filter((permission) => canActor(user, permission)),
     cmsOrigin: cmsOrigin(),
+    // How a Google Doc can reach the CMS: shared with this address as Viewer, or (if allowed) public by link.
+    googleImport: { serviceAccountEmail: serviceAccountEmail(), publicLinks: process.env.CMS_GOOGLE_PUBLIC_EXPORT !== 'false' },
   })
 }, { token: true })

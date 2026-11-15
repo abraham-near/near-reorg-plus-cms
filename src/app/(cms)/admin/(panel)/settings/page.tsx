@@ -4,10 +4,9 @@ import ProfileSessions from '@/cms/components/users/ProfileSessions'
 import ConnectClaude from '@/cms/components/users/ConnectClaude'
 import SettingsTabs from '@/cms/components/users/SettingsTabs'
 import { SETTINGS_TABS, type SettingsTab } from '@/cms/components/users/settings-tabs'
-import { apiTokensEnabled } from '@/cms/lib/api-tokens/auth'
 import { requirePagePermission } from '@/cms/lib/auth'
-import { cmsOrigin } from '@/cms/lib/email'
-import { listOwnApiTokens } from '@/cms/lib/people/api-tokens'
+import { mcpEnabled, mcpResource } from '@/cms/lib/oauth/config'
+import { listOwnConnections } from '@/cms/lib/people/oauth-grants'
 import { can } from '@/cms/lib/permissions'
 import { getProfile } from '@/cms/lib/people/profile'
 import { listProfileSessions } from '@/cms/lib/people/sessions'
@@ -20,8 +19,10 @@ export const metadata: Metadata = { title: 'Settings' }
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string | string[] }> }) {
   const session = await requirePagePermission('admin:access')
   const canTokens = can(session.user.role, 'apitoken:manage')
-  const [profile, sessions, tokens, { tab }] = await Promise.all([
-    getProfile(session.user.id), listProfileSessions(session), canTokens ? listOwnApiTokens(session) : Promise.resolve([]), searchParams,
+  const connectorOn = canTokens && mcpEnabled()
+  const [profile, sessions, connections, { tab }] = await Promise.all([
+    getProfile(session.user.id), listProfileSessions(session),
+    connectorOn ? listOwnConnections(session.user.id) : Promise.resolve([]), searchParams,
   ])
   const requested = SETTINGS_TABS.find((value) => value === tab)
   const initial: SettingsTab = requested && (requested !== 'claude' || canTokens) ? requested : 'profile'
@@ -36,7 +37,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         initial={initial}
         panels={{
           profile: <><ProfileSettings profile={profile} /><ProfileSessions sessions={sessions} /></>,
-          ...(canTokens ? { claude: <ConnectClaude tokens={tokens} enabled={apiTokensEnabled()} cmsOrigin={cmsOrigin()} /> } : {}),
+          ...(canTokens ? { claude: <ConnectClaude enabled={connectorOn} url={connectorOn ? mcpResource() : ''} connections={connections} /> } : {}),
         }}
       />
     </div>

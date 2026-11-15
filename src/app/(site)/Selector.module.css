@@ -13,7 +13,7 @@
 .sq { display: inline-block; width: .16em; height: .16em; margin-left: .06em; background: var(--green); vertical-align: baseline; }
 .sub { margin: 0; max-width: 40ch; justify-self: end; font-size: 17px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
 
-.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }   /* three cards: the homepage, home v6 and the blog (main had two, at two across) */
 .card { display: flex; flex-direction: column; gap: 12px; color: inherit; text-decoration: none; }
 .frame { position: relative; display: block; overflow: hidden; aspect-ratio: 16 / 9; background: var(--panel); outline: 1px solid var(--line); outline-offset: -1px; }
 .frame::after { content: ""; position: absolute; inset: 0; outline: 1px solid transparent; outline-offset: -1px; transition: outline-color .35s var(--ease); }
@@ -62,6 +62,9 @@
   .page { gap: 40px; padding-block: 24px 64px; }
   .go { width: 40px; height: 40px; }
   .topr .label { display: none; }
+  /* the three links (studies, extra) wrap under the logo rather than run off the page */
+  .top { flex-wrap: wrap; row-gap: 16px; }
+  .topr { flex-wrap: wrap; gap: 8px; }
   .extra { grid-template-columns: minmax(0, 1fr) auto; }
   .extra .path { grid-column: 1; }
   .extra .go { grid-column: 2; grid-row: 1 / span 3; }
