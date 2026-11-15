@@ -1,0 +1,288 @@
+/* home-v6 intro layout studies (D144; ./index.ts): the same statement, words, wipe and marker as /home-v6 (World.tsx, StatementWipe.tsx, v5.css,
+   v6.css), laid out another way. Scoped by the section's data-st. Sizes in --u (1 % of the screen, to 19.4 px) like the rest of the intro; the six
+   authored lines are kept where the layout has room for them, and re-wrap where it doesn't. A line of the statement is about 18.2 em long. */
+
+/* ───────── A · The mark beside: the N tile three lines tall, to the left of the paragraph ───────── */
+.statement[data-st="a"] { --st: calc(3.5 * var(--u)); --st-lh: 1.1; --a-tile: calc(2.95 * var(--st)); --a-gap: calc(3 * var(--u)); }
+@media (min-width: 761px) {
+  .statement[data-st="a"] .statement__inner {
+    display: grid; grid-template-columns: var(--a-tile) max-content; column-gap: var(--a-gap); align-items: start;
+    max-width: calc(var(--a-tile) + var(--a-gap) + 18.3 * var(--st) + 2 * var(--m));
+  }
+  .statement[data-st="a"] .statement__tile { width: var(--a-tile); margin: calc(.17 * var(--st)) 0 0; border-radius: calc(.12 * var(--a-tile)); }
+}
+.statement[data-st="a"] .statement__n { width: 56%; }
+
+/* ───────── B · On the grid: the lower sections' ruled frame (v3/proof-deeper), the tile in the first of five columns, the paragraph across the other four ───────── */
+.statement[data-st="b"] { --st: calc(3.8 * var(--u)); --st-lh: 1.1; --b-m: clamp(20px, 5.56vw, 96px); --b-line: rgb(38 38 38 / .24); }
+.statement[data-st="b"] .statement__inner { position: relative; }
+/* the rule across and its + at each end (both sizes) */
+.statement[data-st="b"] .statement__inner::before {
+  content: ""; position: absolute; left: var(--b-m); right: var(--b-m); top: 0; height: 1px; background: var(--b-line); pointer-events: none;
+}
+.statement[data-st="b"] .statement__inner::after {
+  content: ""; position: absolute; top: -4px; left: calc(var(--b-m) - 4px); right: calc(var(--b-m) - 4px); height: 9px; pointer-events: none;
+  background:
+    linear-gradient(var(--ink), var(--ink)) 4px 0 / 1px 9px no-repeat, linear-gradient(var(--ink), var(--ink)) 0 4px / 9px 1px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) calc(100% - 4px) 0 / 1px 9px no-repeat, linear-gradient(var(--ink), var(--ink)) 100% 4px / 9px 1px no-repeat;
+}
+@media (min-width: 761px) {
+  .statement[data-st="b"] .statement__inner {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start;
+    max-width: none; margin: 0; padding: calc(3.4 * var(--u)) var(--b-m) 0;
+  }
+  .statement[data-st="b"] .statement__tile { grid-column: 1; width: calc(1.9 * var(--st)); margin: calc(.2 * var(--st)) 0 0; border-radius: calc(.2 * var(--st)); }   /* on the column's left line, under the + */
+  .statement[data-st="b"] .st { position: relative; grid-column: 2 / span 4; padding-left: calc(1.7 * var(--u)); }
+  /* the column rule between the tile and the paragraph, and its + where it meets the rule across (drawn on the paragraph, so the two line up) */
+  .statement[data-st="b"] .st::before {
+    content: ""; position: absolute; left: 0; top: calc(-3.4 * var(--u)); bottom: calc(-.2 * var(--st)); width: 1px; background: var(--b-line); pointer-events: none;
+  }
+  .statement[data-st="b"] .st::after {
+    content: ""; position: absolute; left: -4px; top: calc(-3.4 * var(--u) - 4px); width: 9px; height: 9px; pointer-events: none;
+    background: linear-gradient(var(--ink), var(--ink)) 4px 0 / 1px 9px no-repeat, linear-gradient(var(--ink), var(--ink)) 0 4px / 9px 1px no-repeat;
+  }
+}
+
+/* ───────── C · Lead and follow: the first sentence as the headline, the rest smaller in a column to the right ───────── */
+.statement[data-st="c"] { --st: calc(2.7 * var(--u)); --st-lh: 1.24; --c-lead: calc(5.4 * var(--u)); }
+.statement[data-st="c"] .st__l { display: inline; white-space: normal; }
+.statement[data-st="c"] .st__lead {
+  display: block; font-size: var(--c-lead); line-height: 1.02; letter-spacing: -.04em; margin-bottom: calc(4.4 * var(--u));
+}
+@media (min-width: 761px) {
+  .statement[data-st="c"] .statement__inner { max-width: none; padding-inline: var(--m); }
+  .statement[data-st="c"] .st { padding-left: 40%; }
+  .statement[data-st="c"] .st__lead { margin-left: -66.7%; width: 166.7%; white-space: nowrap; }
+  .statement[data-st="c"] .st { max-width: calc(40% + 21em); }
+}
+
+/* ───────── D · Centred: the tile over a centred paragraph, held in the middle of the screen ───────── */
+.statement[data-st="d"] { --st: calc(3.7 * var(--u)); --st-lh: 1.1; }
+.statement[data-st="d"] .statement__inner { text-align: center; }
+.statement[data-st="d"] .statement__tile { margin-inline: auto; }
+@media (min-width: 761px) {
+  .statement[data-st="d"] .statement__inner { max-width: calc(18.4 * var(--st) + 2 * var(--m)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-js] .pin[data-tx] > .statement[data-hold]:is([data-st="a"], [data-st="c"], [data-st="d"], [data-st="e"], [data-st="f"], [data-st="g"], [data-st="h"], [data-st="i"], [data-st="j"], [data-st="k"], [data-st="l"]) .statement__hold { align-items: center; padding-top: calc(var(--nav-h) + 2svh); }
+}
+
+/* ───────── E · Full measure: larger, across the page's margins, the tile set into the first line like a drop mark ───────── */
+.statement[data-st="e"] { --st: calc(4.55 * var(--u)); --st-lh: 1.04; }
+.statement[data-st="e"] .statement__inner { position: relative; }
+.statement[data-st="e"] .statement__tile {
+  position: absolute; left: var(--m); top: calc((var(--st-lh) - .74) * .5 * var(--st) + .02 * var(--st)); width: calc(.74 * var(--st)); margin: 0; border-radius: calc(.1 * var(--st));
+}
+.statement[data-st="e"] .st__lead { padding-left: calc(1.02em) !important; }
+@media (min-width: 761px) {
+  .statement[data-st="e"] .statement__inner { max-width: none; }
+}
+
+/* ───────── F · Two tones: one wide paragraph at the size the reference sites use, the first sentence wiped to ink and the rest to grey; the marker in ink ───────── */
+.statement[data-st="f"] { --st: calc(3.4 * var(--u)); --st-lh: 1.12; --f-rest: color-mix(in srgb, var(--ink) 62%, var(--paper)); --f-faint: color-mix(in srgb, var(--ink) 11%, var(--paper)); }
+.statement[data-st="f"] .st__l { display: inline; white-space: normal; }
+.statement[data-st="f"] .st__rest { --st-ink: var(--f-rest); --st-faint: var(--f-faint); }
+.statement[data-st="f"] .st__mark { --st-ink: var(--ink); }
+@media (min-width: 761px) {
+  .statement[data-st="f"] .statement__inner { max-width: none; padding-inline: var(--m); }
+  .statement[data-st="f"] .st { max-width: 25.5em; }
+}
+@media (prefers-reduced-motion: reduce) {   /* no wipe: the two tones as plain colours */
+  .statement[data-st="f"] .st__rest { color: var(--f-rest); }
+  .statement[data-st="f"] .st__mark { color: var(--ink); }
+}
+
+/* ───────── phones: each keeps its idea in one column ───────── */
+@media (max-width: 760px) {
+  .statement[data-st="a"] { --st: clamp(24px, 6.6vw, 38px); }
+  .statement[data-st="a"] .statement__tile { width: clamp(64px, 19vw, 96px); margin-bottom: 26px; border-radius: 10px; }
+  .statement[data-st="b"] { --st: clamp(24px, 6.6vw, 38px); }
+  .statement[data-st="b"] { --b-m: var(--m); }
+  .statement[data-st="b"] .statement__inner { padding-top: 24px; }
+  .statement[data-st="b"] .statement__tile { width: 56px; border-radius: 9px; }
+  .statement[data-st="c"] { --st: clamp(18px, 5vw, 24px); --c-lead: clamp(34px, 9.6vw, 56px); }
+  .statement[data-st="c"] .st__lead { margin-bottom: 22px; }
+  .statement[data-st="d"] { --st: clamp(24px, 6.6vw, 38px); }
+  .statement[data-st="e"] { --st: clamp(26px, 7.2vw, 46px); }
+  .statement[data-st] .st { text-wrap: pretty; }   /* no lone word on the marker's line (critic: E at 390 left "economy." alone) */
+  .statement[data-st="f"] { --st: clamp(24px, 6.6vw, 38px); }
+}
+
+
+/* ═════════ Round 2 (D145): from B and C, on one grid and one type scale ═════════
+   The grid: twelve columns inside the page margins (--m), gutters --gut (1.6 u, 23 px at 1440). Every edge sits on a column line; a rule between two fields
+   runs down the middle of the gutter. The type: two sizes per layout, the lead twice the follow (G, H, K, L: a 2 : 1 step), or one size alone (I, J); the
+   follow 1.28 leading for reading, the lead 1.04 for display. Rules: hairlines (--line), a 9 px + in ink where two meet or one ends. */
+.statement:is([data-st="g"], [data-st="h"], [data-st="i"], [data-st="j"], [data-st="k"], [data-st="l"]) {
+  --gut: calc(1.6 * var(--u)); --line: rgb(38 38 38 / .24); --lead-lh: 1.04; --st-lh: 1.28;
+  --plus: linear-gradient(var(--ink), var(--ink));
+}
+.statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st__lead { display: block; font-size: var(--lead); line-height: var(--lead-lh); letter-spacing: -.035em; }
+.statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st__rest .st__l { display: inline; white-space: normal; }
+/* the follow re-wraps: no lone last word (critic D145: keeping the marker's phrase whole stranded "for a" on short last lines) */
+.statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st__rest { text-wrap: pretty; }
+.statement:is([data-st="i"], [data-st="j"]) { --st-lh: 1.1; }
+@media (min-width: 761px) {
+  .statement:is([data-st="g"], [data-st="h"], [data-st="i"], [data-st="j"], [data-st="k"], [data-st="l"]) .statement__inner {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gut); align-items: start;
+    width: 100%; max-width: none; margin: 0; padding-inline: var(--m);
+  }
+  /* the statement on the same twelve columns (subgrid), its lead and the rest placed apart */
+  .statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st {
+    display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; grid-column: 1 / -1; grid-row: 1 / span 2; align-items: start;
+  }
+  .statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st__rest { display: block; }
+}
+/* a rule across the margins at the top of the block, a + at each end (I, J, K, L) */
+.statement:is([data-st="i"], [data-st="j"], [data-st="k"], [data-st="l"]) .statement__inner { position: relative; padding-top: var(--top, calc(3.2 * var(--u))); }
+.statement:is([data-st="i"], [data-st="j"], [data-st="k"], [data-st="l"]) .statement__inner::before {
+  content: ""; position: absolute; left: var(--m); right: var(--m); top: 0; height: 1px; background: var(--line); pointer-events: none;
+}
+.statement:is([data-st="i"], [data-st="j"], [data-st="k"], [data-st="l"]) .statement__inner::after {
+  content: ""; position: absolute; top: -4px; left: calc(var(--m) - 4px); right: calc(var(--m) - 4px); height: 9px; pointer-events: none;
+  background: var(--plus) 4px 0 / 1px 9px no-repeat, var(--plus) 0 4px / 9px 1px no-repeat, var(--plus) calc(100% - 4px) 0 / 1px 9px no-repeat, var(--plus) 100% 4px / 9px 1px no-repeat;
+}
+
+/* ───────── G · Lead and follow, on twelve columns (C): the lead across all twelve, the tile set into its first line; the follow in columns 5–12 ───────── */
+.statement[data-st="g"] { --lead: calc(5 * var(--u)); --st: calc(2.5 * var(--u)); }   /* the lead and its tile fit the twelve columns (5.3 u ran 18 px past) */
+.statement[data-st="g"] .statement__tile {
+  position: absolute; left: var(--m); top: calc((var(--lead-lh) - .792) * .5 * var(--lead)); width: calc(.792 * var(--lead)); margin: 0; border-radius: calc(.121 * var(--lead));
+}   /* the lead's cap height, 10 % up (D147), centred on it: 3.6 % over the cap and under the baseline */
+.statement[data-st="g"] .statement__inner { position: relative; }
+.statement[data-st="g"] .st__lead { padding-left: 1.052em !important; }   /* the tile and the same .26 em gap */
+@media (min-width: 761px) {
+  .statement[data-st="g"] .statement__inner { row-gap: calc(4.2 * var(--u)); }
+  .statement[data-st="g"] .st__lead { grid-column: 1 / -1; white-space: nowrap; }
+  .statement[data-st="g"] .st__rest { grid-column: 5 / -1; }
+}
+
+/* ───────── H · Headline and deck (C): the lead in columns 1–7 over two lines, the rest beside it in 8–12 at half its size, their tops on one line ───────── */
+.statement[data-st="h"] { --lead: calc(4.6 * var(--u)); --st: calc(2.3 * var(--u)); }
+.statement[data-st="h"] .st__lead { white-space: normal; max-width: 10.6em; }   /* two lines, broken after "chain," */
+@media (min-width: 761px) {
+  .statement[data-st="h"] .statement__inner { grid-template-rows: auto auto; row-gap: calc(.5 * var(--lead)); }
+  .statement[data-st="h"] .statement__tile { grid-column: 1; grid-row: 1; width: calc(.72 * var(--lead)); border-radius: calc(.1 * var(--lead)); }   /* the lead's cap height */
+  .statement[data-st="h"] .st { grid-row: 2; grid-template-rows: auto; }
+  .statement[data-st="h"] .st__lead { grid-column: 1 / span 6; }
+  /* the deck's cap height on the lead's: its top drops by the difference in their half-leading and cap tops */
+  .statement[data-st="h"] .st__rest { grid-column: 7 / -1; margin-top: calc(.5 * (var(--lead-lh) - .72) * var(--lead) - .5 * (var(--st-lh) - .72) * var(--st)); }
+}
+
+/* ───────── I · On the ruler (B): the rule across ticked at every column, the tile two columns wide, the six lines in columns 4–12 ───────── */
+.statement[data-st="i"] { --st: calc(3.6 * var(--u)); }
+@media (min-width: 761px) {
+  /* the ticks: one mid-gutter between each two columns, where a rule down would run, hanging 6 px from the rule (a repeat of one column and its
+     gutter, P; the image is the twelve columns wide, so the twelfth tick falls outside it). The column rule's + sits on the third. (Critic D145: ticks
+     at the columns' starts missed the mid-gutter column rule by 11 px.) */
+  .statement[data-st="i"] .statement__inner { background: repeating-linear-gradient(to right,
+      transparent 0 calc((100% + var(--gut)) / 12 - .5 * var(--gut)), var(--ink) 0 calc((100% + var(--gut)) / 12 - .5 * var(--gut) + 1px), transparent 0 calc((100% + var(--gut)) / 12))
+    var(--m) 0 / calc(100% - 2 * var(--m)) 6px no-repeat; }
+  .statement[data-st="i"] .statement__tile { grid-column: 1 / span 2; width: calc((2 * var(--st-lh) + .72) * var(--st)); margin: calc(.18 * var(--st)) 0 0; border-radius: calc(.12 * var(--st) + 4px); }   /* cap of line 1 to baseline of line 3 */
+  .statement[data-st="i"] .st::after {
+    content: ""; position: absolute; left: calc(-.5 * var(--gut) - 4px); top: calc(-1 * var(--top, 3.2 * var(--u)) - 4px); width: 9px; height: 9px; pointer-events: none;
+    background: var(--plus) 4px 0 / 1px 9px no-repeat, var(--plus) 0 4px / 9px 1px no-repeat;
+  }
+  .statement[data-st="i"] .st { grid-column: 4 / -1; position: relative; }
+  .statement[data-st="i"] .st::before {
+    content: ""; position: absolute; left: calc(-.5 * var(--gut)); top: calc(-1 * var(--top, 3.2 * var(--u))); bottom: calc(-.2 * var(--st)); width: 1px; background: var(--line); pointer-events: none;
+  }
+}
+
+/* ───────── J · In ruled cells (B): a rule above and below, the N alone in ink in its cell (columns 1–3), the six lines in the next (4–12) ───────── */
+.statement[data-st="j"] { --st: calc(3.6 * var(--u)); }
+.statement[data-st="j"] .statement__inner { padding-bottom: calc(var(--top, 3.2 * var(--u)) + 5px); }
+.statement[data-st="j"] .statement__tile { background: none; border-radius: 0; }
+.statement[data-st="j"] .statement__n { width: 100%; }
+@media (min-width: 761px) {
+  .statement[data-st="j"] .statement__tile { grid-column: 1 / span 3; width: calc((var(--st-lh) + .72) * var(--st)); margin: calc(.19 * var(--st)) 0 0; }   /* cap of line 1 to baseline of line 2 */
+  .statement[data-st="j"] .st { grid-column: 4 / -1; position: relative; }
+  .statement[data-st="j"] .st::before {
+    content: ""; position: absolute; left: calc(-.5 * var(--gut)); top: calc(-1 * var(--top, 3.2 * var(--u))); bottom: calc(-1 * var(--top, 3.2 * var(--u))); width: 1px; background: var(--line); pointer-events: none;
+  }
+  /* the + where the column rule meets the rules above and below */
+  .statement[data-st="j"] .st::after {
+    content: ""; position: absolute; pointer-events: none; left: calc(-.5 * var(--gut) - 4px); top: calc(-1 * var(--top, 3.2 * var(--u)) - 4px); bottom: calc(-1 * var(--top, 3.2 * var(--u)) - 4px); width: 9px;   /* bottom: the rule below, 5 px inside the padding */
+    background: var(--plus) 4px 0 / 1px 9px no-repeat, var(--plus) 0 4px / 9px 1px no-repeat, var(--plus) 4px 100% / 1px 9px no-repeat, var(--plus) 0 calc(100% - 4px) / 9px 1px no-repeat;
+  }
+}
+/* the rule below, with its + ends */
+.statement[data-st="j"] .statement__hold .statement__inner { background:
+  linear-gradient(var(--line), var(--line)) var(--m) calc(100% - 5px) / calc(100% - 2 * var(--m)) 1px no-repeat,
+  var(--plus) calc(var(--m) - 4px) calc(100% - 5px) / 9px 1px no-repeat, var(--plus) var(--m) calc(100% - 1px) / 1px 9px no-repeat,
+  var(--plus) calc(100% - var(--m) + 4px) calc(100% - 5px) / 9px 1px no-repeat, var(--plus) calc(100% - var(--m)) calc(100% - 1px) / 1px 9px no-repeat; }
+
+/* ───────── K · Ruled lead and follow (B + C): a rule, the lead across, a second rule, then the tile in column 1 and the follow in 5–12 behind a column rule ───────── */
+.statement[data-st="k"] { --lead: calc(5 * var(--u)); --st: calc(2.5 * var(--u)); --k-gap: calc(5.2 * var(--u)); }
+@media (min-width: 761px) {
+  .statement[data-st="k"] .statement__inner { row-gap: var(--k-gap); }
+  .statement[data-st="k"] .st__lead { grid-column: 1 / -1; white-space: nowrap; position: relative; }
+  .statement[data-st="k"] .statement__tile { grid-column: 1; grid-row: 2; width: 100%; margin: calc(.28 * var(--st)) 0 0; border-radius: calc(.1 * var(--st) + 6px); }
+  .statement[data-st="k"] .st__rest { grid-column: 5 / -1; position: relative; }
+  /* the second rule, across the margins mid-way between the lead and the rest, with its + ends */
+  .statement[data-st="k"] .st__lead::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: calc(-.5 * var(--k-gap)); height: 1px; background: var(--line); pointer-events: none;
+  }
+  .statement[data-st="k"] .st__lead::before {
+    content: ""; position: absolute; left: -4px; right: -4px; bottom: calc(-.5 * var(--k-gap) - 4px); height: 9px; pointer-events: none;
+    background: var(--plus) 4px 0 / 1px 9px no-repeat, var(--plus) 0 4px / 9px 1px no-repeat, var(--plus) calc(100% - 4px) 0 / 1px 9px no-repeat, var(--plus) 100% 4px / 9px 1px no-repeat;
+  }
+  /* the column rule down from it, and the + where they meet */
+  .statement[data-st="k"] .st__rest::before {
+    content: ""; position: absolute; left: calc(-.5 * var(--gut)); top: calc(-.5 * var(--k-gap)); bottom: calc(-.15 * var(--st)); width: 1px; background: var(--line); pointer-events: none;
+  }
+  .statement[data-st="k"] .st__rest::after {
+    content: ""; position: absolute; left: calc(-.5 * var(--gut) - 4px); top: calc(-.5 * var(--k-gap) - 5px); width: 9px; height: 9px; pointer-events: none;
+    background: var(--plus) 4px 0 / 1px 9px no-repeat, var(--plus) 0 4px / 9px 1px no-repeat;
+  }
+}
+
+/* ───────── L · The margin and the text (B + C): a ruled margin column (1–2) holds the tile at the lead's height; the lead and the follow hang from column 3 ───────── */
+.statement[data-st="l"] { --lead: calc(5 * var(--u)); --st: calc(2.5 * var(--u)); }
+.statement[data-st="l"] .st__lead { white-space: normal; max-width: 10.6em; }
+@media (min-width: 761px) {
+  .statement[data-st="l"] .statement__inner { row-gap: calc(3.2 * var(--u)); }
+  .statement[data-st="l"] .statement__tile { grid-column: 1 / span 2; grid-row: 1 / span 2; width: calc((var(--lead-lh) + .72) * var(--lead)); margin: calc(.17 * var(--lead)) 0 0; border-radius: calc(.14 * var(--lead)); }   /* cap of line 1 to baseline of line 2 */
+  .statement[data-st="l"] .st__lead { grid-column: 3 / -1; }
+  .statement[data-st="l"] .st__rest { grid-column: 3 / span 8; }
+  /* the margin's rule, mid-gutter before column 3, down from the top rule to the foot of the text, with its + */
+  .statement[data-st="l"] .st::before {
+    content: ""; position: absolute; left: calc((100% - 11 * var(--gut)) / 12 * 2 + 1.5 * var(--gut)); top: calc(-1 * var(--top, 3.2 * var(--u))); bottom: calc(-.15 * var(--st)); width: 1px; background: var(--line); pointer-events: none;
+  }
+  .statement[data-st="l"] .st::after {
+    content: ""; position: absolute; top: calc(-1 * var(--top, 3.2 * var(--u)) - 4px); width: 9px; height: 9px; pointer-events: none;
+    left: calc((100% - 11 * var(--gut)) / 12 * 2 + 1.5 * var(--gut) - 4px);
+    background: var(--plus) 4px 0 / 1px 9px no-repeat, var(--plus) 0 4px / 9px 1px no-repeat;
+  }
+}
+
+/* ───────── round 2 on tablets (761–1099): the same grids a size up, so the follow stays at reading size; H stacks its deck under the headline ───────── */
+@media (min-width: 761px) and (max-width: 1099px) {
+  .statement:is([data-st="g"], [data-st="k"], [data-st="l"]) { --lead: calc(6.2 * var(--u)); --st: calc(3.1 * var(--u)); }
+  .statement:is([data-st="i"], [data-st="j"]) { --st: calc(4 * var(--u)); }
+  .statement[data-st="h"] { --lead: calc(7 * var(--u)); --st: calc(3.1 * var(--u)); }
+  .statement[data-st="h"] .st { grid-template-rows: auto auto; row-gap: calc(3 * var(--u)); }
+  .statement[data-st="h"] .st__lead { grid-column: 1 / -1; }
+  .statement[data-st="h"] .st__rest { grid-column: 3 / -1; grid-row: 2; margin-top: 0; }
+  .statement[data-st="l"] .st__rest { grid-column: 3 / -1; }
+  /* the one-line leads (G, K) break after "chain,"; G's tile stands above it; I and J's six lines re-wrap */
+  .statement:is([data-st="g"], [data-st="k"]) .st__lead { white-space: normal; padding-right: calc(100% - 10.6em); }   /* the box stays full width (K's rule under it) */
+  .statement[data-st="g"] .statement__tile { grid-column: 1; position: static; width: 37px; margin-bottom: calc(2.4 * var(--u)); border-radius: 6.6px; }   /* 10 % over 34 px (D147) */
+  .statement[data-st="g"] .st { grid-row: 2 / span 2; }
+  .statement[data-st="g"] .st__lead { padding-left: 0 !important; }
+  .statement:is([data-st="i"], [data-st="j"]) .st__l { display: inline; white-space: normal; }
+  .statement:is([data-st="i"], [data-st="j"]) .st { text-wrap: pretty; }
+}
+
+/* ───────── round 2 on phones: one column; the rules across stay, the rules down go ───────── */
+@media (max-width: 760px) {
+  .statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) { --lead: clamp(32px, 9vw, 52px); --st: clamp(19px, 5.3vw, 26px); }
+  .statement:is([data-st="g"], [data-st="h"], [data-st="k"], [data-st="l"]) .st__lead { margin-bottom: 22px; }
+  .statement:is([data-st="i"], [data-st="j"]) { --st: clamp(24px, 6.6vw, 38px); --top: 24px; }
+  .statement:is([data-st="k"], [data-st="l"]) { --top: 24px; }
+  .statement[data-st="g"] .statement__tile { position: static; width: 33px; margin-bottom: 22px; border-radius: 6.6px; }   /* above the lead: set into a wrapping lead it indented every line; 10 % over 30 px (D147) */
+  .statement[data-st="g"] .st__lead { padding-left: 0 !important; }
+  .statement[data-st="i"] .statement__tile { width: 64px; border-radius: 10px; }
+  .statement[data-st="j"] .statement__tile { width: 44px; }
+  .statement[data-st="k"] .statement__tile, .statement[data-st="l"] .statement__tile { width: 56px; border-radius: 9px; }
+  .statement[data-st="k"] .st__lead { position: relative; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
+}

@@ -37,8 +37,8 @@ export function BlogC() {
   const list = useMemo(() => POSTS.map((p, i) => ({ p, i })).filter(({ p }) => (f === "all" || p.type === f) && matches(p, q)), [f, q]);
   const n = useMemo(() => counts(q), [q]);
   useEffect(() => { grid.current?.sync(true); }, [f, q]);
-  // the preview keeps a post that is still listed
-  useEffect(() => { if (list.length && !list.some(({ p }) => p.id === act)) setAct(list[0].p.id); }, [list, act]);
+  // the preview keeps a post that is still listed, else the first that is (worked out as it renders, not set from an effect: one render, not two)
+  const shown = list.length && !list.some(({ p }) => p.id === act) ? list[0].p.id : act;
 
   const choose = (k: FilterKey) => { setF(k); setLive(true); };
   const type = (v: string) => { setRaw(v); setLive(true); };
@@ -51,7 +51,7 @@ export function BlogC() {
     if (to === undefined) return;
     e.preventDefault(); a[to].focus();
   };
-  const cur = POSTS.find((p) => p.id === act)!;
+  const cur = POSTS.find((p) => p.id === shown)!;
   const label = FILTERS.find((x) => x.key === f)!.label;
 
   return (
@@ -102,7 +102,7 @@ export function BlogC() {
                   {items.map(({ p, i }, k) => {
                     const u = href(p);
                     return (
-                      <li key={p.id} className="bl-c__li" style={{ ["--k" as string]: k }} data-on={p.id === act ? "" : undefined}>
+                      <li key={p.id} className="bl-c__li" style={{ ["--k" as string]: k }} data-on={p.id === shown ? "" : undefined}>
                         <a className="bl-c__a" href={u} onPointerEnter={() => setAct(p.id)} onFocus={() => setAct(p.id)}>
                           <span className="bl-c__i" aria-hidden="true">{idx(i)}</span>
                           <span className="bl-c__type t-label"><i className="bl-glyph" data-icon={`deeper-${p.type}`} aria-hidden="true" />{SHORT_LABEL[p.type]}</span>
@@ -123,7 +123,7 @@ export function BlogC() {
         <div className="bl-cell bl-c__pv" aria-hidden="true">
           <div className="bl-c__pv-in">
             <div className="bl-ph bl-c__frame" data-ph="" data-still="">
-              {POSTS.map((p) => <img key={p.id} className={`bl-c__img${p.id === act ? " is-act" : ""}`} src={img(p.id)} alt="" loading="lazy" decoding="async" />)}
+              {POSTS.map((p) => <img key={p.id} className={`bl-c__img${p.id === shown ? " is-act" : ""}`} src={img(p.id)} alt="" loading="lazy" decoding="async" />)}
             </div>
             <p className="bl-c__cap"><span className="bl-c__cap-t">{TYPE_LABEL[cur.type]}</span><span className="bl-c__cap-s">{cur.source}</span></p>
           </div>

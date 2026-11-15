@@ -1,0 +1,86 @@
+/* Home v6's hero (World.tsx): the ridges film and its tracked layer in place of v5's forest still (D108). On top of v5.css (the page keeps
+   html[data-home="v5"], so everything else is v5's); only the hero, under .hero--v7, changes here. */
+
+/* the picture: not flipped (the layer's tracks are in the footage's own coordinates), the crop home-v2 uses for the original on desktop
+   (30 % across, centred), and no veil on the left: the take is pale mist there, where the copy sits.
+   The still and the video share one crop; it has to out-rank v5's `.hero--v5 .hero__bg img` (object-position and the flip), or the picture and the
+   layer jump when the video fades in over the still. */
+.hero--v7 { --h6-x: 30%; --h6-y: 50%; --h6-rise: 0; }
+.hero--v7 .hero__bg { background: var(--paper); }
+.hero6__media { position: absolute; inset: 0; will-change: transform; }
+.hero--v7 .hero__bg :is(.hero6__img, .hero6__video) {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--h6-x) var(--h6-y); transform: none;
+}
+/* the video only exists for the scrubbed move (HeroVideo gives it a source on desktop with motion); it fades in over its own first frame once it can seek */
+.hero--v7 .hero__bg .hero6__video { display: none; }
+
+/* the foot: the paper fades in under the picture, so the hero meets the intro without an edge (as v5) */
+.hero--v7 .hero__bg::after { background: linear-gradient(180deg, transparent 70%, color-mix(in srgb, var(--paper) 55%, transparent) 88%, var(--paper) 100%); }
+
+/* desktop with motion (HeroVideo's own query): the hero is 220 svh, the picture sticks for the camera move while the copy scrolls away over it */
+@media (min-width: 1280px) and (prefers-reduced-motion: no-preference) {
+  html[data-js] .hero--v7 { height: 220vh; height: 220svh; overflow: clip; }
+  /* world.css gives .pin overflow: hidden, which makes it a scroll container and stops the picture sticking; clip crops the same way without that */
+  html[data-js] .pin:has(> .hero--v7) { overflow: clip; }
+  html[data-js] .hero--v7 .hero__bg { position: sticky; top: 0; height: 100vh; height: 100svh; }
+  html[data-js] .hero--v7 .hero__main { position: absolute; inset: 0 0 auto; }
+  html[data-js] .hero--v7 .hero__bg .hero6__video { display: block; opacity: 0; transition: opacity var(--dur-4) var(--ease-out); }
+  html[data-js] .hero--v7 .hero__bg .hero6__video[data-ready] { opacity: 1; }
+  /* the hand-over: a slim fade at the foot through the move, then the paper rises with the scroll over its last part (HeroRise sets --h6-rise),
+     so the film ends in the page's light instead of on its darkest frame; the fade stays long and eased so the dark trees thin into the paper */
+  html[data-js] .hero--v7 .hero__bg::after {
+    background: linear-gradient(180deg,
+      transparent calc(84% - var(--h6-rise) * 62%),
+      color-mix(in srgb, var(--paper) 30%, transparent) calc(91% - var(--h6-rise) * 56%),
+      color-mix(in srgb, var(--paper) 78%, transparent) calc(97% - var(--h6-rise) * 47%),
+      var(--paper) calc(100% - var(--h6-rise) * 40%));
+  }
+}
+
+/* phones and portrait tablets: the ridges sit under the copy, with v5's soft wash at the top for the headline and the paper at the foot */
+@media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
+  .hero--v7 { --h6-x: 62%; }
+  .hero--v7 .hero__bg::after {
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--paper) 60%, transparent) 0%, color-mix(in srgb, var(--paper) 20%, transparent) 40%, transparent 62%),
+      linear-gradient(180deg, transparent 74%, color-mix(in srgb, var(--paper) 55%, transparent) 89%, var(--paper) 100%);
+  }
+}
+
+/* ───────── the intro, held and read in (D113: StatementWipe.tsx) ─────────
+   With motion allowed, the section is a screen plus --st-hold tall and its content sticks: it locks on the screen when it gets there, while the text, faint, is
+   wiped to ink and the marker wipes in; then it scrolls on. Without motion it is v5's intro (one screen, the text in ink). */
+.statement[data-hold] { --st-hold: 150svh; --st-faint: color-mix(in srgb, var(--ink) 20%, var(--paper)); }
+.statement[data-hold] .statement__hold { width: 100%; }
+.statement .st__rest { display: contents; }   /* the statement's lines after the lead: no box of its own (World.tsx; the intro studies give it one, D145) */
+html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html[data-js] .pin:has(> .statement[data-hold]) { overflow: clip; }
+  html[data-js] .statement[data-hold] { display: block; min-height: 0; padding-block: 0; height: calc(100vh + 150vh); height: calc(100svh + var(--st-hold)); }
+  html[data-js] .statement[data-hold] .statement__hold {
+    position: sticky; top: 0; display: flex; align-items: center; height: 100vh; height: 100svh; padding-block: calc(var(--nav-h) + 3svh) 6svh;
+  }
+  /* faint from the first paint (before the words are split and the script takes over), the marker not yet laid */
+  html[data-js] .statement[data-hold] .st { color: var(--st-faint); }
+  html[data-js] .statement[data-hold] .st__mark { --mark: 0; }
+  /* the words paint their own two tones through their letters (the script sets each one's gradient) */
+  .statement.is-wipe .st__wi { color: transparent; -webkit-background-clip: text; background-clip: text; background-image: linear-gradient(var(--st-faint), var(--st-faint)); }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 760px) {
+  .statement[data-hold] { --st-hold: 120svh; }
+  html[data-js] .statement[data-hold] .statement__hold { padding-block: calc(var(--nav-h) + 2svh) 6svh; }
+}
+
+/* the newsletter (shared ProofDeeper close): no "Email address" title above the field on v6, and no space for it (Lawrence, D120). It stays for screen readers.
+   Scoped by ProofDeeper's data-scope (V7Page), not html:has(.hero--v7): a :has() on the root restyled the whole page on every DOM change (D134) */
+.l-page[data-scope="v7"] .l-close__nl .l-form__label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* Origin ("Built by the people who helped invent modern AI", shared ProofDeeper): the source box stays (its rule, its height), empty; the source line and
+   the footnote mark that pointed to it go (Lawrence, D131). v5 keeps both */
+.l-page[data-scope="v7"] .l-origin .l-src > * { visibility: hidden; }
+.l-page[data-scope="v7"] .l-origin .l-mark { display: none; }
+
+/* Get into NEAR (shared ProofDeeper): no "02 · docs.near.org" line under the picture; the picture runs down to the row's foot in its place (Lawrence, D142).
+   The row's height is the list's; the picture fills it, cropped (object-fit: cover). v5 keeps the line */
+.l-page[data-scope="v7"] .l-gi__cap { display: none; }
+.l-page[data-scope="v7"] .l-gi__frame { flex: 1 1 auto; aspect-ratio: auto; }
