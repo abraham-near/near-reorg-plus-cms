@@ -62,7 +62,7 @@
   .page { gap: 40px; padding-block: 24px 64px; }
   .go { width: 40px; height: 40px; }
   .topr .label { display: none; }
-  /* the three links (studies, extra) wrap under the logo rather than run off the page */
+  /* the header's links wrap under the logo rather than run off the page */
   .top { flex-wrap: wrap; row-gap: 16px; }
   .topr { flex-wrap: wrap; gap: 8px; }
   .extra { grid-template-columns: minmax(0, 1fr) auto; }
