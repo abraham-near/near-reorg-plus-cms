@@ -1,0 +1,34 @@
+/* Home v6's rail (V6Page.tsx: <RailV4 … near="out" type="even" />), on top of v5's (../v5/rail-v5.css, ../v5/v5.css). Scoped to the two flags, so v5 never sees it (D113).
+   The type above the line (the thesis, the problem, the answer) in ONE size, tracking and leading: --ev, the answer's old size (0.84 x the thesis'). The problem and the
+   answer then start where the thesis stood (nothing docks in v6: layer.ts NEAROUT), so the three beats read as one voice in one place. */
+html[data-home="v5"] .layer[data-type="even"] { --ev: clamp(30px, calc(3.44 * var(--u)), 62px); --hp: var(--ev); }
+html[data-home="v5"] .layer[data-type="even"] .rs { --cs: var(--ev); --ct: var(--ev); }
+html[data-home="v5"] .layer[data-type="even"] :is(.rs__conn, .rs__near, .rs__ans, .rs__problem) { letter-spacing: -.03em; }
+/* one leading: the thesis' line pitch (1.05 em: rail.css .cl's margins) for the problem (its word windows too) and the answer */
+html[data-home="v5"] .layer[data-type="even"] :is(.rs__ans, .rs__problem) { line-height: 1.05; }
+html[data-home="v5"] .layer[data-type="even"] .rs__problem .sk { height: 1.05em; }
+html[data-home="v5"] .layer[data-near="out"] .rs__ans .ns2 { height: 1.05em; }   /* the answer's NEAR spacer (0 wide in v6) must not hold its first line open */
+/* the reduced-motion page (the rail's static copy) gets the same */
+html[data-home="v5"] .layer[data-type="even"] :is(.rail__h, .rail__problem, .rail__answer) { font-size: var(--ev); line-height: 1.05; letter-spacing: -.03em; }
+
+@media (min-width: 761px) {
+  /* the problem and the answer on the thesis' first line (rail.css .rs__conn: top 13.7 %, its lines .09 em above their box) */
+  html[data-home="v5"] .layer[data-near="out"] .rs__problem { top: calc(13.7% - .02em); bottom: auto; width: min(14.6em, 50vw); }
+  html[data-home="v5"] .layer[data-near="out"] .rs__ans { top: calc(13.7% - .02em); }
+}
+
+/* phones: the thesis' phone size (v5.css), capped so the answer's longest line fits (rail.css: --ct) */
+@media (max-width: 760px) {
+  html[data-home="v5"] .layer[data-type="even"] { --ev: min(clamp(25px, 7.1vw, 40px), calc((100vw - 2 * var(--m)) / 13.6)); }
+  /* the square holds the centre from the start (data-square="early"): on a phone the end labels sit close enough to it, so they hang below it (D114) */
+  html[data-home="v5"] .layer[data-square="early"] .rs__end { top: calc(var(--rail-y) + var(--frame) / 2 + 8px); }
+}
+
+/* the stations' drawings centred on the tile (D117). Each sits in its box (rail.css .rs__art, centred on the station) by its svg's viewBox (xMidYMax meet), but
+   identity's and intelligence's drawings are off the middle of their viewBox: 10.6 % of the drawn width right (identity: its floor, 106 - 494 of 495) and 2.7 % left
+   (intelligence: -4 - 394 of 412), from their svg geometry. The drawn width is the box's, or its height x the viewBox's aspect where that is less (495 x 328, 412 x 294) */
+html[data-home="v5"] .layer[data-square="early"] .rs__art[data-art="identity"] { translate: calc(-.106 * min(var(--art-w), var(--art-h) * 1.509)) 0; }
+html[data-home="v5"] .layer[data-square="early"] .rs__art[data-art="intelligence"] { translate: calc(.0267 * min(var(--art-w), var(--art-h) * 1.401)) 0; }
+
+/* the playhead's square over every tile that lands in it (D128): the stations' tiles (.rs__track, z 5) and NEAR's (z 4) grow up behind its outline, never over it */
+.layer[data-square="early"] .rs__play { z-index: 6; }

@@ -130,7 +130,7 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
   const vb = root.querySelector<HTMLElement>("[data-voices]");
   /* v4's options (data-vmode): marquee / pins play without the scene (voice-modes.ts; the photo is the plain bleed's); short and deck are the scene, shorter */
   const vmode = vb?.dataset.vmode || "", deck = vmode === "deck", short = vmode === "short";
-  const vOff = vb && (vmode === "marquee" || vmode === "pins") ? mountVoiceMode(vb, vmode, reduced) : null;
+  const vOff = vb && (vmode === "marquee" || vmode === "pins" || vmode === "timer") ? mountVoiceMode(vb, vmode, reduced) : null;
   let mm: gsap.MatchMedia | null = null;
   if (vb && !reduced && !vOff) {
     mm = gsap.matchMedia();

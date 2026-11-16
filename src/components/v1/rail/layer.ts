@@ -37,6 +37,16 @@
  *                the ink ends at the gate 37 - 41.5
  *   43.8 - 47.2  the drawing rides the world out with the slide to the first station (S.ga 1 -> 2), the node with it
  *   43.5 - 46.1  the answer leaves too, word by word (NEAR with it): the stations run without it
+ * Home v6 (split + data-near="out"): as v5, but line 3 is never docked: it lingers alone after lines 1 and 2 leave (12.6 - 17.5), then leaves whole, NEAR first
+ *   (17.5 - 19.9), before the problem climbs in (20.3 - 25.4); the answer has its own "NEAR" among its words (in 34.2 - 38.4) and NEAR never moves (buildNearOut)
+ * Home v6 (data-square="early", as 3100/home D95): the square draws round NEAR's tile at 2.3 - 4.1 and holds the centre from then on; the tile leaves with the line as the
+ *   world slides (10.5 - 18), the square travels on empty, and the tile lands in it again 34.2 - 35.8 (S.gp) with the answer; it rides out with the slide to the
+ *   first station as before, whose tile lands in the square in turn. The line is green from the left edge to the square's left edge throughout (D100, D117), ink beyond it
+ * Home v6 (data-words="lines", D116): the type moves line by line, not word by word: the words of a line move together (renderWords: their line, measured in layout;
+ *   the staircases: their own lines), the lines one after another, top first, in and out. Lines 1 and 2 (and the end labels) come in with the arrival; then a beat;
+ *   then line 3 ("NEAR is where they connect.") comes in whole, 4.2 - 6.8, with the tile popping (4.2 - 6.4) and its square drawing (5 - 6.6, once the pop's overshoot has settled) in step (D126; they
+ *   came in during the beat before); lines 1 and 2 leave a unit later (10 - 13.6);
+ *   line 3 leaves whole (17.5 - 19.7)
  * Home v5 (split) has no type in dots: every text moves word by word instead (WORDS: renderWords), scrubbed like the rest. A word comes in rising from below as it fades in, and
  *   leaves rising as it fades out, the words one after another in reading order. The phrases and the end labels come in with the section's arrival (S.enter; Item.er), the
  *   others on the same tweens as before (a in, o out); the stations' staircase becomes the same reveal (no windows). The line, its ticks and the hairlines keep their dots.
@@ -48,6 +58,7 @@ import { loadTone, buildField, nearestDot, type Field, type Tone } from "./field
 import { makeLattice, xOf, jRange, type Lattice } from "./planet";
 import { createVignette, type Vignette, type VigKey } from "./vig2";
 import { mountRailGlobe, type RailGlobe } from "./railglobe";
+import { TIDES } from "./tide";
 
 const WORLD = true;                                   /* the background world behind the top half (rail/railglobe.ts); false turns it off */
 const ICON = "/v1/rail/icon.svg";
@@ -91,7 +102,7 @@ type Item = {
   W: number; F: number; L: number; x0: number; r0: number; color: 0 | 1; kind: "css" | "line" | "stair"; dots: Dots | null; leaves: boolean; refWv: number;
   _e: number; _open?: boolean | null; _off?: boolean | null; sc?: number; pv?: Pt; msc?: number; kids?: Item[];
   st?: Stair; ws?: HTMLElement[]; si?: HTMLElement[]; Lx?: Int16Array; Jx?: Int16Array; kc?: Int32Array; fs?: number;
-  wd?: boolean; er?: [number, number]; wsf?: number;   /* v5 (WORDS): words instead of dots (si: the words), its entry over S.enter (er), the share of it spent staggering (wsf) */
+  wd?: boolean; er?: [number, number]; wsf?: number; wl?: Int16Array; nl?: number;   /* v5 (WORDS): words instead of dots (si: the words), its entry over S.enter (er), the share of it spent staggering (wsf) */
 };
 type Edges = { p: number; tot: number; full: number; es: number };
 type Copy = { c: string[]; problem: string; on: string; mid: string; owned: string; tail: string; next: string; list: { key: VigKey; own: string; acc: string; line: string }[] };
@@ -107,6 +118,11 @@ type Metrics = {
   playHW: number; finHW: number; tall: number; quiet: { x0: number; x1: number; y0: number; y1: number }[]; riseEnd: number; rise: number; Y0: number; pa: number; A: [number, number];
   Dv: number; kx: number; Dmax: number; Wf: number; Xc: number; covered: boolean;
 };
+/* the "wipe" exit (D133): the line rises from the tide's start (sine, over TR.t0 - TR.g1) and the hard edge runs from it down to the foot of the screen
+   while it does, over the first WIPE_K of S.tk (about 2 units); the Stack's text (--tide-q) runs from TIDE_Q0 units in until the line, with its tile, has
+   left the top (D133 critic: the wipe came before the rise, as two beats, and the text landed well after the line had gone) */
+const WIPE_K = 0.42, TIDE_Q0 = 1.0, TILE_OUT = 24;
+const NAV_Y = 72;   /* the foot of the header's pill (v3 header: 16 px from the top, 56 px tall): the header reads its ground every few frames and cross-fades over 0.6 s, so starting at the pill's foot centres the fade on the line passing it */
 type Tl = ReturnType<V1Ctx["gsap"]["timeline"]>;
 type Trig = ReturnType<V1Ctx["ScrollTrigger"]["create"]>;
 
@@ -151,6 +167,13 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const SPLIT = sec.dataset.beats === "split";                 /* v5: the thesis and the problem as two beats; the problem's drawing turns the user's in place (see the header) */
   const PHOTO = sec.dataset.back === "ridges";                 /* v5: the ridges panorama behind the rail instead of the dot globe */
   const WORDS = SPLIT;                                         /* v5: the type moves word by word, never in dots (see the header) */
+  const NEAROUT = SPLIT && sec.dataset.near === "out";
+  /* v6 (data-square="early", 3100/home D95): the playhead's square draws round NEAR's tile as soon as it lands, holds the centre while the tile leaves with the line, travels
+     on empty to the problem, where the tile lands in it again as the drawing becomes the user's; each station's tile then lands in it (see the header). Also: the world's places
+     in the stage's own width (--wu), not the viewport's (vw counts a visible scrollbar, which put each tile 2.35 x its width right of the square at the first station) */
+  const EARLY = SPLIT && sec.dataset.square === "early";
+  const WU = (n: number) => (EARLY ? `calc(${n} * var(--wu, 1vw))` : `${n}vw`);         /* v6: line 3 lingers, then leaves whole before the problem; nothing docks; the answer has its own "NEAR" (see the header) */
+  const LINES = SPLIT && sec.dataset.words === "lines";   /* v6: line by line, line 3 after a beat (see the header) */
   const TX = (t: string) => (WORDS ? words(t) : esc(t));   /* a text for the stage: v5 wraps its words */
   const html = document.documentElement;
   if (html.hasAttribute("data-rm") || ctx.reduced) return staticPage(sec);
@@ -160,7 +183,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
 
   /* the animated state (everything the timeline moves that is not an item). gy / gq: the background world's turn and exit (rail/railglobe.ts) */
   /* own: the problem's drawing becomes the user's (v5); ik: how far the ink line reaches (world vw; v5 keeps it across the screen while the world slides to the problem) */
-  const S = { enter: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
+  const S = { enter: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gp: 0, rk: 1, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
   const M = {} as Metrics;
   let R: Stage | null = null, field: Field | null = null, toneImg: Tone | null = null, P: Lattice | null = null, RGl: RailGlobe | null = null;
   const items: Item[] = [];
@@ -199,14 +222,15 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
        so the marked phrase stays whole on the second line. The second line is its own span (the spans are inline-blocks: a <br> inside .rest2 would indent it under "NEAR") */
     const mm = SPLIT ? copy.mid.match(/^(.*?)(\s*)(\S+)(\s*)$/) : null;
     const ansTail = `<span class="rs__mk">${TX(copy.owned)}</span>${TX(copy.tail)}`;
+    const ansNear = NEAROUT ? `<span class="nw">${TX("NEAR")}</span>` : "";   /* v6: the answer's NEAR is a word of its own (the spacer stays, 0 wide) */
     const ansRest = mm
       ? `<span class="rest2">${TX(mm[1])}</span><br><span class="rest3">${TX(mm[3] + mm[4])}${ansTail}</span>`
       : `<span class="rest2">${TX(copy.mid)}${ansTail}</span>`;
     stage.innerHTML = `${PHOTO ? `<div class="rs__ridges"><i class="rs__plate"></i></div>` : ""}
   <canvas class="rs__cv"></canvas><span class="rs__rail"></span>
-  <div class="rs__world" style="width:${RAIL.end}vw">
-    <span class="rs__end sw sw-t" style="--x:5vw"><b>${TX("AI")}</b> <em>${TX("the frontend")}</em></span><span class="rs__end rs__end--r sw sw-t" style="--x:95vw"><b>${TX("Blockchain")}</b> <em>${TX("the backend")}</em></span>
-    ${copy.list.map((o, i) => `<div class="rs__st" style="--x:${RAIL.stations[i]}vw"><div class="rs__art va" data-art="${o.key}"></div>
+  <div class="rs__world" style="width:${WU(RAIL.end)}">
+    <span class="rs__end sw sw-t" style="--x:${WU(5)}"><b>${TX("AI")}</b> <em>${TX("the frontend")}</em></span><span class="rs__end rs__end--r sw sw-t" style="--x:${WU(95)}"><b>${TX("Blockchain")}</b> <em>${TX("the backend")}</em></span>
+    ${copy.list.map((o, i) => `<div class="rs__st" style="--x:${WU(RAIL.stations[i])}"><div class="rs__art va" data-art="${o.key}"></div>
       <p class="rs__title">${stair([...o.own.split(/\s+/).map(esc), `<span class="acc">${esc(o.acc)}</span>`])}</p><p class="rs__line">${stairText(o.line)}</p></div>`).join("")}
   </div>
   <div class="rs__conn">
@@ -214,13 +238,13 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     <div class="rs__slot"><p class="cl cl2 sw sw-t"><span class="ns"></span><span class="rest1 sw sw-t">${TX(copy.c[2].slice(copy.c[2].indexOf("NEAR") + 4).trim())}</span></p></div>
   </div>
   <div class="rs__problem"><p>${stairText(copy.problem)}</p></div><div class="rs__gate"></div>
-  <p class="rs__ans sw sw-t"><span class="pre">${TX(copy.on)}</span><span class="ns ns2"></span>${ansRest}${copy.next ? `<br><span class="rs__next">${TX(copy.next)}</span>` : ""}</p>
+  <p class="rs__ans sw sw-t"><span class="pre">${TX(copy.on)}</span><span class="ns ns2"></span>${ansNear}${ansRest}${copy.next ? `<br><span class="rs__next">${TX(copy.next)}</span>` : ""}</p>
   <span class="rs__near sw sw-t">${TX("NEAR")}</span>
   <span class="rs__fin sw"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></span>
   <span class="rs__point"><img src="${ICON}" alt="" width="639" height="639"></span>
   <canvas class="rs__cv2"></canvas>
   <span class="rs__play"><svg viewBox="0 0 40 40"><rect x=".5" y=".5" width="39" height="39" rx="11.5" pathLength="1"/></svg></span>
-  <div class="rs__track" style="width:${RAIL.end}vw">${RAIL.stations.map((x) => `<span class="rs__dot" style="--x:${x}vw"><img src="${ICON}" alt="" width="639" height="639"></span>`).join("")}</div>`;
+  <div class="rs__track" style="width:${WU(RAIL.end)}">${RAIL.stations.map((x) => `<span class="rs__dot" style="--x:${WU(x)}"><img src="${ICON}" alt="" width="639" height="639"></span>`).join("")}</div>`;
     sec!.appendChild(stage);
     const q = <T extends Element = HTMLElement>(s: string) => stage.querySelector(s) as T, qa = (s: string) => [...stage.querySelectorAll<HTMLElement>(s)];
     const arts = qa(".rs__art"), gate = q(".rs__gate");
@@ -240,6 +264,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     if (!R) return;
     const stage = R.stage, org = stage.getBoundingClientRect();
     M.org = { left: org.left, top: org.top }; M.W = org.width; M.H = org.height; M.cx = M.W / 2; M.vw = M.W / 100;
+    if (EARLY) stage.style.setProperty("--wu", M.vw.toFixed(4) + "px");
     M.railY = R.rail.getBoundingClientRect().top - org.top;
     /* the title clears Lawrence's bar (bottom 80 px) by 16 px, and the viewfinder clears the title's marker by 20 px (short viewports: the title is nudged down, the art and its
        brackets shrink: --art-cap). Measured on the title's marker (.rs__mk::before: .08em under the span's top, .04em over its bottom) */
@@ -264,7 +289,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     { const sp = document.createElement("span"); sp.style.cssText = "position:absolute;visibility:hidden;white-space:pre"; sp.textContent = " "; R.cl[2].appendChild(sp); const spW = sp.getBoundingClientRect().width; sp.remove();
       R.ns.style.width = ""; const nc = getComputedStyle(R.near), nW = R.near.getBoundingClientRect().width - (parseFloat(nc.paddingLeft) + parseFloat(nc.paddingRight));
       const csPx = fs(R.near); M.sT = fs(R.ans) / csPx; M.dk = 1;   /* line 3 only moves to the top */
-      R.ns.style.width = (nW + spW).toFixed(2) + "px"; R.ns2.style.width = (nW * M.sT).toFixed(2) + "px"; M.nearW = nW; }
+      R.ns.style.width = (nW + spW).toFixed(2) + "px"; R.ns2.style.width = NEAROUT ? "0px" : (nW * M.sT).toFixed(2) + "px"; M.nearW = nW; }
     const ns = rect(R.ns), cr = rect(R.near.offsetParent as Element);
     R.near.style.left = (ns.x - cr.x).toFixed(2) + "px"; R.near.style.top = (ns.y - cr.y).toFixed(2) + "px";
     const slot = rect(R.slot), ns2 = rect(R.ns2);
@@ -296,6 +321,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       setDots(it, c.flatMap((p) => samplePoly(p, 5)), 22); it.r0 = 1.3; }
     /* the stations' words */
     for (let i = 0; i < 4; i++) { measureStair(I.tit[i], R.titles[i].querySelectorAll<HTMLElement>(".sk"), STT); measureStair(I.ln[i], R.lines[i].querySelectorAll<HTMLElement>(".sk"), ST); }
+    /* v6: each word's line (measured untransformed) */
+    if (LINES) for (const it of items) if (it.wd && it.si) wordLines(it);
     /* the survey hairlines' height */
     M.tall = M.H * 0.26;
     /* the field (budget 8200 dots, the travel of the whole rail) */
@@ -319,6 +346,16 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     S.finS = save.finS;
     [...items, ...I.prob.kids!].forEach((it) => { it._e = -1; it._open = null; it._off = null; if (it.kc) it.kc.fill(-1); });
     last = {};
+  }
+  /* v6: the line of each of an item's words (a new line where a word starts half its height below the last line's) */
+  function wordLines(it: Item) {
+    if (it.kind === "stair") { it.wl = it.Lx; it.nl = it.Lx!.length ? Math.max(...it.Lx!) + 1 : 1; return; }   /* the staircases know their lines already */
+    const si = it.si!, n = si.length, tf = si.map((el) => el.style.transform);
+    si.forEach((el) => { el.style.transform = ""; });
+    it.wl = new Int16Array(n); let line = -1, top = -1e9;
+    si.forEach((el, k) => { const r = el.getBoundingClientRect(); if (r.top - top > r.height * 0.5) { line++; top = r.top; } it.wl![k] = line; });
+    it.nl = line + 1;
+    si.forEach((el, k) => { el.style.transform = tf[k]; });
   }
   /* a staircase: one window per word; its line (L) and its place on it (J) give the delay */
   function measureStair(it: Item, spans: NodeListOf<HTMLElement>, st: Stair) {
@@ -350,9 +387,14 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
         it.wd = true; it.er = er; it.wsf = wsf;
         if (it.kind !== "stair") { it.si = [...it.el.querySelectorAll<HTMLElement>(".wd")]; it.kc = new Int32Array(it.si.length).fill(-1); }
       };
-      wordsOf(c[0], [0.4, 0.78]); wordsOf(c[1], [0.47, 0.85]); wordsOf(c[2]);   /* line 3: its NEAR and its rest are items of their own */
-      wordsOf(near, [0.54, 0.8]); wordsOf(rest1, [0.58, 0.92]);
-      ends.forEach((it, i) => wordsOf(it, [0.62 + 0.04 * i, 0.96 + 0.04 * i]));
+      if (LINES) {   /* v6: lines 1 and 2 one after the other with the arrival; line 3 after a beat, on the timeline (buildNearOut) */
+        wordsOf(c[0], [0.4, 0.7]); wordsOf(c[1], [0.52, 0.82]); wordsOf(c[2]);
+        wordsOf(near); wordsOf(rest1); near.a = 0; rest1.a = 0;
+      } else {
+        wordsOf(c[0], [0.4, 0.78]); wordsOf(c[1], [0.47, 0.85]); wordsOf(c[2]);   /* line 3: its NEAR and its rest are items of their own */
+        wordsOf(near, [0.54, 0.8]); wordsOf(rest1, [0.58, 0.92]);
+      }
+      ends.forEach((it, i) => wordsOf(it, LINES ? [0.5 + 0.04 * i, 0.78 + 0.04 * i] : [0.62 + 0.04 * i, 0.96 + 0.04 * i]));   /* v6: in before line 2 is, so the beat is still */
       c[2].si = [];
       wordsOf(prob, undefined, 0.6); prob.kids!.forEach((k) => { k.wd = true; });
       wordsOf(ans, undefined, 0.6);
@@ -417,9 +459,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
      run, the starts spread over wsf of it. Writes only what changed (kc) */
   const WY = 0.45;                                         /* the rise, in em of the word */
   function renderWords(it: Item) {
-    const si = it.si!, kc = it.kc!, n = si.length, sf = n > 1 ? it.wsf ?? 0.55 : 0, d = 1 - sf;
+    const si = it.si!, kc = it.kc!, n = si.length, wl = LINES ? it.wl : undefined, m = wl ? it.nl! : n, sf = m > 1 ? it.wsf ?? 0.55 : 0, d = 1 - sf;
     for (let i = 0; i < n; i++) {
-      const s0 = n > 1 ? (sf * i) / (n - 1) : 0, ai = clamp((it.a - s0) / d, 0, 1), oi = clamp((it.o - s0) / d, 0, 1);
+      const s0 = m > 1 ? (sf * (wl ? wl[i] : i)) / (m - 1) : 0, ai = clamp((it.a - s0) / d, 0, 1), oi = clamp((it.o - s0) / d, 0, 1);
       const key = Math.round(ai * 240) * 1000 + Math.round(oi * 240);
       if (kc[i] === key) continue; kc[i] = key;
       const el = si[i];
@@ -513,6 +555,15 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
      in the tide (they fade as the dark front starts and rise with the line). Clear of the end labels and of the station text */
   const TBs: number[][] = Array.from({ length: 16 }, () => []);
   /* ink line: how far in from each end the line and its ticks have drawn (both fronts meet under the node at the end of the arrival) */
+  /* v6: the square's cut, left and right of the centre (px): inside the square only the grey line and the ruler's ticks show (an empty outline over the background:
+     no green, no ink), and the green ends at its left edge (D117, D118, D119).
+     Each side opens as the drawn outline reaches the line's height there (the rect's path starts at its top left and runs clockwise: right side at 0.31 of it,
+     left side at 0.81), and closes as the outline fades in the tide; until then the runs meet under the tile (no gap) */
+  const sqCut = (): [number, number] => {
+    if (!EARLY || 1 - s01(S.tk * 4) <= 0.15) return [0, 0];
+    const h = M.playHW - 1;
+    return [S.pf >= 0.81 ? h : 0, S.pf >= 0.31 ? h : 0];
+  };
   const inkReach = () => (INKLINE ? (M.W / 2 + 8) * inOut3(clamp(S.enter / 0.92, 0, 1)) : 0);
   function drawRuler(c: CanvasRenderingContext2D, it: Item, ed: Edges) {
     const fade = 1 - s01(S.tk * 4); if (fade < 0.01) return;
@@ -564,6 +615,23 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       if (xp > 0.5) lineRun(c, it, ed, 0, xp, yy, GREEN, 2);
       return;
     }
+    if (EARLY) {
+      /* v6 (D115, D117, D118, D119): green from the screen's left edge to the square's left edge (ink beneath it, for its draw-in); inside the square only the grey
+         line (and the ruler's ticks): an empty outline over the background; to its right
+         the ink (S.ik, the green front) fades to the grey of the line ahead as the reader moves on (S.rk 1 -> 0), and grey on to the last station. While the square is
+         not drawn yet, or has faded in the tide, the runs meet under the tile (no gap) */
+      const sx = (v: number) => M.cx + (v - S.wv) * M.vw, xs = sx(RAIL.title + 20), xEnd = Math.min(Wd, sx(RAIL.stations[3])), yy = Math.round(Y0);
+      const [cutL, cutR] = sqCut(), gx = M.cx - cutL, rx = M.cx + cutR;
+      const xr = clamp(Math.max(clamp(sx(S.ik), 0, Wd), xf), rx, Math.max(rx, xEnd));
+      lineRun(c, it, ed, 0, gx, y, INK, 1.5);
+      lineRun(c, it, ed, 0, gx, yy, GREEN, 2);
+      /* the grey line ahead, through the square (D119) to the last station; right of the square the ink over it (as far as it reaches) fading out (S.rk), so the
+         faded line is the grey one */
+      if (xEnd > gx) lineRun(c, it, ed, gx, xEnd, yy + 0.5, GREY, 1);
+      if (S.rk > 0.002 && xr > rx) lineRun(c, it, ed, rx, xr, y, `rgba(28,25,23,${S.rk.toFixed(3)})`, 1.5);
+      drawSteps(c, Wd, xs, xf, yy);
+      return;
+    }
     /* ink line (v4): ink up to the steps' start (the title's run ends at RAIL.title + 20), then the steps in green: the line turns green behind the front as it
        runs station to station, grey ahead, and the track ends at the last station (before the Stack) */
     const sx = (v: number) => M.cx + (v - S.wv) * M.vw, xs = sx(RAIL.title + 20), xEnd = Math.min(Wd, sx(RAIL.stations[3]));
@@ -580,7 +648,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   function drawSteps(c: CanvasRenderingContext2D, Wd: number, xs: number, xf: number, y: number) {
     const reach = inkReach(), seen = (x: number) => x > -8 && x < Wd + 8 && Math.min(x, M.W - x) <= reach;
     c.save();
-    if (xf >= xs - 0.5 && seen(xs)) { c.fillStyle = GREEN; c.fillRect(Math.round(xs) - 4, y - 4, 8, 8); }
+    if (!EARLY && xf >= xs - 0.5 && seen(xs)) { c.fillStyle = GREEN;   /* v6: no green mark ahead of the square (D100) */ c.fillRect(Math.round(xs) - 4, y - 4, 8, 8); }
     c.strokeStyle = GREY; c.fillStyle = "#F5F4F1"; c.lineWidth = 1;
     for (const v of RAIL.stations) {
       const x = sx0(v); if (S.gf >= v - 0.5 || !seen(x)) continue;
@@ -649,7 +717,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
        frame     the stations' viewfinder opens from the node (its tile's round corners squaring off) to the whole screen
        seam      a seam drops from the node, then the dark parts from it to both sides
        ruler     the line's own ruler: its ticks grow down from the line, the centre first, thicken and merge into the dark
-       drop      the four steps fall: the line's four quarters drop down the screen in turn, the dark behind each */
+       drop      the four steps fall: the line's four quarters drop down the screen in turn, the dark behind each
+       wipe      (v6, D133) a hard-edged wipe: the dark runs down from the line to the foot of the screen as the line rises */
+  function wipeFront() { return M.Y0 + (M.H + 4 - M.Y0) * clamp(S.tk / WIPE_K, 0, 1); }
+  /* when the line (and its tile) leaves the top on the "wipe" exit's rise: S.tg = sine.inOut over TR.t0 - TR.g1 reaches (railY + TILE_OUT) / riseEnd */
+  function tideOut() { const y = clamp((M.railY + TILE_OUT) / M.riseEnd, 0, 1); return TR.t0 + (Math.acos(1 - 2 * y) / Math.PI) * (TR.g1 - TR.t0); }
   function drawExit(c: CanvasRenderingContext2D, Wd: number, H: number, Y0: number) {
     const p = S.tk, rise = M.rise, lit = 1 - s01((p - 0.8) / 0.2);
     const band = (y0: number) => { c.beginPath(); c.rect(-2, y0, Wd + 4, H - y0 + 4); c.clip(); };   /* everything stays under the line */
@@ -681,6 +753,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
         const g = lit * (1 - s01((t - 0.82) / 0.18));
         if (g > 0.01) { c.globalAlpha = g; c.fillStyle = GREEN; c.fillRect(x + 1, top - 1 + h, w - 2, 2); c.fillStyle = DARK; c.globalAlpha = 1; }
       }
+    } else if (EXIT === "wipe") {              /* a hard edge from the line down to the foot of the screen; the tide then lifts the line (and the dark with it) */
+      band(Y0);
+      c.fillRect(-2, Y0 - 1, Wd + 4, wipeFront() - Y0 + 1);
         } else if (EXIT === "ruler") {             /* the line's own ruler: each tick grows down from the line, the centre first, thickens and merges with its neighbours */
       c.beginPath(); c.rect(-2, Y0, Wd + 4, H - Y0 + 4); c.clip();
       const step = RU.step, { cx, Xc } = M, k0 = Math.ceil((Xc - cx - 2) / step) - 1, k1 = Math.floor((Xc + cx + 2) / step) + 1, full = H + M.riseEnd - M.railY + 24;
@@ -699,16 +774,28 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const wx = -(M.W * (S.wv - 50)) / 100; M.Xc = M.W * S.wv / 100;
     M.rise = S.tg > 0.00002 ? M.riseEnd * S.tg : 0; M.Y0 = M.railY - M.rise;
     const ry = (-M.rise).toFixed(2);
+    /* v6 (the Stack band's data-enter="tide", D132): where the line is on the screen, for the Stack's heading, which rises in under the tide and shows only below the line
+       (v6/stack/StackEnterV6.tsx); handed over in ./tide.ts's map (D134) */
+    if (TIDE) {   /* and (D133) the dark's foot (the wipe's edge, or the screen's foot), and how far the tide has gone (0 as the dark starts, 1 as the line leaves the top) */
+      const t = main?.time() ?? 0, td = TIDES.get(band!) ?? { y: 0, f: 0, q: 0 };
+      td.y = M.Y0; td.f = EXIT === "wipe" ? wipeFront() : M.H + 4;
+      td.q = EXIT === "wipe" ? clamp((t - TR.t0 - TIDE_Q0) / (tideOut() - TR.t0 - TIDE_Q0), 0, 1) : clamp((t - TR.t0) / (TR.g1 - TR.t0), 0, 1);
+      TIDES.set(band!, td);
+    }
     put("tw", R.world, `translate3d(${wx.toFixed(2)}px,0,0)`);
     put("tt", R.track, `translate3d(${wx.toFixed(2)}px,${ry}px,0)`);
     put("tp", R.play, M.rise ? `translate3d(0,${ry}px,0)` : "none");
     /* the frame draws itself around the first tile as it lands, then stays; it fades as the dark starts (ink on the dark would vanish half-way) */
     { const pf = S.pf.toFixed(3), po = (1 - s01(S.tk * 4)).toFixed(3);
-      if (last.pf !== pf) { last.pf = pf; R.playRect.style.strokeDashoffset = (1 - S.pf).toFixed(3); R.play.style.visibility = S.pf > 0.001 ? "visible" : "hidden"; }
+      if (last.pf !== pf) { last.pf = pf; R.playRect.style.strokeDashoffset = (1 - S.pf).toFixed(3); if (EARLY) R.playRect.style.strokeDasharray = S.pf >= 0.999 ? "none" : "";   /* v6: no seam where the drawn path starts (D117) */ R.play.style.visibility = S.pf > 0.001 ? "visible" : "hidden"; }
       if (last.po !== po) { last.po = po; R.play.style.opacity = po; } }
     /* v4 "line": the node stays centred on the line through every scene up to "user-owned", then leaves with the world as it slides to the first station
        (riding the line: x from the title on, and the tide's rise) */
-    if (STEPLINE || SPLIT) { const nx = -(M.W * Math.max(0, S.wv - RAIL.title)) / 100; put("pt", R.point, `translate3d(${nx.toFixed(2)}px,${ry}px,0) scale(${S.pt.toFixed(3)})`); }
+    if (EARLY) {   /* v6: the tile leaves with the line from the first slide; once it is back in the square (S.gp) it rides out with the slide to the first station */
+      const back = S.gp > 0, nx = -(M.W * (back ? Math.max(0, S.wv - RAIL.title) : S.wv - 50)) / 100;
+      put("pt", R.point, `translate3d(${nx.toFixed(2)}px,${ry}px,0) scale(${(back ? S.gp : S.pt).toFixed(3)})`);
+    }
+    else if (STEPLINE || SPLIT) { const nx = -(M.W * Math.max(0, S.wv - RAIL.title)) / 100; put("pt", R.point, `translate3d(${nx.toFixed(2)}px,${ry}px,0) scale(${S.pt.toFixed(3)})`); }
     else put("pt", R.point, `scale(${S.pt.toFixed(3)})`);
     /* the slot (line 3) docks; NEAR: P0 -> P1 with the dock, then P1 -> P2 (the title) */
     { const d = S.dock, k = 1 + (M.dk - 1) * d; put("ts", R.slot, d < 1e-4 ? "none" : `translate3d(0,${(M.dockY * d).toFixed(2)}px,0) scale(${k.toFixed(4)})`); I.rest1.msc = k;
@@ -737,6 +824,12 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       flush();
     }
     if (last.cov !== M.covered) { last.cov = M.covered; html.toggleAttribute("data-ly-dark", M.covered === true); }
+    /* the "wipe" exit (v6, D134): the dark is under the header's pill as soon as the line has risen past it, well before the screen counts as covered; the
+       rail says so (data-nav-tone, read by v3/header/motion.ts), so the pill turns dark with the ground under it instead of after it */
+    if (EXIT === "wipe") {
+      const nd = M.covered || (S.tk > 0 && M.Y0 < NAV_Y);
+      if (last.nd !== nd) { last.nd = nd; if (nd) sec?.setAttribute("data-nav-tone", "dark"); else sec?.removeAttribute("data-nav-tone"); }
+    }
     if (RGl) RGl.update(S.enter, EG, S.gy, S.gq, I.fin.a);         /* the background world (it renders on its own rAF, only when something changed) */
   }
 
@@ -750,10 +843,18 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     tl0 = tl;
     const to = (t: object, v: gsap.TweenVars, at: number) => tl.to(t, v, at);
     /* 0.3 - 2.5 the green node pops (the approach has swept in everything else of 384:8605); f1 holds to 9 */
-    to(S, { pt: 1, duration: 2.2, ease: "back.out(2)" }, 0.3);
+    /* v6 with line 3 after a beat (D126): the tile pops and its square draws with line 3 ("NEAR is where they connect.", 4.2 - 6.8), not before it */
+    const NODE = EARLY && LINES ? 4.2 : 0.3;
+    to(S, { pt: 1, duration: 2.2, ease: "back.out(2)" }, NODE);
+    if (EARLY) {
+      to(S, { pf: 1, duration: LINES ? 1.6 : 1.8, ease: "power2.out" }, LINES ? 5 : 2.3);           /* v6: the square draws round the tile once it has settled (with line 3, D126), and stays */
+      to(S, { gp: 1, duration: 1.6, ease: "back.out(2)" }, 34.2);                      /* the tile lands in it again with the answer's first word ("On NEAR") */
+      to(S, { rk: 0, duration: 2.5, ease: "power1.inOut" }, 10);                        /* the ink right of the square fades to the grey ahead as the thesis leaves (D118) */
+    }
     /* 9 - 13 lines 1 and 2 dissolve; the end labels sweep out; the node shrinks away (the line stays) */
-    leave(tl, I.c[0], 9, 2.8, 1.5, 3); leave(tl, I.c[1], 9.8, 2.8, 1.5, 3);
-    I.ends.forEach((it, i) => to(it, { o: 1, duration: 2.2, ease: "none" }, 9.6 + 0.6 * i));
+    const lo = LINES ? 1 : 0;   /* v6: line 3 comes in later (4.2 - 6.8), so the three lines hold together a unit longer */
+    leave(tl, I.c[0], 9 + lo, 2.8, 1.5, 3); leave(tl, I.c[1], 9.8 + lo, 2.8, 1.5, 3);
+    I.ends.forEach((it, i) => to(it, { o: 1, duration: 2.2, ease: "none" }, 9.6 + lo + 0.6 * i));
     if (!STEPLINE && !SPLIT) to(S, { pt: 0, duration: 1.4, ease: "power2.in" }, 11);   /* v5 (split): it stays on the line through the problem */
     if (SPLIT) buildSplit(); else buildDock();
     buildSteps();
@@ -762,6 +863,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
      the answer it stands, and the problem's drawing becomes the user's where it is; NEAR moves into the answer as in the original */
   function buildSplit() {
     const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
+    if (NEAROUT) return buildNearOut();
     to(S, { dock: 1, duration: 7.5, ease: "power2.inOut" }, 10.5);
     to(S, { wv: RAIL.title, duration: 7.5, ease: "power2.inOut" }, 10.5);
     to(I.prob, { a: 1, duration: STP.span, ease: "none" }, 15);
@@ -778,6 +880,30 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     /* 43.5 - 46.1 the answer leaves word by word as the world slides on (before the first station's words, 46.6): not over the stations. NEAR goes in its place, after "On" */
     to(I.ans, { o: 1, duration: 2.6, ease: "none" }, ARR[0] - SLIDE);
     to(I.near, { o: 1, duration: 1.04, ease: "none" }, ARR[0] - SLIDE + 0.08);
+  }
+  /* v6 (data-near="out"): lines 1 and 2 leave (9 - 12.6) and "NEAR is where they connect." stays where it is, alone, for a while (to 17.5), then leaves whole,
+     NEAR first (17.5 - 19.9), before the problem climbs in (20.3 - 25.4; holds to 29). Nothing docks and NEAR never moves: the answer comes in with its own "NEAR"
+     (34.2 - 38.4); the marker 40 - 42.6, before the slide to the first station (43.5) */
+  function buildNearOut() {
+    const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
+    to(S, { wv: RAIL.title, duration: 7.5, ease: "power2.inOut" }, 10.5);
+    if (LINES) {   /* line 3 after a beat, whole; and out whole */
+      to(I.near, { a: 1, duration: 2.6, ease: "none" }, 4.2); to(I.rest1, { a: 1, duration: 2.6, ease: "none" }, 4.2);   /* with the tile and its square (D126) */
+      to(I.near, { o: 1, duration: 2.2, ease: "none" }, 17.5); leave(tl, I.rest1, 17.5, 2.2, 1.2, 2.8);
+    } else {
+      to(I.near, { o: 1, duration: 1.1, ease: "none" }, 17.5);
+      leave(tl, I.rest1, 17.7, 2.2, 1.2, 2.8);
+    }
+    to(I.prob, { a: 1, duration: STP.span, ease: "none" }, 20.3);
+    to(S, { ga: 1, duration: 5.4, ease: "none" }, 20.8);
+    to(I.prob, { o: 1, duration: 3.4, ease: "none" }, 29); to(I.prob, { dr: 1, duration: 4, ease: "none" }, 29.8);
+    to(S, { own: 1, duration: 6, ease: "none" }, 30);
+    to(I.ans, { a: 1, duration: 4.2, ease: "none" }, 34.2);
+    to(S, { mark: 1, duration: 2.6, ease: "power3.inOut" }, 40);
+    to(S, { gf: RAIL.title + 20, duration: 3.4, ease: "power2.out" }, 40);
+    to(S, { ik: RAIL.title + 20, duration: 3.4, ease: "power2.out" }, 40);
+    to(S, { ga: 2, duration: 3.4, ease: "none" }, ARR[0] - SLIDE + 0.3);
+    to(I.ans, { o: 1, duration: 2.6, ease: "none" }, ARR[0] - SLIDE);
   }
   function buildDock() {
     const to = (t: object, v: gsap.TweenVars, at: number) => tl0.to(t, v, at), tl = tl0;
@@ -807,7 +933,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       to(S, { gf: RAIL.stations[i], duration: SLIDE, ease: "power2.inOut" }, s0);     /* the green runs ahead to the station, with the slide (its front lands on the tile) */
       to(S.va, { [i]: 1, duration: 4.6, ease: "none" }, at - 4.1);                    /* the illustration arrives: set(a) 0 -> 1 over the second half of the slide, done just after it lands */
       to(S.sd, { [i]: 1, duration: 1.6, ease: "back.out(2)" }, at - 1.1);             /* the station's N tile pops on the line */
-      if (i === 0) to(S, { pf: 1, duration: 1.8, ease: "power2.out" }, at - 0.5);      /* the frame draws around the first tile as it lands, and stays */
+      if (i === 0 && !EARLY) to(S, { pf: 1, duration: 1.8, ease: "power2.out" }, at - 0.5);      /* the frame draws around the first tile as it lands, and stays */
       to(I.fin, { a: 1, duration: 2.4, ease: "none" }, at - 0.3);                    /* the viewfinder locks on once the station has landed */
       to(S, { finS: 1, duration: 2.4, ease: "power3.out" }, at - 0.3);
       to(I.tit[i], { a: 1, duration: STT.span, ease: "none" }, at - 2.4);
@@ -827,7 +953,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     /* 95.8 - 106.3 THE WORLD BECOMES THE STACK: S.tk the cells under the line darken and merge from just under the centre outwards; S.tg the tide: the dark rises from the line as a straight edge,
        carrying the line and the node, until the line has left the top. The Stack slides in under the last TR.ov units (the band's overlap), on the same ground */
     to(S, { tk: 1, duration: TR.k1 - TR.t0, ease: "power1.out" }, TR.t0);
-    to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
+    if (EXIT === "wipe") to(S, { tg: 1, duration: TR.g1 - TR.t0, ease: "sine.inOut" }, TR.t0);   /* the line rises with the wipe from the start (D133) */
+    else to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
     /* the background world (rail/railglobe.ts): ONE turn from the thesis (0) to identity's exit (95.2), linear; it leaves with identity (92.3 - 95.2) */
     to(S, { gy: 1, duration: ID_OUT + 2.9, ease: "none" }, 0);
     to(S, { gq: 1, duration: 2.9, ease: "none" }, ID_OUT);
@@ -881,6 +1008,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const trigs: Trig[] = [];
   let main: Tl | null = null, enterTl: Tl | null = null, rsTm = 0, disposed = false;
   const band = document.querySelector<HTMLElement>(".stk");
+  const TIDE = !!band?.hasAttribute("data-enter");
   const dispose: Dispose = () => {
     if (disposed) return; disposed = true;
     ac.abort();
@@ -891,8 +1019,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     try { RGl?.dispose(); } catch (e) { console.warn("[rail] globe dispose", e); }
     RGl = null;
     if (R) { for (const v of [...R.vig, R.gvig]) { try { v?.dispose?.(); } catch (e) { console.warn("[rail] vignette dispose", e); } } R.stage.remove(); R = null; }
-    band?.style.removeProperty("--ov");
+    band?.style.removeProperty("--ov"); if (band) TIDES.delete(band);
     for (const a of ["data-rail", "data-ly-ready", "data-ly-dark"]) html.removeAttribute(a);
+    sec.removeAttribute("data-nav-tone");
   };
 
   try {
@@ -918,8 +1047,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   main = gsap.timeline({ paused: true });
   build(main);
   enterTl = gsap.timeline({ paused: true }); enterTl.to(S, { enter: 1, duration: 1, ease: "none" }, 0); enterTl.eventCallback("onUpdate", apply);
-  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true }));
-  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1 }));
+  /* a refresh sets the timelines' playheads without their onUpdate (events suppressed): draw then too, or a page reloaded past the rail kept its first frame
+     on screen until the scroll came back into the rail (D134) */
+  const redraw = () => { if (!disposed) apply(); };
+  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true, onRefresh: redraw }));
+  trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1, onRefresh: redraw }));
   apply(); html.setAttribute("data-ly-ready", "");
   requestAnimationFrame(() => { if (!disposed) ScrollTrigger.refresh(); });
   idleLoop(main);

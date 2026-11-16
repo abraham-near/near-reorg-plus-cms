@@ -87,8 +87,14 @@ export function mountStack(ctx: V1Ctx): Dispose {
     mm = ctx.gsap.matchMedia();
     mm.add("(min-width: 1280px) and (min-height: 760px)", () => {
       let last = -1, seeking = -1, settle = 0;
+      /* data-stick (home v6, D134): the band holds its content with CSS (position: sticky, v1/stack/stack.css data-sticky) rather than GSAP's pin. The
+         page scrolls on the compositor; a pin switches to position: fixed from the main thread, a frame late whenever it is busy, and the band jumped */
+      const STICK = root.hasAttribute("data-stick");
+      const hold = () => root.style.setProperty("--stk-hold", Math.round(1.8 * window.innerHeight) + "px");
+      if (STICK) { hold(); root.setAttribute("data-sticky", ""); ScrollTrigger.addEventListener("refreshInit", hold); }
       const st = ScrollTrigger.create({
-        trigger: root, start: "top top", end: () => "+=" + Math.round(1.8 * window.innerHeight), pin: inner, anticipatePin: 1, invalidateOnRefresh: true,
+        trigger: root, start: "top top", end: () => "+=" + Math.round(1.8 * window.innerHeight), invalidateOnRefresh: true,
+        ...(STICK ? {} : { pin: inner, anticipatePin: 1 }),
         onUpdate: (self) => {
           const k = Math.min(KEYS.length - 1, Math.floor(self.progress * KEYS.length));
           if (seeking >= 0) { if (k !== seeking) return; seeking = -1; window.clearTimeout(settle); }   /* while a choice scrolls to its step, the steps it passes do not override it */
@@ -102,7 +108,10 @@ export function mountStack(ctx: V1Ctx): Dispose {
         const y = st.start + ((k + 0.5) / KEYS.length) * (st.end - st.start);
         if (ctx.lenis) ctx.lenis.scrollTo(y); else window.scrollTo({ top: y, behavior: "smooth" });
       };
-      return () => { window.clearTimeout(settle); seek = null; st.kill(); };
+      return () => {
+        window.clearTimeout(settle); seek = null; st.kill();
+        if (STICK) { ScrollTrigger.removeEventListener("refreshInit", hold); root.removeAttribute("data-sticky"); root.style.removeProperty("--stk-hold"); }
+      };
     });
   }
 

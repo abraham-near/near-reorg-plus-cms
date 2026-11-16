@@ -2,10 +2,61 @@
 //   - marquee: two rows of glass cards slide across in opposite directions; scrolling pushes them faster for a moment; pointing at a row slows it to a stop;
 //   - pins: each voice is a pin on the ridges; the one on turns green and its ring fills while it plays (6 s, then the next); a line draws from it up to
 //     its words, which come in word by word out of a blur; the photo leans a little towards it. Pointing at or focusing a pin shows that voice and holds it.
-// Reduced motion: both stay as plain lists (voice-modes.css).
+//   - timer (v6, D135): one screen that scrolls by like any other photo; the voices take turns on a clock (VOICE_MS each), not on the scroll, and keep
+//     turning while any of it is on the screen, so they change as the reader scrolls past. The count rolls and each bar fills through its voice.
+// Reduced motion: all stay as plain lists (voice-modes.css).
 export function mountVoiceMode(vb: HTMLElement, mode: string, reduced: boolean): () => void {
   if (reduced) return () => {};
-  return mode === "pins" ? mountPins(vb) : mountMarquee(vb);
+  return mode === "pins" ? mountPins(vb) : mode === "timer" ? mountTimer(vb) : mountMarquee(vb);
+}
+
+/** how long each voice is up in the timer mode (Lawrence's first test: 1.5 s) */
+export const VOICE_MS = 1500;
+
+function mountTimer(vb: HTMLElement) {
+  const qs = [...vb.querySelectorAll<HTMLElement>(".l-vq")], bars = [...vb.querySelectorAll<HTMLElement>(".l-voices__bars b")];
+  const nn = vb.querySelector<HTMLElement>(".l-voices__nn");
+  const n = qs.length;
+  let i = -1, t = 0, last = 0, seen = false, raf = 0, ready = false;
+  vb.classList.add("is-mode");
+  const fill = () => bars.forEach((b, k) => { b.style.transform = `scaleX(${k < i ? 1 : k === i ? Math.min(1, t / VOICE_MS).toFixed(4) : 0})`; });
+  const go = (j: number) => {
+    qs.forEach((q, k) => {
+      if (k === j) { q.removeAttribute("data-out"); q.setAttribute("data-on", ""); q.removeAttribute("aria-hidden"); }
+      else { if (q.hasAttribute("data-on")) { q.removeAttribute("data-on"); q.setAttribute("data-out", ""); } else q.removeAttribute("data-out"); q.setAttribute("aria-hidden", "true"); }
+    });
+    if (nn) {
+      /* round again (06 to 01): the count snaps back rather than rolling down through the others (D135 critic) */
+      if (j < i) { nn.style.transition = "none"; nn.style.transform = `translateY(${(-100 * j) / n}%)`; void nn.offsetHeight; nn.style.transition = ""; }
+      else nn.style.transform = `translateY(${(-100 * j) / n}%)`;
+    }
+    i = j; t = 0; fill();
+  };
+  /* the clock runs only while the section is on the screen and the tab is shown; a frame-to-frame step is capped so a stall never skips a voice */
+  const loop = (now: number) => {
+    raf = seen ? requestAnimationFrame(loop) : 0;
+    const dt = Math.min(64, now - last); last = now;
+    if (document.hidden || !ready) return;
+    t += dt;
+    if (t >= VOICE_MS) go((i + 1) % n); else fill();
+  };
+  go(0);
+  const io = new IntersectionObserver(([e]) => {
+    seen = e.isIntersecting;
+    if (seen && !raf) { last = performance.now(); raf = requestAnimationFrame(loop); }
+  });
+  io.observe(vb);
+  /* the clock starts once the quote can be read (D135 critic: it started with 1 px of the photo on the screen, so 01 played below the fold): when all but a sliver of
+     the quotes' place is on the screen; from then on it runs while any of the section is */
+  const qsEl = vb.querySelector<HTMLElement>(".l-voices__qs");
+  const rio = new IntersectionObserver(([e]) => { if (e.isIntersecting) { ready = true; rio.disconnect(); } }, { threshold: 0.95 });
+  if (qsEl) rio.observe(qsEl); else ready = true;
+  return () => {
+    io.disconnect(); rio.disconnect(); cancelAnimationFrame(raf); raf = 0; vb.classList.remove("is-mode");
+    qs.forEach((q) => { q.removeAttribute("data-on"); q.removeAttribute("data-out"); q.removeAttribute("aria-hidden"); });
+    bars.forEach((b) => { b.style.transform = ""; });
+    if (nn) nn.style.transform = "";
+  };
 }
 
 /** watches whether the section is in view (half of it, or the whole screen) */

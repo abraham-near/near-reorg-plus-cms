@@ -7,6 +7,7 @@ import { mountRail } from "./rail/motion";
 import { mountStack } from "./stack/motion";
 import { mountStatementWords } from "./world/words";
 import { markReady, resetReady, type Dispose } from "./ctx";
+import { keepScroll } from "@/lib/motion/scroll";
 
 type Live = { refs: number; kill: number; dispose: Dispose };
 let live: Live | null = null;
@@ -28,6 +29,7 @@ export function V1Boot() {
 function start(): Live {
   const ac = new AbortController(), offs: Dispose[] = [];
   const html = document.documentElement;
+  offs.push(keepScroll());   /* a reload partway down comes back to the same place once the pins have their space (D134) */
   (async () => {
     const ctx = await startWorld(ac.signal);
     offs.push(ctx.dispose);

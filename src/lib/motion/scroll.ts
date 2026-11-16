@@ -61,3 +61,36 @@ export function scrub(trigger: Element, start: string, end: string, fn: (p: numb
   const st = ScrollTrigger.create({ trigger, start, end, onUpdate: (s) => fn(pr(s)), onRefresh: (s) => { if (refresh) refresh(); fn(pr(s)); } });
   fn(pr(st)); return st;
 }
+
+/**
+ * Where a reload (or the browser's back / forward) left the page, kept across the boot (D134). The browser restores the scroll as the page loads, before
+ * the pins above (the hero, the rail, the Stack) add their space, so it lands short (about 1,450 px on /home-v5 and /home-v6, partway down) and nothing
+ * scrubbed catches up until the next scroll. This keeps the page's scroll in sessionStorage as it is left, and, on a reload or back / forward of this same
+ * document, puts it back after each ScrollTrigger refresh for a few seconds, until the reader scrolls themselves. Returns its clean-up.
+ */
+export function keepScroll(): () => void {
+  if (typeof window === "undefined") return () => {};
+  const key = "scroll:" + location.pathname + location.search;
+  const save = () => { try { sessionStorage.setItem(key, String(Math.round(scrollY))); } catch {} };
+  const onHide = () => { if (document.visibilityState === "hidden") save(); };
+  addEventListener("pagehide", save); document.addEventListener("visibilitychange", onHide);
+  const offSave = () => { removeEventListener("pagehide", save); document.removeEventListener("visibilitychange", onHide); };
+  /* only for the load of this very page by reload or back / forward (not a page reached later by a client-side link) */
+  const nav = performance.getEntriesByType?.("navigation")[0] as PerformanceNavigationTiming | undefined;
+  let same = false;
+  try { same = !!nav && (nav.type === "reload" || nav.type === "back_forward") && new URL(nav.name).pathname === location.pathname; } catch {}
+  let want = NaN;
+  if (same) { try { want = parseFloat(sessionStorage.getItem(key) ?? ""); } catch {} }
+  if (!(want > 0)) return offSave;
+  let done = false, t = 0;
+  const put = () => { if (done) return; if (Math.abs(scrollY - want) > 1) { scrollTo(0, want); ScrollTrigger.update(); } };
+  const stop = () => {
+    if (done) return; done = true; clearTimeout(t);
+    ScrollTrigger.removeEventListener("refresh", put);
+    for (const e of ["wheel", "touchstart", "keydown", "pointerdown"]) removeEventListener(e, stop, true);
+  };
+  ScrollTrigger.addEventListener("refresh", put);
+  for (const e of ["wheel", "touchstart", "keydown", "pointerdown"]) addEventListener(e, stop, { capture: true, passive: true });
+  t = window.setTimeout(stop, 4000);
+  return () => { stop(); offSave(); };
+}

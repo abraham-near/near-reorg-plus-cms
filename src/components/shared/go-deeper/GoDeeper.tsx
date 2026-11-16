@@ -116,7 +116,10 @@ export function GoDeeper() {
             );
           })}
         </div>
-        <div className="gd-foot"><a href="/blog" className="gd-all">View everything</a></div>
+        <div className="gd-foot">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a plain link on purpose: /blog loads fresh, so a home's global CSS and boot never meet the blog's (as the index's links) */}
+          <a href="/blog" className="gd-all">View everything</a>
+        </div>
       </div>
     </section>
   );
