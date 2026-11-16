@@ -4,6 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { requestRefresh } from "@/lib/motion/scroll";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -81,7 +82,7 @@ function mount(sec: HTMLElement) {
     scrollTrigger: { trigger: sec, start: "top top", end: "bottom bottom", scrub: 0.6, invalidateOnRefresh: true } });
   const onRefresh = () => { measure(); apply(); };
   ScrollTrigger.addEventListener("refresh", onRefresh);
-  ScrollTrigger.refresh();
+  requestRefresh();   /* with the boot's others: one refresh, not one now and more after */
   return () => {
     ScrollTrigger.removeEventListener("refresh", onRefresh);
     tw.scrollTrigger?.kill(); tw.kill();

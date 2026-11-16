@@ -10,6 +10,7 @@
 //   dispose()                tears the world down (WebGL, Lenis, the ticker, the ScrollTriggers, the listeners, the statement's split); idempotent; also runs when `signal` aborts
 import { gsap } from "gsap";
 import { setSmooth } from "@/lib/motion/smooth";
+import { requestRefresh } from "@/lib/motion/scroll";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type Lenis from "lenis";
 import type { V1Ctx, Dispose } from "../ctx";
@@ -177,7 +178,7 @@ export async function startWorld(signal: AbortSignal): Promise<WorldCtx> {
       scrub: cfg.scrub, animation: master, invalidateOnRefresh: true,
     });
   });
-  requestAnimationFrame(() => { if (!dead) ScrollTrigger.refresh(); });
+  requestRefresh();
 
   let rq = 0;
   const onRes = () => { clearTimeout(rq); rq = window.setTimeout(() => { if (dead) return; if (g) g.resize(); runLayout(); if (ctx.pinned) ScrollTrigger.refresh(); }, 160); };

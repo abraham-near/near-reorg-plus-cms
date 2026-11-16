@@ -221,6 +221,8 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
     let io: IntersectionObserver | null = null, near: IntersectionObserver | null = null;
     if (RM) { showCubes(CUBES); built = true; ringsIn = 0; for (let k = 0; k < 3; k++) { showRing(k, true); ringsIn++; } }
     else {
+      /* data-build (the pieces at rest, unbuilt) comes in the server's markup: set here, after the first paint, it started ~350 SVG transitions at once
+         (fill, stroke, opacity: none of them composited) on every load, far above the drawing */
       svg.setAttribute("data-build", "");
       /* unpinned: built when the drawing's top comes 18 % above the screen's foot, put away when it goes back below it (an observer, not a ScrollTrigger:
          this mounts before the pins above it exist, so a trigger's start would be measured thousands of px early) */
@@ -383,7 +385,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
 
   return (
     <>
-      <svg ref={svgRef} className="stk-iso stk7" viewBox={VIEWBOX} aria-hidden="true" focusable="false" data-iso="" style={{ "--s7-gap": `${GAP}px`, "--s7-mid": MID } as CSSProperties}>
+      <svg ref={svgRef} className="stk-iso stk7" viewBox={VIEWBOX} aria-hidden="true" focusable="false" data-iso="" data-build="" style={{ "--s7-gap": `${GAP}px`, "--s7-mid": MID } as CSSProperties}>
         <defs>
           {(["intents", "ai", "com"] as const).map((k) => (
             <clipPath key={k} id={`stk7-cover-${k}`}>{COVERS[k].map((p, i) => <polygon key={i} points={p} />)}</clipPath>

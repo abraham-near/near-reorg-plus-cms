@@ -32,16 +32,18 @@ export function useScrollMotion(ref: RefObject<HTMLElement | null>, mount: Mount
     const root = ref.current; if (!root) return;
     let dead = false, cleanup: void | (() => void), gctx: gsap.Context | null = null;
     const run = () => { gctx = gsap.context(() => { cleanup = mount(root, { gsap, ScrollTrigger, reduced: prefersReduced() }); }, root); };
-    if (gate) gate().then(() => { if (dead) return; run(); requestAnimationFrame(() => ScrollTrigger.refresh()); });
-    else { run(); scheduleRefresh(); }
+    if (gate) gate().then(() => { if (dead) return; run(); requestRefresh(); });
+    else { run(); requestRefresh(); }
     return () => { dead = true; if (typeof cleanup === "function") cleanup(); gctx?.revert(); };
     // mount is a module-level function and the gate is fixed per page: the effect runs once per mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 
+/** One ScrollTrigger.refresh for every caller of the boot (the world, the rail, the Stack, each gated section, a late font): each refresh re-measures every
+ *  trigger and pin on the page, so the calls that land within 120 ms of each other become one */
 let refreshT = 0;
-function scheduleRefresh() {
+export function requestRefresh() {
   window.clearTimeout(refreshT);
   refreshT = window.setTimeout(() => { requestAnimationFrame(() => ScrollTrigger.refresh()); }, 120);
 }
