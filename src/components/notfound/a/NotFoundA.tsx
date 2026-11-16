@@ -34,7 +34,7 @@ export function NotFoundAHero() {
     <section className="hero nfa" aria-labelledby="nfa-h">
       <div className="nfa__bg" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element -- one still, already compressed (home v5's) */}
-        <img src="/v5/hero-mistforest.webp" alt="" width={900} height={672} decoding="async" fetchPriority="high" />
+        <img src="/v5/hero-mistforest.webp" alt="" width={900} height={672} decoding="async" />
       </div>
       {/* the fog: two soft banks that drift across the 404 (under the headline, over the number) */}
       <div className="nfa__fog" aria-hidden="true"><i /><i /></div>

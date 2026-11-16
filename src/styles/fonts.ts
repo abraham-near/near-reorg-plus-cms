@@ -1,7 +1,8 @@
 import localFont from "next/font/local";
 
-// Licensed fonts (D2). Files in src/fonts/; Kepler, Montreal 400/500 and Montreal Mono are subset to Latin (the full originals are in
-// Work Local/Fonts). Bold isn't loaded: nothing uses it, and every preloaded face costs first paint.
+// Licensed fonts (D2). Files in src/fonts/, every one subset to Latin (the full originals are in Work Local/Fonts): Montreal Book to Regular's
+// characters plus the arrows and marks the copy uses (48 → 25 KB), Kepler Medium Condensed to the Kepler cuts' (126 → 28 KB). Bold isn't loaded:
+// nothing uses it, and every preloaded face costs first paint. Kepler Italic and Italic Display were dropped: every accent is Medium Condensed.
 export const montreal = localFont({
   src: [
     { path: "../fonts/PPNeueMontreal-Regular.woff2", weight: "400", style: "normal" },
@@ -16,26 +17,6 @@ export const montrealMono = localFont({
   src: "../fonts/PPNeueMontrealMono-Regular.woff2",
   weight: "400",
   variable: "--font-montreal-mono",
-  display: "swap",
-  preload: false,
-});
-
-// Display optical size for accents at 48px and above.
-export const keplerDisplay = localFont({
-  src: "../fonts/KeplerStd-ItDisp.woff2",
-  weight: "400",
-  style: "italic",
-  variable: "--font-kepler-display",
-  display: "swap",
-  preload: false, // unused: every accent is Medium Condensed Italic Display
-});
-
-// Text optical size for editorial titles and smaller accents.
-export const kepler = localFont({
-  src: "../fonts/KeplerStd-Italic.woff2",
-  weight: "400",
-  style: "italic",
-  variable: "--font-kepler",
   display: "swap",
   preload: false,
 });
@@ -58,4 +39,4 @@ export const keplerCondensed = localFont({
   display: "swap",
 });
 
-export const fontVariables = [montreal.variable, montrealMono.variable, keplerDisplay.variable, kepler.variable, montrealBook.variable, keplerCondensed.variable].join(" ");
+export const fontVariables = [montreal.variable, montrealMono.variable, montrealBook.variable, keplerCondensed.variable].join(" ");

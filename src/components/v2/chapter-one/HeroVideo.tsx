@@ -11,7 +11,8 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // scroll and never played on its own (so WCAG 2.2.2 stays met, D26). Any length and frame rate: the scroll maps onto
 // the clip's own duration, stepped in its frames (`fps`, 24 by default). No `src` (a version that is still a still):
 // the photo stays, with the same parallax on phones. Desktop with motion only: the video gets its source there, so phones
-// never download it; it fades in over the photograph (its own first frame) once it can seek. Encoded with a keyframe
+// never download it, and only on the first scroll intent or once the page is loaded and idle (it never competes with the page's
+// own loading); it fades in over the photograph (its own first frame) once it can seek. Encoded with a keyframe
 // every 4 frames and no B-frames so seeking is cheap; the playhead eases towards the scroll target, one seek at a time.
 // Phones/tablets keep the still with a gentle parallax.
 export const HERO_VIDEO = "/videos/home/home-hero-ridges-crane-v1.mp4";
@@ -75,11 +76,32 @@ export function HeroVideo({ src, fps: FPS = 24, end = "top -120%", timing }: { s
       const loaded = () => { video!.currentTime = frame(at(target) * (video!.duration - 1 / FPS)); };
       video.addEventListener("seeked", ready, { once: true });
       video.addEventListener("loadeddata", loaded, { once: true });
-      video.preload = "auto";
-      video.src = src;
-      video.load();
+      // The film (megabytes) waits for the page: its source is set on the reader's first move towards scrolling, or 5 s after the page has loaded (when
+      // idle), whichever comes first. Until then the photograph (its first frame) holds the hero, so nothing on screen changes.
+      let started = false, idle = 0, late = 0;
+      const INTENT = ["wheel", "touchstart", "keydown", "scroll", "pointerdown"] as const;
+      const start = () => {
+        if (started) return;
+        started = true;
+        INTENT.forEach((e) => removeEventListener(e, start));
+        removeEventListener("load", onLoad);
+        video.preload = "auto";
+        video.src = src;
+        video.load();
+      };
+      const onLoad = () => {
+        late = window.setTimeout(() => {
+          idle = typeof requestIdleCallback === "function" ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 0) as unknown as number;
+        }, 5000);
+      };
+      INTENT.forEach((e) => addEventListener(e, start, { passive: true, once: true }));
+      if (document.readyState === "complete") onLoad(); else addEventListener("load", onLoad, { once: true });
 
       return () => {
+        INTENT.forEach((e) => removeEventListener(e, start));
+        removeEventListener("load", onLoad);
+        clearTimeout(late);
+        if (idle) { if (typeof cancelIdleCallback === "function") cancelIdleCallback(idle); clearTimeout(idle); }
         cancelAnimationFrame(raf);
         st.kill();
         video.removeEventListener("seeked", ready);

@@ -6,7 +6,6 @@
 // tablets and reduced motion keep the still (the video's first frame) with the layer at frame 0 and a gentle parallax. Styles: ./v7.css.
 import type { CSSProperties, ReactNode } from "react";
 import { HeroVideo } from "../v2/chapter-one/HeroVideo";
-import { HeroLayer } from "../v2/chapter-one/layer/HeroLayer";
 import { HeroRise } from "./HeroRise";
 import { StatementWipe } from "./StatementWipe";
 import { TX, txEnd, type TxKey } from "./tx";
@@ -72,9 +71,9 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
             )}
             <video className="hero6__video" data-ch="video" muted playsInline preload="none" tabIndex={-1} />
             {(!hero || hero.video) && <HeroVideo src={hero?.video ?? VIDEO} timing={hero?.timing} end={T ? `top -${T.key === "d" ? T.pin : txEnd(T)}%` : undefined} />}
-            {hero ? hero.layer : <HeroLayer look="plexusDust" data="zj3" />}
+            {hero?.layer /* v6's ridges had HeroLayer ("plexusDust", zj3) here; every hero now brings its own */}
           </div>
-          {T ? <T.C pin={T.pin} end={txEnd(T)} /> : <HeroRise />}
+          {T?.C ? <T.C pin={T.pin} end={txEnd(T)} /> : <HeroRise />}
         </div>
         <div className="wrap hero__main">
           <div className="hero__copy" data-ch="copy">

@@ -1,5 +1,5 @@
 // The world's boot (r13/lib/page.js + r17 v1's intro, in r17's order): mountIntro -> the globe (the intro attaches as soon as it exists) -> the statement's words ->
-// GSAP + ScrollTrigger + Lenis (only when the pin runs) on ONE ticker -> the transition's pinned, scrubbed master timeline -> intro.start(ctx).
+// GSAP + ScrollTrigger + Lenis (only when the pin runs; globe, Lenis and the transition are imported on demand) on ONE ticker -> the transition's pinned, scrubbed master timeline -> intro.start(ctx).
 // Reduced motion (?rm=1): no pin, a still globe (rendered once), the statement follows the hero. ?gl=0 or no WebGL: the SVG poster, no pin, the statement fades in on view.
 //
 // ctx (WorldCtx = V1Ctx + what the world's own modules use):
@@ -11,12 +11,11 @@
 import { gsap } from "gsap";
 import { setSmooth } from "@/lib/motion/smooth";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
+import type Lenis from "lenis";
 import type { V1Ctx, Dispose } from "../ctx";
-import { createGlobe, type Globe } from "./globe";
+import type { Globe } from "./globe";
 import { splitStatement, type Statement } from "./split";
 import { mountIntro } from "./intro";
-import setupTransition, { config as transitionConfig } from "./transition";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -95,6 +94,8 @@ export async function startWorld(signal: AbortSignal): Promise<WorldCtx> {
   const fallbackNeeded = html.getAttribute("data-gl") === "off";
   if (!fallbackNeeded) {
     try {
+      const { createGlobe } = await import("./globe");   // three.js loads only when the globe runs (home v7 turns it off: data-gl="off")
+      if (dead) return ctx;
       g = await createGlobe(canvas, { box: boxEl, mode: "A", host: pinEl, stage, frozen: false, still: RM, raf: false, intro: true });
       if (dead) { g.destroy(); return ctx; }
       html.setAttribute("data-gl", "on");
@@ -127,7 +128,10 @@ export async function startWorld(signal: AbortSignal): Promise<WorldCtx> {
   }
 
   /* ───── Lenis (smooth scroll) + ONE ticker: Lenis, then the globe's frame (after the scrub tweens of this tick have written their uniforms) ───── */
-  lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+  // Lenis and the transition (which reads the globe's geometry) load here, on the pinned path only
+  const [{ default: LenisCtor }, { default: setupTransition, config: transitionConfig }] = await Promise.all([import("lenis"), import("./transition")]);
+  if (dead) return ctx;
+  lenis = new LenisCtor({ lerp: 0.1, smoothWheel: true });
   ctx.lenis = lenis;
   setSmooth(lenis);   // the shared header scrolls (logo, Get started) and locks (phone map) through it
   lenis.on("scroll", ScrollTrigger.update);
