@@ -19,6 +19,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "cms:create-user": "tsx scripts/cms-create-user.ts",
+    "capture": "node scripts/capture.mjs",
     "mcp:cms": "tsx src/cms/mcp/server.ts",
     "mcp:cms:login": "tsx src/cms/mcp/login.ts"
   },

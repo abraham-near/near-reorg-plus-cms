@@ -17,7 +17,7 @@ export function ExtraChip() {
   if (!on) return null;
   const hide = () => { setOn(false); try { sessionStorage.setItem(KEY, "1"); } catch {} };
   return (
-    <div className={s.chip}>
+    <div className={s.chip} data-extra-chip="">
       <a className={s.link} href="/extra"><span aria-hidden="true">←</span> Extra pages</a>
       <button className={s.x} type="button" onClick={hide} aria-label="Hide the Extra pages link">
         <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M2 2l6 6M8 2 2 8" /></svg>

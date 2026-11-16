@@ -1,101 +1,161 @@
 # near-reorg-plus-cms
 
-Two directions for the NEAR homepage in one Next.js app, while we choose one, and a base for the pages that come after.
+The new near.org: the site's pages and the NEAR CMS (the blog's back office) in one Next.js 16 app. Production deploys from `main` on Railway: https://near-reorg-plus-cms-last-version.up.railway.app
 
-| Route | What |
-|---|---|
-| `/` | A selector: v1 (Flat design), v2 (3D render) or v3 (Flat + b10). |
-| `/home-v1` | **v1 = near-reorg r17 v1 "Carril vivo"**: dot globe, vector rail, flat isometrics. |
-| `/home-v2` | **v2 = Lawrence's hero → Stack**: rendered film, 3D scenes. |
-| `/home-v3` | **v3 = v1 with b10's header and buttons**: the same page as `/home-v1`, with near-homepage-directions /b10's floating pill nav (in our black) and its pill / text buttons. |
-| `/template` | The starting point for new pages: shared pieces only, viewable as v1 or v2. |
+- **`/index`** lists the **final pages**, one card each.
+- **`/extra`** lists the **explorations**: the other versions of each page and the ones not chosen.
+- The CMS has its own guide: [`src/cms/README.md`](src/cms/README.md). It covers roles, the editor, the Claude connector and the API.
 
-## How it is split
+## The site today
 
-Three layers, so nothing has to wait for the decision:
+| Address | Page | Code |
+|---|---|---|
+| `/` (and `/home-v7`) | **Homepage**: home v7. G1's time-lapse film is the hero, then the intro, the rail, the Stack in lit matte, proof and Go deeper. | `src/components/v7` (on pieces of v1–v5) |
+| `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
+| `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c` shows A or C. `/post-b` is the sample article. | `src/components/v3/post` |
+| `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns). | `src/components/foundation/e` |
+| `/analytics` | **Analytics**: B (Instrument panel). Sample figures until the live feed lands. | `src/components/analytics/b` |
+| `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
+| any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
+| `/index`, `/extra` | The two lists of pages (see below). | `src/app/(site)/index`, `src/app/(site)/extra` |
+| `/admin` | The CMS. | `src/cms`, `src/app/(cms)` |
 
-1. **Shared** (both versions, every page), `src/components/shared/`:
-   - the header and the footer;
-   - the sections after the Stack: proof, Go deeper, Origin, voices, Get into NEAR, Close;
-   - the version switch (`VersionSwitch`) and `version.tsx`.
+Explorations that still have their own routes are listed at `/extra`:
+- the blog post layouts `/post-a`, `/post-b` and `/post-c`;
+- Foundation A–F: `/foundation`, `/foundation-b`, `-c`, `-d`, `/near-foundation` (E) and `/foundation-f`;
+- Analytics A at `/analytics-a`.
 
-   They also rely on:
-   - `src/lib/motion` (scroll motion);
-   - `src/styles/tokens.css` (brand tokens);
-   - `src/app/globals.css` (Tailwind and the page base).
-2. **Per version**, `src/styles/versions.css`: the values that differ, under `<html data-version="v1|v2">`. Today these are the header's corners and its paint over dark bands. Shared components read only these variables, never a value of their own.
-3. **One version only**:
-   - `src/components/v1/`: r17's world (globe, intro, hero, statement), rail and Stack, and its boot;
-   - `src/components/v2/`: Lawrence's heroes, StoryRail and Stack, plus `v2.css`, his type roles and buttons (`.t-h1`, `.btn` …), which load on `/home-v2` only.
+### What changed (November 2026)
 
-### Which version a page renders in
-- `/home-v1` and `/home-v2` fix their own (`<FixVersion>`).
-- Any other page follows `?v=1` / `?v=2`, remembered in localStorage, else v1 (the root layout's head script).
-- `/template` shows the switch (bottom left).
+- **Homepage:** home v7 is the first page. Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
+- **Removed pages:**
+  - the blog directions A–L (J is `/blog`);
+  - the 404 previews and designs B and C;
+  - `/template`;
+  - Analytics C.
+- **Moved pages:**
+  - Foundation E moved to `/near-foundation`.
+  - Analytics B is `/analytics`, and A moved to `/analytics-a`.
+  - Old addresses redirect: see `redirects()` in `next.config.ts`.
+- **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, Contact → `/contact`.
+- **Type:** every h1, h2 and h3 sets its words in PP Neue Montreal Book and its accent in Kepler Std Medium Condensed Italic Display, as in the hero (see "Building a page").
+- **Contact:** rebuilt as about + form + social links.
+- **Hero film:** home v7's film is served from the media bucket (see "Big media").
 
-### New pages
-Copy `src/app/(site)/template`. Build the page from shared pieces (new ones go in `components/shared`). Anything that should look different per version goes in a variable in `versions.css`, never in a version-specific copy.
+## Pages: /index and /extra
 
-### The day one version wins
-1. Move its values in `versions.css` to `:root` and delete the other block.
-2. Delete the other version's folder (`components/v1` or `components/v2`) and its home route.
-3. If v2 loses, delete `v2.css` too. If v1 loses, delete `V1Gate` and the gate in `lib/motion/scroll.ts`.
+There are two lists, and each page belongs to one of them.
 
-Shared pages don't change.
+| | `/index` | `/extra` |
+|---|---|---|
+| What | the final version of each page, at the address it ships at | explorations, versions to compare, versions not chosen |
+| List | `src/app/(site)/index/pages.ts` (`FINALS`) | `src/app/(site)/extra/pages.ts` (`GROUPS`) |
+| Pictures | `public/index/<id>.webp` | `public/extra/<name>.webp` |
 
-## v3: `/home-v3`
-
-v1's page (`V1Page` with `v="v3"`) plus `src/components/v3/`:
-- `header/`: b10's nav (pill, panels that unfold out of it, dot icons, phone map), in our black; its icons and sprite in `public/nav`, Montreal Medium in `src/fonts`.
-- `buttons.css`: b10's buttons on the shared sections (hero pill, Stack links, Go deeper filters and "View everything", Origin's pill, Get into NEAR's actions, the newsletter field), only under `html[data-version="v3"]`.
-
-`/template?v=3` shows both. v1 and v2 keep the shared header and their own buttons.
-
-## v1: `/home-v1`
-
-r17 v1 (`near-reorg/sites/r17/v1`), ported 1:1: same DOM, classes and CSS, with the behaviour modules ported to TypeScript nearly line for line.
-
-- `V1Page.tsx`: the page.
-- `V1Boot.tsx`: the boot, in r17's order:
-  1. the world;
-  2. the rail;
-  3. the Stack;
-  4. then the shared sections, which wait on `V1Gate` (`ctx.ts` `whenReady`).
-- `world/`: the globe (three.js), the intro, the hero, the statement and the transition between them, Lenis, and the `<head>` flags (`head.ts`).
-- `rail/`:
-  - the story rail (`layer.ts`, one pinned stage of 9 screens);
-  - the faint background globe (`railglobe.ts`);
-  - the Figma isometrics (`vig2/`).
-- `stack/`: r17's Stack.
-
-URL flags:
-- `?intro=0` skips the intro.
-- `?rm=1` shows the static page (also with reduced motion).
-- `?gl=0` shows the SVG poster instead of WebGL.
-
-## v2: `/home-v2`
-
-Lawrence's hero → Stack (near-org-site, `direction-b` @ a4d088b), code in `src/components/v2/{chapter-one,story,stack}`:
-- one of his five heroes at random;
-- the rail in its Horizon look with the live Orbit stations;
-- the Stack.
-
-The header, the sections after the Stack and the footer are the shared ones.
+Both show a 1200×750 picture per card. Make it with the dev server running:
 
 ```bash
-npm install
-npm run dev     # http://localhost:3000
-npm run build && npm start
+npm run capture -- /contact public/index/contact.webp          # path, output, optional wait in ms (default 5000)
+BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 ```
 
-Deploy: Railway (Next.js detected; build `npm run build`, start `npm start`, which listens on `$PORT`).
+`scripts/capture.mjs` loads the page in headless Chrome at 1440×900, hides the working aids (the Extra pages chip and the version switches) and saves the first screen as WebP. It reads from `BASE` (default `http://localhost:3300`) and uses Google Chrome on macOS unless `CHROME` names another binary.
 
-Dev note: if a CSS change doesn't show up, stop the dev server and delete `.next/dev`. The Tailwind loader caches CSS output there across restarts.
+### A new version of a page (an exploration)
 
-## To decide (then it goes in `versions.css` or becomes the shared value)
-- **Text face:** Montreal Book (the shared pieces) or Regular (Lawrence's pieces and r17's Stack). Both versions mix the two today.
-- **Accent:** Kepler Condensed Medium (the shared pieces) or Kepler Italic/Display (Lawrence's pieces and r17's Stack).
-- **Text black:** `--ink` #1C1917 or Lawrence's `--color-ink` #262626.
-- **Fonts:** all are preloaded on every route; Kepler Condensed (126 KB) isn't subset to Latin yet.
-- **Smooth scroll:** Lenis runs on `/home-v1` only; shared pages don't have it yet.
-- **Images:** plain `<img>` vs `next/image`.
+1. **Route:** add it under `src/app/(site)/<page>-<letter>/page.tsx`, for example `/contact-b` or `/foundation-g`.
+   - Its code goes in `src/components/<page>/<letter>/`.
+   - Wrap it in `BlogShell` (`src/components/v3/blog/BlogShell.tsx`), which gives it the site's header, footer and v3 values.
+2. **Switch (optional):** if the page has versions, add a switch to move between them. Copy `FoundationSwitch` or `AnalyticsSwitch`; they sit under the header, at the top left.
+3. **List it:** add an entry to the right group in `extra/pages.ts` (or a new group), then capture its picture into `public/extra/`.
+4. **Leave the final page alone:** don't touch the final page or its entry in `index/pages.ts` until the new version is chosen.
+
+### When a version is chosen
+
+1. **Address:** move it to the final address.
+   - Rename the route folder, for example `git mv src/app/(site)/contact-b src/app/(site)/contact`, after moving the old one aside or deleting it.
+   - Give the old address a redirect in `next.config.ts` → `redirects()`.
+2. **`/index`:** update the page's entry in `index/pages.ts` (note and tags) and capture its picture again into `public/index/`.
+3. **`/extra`:** in `extra/pages.ts`, point the entry to the new address and mark it `featured: true`; unmark the old one.
+4. **Links:**
+   - Make sure the header (`src/components/v3/header/links.ts`) and footer (`src/components/v3/footer/Footer.tsx`) link to the final address.
+   - Also check the older shared header and footer in `src/components/shared/`.
+5. **Clean up:** delete versions nobody needs any more, with their components and pictures. Look for files nothing imports and assets nothing references before deleting.
+
+## Building a page
+
+- **Shell:**
+  - `BlogShell` = `V3Header` (with `spread stay soft`) + `<main>` + `V3Footer` + the temporary Extra pages chip.
+  - `FixVersion v="v3"` sets the page's values (`html[data-version="v3"]`, `src/styles/versions.css`).
+- **Type:**
+  - Fonts load in `src/styles/fonts.ts`. Montreal Medium and Regular for the header load from `src/components/v3/header/font.ts`.
+  - Mark the accent word in a heading with `<span className="accent">`.
+  - `src/app/globals.css` re-points the font variables on every `h1`, `h2` and `h3`: the words in Montreal Book, the accent in Kepler Condensed, and monospaced labels keep their face. A new page gets this for free. Don't set `font-family` with a literal name on a heading; use the variables (`--sans-display`, `--font-text`, `--font-acc` …).
+- **Pieces:**
+  - the tokens in `src/styles/tokens.css`;
+  - the blog's pieces (`src/components/v3/blog/blog.css`: `.bl-btn`, `.bl-link`, `.accent`);
+  - Blog J's fields and rail (`v3/blog/j/blog-j.css`);
+  - the ruled grid of the Foundation and Analytics pages.
+- **Motion:**
+  - Use `useScrollMotion` (`src/lib/motion/scroll.ts`) for GSAP and ScrollTrigger, and respect reduced motion.
+  - A heading that rises word by word with SplitText masks must revert the split when the rise ends (`onComplete: () => split.revert()`). Give the masks room (padding with an equal negative margin), or they clip the italic accent.
+- **Links:** use plain `<a>` between the site's pages, on purpose. Each page loads fresh, so one page's global CSS and boot never meet another's.
+- **404:**
+  - `src/app/global-not-found.tsx` handles any URL no route matches (`experimental.globalNotFound`).
+  - `src/app/(site)/not-found.tsx` handles a page that calls `notFound()`.
+  - Both render `NotFoundA`.
+
+## The homepage (home v7)
+
+- **Route and owner:** `/home-v7/page.tsx` is the page, and `/` re-exports it (`src/app/(site)/page.tsx`), so changes to v7 show on both. Lawrence works on v7 on his branch, `Lawrence001`.
+- **Code:** `src/components/v7` builds the page from pieces of v1–v5:
+  - `V1Page` and its boot (world, rail, Stack);
+  - v4's rail and Stack;
+  - v5's styles;
+  - v3's header, footer and proof / Go deeper.
+  These folders hold only what the homepage and the pages still use. Before deleting anything in them, check that nothing imports it.
+- **Hero film:** `/cms/videos/home/home-hero-g1-timelapse-v2.mp4` (see "Big media").
+
+## Big media
+
+Large files (films, big images) go to the media bucket, not to the repo.
+
+**Production.** `/cms/<path>` (`src/app/(cms)/cms/[...path]/route.ts`) redirects to a presigned bucket URL. That URL serves byte ranges, so a film can still be scrubbed with the scroll.
+
+**Development.** Put the same file in `public/cms/<path>`; `public/cms/` is gitignored. Ask for the file, or download it from production.
+
+**Uploading.**
+- Upload with the S3 client and the service's `BUCKET`, `ENDPOINT`, `REGION`, `ACCESS_KEY_ID` and `SECRET_ACCESS_KEY` from Railway. Never paste these into code or chat.
+- Use a new file name for each version (`-v2`, `-v3` …): bucket files are cached as immutable.
+- Scrubbed films: H.264, a keyframe every 8 frames, no B-frames, `+faststart`. The G1 film: 1920×1080, CRF 27, `-tune film`, 4.2 MB.
+
+## Develop
+
+```bash
+npm install                 # also generates the Prisma client
+docker compose up -d        # local Postgres for the CMS on 127.0.0.1:5433 (see docker-compose.yml)
+cp .env.example .env        # then fill DATABASE_URL, AUTH_SECRET …
+npm run db:migrate
+npx next dev -p 3300        # the port the capture script reads by default (npm run dev uses 3000)
+```
+
+Checks: `npm run lint`, `npm run typecheck`, `npm test`; `npm run check` runs lint, typecheck and a production build.
+
+Dev notes:
+- If a CSS change doesn't show, stop the dev server and delete `.next/dev`; the Tailwind loader caches CSS there.
+- A browser extension that adds attributes to `<body>` is ignored (`suppressHydrationWarning` on the site's body).
+
+## Deploy
+
+- Railway builds the `Dockerfile` (`railway.json`) on every push to `main`. Before the new version starts, `npm run db:deploy` runs the CMS migrations.
+- `main` is protected by the ruleset `main-solo-owner`: only the repo's owner can update it.
+- Everyone else works on a branch and opens a pull request. Lawrence's branch is `Lawrence001`.
+- Backups of `main` are kept as branches named `backup-YYYY-MM-DD`.
+
+## Working with Claude
+
+Claude Code reads `CLAUDE.md` (which points here and to `AGENTS.md`). Before changing pages:
+- Read "Pages: /index and /extra" above.
+- Put new versions in `/extra`. A version reaches `/index` only once it is chosen.
+- Capture a picture for every card you add.
+- Keep this README's tables up to date.
