@@ -9,7 +9,7 @@
 //   - Get started: magnet (pointer: fine), and quiet (ghost) while the hero's own CTA is on screen (html[data-hero-in-view], CSS).
 //   - phones (< 860 px): the N + Menu; Menu opens the map, modal: the page behind is inert, Tab stays inside, Escape closes.
 //   - spread (header[data-spread], home v5; home v1's effect): at the very top the N sits at the left margin, the menus in the middle and Get started at the right
-//     margin, with no pill; the first real scroll (64 px) gathers them into the pill, which spreads again only near the top (24 px). Opening a menu gathers it too.
+//     margin, with no pill; the first real scroll (64 px) gathers them into the pill, which spreads again only near the top (24 px). Opening a menu does not.
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { smooth } from "@/lib/motion/smooth";
 import { mountIcons } from "./icons";
@@ -89,7 +89,10 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
       w = p.offsetWidth; h = p.offsetHeight;
       x = Math.round(Math.max(12 - bl, Math.min(vw - 12 - w - bl, bw / 2 - w / 2)));
       y = bh + GAP;
-      p.style.left = x + "px"; p.style.top = y + "px";
+      /* spread, a menu open (the header stays spread): .nv-nav is shifted, and a transformed box holds its absolute children, so the panel is placed
+         from the shifted menus' left rather than the pill's, to land in the box */
+      const off = header.classList.contains("nv-wide") ? (p.offsetParent as HTMLElement | null)?.getBoundingClientRect().left ?? bl : bl;
+      p.style.left = x + bl - off + "px"; p.style.top = y + "px";
     }
     const k = [x, y, w, h].map(Math.round).join(",");
     if (k === st.popKey && !instant) return;
@@ -319,10 +322,10 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
       if (away && header.contains(document.activeElement)) (document.activeElement as HTMLElement).blur();
       bar.inert = away;
     }
-    // spread: gathered once scrolled, while a menu or the map is open, and on phones
+    // spread: gathered once scrolled, while the map is open, and on phones. A menu opening at the top keeps it spread: the panel just drops in
     if (spread) {
       if (wide && y > SPREAD_IN) wide = false; else if (!wide && y < SPREAD_OUT) wide = true;
-      setWide(wide && !isMob() && !st.openId && !st.map);
+      setWide(wide && !isMob() && !st.map);
     }
     // panels close once the page has clearly moved on
     if (st.openId && Math.abs(y - st.openY) > MOVED_ON && (st.pinned || !lastXY || !inZone(+lastXY.split(",")[0], +lastXY.split(",")[1]))) closePanel(false);

@@ -10,7 +10,7 @@ import "@/components/v1/world/world.css";
 import "@/components/v3/buttons.css";
 import "./notfound-a.css";
 
-const HOME = "/home-v5";
+const HOME = "/";
 const COPY = {
   h1a: "Lost in",
   h1b: "the",

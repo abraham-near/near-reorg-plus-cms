@@ -20,7 +20,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* data-version (v1 | v2): which homepage direction the shared pieces render in (styles/versions.css). The homes fix their own. */}
         <InlineScript html={VERSION_HEAD} />
       </head>
-      <body>{children}</body>
+      {/* suppressHydrationWarning: browser extensions set attributes on <body> before React loads (contenteditable="false" seen on /); it covers
+          the body's own attributes only, not its children */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

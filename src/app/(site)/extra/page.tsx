@@ -6,7 +6,7 @@ import { GROUPS } from "./pages";
 
 export const metadata: Metadata = { title: "Extra pages" };
 
-// The extra pages (pages.ts), in the selector's language. Plain <a> on purpose, as on "/": each page loads fresh.
+// The extra pages (pages.ts), in the selector's language. Plain <a> on purpose, as on /index: each page loads fresh.
 const Go = () => (
   <span className={styles.go} aria-hidden="true">
     <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
@@ -17,8 +17,8 @@ export default function ExtraIndex() {
   return (
     <main className={styles.page}>
       <header className={styles.top}>
-        <Link href="/" aria-label="Homepage directions"><img className={styles.logo} src="/brand/logo.svg" alt="NEAR" width={88} height={23} /></Link>
-        <Link className={styles.toplink} href="/"><span aria-hidden="true">←</span> Homepage directions</Link>
+        <Link href="/index" aria-label="Homepage directions"><img className={styles.logo} src="/brand/logo.svg" alt="NEAR" width={88} height={23} /></Link>
+        <Link className={styles.toplink} href="/index"><span aria-hidden="true">←</span> Homepage directions</Link>
       </header>
 
       <div className={`${styles.intro} ${x.intro}`}>

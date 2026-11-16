@@ -9,7 +9,7 @@ import { ArtB } from "./Art";
 import "@/components/v3/buttons.css";
 import "./notfound-b.css";
 
-export function NotFoundB({ home = "/home-v5" }: { home?: string }) {
+export function NotFoundB({ home = "/" }: { home?: string }) {
   return (
     <>
       <FixVersion v="v3" />

@@ -24,7 +24,7 @@ function mount(root: HTMLElement, ctx: MotionCtx) {
 const LABELS = ["Error", "Page", "Not found"];
 
 /** the ruled band alone (the real not-found can render it inside its own shell) */
-export function NotFoundBandC({ home = "/home-v5", blog = "/blog" }: { home?: string; blog?: string }) {
+export function NotFoundBandC({ home = "/", blog = "/blog" }: { home?: string; blog?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useScrollMotion(ref, mount);
   return (
@@ -55,7 +55,7 @@ export function NotFoundBandC({ home = "/home-v5", blog = "/blog" }: { home?: st
 }
 
 /** the whole page: header, the band, footer */
-export function NotFoundC({ home = "/home-v5" }: { home?: string }) {
+export function NotFoundC({ home = "/" }: { home?: string }) {
   return (
     <>
       <FixVersion v="v3" />

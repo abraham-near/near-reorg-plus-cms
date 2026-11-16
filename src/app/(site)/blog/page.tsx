@@ -24,5 +24,5 @@ export default async function BlogIndex() {
   const live: Post[] = (await getLivePosts()).map((p) => ({
     id: `cms-${p.slug}`, type: TYPE[p.category?.slug ?? ""] ?? "read", title: p.title, source: p.author ?? "NEAR blog", url: postHref(p.slug), pic: p.image?.src ?? null,
   }));
-  return <BlogShell home="/home-v5"><BlogJ live={live} /></BlogShell>;
+  return <BlogShell home="/"><BlogJ live={live} /></BlogShell>;
 }

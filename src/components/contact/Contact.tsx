@@ -304,7 +304,7 @@ export function ContactBand() {
 }
 
 /** the whole page: home v5's header, the band, the footer */
-export function Contact({ home = "/home-v5" }: { home?: string }): ReactNode {
+export function Contact({ home = "/" }: { home?: string }): ReactNode {
   return (
     <>
       <FixVersion v="v3" />

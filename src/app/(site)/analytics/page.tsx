@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function AnalyticsPage() {
-  return <><BlogShell home="/home-v5"><AnalyticsA /></BlogShell><AnalyticsSwitch on="a" /></>;
+  return <><BlogShell home="/"><AnalyticsA /></BlogShell><AnalyticsSwitch on="a" /></>;
 }

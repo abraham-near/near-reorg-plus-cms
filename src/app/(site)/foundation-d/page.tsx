@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function FoundationDPage() {
-  return <><BlogShell home="/home-v4"><FoundationD /></BlogShell><FoundationSwitch on="d" /></>;
+  return <><BlogShell home="/"><FoundationD /></BlogShell><FoundationSwitch on="d" /></>;
 }

@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function FoundationPage() {
-  return <><BlogShell home="/home-v4"><Foundation /></BlogShell><FoundationSwitch on="a" /></>;
+  return <><BlogShell home="/"><Foundation /></BlogShell><FoundationSwitch on="a" /></>;
 }

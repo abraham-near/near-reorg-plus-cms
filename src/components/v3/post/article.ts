@@ -134,5 +134,5 @@ export const ARTICLE: Article = {
   more: RELATED.flatMap((id) => POSTS.filter((p) => p.id === id)).map((p) => ({
     key: p.id, title: p.title, href: href(p), img: img(p.id), label: TYPE_LABEL[p.type], source: p.source, type: p.type, note: p.note,
   })),
-  blogHref: "/blog-a",
+  blogHref: "/blog",
 };

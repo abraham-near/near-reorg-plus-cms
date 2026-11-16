@@ -50,5 +50,5 @@ export default async function BlogPost({ params, searchParams }: Props) {
   const layout = layoutOf(query.layout);
   const more = await getMorePosts(post.slug, post.category?.slug);
   const Post = LAYOUTS[layout];
-  return <><BlogShell home="/home-v4"><Post article={toArticle(post, more, layout)} /></BlogShell><PostSwitch on={layout} base={postHref(post.slug)} fallback="b" /></>;
+  return <><BlogShell home="/"><Post article={toArticle(post, more, layout)} /></BlogShell><PostSwitch on={layout} base={postHref(post.slug)} fallback="b" /></>;
 }

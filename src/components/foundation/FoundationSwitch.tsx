@@ -6,7 +6,7 @@ export const FOUNDATION_VERSIONS = [
   { k: "b", href: "/foundation-b", name: "Devolve" },
   { k: "c", href: "/foundation-c", name: "The Stiftung" },
   { k: "d", href: "/foundation-d", name: "People around the world" },
-  { k: "e", href: "/foundation-e", name: "Living columns" },
+  { k: "e", href: "/near-foundation", name: "Living columns" },
   { k: "f", href: "/foundation-f", name: "Figma" },
 ] as const;
 

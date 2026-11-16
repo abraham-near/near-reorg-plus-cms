@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }] }];
   },
+  // Old addresses of pages that moved: Foundation E is the Foundation page now, the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/")
+  async redirects() {
+    return [
+      { source: "/foundation-e", destination: "/near-foundation", permanent: true },
+      { source: "/blog-:v([a-l])", destination: "/blog", permanent: true },
+      { source: "/home-v:v([1-6])", destination: "/", permanent: true },
+      { source: "/home-v:v([1-6])/:path*", destination: "/", permanent: true },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

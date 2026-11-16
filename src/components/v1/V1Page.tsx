@@ -29,7 +29,7 @@ export function V1Page({ v = "v1", header, afterStack, footer, world, rail, stac
     <>
       <FixVersion v={v} />
       <InlineScript html={HEAD} />
-      {header ?? <Header home="/home-v1" />}
+      {header ?? <Header home="/" />}
       <V1Gate>
         <main id="main">
           {world ?? <World />}
