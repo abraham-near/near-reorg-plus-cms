@@ -1,5 +1,5 @@
-/* Foundation E (FoundationE.tsx): B's page (../b/foundation-b.css) with C's columns in the hero, the pillars on the homepage's ruled grid, C's shrinking
-   statement on two lines. Scoped under .fe-page. */
+/* The Foundation page (FoundationE.tsx, /near-foundation): B's page styles (../b/foundation-b.css) with C's columns in the hero, F's pillars and Council,
+   C's shrinking statement on two lines. Scoped under .fe-page. */
 
 /* ================================================================ 1 · the hero: one screen, no pin; the drawing can travel over the section below */
 .fe-page .fe-hero { position: relative; z-index: 3; height: auto !important; }
@@ -117,3 +117,57 @@
   .fe-page .fe-box__txt { padding: 40px var(--l-pad) 44px; }
   .fe-page .fb-tr__art, .fe-page .fb-council__art { margin: 0; }
 }
+
+/* ---------------------------------------------------------------- the pillars (from version F): one ruled row, three cells */
+.fe-page { --ff-mono: var(--font-montreal-mono), ui-monospace, monospace; --ff-ink: #1c1917; --ff-text: #262626; --ff-muted: #6c675f; }
+.ff-k { margin: 0; font: 400 13px/1.25 var(--ff-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--ff-muted); }
+.ff-body { margin: 0; font-size: 17px; line-height: 1.6; color: var(--ff-text); text-wrap: pretty; }
+.ff-pillars { padding-top: 0; }
+.ff-pillars__row { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0; list-style: none; border-bottom: var(--hair) solid var(--l-line); background: rgb(245 244 241 / 0.6); }
+.ff-pillar { display: flex; flex-direction: column; gap: 14px; padding: 48px 40px; }
+.ff-pillar__ic { display: block; width: 32px; height: 32px; margin-bottom: 4px; }
+/* the icons arrive with their row (the grid marks it .is-in), one after another */
+:where(.l-page[data-motion]) .ff-pillars__row .ff-pillar__ic { opacity: 0; transform: translateY(10px) scale(0.86); }
+:where(.l-page[data-motion]) .ff-pillars__row.is-in .ff-pillar__ic { opacity: 1; transform: none; transition: opacity 0.6s ease 0.35s, transform 0.9s var(--ease-settle, cubic-bezier(.2,.8,.2,1)) 0.35s; }
+:where(.l-page[data-motion]) .ff-pillars__row.is-in .ff-pillar:nth-child(2) .ff-pillar__ic { transition-delay: 0.47s; }
+:where(.l-page[data-motion]) .ff-pillars__row.is-in .ff-pillar:nth-child(3) .ff-pillar__ic { transition-delay: 0.59s; }
+.ff-h3 { margin: 0; font-family: var(--font-text); font-weight: 400; font-size: 28px; line-height: 1.2; letter-spacing: -0.005em; color: var(--ff-ink); }
+
+/* ---------------------------------------------------------------- the Council (from version F): the Stack's dark, the grid's tokens for it */
+.f-council {
+  background: var(--ink); color: var(--paper-0);
+  --l-line: rgb(245 244 241 / 0.18); --l-soft: rgb(245 244 241 / 0.12); --l-x: rgb(245 244 241 / 0.7);
+  --graphite: rgb(245 244 241 / 0.74); --muted: rgb(245 244 241 / 0.56);
+}
+.f-council .l-ic { color: var(--paper-0); }
+.f-council__row { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+.f-council__h { padding: 104px var(--l-pad) 96px; }
+.f-council__b { display: flex; flex-direction: column; justify-content: flex-end; gap: 48px; padding: 104px var(--l-pad) 56px calc(var(--l-pad) * 1.5); }
+.f-council__b .l-lede { color: var(--paper-0); max-width: 31em; }
+.f-chain li { display: grid; grid-template-columns: 11em 1fr; gap: 16px; align-items: baseline; padding: 16px 0; border-top: var(--hair) solid var(--l-soft); position: relative; }
+.f-chain li:last-child { border-bottom: var(--hair) solid var(--l-soft); }
+.f-chain__n { display: flex; align-items: center; gap: 10px; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); }
+.f-chain__n::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--emerald); }
+.f-chain li + li .f-chain__n::before { background: transparent; box-shadow: inset 0 0 0 1px var(--paper-0); }
+.f-chain__r { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+
+@media (max-width: 859px) {
+  .ff-pillars__row { grid-template-columns: minmax(0, 1fr); }
+  .ff-pillars__row .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .ff-pillars__row .l-cell + .l-cell::before { display: none; }
+  .ff-pillar { padding: 32px 24px; }
+  .f-council__row { grid-template-columns: minmax(0, 1fr); }
+  .f-council__row > .l-cell + .l-cell::before { display: none; }
+  .f-council__row > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .f-council__h, .f-council__b { padding: 56px var(--l-pad) 40px; }
+  .f-council__b { padding-top: 0; border-top: 0 !important; }
+  .f-chain li { grid-template-columns: 1fr; gap: 6px; }
+}
+/* the transparency box and the Council's dark band meet: no space between them */
+.fe-page .fe-tr:has(+ .f-council) { padding-bottom: 0; }
+.fe-page .fe-tr + .f-council { padding-top: 0; }
+/* no badges on the drawings: the dark label chips and the dotted leads that point to them (the hero, the glass Stiftung, the operations scene).
+   Hidden, not removed: the motion still drives them (motion.ts, operate-motion.ts). */
+.fe-page .fc-chip, .fe-page .fc-h-lead,
+.fe-page .fb-a-chip, .fe-page .fb-a-lead,
+.fe-page .fe-op-chip, .fe-page .fe-op-leads { display: none !important; }

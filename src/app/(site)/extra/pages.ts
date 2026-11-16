@@ -16,19 +16,6 @@ export const GROUPS: Group[] = [
     ],
   },
   {
-    id: "pages",
-    title: "Pages",
-    note: "Inner pages of near.org in home v4's design, with the October 2026 copy.",
-    pages: [
-      { href: "/foundation", n: "A", name: "Foundation · Ruled grid", note: "near.org/foundation: the pillars, the devolution thesis, the Stiftung, the Council, how it operates, the ecosystem, the close.", tags: ["v4 design", "Ruled grid", "Scroll figure"], img: "/extra/foundation.webp" },
-      { href: "/foundation-b", n: "B", name: "Foundation · Devolve", note: "The hero's isometric block breaks into the ecosystem as you scroll; a staircase of pillars, a sticky story for how it operates.", tags: ["Iso illustrations", "Pinned hero", "Sticky story"], img: "/extra/foundation-b.webp" },
-      { href: "/foundation-c", n: "C", name: "Foundation · The Stiftung", note: "A dark hero: green columns rise on the Foundation's plinth; pillars on a horizontal run, a heading that shrinks, a glass vault.", tags: ["Dark hero", "Horizontal pin", "Iso illustrations"], img: "/extra/foundation-c.webp" },
-      { href: "/foundation-d", n: "D", name: "Foundation · People around the world", note: "The world laid flat in dots, places and people linked across it, the Foundation small in Zug; tilting cards, a sliding run of activities.", tags: ["Dot world", "Parallax", "Iso illustrations"], img: "/extra/foundation-d.webp" },
-      { href: "/near-foundation", n: "E", name: "Foundation · Living columns", note: "B's page with C's plinth and columns in the hero, alive without scrolling; scrolled, they settle into the pillars' stair, now boxes on the ruled grid. C's \"smaller\" statement on two lines.", tags: ["B + C", "Idle motion", "Ruled stair"], img: "/extra/foundation-e.webp", featured: true },
-      { href: "/foundation-f", n: "F", name: "Foundation · Figma", note: "The Figma page (2026_10_Near_Web): the terrace photo hero with two buttons, three pillars on the ruled grid, the mission on a green band, Zug and three facts; then A's Council, operations and ecosystem, and the homepage's close.", tags: ["Figma", "Photo hero", "Green band"], img: "/extra/foundation-f.webp" },
-    ],
-  },
-  {
     id: "analytics",
     title: "Analytics",
     note: "near.org/analytics in the official pages' hand (the homepage, Blog J), two versions of the doc's lean overview; B is /analytics, in the menu. Sample figures: no live feed yet.",

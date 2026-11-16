@@ -23,7 +23,7 @@ export const FINALS: Final[] = [
   },
   {
     id: "foundation", href: "/near-foundation", name: "NEAR Foundation",
-    note: "Living columns (Foundation E): C's plinth and columns alive in the hero, settling into the pillars' stair on the ruled grid; the \"smaller\" statement, the Council, how it operates.",
+    note: "Foundation E with two sections of F: C's plinth and columns alive in the hero, F's pillars with their icons, the \"smaller\" statement, the glass Stiftung, F's Council on the dark, how it operates.",
     tags: ["Iso hero", "Ruled stair", "Scroll motion"], img: "/index/foundation.webp",
   },
   {
