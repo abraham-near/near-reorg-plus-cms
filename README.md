@@ -116,6 +116,17 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
   These folders hold only what the homepage and the pages still use. Before deleting anything in them, check that nothing imports it.
 - **Hero film:** `/cms/videos/home/home-hero-g1-timelapse-v2.mp4` (see "Big media").
 
+## Performance (homepage)
+
+The homepage boots a lot of motion; keep its first load light (Lighthouse desktop with CPU ×4 ≈ the production report):
+- **Nothing heavy at first paint.** three.js loads on demand (the Stack's lit drawing, a screen and a half before it); the hero film gets its source on the first scroll intent or 5 s after load.
+- **No work for what isn't on screen.** rAF loops run only while their section is near the screen (IntersectionObserver), the header's sleeps at rest, icons get their geometry when they come close.
+- **Precompute, don't compute at load.** The Stack's outlines come from `scripts/stack-edges.ts` (`npx tsx scripts/stack-edges.ts` after changing `src/components/v7/stack/geometry.ts`).
+- **One refresh.** Call `requestRefresh()` (`src/lib/motion/scroll.ts`) instead of `ScrollTrigger.refresh()`; split long boots with `yieldToMain()` (`src/lib/motion/yield.ts`).
+- **Measure reads, then writes.** Read every size first and write after; a read after a write forces a layout of the whole page.
+- **Images:** give big pictures a smaller version and a `srcset` (the hero still, the Go deeper covers' `-960.webp`).
+- **Imports are bundled even when unused.** A component imported as a default or fallback ships to the browser even if it never renders.
+
 ## Big media
 
 Large files (films, big images) go to the media bucket, not to the repo.
