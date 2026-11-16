@@ -8,11 +8,13 @@ import { V3Footer } from "../footer/Footer";
 import "../buttons.css";
 import "./blog.css";
 
-export function BlogShell({ children, home = "/home-v3" }: { children: ReactNode; home?: string }) {
+export function BlogShell({ children, home = "/" }: { children: ReactNode; home?: string }) {
   return (
     <>
       <FixVersion v="v3" />
-      <V3Header home={home} />
+      {/* the homepage's header on every page: spread at the top (the wordmark, the menus and Get started at the margins), gathered into the pill on
+          the first scroll; it stays on screen, and its tone follows the ground under it */}
+      <V3Header home={home} spread stay soft />
       <main id="main">{children}</main>
       <V3Footer />
       <ExtraChip />{/* temporary way back to /extra: remove this line to drop it */}

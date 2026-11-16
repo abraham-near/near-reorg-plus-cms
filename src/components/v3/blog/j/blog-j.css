@@ -10,7 +10,7 @@
   align-items: end; margin: 0 var(--margin); padding: var(--top) 0 clamp(40px, 6vh, 64px); }
 .bj-h1 { grid-column: 1 / -1; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 1.4rem + 4.9vw, 5.75rem); line-height: 0.98;
   letter-spacing: -0.035em; text-wrap: balance; }
-.bj-w { padding-bottom: 0.08em; margin-bottom: -0.08em; }   /* SplitText's word masks: room for the descenders and the accent */
+.bj-w { padding: 0 0.14em 0.26em; margin: 0 -0.14em -0.26em; }   /* SplitText's word masks: room for the descenders and the accent */
 .bj-h1 .accent [class^="bj-w"] { line-height: 0.92; padding-top: 0.06em; margin-top: -0.06em; }
 .bj-lede { max-width: 17em; padding-bottom: 4px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); text-wrap: pretty; }
 .bj-figs { display: flex; flex-wrap: wrap; gap: 20px clamp(32px, 4.4vw, 72px); }

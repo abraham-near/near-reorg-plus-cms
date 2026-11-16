@@ -8,7 +8,7 @@ export const ANALYTICS_VERSIONS = [
 
 export function AnalyticsSwitch({ on }: { on: (typeof ANALYTICS_VERSIONS)[number]["k"] }) {
   return (
-    <nav className="rv-sw" style={{ top: 22, bottom: "auto" }} aria-label="Analytics page versions">
+    <nav className="rv-sw" style={{ top: 96, bottom: "auto" }} aria-label="Analytics page versions">
       <span className="rv-sw__l">Analytics</span>
       {ANALYTICS_VERSIONS.map((v) => (
         <a key={v.k} className="rv-sw__a" href={v.href} aria-current={v.k === on ? "true" : undefined} title={v.name}>{v.k.toUpperCase()}</a>

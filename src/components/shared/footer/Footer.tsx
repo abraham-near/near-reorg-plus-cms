@@ -31,7 +31,7 @@ const GROUPS: Group[] = [
   ] },
   { title: "Connect", links: [
     { label: "Brand", href: "/brand" },
-    { label: "Contact", href: "/contact-us" },
+    { label: "Contact", href: "/contact" },
     { label: "Careers", href: "https://job-boards.eu.greenhouse.io/nearfoundation", ext: true },
   ] },
   { title: "Fundamentals", links: [

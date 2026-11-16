@@ -37,7 +37,7 @@ export const GROUPS: Group[] = [
       ] },
       { name: "Connect", items: [
         { name: "Brand", desc: "Logos and guidelines", href: "/brand" },
-        { name: "Contact", desc: "Connect with the team", href: "/contact-us" },
+        { name: "Contact", desc: "Connect with the team", href: "/contact" },
         { name: "Careers", desc: "Build the agent economy", href: "https://job-boards.eu.greenhouse.io/nearfoundation" },
       ] },
     ],

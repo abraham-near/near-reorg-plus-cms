@@ -22,7 +22,9 @@ function mount(root: HTMLElement, ctx: MotionCtx) {
   if (h && !ctx.reduced) {
     ctx.gsap.registerPlugin(SplitText);
     split = SplitText.create(h, { type: "words", mask: "words", wordsClass: "pa-w" });
-    ctx.gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.045, delay: 0.1 });
+    ctx.gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.045, delay: 0.1,
+      /* risen: the words leave their masks, which clip the italic accent's overhang and descenders (the g of "blog") */
+      onComplete: () => { split?.revert(); split = null; } });
   }
   return () => { split?.revert(); grid.dispose(); };
 }

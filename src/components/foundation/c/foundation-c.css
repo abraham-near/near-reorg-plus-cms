@@ -30,7 +30,7 @@
 .fc-hero__k .l-ic { color: var(--emerald); }
 .fc-h1 { margin: 0; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.6rem, 0.4rem + 4.2vw, 5.4rem); line-height: 0.98; letter-spacing: -0.038em; max-width: 11em; }
 .fc-h1 .accent { color: var(--emerald); }
-.fc-w { display: inline-block; overflow: clip; overflow-clip-margin: 0.25em; padding-bottom: 0.06em; margin-bottom: -0.06em; vertical-align: top; }
+.fc-w { display: inline-block; overflow: clip; overflow-clip-margin: 0.25em; padding: 0 0.2em 0.3em; margin: 0 -0.2em -0.3em; vertical-align: top; }   /* room for the italic accent's overhang and descenders */
 .fc-w > span { display: inline-block; }
 .fc-hero__sub { max-width: 31em; margin-top: clamp(24px, 3.6vh, 40px) !important; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--on-ink-2); text-wrap: pretty; }
 .fc-hud { position: absolute; z-index: 2; left: var(--margin); right: var(--margin); bottom: 0; height: clamp(64px, 8vh, 80px); display: flex; align-items: center; justify-content: space-between;

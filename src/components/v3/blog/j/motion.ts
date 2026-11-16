@@ -22,7 +22,9 @@ export function mount(root: HTMLElement, ctx: MotionCtx): JMotion {
   if (h && !reduced) {
     ctx.gsap.registerPlugin(SplitText);
     split = SplitText.create(h, { type: "words", mask: "words", wordsClass: "bj-w" });
-    ctx.gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.07, delay: 0.1 });
+    ctx.gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.07, delay: 0.1,
+      /* risen: the words leave their masks, which clip the italic accent's overhang and descenders (the g of "blog") */
+      onComplete: () => { split?.revert(); split = null; } });
   }
 
   /* ── arrivals ── */

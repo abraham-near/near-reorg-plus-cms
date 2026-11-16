@@ -9,7 +9,7 @@
 .pa-crumb a { color: var(--ink); background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
 .pa-crumb a:hover { background-size: 100% var(--hair); }
 .pa-h1 { max-width: 15em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.5rem, 1.4rem + 3.6vw, 5rem); line-height: 1; letter-spacing: -0.032em; text-wrap: balance; }
-.pa-w { padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.pa-w { padding: 0 0.14em 0.26em; margin: 0 -0.14em -0.26em; }
 .pa-dek { display: flex; align-items: flex-end; padding-bottom: 44px; }
 
 .pa-facts { grid-template-columns: 4fr 2fr 2fr 4fr; }

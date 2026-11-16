@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Contact } from "@/components/contact/Contact";
 
-// Contact: in the official pages' hand (home v5's header and footer, Blog J's head, rail and open feed; components/contact). The routes link out to
-// near.org's family; the form checks itself and shows its success in place. No backend: nothing is sent.
+// Contact: in the official pages' hand (the homepage's header and footer; components/contact): a short about, the form and NEAR's social links. The form
+// checks itself and shows its success in place. No backend: nothing is sent.
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Ways to reach NEAR: builders, press, partnerships, careers and community. Or write to us.",
+  description: "Write to NEAR about questions, press or partnerships, or follow NEAR on X, Discord, Telegram, GitHub, YouTube and LinkedIn.",
 };
 
 export default function ContactPage() {

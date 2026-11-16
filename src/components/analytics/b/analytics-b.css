@@ -212,6 +212,7 @@
 
 .ab-etp-head .l-cell { display: flex; align-items: center; justify-content: space-between; padding: 40px var(--l-pad) 14px; }
 .ab-etp-head__t, .ab-etp-head__n { font: 400 12px/1.2 var(--ab-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ab-ink); }
+.ab-etp-head__t { font-family: var(--font-text); }   /* a heading: Montreal Book, as every h1–h3 on the site (globals.css); the count stays mono */
 .ab-etp-head__n { color: var(--ab-muted); }
 .ab-etps { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .ab-etp { padding: 0; }

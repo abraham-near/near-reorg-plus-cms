@@ -23,7 +23,9 @@ function mount(root: HTMLElement, ctx: MotionCtx) {
   ctx.gsap.registerPlugin(SplitText);
   if (h) {
     split = SplitText.create(h, { type: "words", mask: "words", wordsClass: "pbv-w" });
-    ctx.gsap.from(split.words, { yPercent: 115, duration: 1.3, ease: "expo.out", stagger: 0.05, delay: 0.2 });
+    ctx.gsap.from(split.words, { yPercent: 115, duration: 1.3, ease: "expo.out", stagger: 0.05, delay: 0.2,
+      /* risen: the words leave their masks, which clip the italic accent's overhang and descenders (the g of "blog") */
+      onComplete: () => { split?.revert(); split = null; } });
   }
   ctx.gsap.from(root.querySelectorAll(".pbv-cover__meta > *, .pbv-cover__label"), { opacity: 0, y: 14, duration: 1, ease: "expo.out", stagger: 0.08, delay: 0.7 });
   const img = root.querySelector(".pbv-cover__img");

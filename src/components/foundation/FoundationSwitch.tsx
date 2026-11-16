@@ -1,4 +1,4 @@
-// The switch between the Foundation page's versions (top left, clear of the pages' own bottom rows): plain links to /foundation, /foundation-b … d. Same pill as home v4's revenue switch.
+// The switch between the Foundation page's versions (top left, clear of the pages' own bottom rows), under the header (spread at the top, its wordmark at the left margin): plain links to /foundation, /foundation-b … d. Same pill as home v4's revenue switch.
 import "../v4/revenue/switch.css";
 
 export const FOUNDATION_VERSIONS = [
@@ -12,7 +12,7 @@ export const FOUNDATION_VERSIONS = [
 
 export function FoundationSwitch({ on }: { on: (typeof FOUNDATION_VERSIONS)[number]["k"] }) {
   return (
-    <nav className="rv-sw" style={{ top: 22, bottom: "auto" }} aria-label="Foundation page versions">
+    <nav className="rv-sw" style={{ top: 96, bottom: "auto" }} aria-label="Foundation page versions">
       <span className="rv-sw__l">Foundation</span>
       {FOUNDATION_VERSIONS.map((v) => (
         <a key={v.k} className="rv-sw__a" href={v.href} aria-current={v.k === on ? "true" : undefined} title={v.name}>{v.k.toUpperCase()}</a>

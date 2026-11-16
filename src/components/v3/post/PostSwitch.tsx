@@ -12,7 +12,7 @@ export type PostLayout = (typeof POST_VERSIONS)[number]["k"];
 /** fallback: the layout `base` opens in without ?layout= */
 export function PostSwitch({ on, base, fallback = "a" }: { on: PostLayout; base?: string; fallback?: PostLayout }) {
   return (
-    <nav className="rv-sw" style={{ top: 22, bottom: "auto" }} aria-label="Blog post layouts">
+    <nav className="rv-sw" style={{ top: 96, bottom: "auto" }} aria-label="Blog post layouts">
       <span className="rv-sw__l">Post</span>
       {POST_VERSIONS.map((v) => (
         <a key={v.k} className="rv-sw__a" href={base ? (v.k === fallback ? base : `${base}?layout=${v.k}`) : v.href} aria-current={v.k === on ? "true" : undefined} title={v.name}>{v.k.toUpperCase()}</a>
