@@ -26,8 +26,8 @@ const N = (
 const i = (n: number) => ({ "--i": n }) as CSSProperties;
 
 /* another hero in place of the ridges (the hero options sheet, D155): its still (the video's first frame), its camera move, its tracked layer (home-v2's
-   heroes, which find the picture through the same data-ch hooks) and its crop (object-position, %; sm: phones and portrait tablets, v7.css). Without it:
-   the ridges, as /home-v7 ships. */
+   heroes, which find the picture through the same data-ch hooks) and its crop (object-position, %; sm: phones and portrait tablets, v7.css). /home-v7
+   ships G1's time-lapse this way (./g1/hero.tsx, D167). Without it: v6's ridges. */
 type Crop = { x?: number; y?: number };
 /* no video: a still (it stays put through the pin). wash: a soft paper wash for the copy where a picture is busy behind it, on the left on desktop (lg) and
    from the top on phones and portrait tablets (sm), as v5's (v7.css) */

@@ -1,0 +1,5 @@
+/* G1's traced layer (D163; /home-v7's hero since D167): one canvas over the picture at every size (the film on desktop with motion,
+   G1's still elsewhere); it draws nothing without JS. Not on phones (critic: at 390 px only an orphan dot and a faint arc survived the headline's feather). */
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+@media (max-width: 599px) { .layer { display: none; } }
