@@ -5,7 +5,7 @@ import { InlineScript } from "@/components/InlineScript";
 import { VERSION_HEAD } from "@/components/shared/version";
 import { NotFoundA } from "@/components/notfound/a/NotFoundA";
 
-// THE 404 for any URL no route matches (experimental.globalNotFound in next.config.ts): proposal A, "Lost in the mist" (/404-a). The app has two root
+// THE 404 for any URL no route matches (experimental.globalNotFound in next.config.ts): proposal A, "Lost in the mist". The app has two root
 // layouts, (site) and (cms), so there is no single layout to compose a root not-found from; Next renders this file on its own, skipping every layout,
 // with a real 404 status. It therefore brings its own document: the same <html>/<head> as (site)/layout.tsx (fonts, global CSS, the data-js and
 // data-version scripts), keep the two in step. A notFound() inside the site (an unknown /blog/[slug]) renders the same design via (site)/not-found.tsx.

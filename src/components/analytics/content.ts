@@ -1,4 +1,4 @@
-// near.org/analytics: the copy, links and figures shared by the three versions (A /analytics, B /analytics-b, C /analytics-c), from the doc
+// near.org/analytics: the copy, links and figures shared by the two versions (A /analytics-a, B /analytics, the one in the menu), from the doc
 // "NEAR Analytics — Page Layout & Copy" (near.org-analytics-airnauts, October 2026), verbatim. A lean overview page, not a dashboard: it orients,
 // shows a few live numbers and routes people out to the deep tools. Page order: Hero → Core stats → Revenue card + Network status card (side by side)
 // → 3rd-party analytics tools → Public products (SVRN, ETPs & Trusts) → the legal line.

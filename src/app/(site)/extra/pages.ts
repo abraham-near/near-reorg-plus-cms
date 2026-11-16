@@ -28,16 +28,6 @@ export const GROUPS: Group[] = [
     ],
   },
   {
-    id: "404",
-    title: "404",
-    note: "Three not-found pages in home v5's style (its spread header, Montreal and the Kepler accent). The chosen one becomes the site's real 404.",
-    pages: [
-      { href: "/404-a", n: "A", name: "Lost in the mist", note: "Home v5's forest hero as the 404: a huge mist-grey 404 that fog drifts across, “Lost in the mist.”, one line of sub, Back home plus Blog and near.com.", tags: ["Photo", "Hero type", "Slow mist"], img: "/extra/404-a.webp" },
-      { href: "/404-b", n: "B", name: "404 in blocks", note: "The number in isometric blocks, in the rail's hand: one emerald rim, a NOT FOUND tag, one line and Back home.", tags: ["Isometric", "Minimal", "Rise in"], img: "/extra/404-b.webp" },
-      { href: "/404-c", n: "C", name: "Ruled", note: "The blog's ruled grid: one digit per cell (the 0 on ink with the emerald square), crosshairs where lines meet, one line, Back home and the blog.", tags: ["Ruled grid", "Crosshairs", "Rows draw in"], img: "/extra/404-c.webp" },
-    ],
-  },
-  {
     id: "contact",
     title: "Contact",
     note: "The contact page in the official pages' hand: home v5's header and footer, Blog J's head, rail and open feed.",
@@ -48,19 +38,10 @@ export const GROUPS: Group[] = [
   {
     id: "analytics",
     title: "Analytics",
-    note: "near.org/analytics in the official pages' hand (home v5, Blog J), three versions of the doc's lean overview. Sample figures: no live feed yet.",
+    note: "near.org/analytics in the official pages' hand (the homepage, Blog J), two versions of the doc's lean overview; B is /analytics, in the menu. Sample figures: no live feed yet.",
     pages: [
-      { href: "/analytics", n: "A", name: "Analytics · Overview", note: "The doc read literally on the ruled grid: three core stats, the revenue and status cards side by side, the tools, SVRN and the ETPs. Quiet motion: rows draw in, numbers count up once.", tags: ["Ruled grid", "Top 3 stats", "Quiet"], img: "/extra/analytics-a.webp" },
-      { href: "/analytics-b", n: "B", name: "Analytics · Instrument panel", note: "Mono and tabular: all five stats in a ticker beside the headline, a revenue chart with a crosshair readout, status.near.org-style uptime bars with tooltips, the tools as a dense table.", tags: ["Ticker", "Chart readouts", "Uptime bars"], img: "/extra/analytics-b.webp" },
-      { href: "/analytics-c", n: "C", name: "Analytics · Living network", note: "The creative one: an isometric network of shards that commits blocks on its own, the five stats as a pinned scroll story with a drawing each, tilting cards and a heartbeat on the status card.", tags: ["Isometric", "Scroll story", "Microinteractions"], img: "/extra/analytics-c.webp" },
-    ],
-  },
-  {
-    id: "base",
-    title: "Base",
-    note: "Where new pages start.",
-    pages: [
-      { href: "/template", n: "T", name: "Page template", note: "The shared header, sections and footer; renders in any direction (the switch at the bottom left).", tags: ["Shared pieces", "v1 / v2 / v3"], img: "/extra/template.webp" },
+      { href: "/analytics-a", n: "A", name: "Analytics · Overview", note: "The doc read literally on the ruled grid: three core stats, the revenue and status cards side by side, the tools, SVRN and the ETPs. Quiet motion: rows draw in, numbers count up once.", tags: ["Ruled grid", "Top 3 stats", "Quiet"], img: "/extra/analytics-a.webp" },
+      { href: "/analytics", n: "B", name: "Analytics · Instrument panel", note: "Mono and tabular: all five stats in a ticker beside the headline, a revenue chart with a crosshair readout, status.near.org-style uptime bars with tooltips, the tools as a dense table.", tags: ["Ticker", "Chart readouts", "Uptime bars"], img: "/extra/analytics-b.webp" },
     ],
   },
 ];

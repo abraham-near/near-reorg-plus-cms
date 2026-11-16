@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
-import { AnalyticsA } from "@/components/analytics/a/AnalyticsA";
+import { AnalyticsB } from "@/components/analytics/b/AnalyticsB";
 import { AnalyticsSwitch } from "@/components/analytics/AnalyticsSwitch";
 import { HERO } from "@/components/analytics/content";
 
-// near.org/analytics, version A · Overview: the doc's lean page on the homepage's ruled grid, in Blog J's hand (components/analytics/a).
+// near.org/analytics, version B: "Instrument panel" (components/analytics/b), on v3's shell. Copy and figures: components/analytics/content.ts.
 export const metadata: Metadata = {
   title: "Analytics",
   description: HERO.sub,
 };
 
-export default function AnalyticsPage() {
-  return <><BlogShell home="/"><AnalyticsA /></BlogShell><AnalyticsSwitch on="a" /></>;
+export default function AnalyticsBPage() {
+  return <><BlogShell home="/"><AnalyticsB /></BlogShell><AnalyticsSwitch on="b" /></>;
 }
