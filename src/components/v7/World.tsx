@@ -30,9 +30,10 @@ const i = (n: number) => ({ "--i": n }) as CSSProperties;
 type Crop = { x?: number; y?: number };
 /* no video: a still (it stays put through the pin). wash: a soft paper wash for the copy where a picture is busy behind it, on the left on desktop (lg) and
    from the top on phones and portrait tablets (sm), as v5's (v7.css) */
-/* still: where the film never plays (below 1280 px, or reduced motion), a sharper still in place of the film's first frame (D162). timing: the film's place at
+/* still: where the film never plays (below 1280 px, or reduced motion), a sharper still in place of the film's first frame (D162): one URL, or a srcset
+   with its stillSizes (the still covers the hero, so it is drawn wider than the screen on a phone held upright). timing: the film's place at
    even steps of its scroll range (HeroVideo), so its time-lapse can play out before the hand-over and still keep moving until it is gone (D162) */
-export type HeroAlt = { poster: string; video?: string; still?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[] } & Crop;
+export type HeroAlt = { poster: string; video?: string; still?: string; stillSizes?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[] } & Crop;
 
 // `tx`: one of the hero-to-intro transition studies (D109, ./tx): a longer pin (--tx-pin), the film stretched across it, no fade at the foot,
 // and the study's own pieces in the stage. Without it: /home-v6 as built (D108), with the paper rising at the foot (HeroRise).
@@ -62,7 +63,7 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
           <div className="hero6__media" data-ch="media">
             {hero?.still ? (
               <picture>
-                <source media="(max-width: 1279px), (prefers-reduced-motion: reduce)" srcSet={hero.still} />
+                <source media="(max-width: 1279px), (prefers-reduced-motion: reduce)" srcSet={hero.still} sizes={hero.stillSizes} />
                 <img className="hero6__img" src={hero.poster} alt="" width={1920} height={1080} decoding="async" fetchPriority="high" />
               </picture>
             ) : (
