@@ -11,7 +11,9 @@ import { G1Layer } from "./G1Layer";
    in-between after every frame, so its tail steps finely; the values are in the film's own time, so they bend where the frames double. */
 const TIMING = [0, 0.0226, 0.0451, 0.0677, 0.0902, 0.1128, 0.1353, 0.1579, 0.1804, 0.203, 0.2254, 0.2478, 0.2699, 0.2919, 0.3135, 0.3348, 0.3558, 0.3764, 0.3965, 0.4162, 0.4354, 0.4542, 0.4725, 0.5011, 0.5357, 0.5694, 0.6022, 0.6341, 0.6651, 0.6954, 0.7249, 0.7538, 0.7821, 0.81, 0.8374, 0.8647, 0.8917, 0.9188, 0.9459, 0.9729, 1];
 
+/* the film lives in the media bucket, not the repo: /cms/... redirects to it on Railway ((cms)/cms/[...path]/route.ts) and is served from public/cms
+   (gitignored) in development. v2 is v1 re-encoded smaller (H.264 CRF 27, tune film, a keyframe every 8 frames for the scrub, no B-frames; 7.2 to 4.2 MB) */
 export const G1_HERO: HeroAlt = {
-  poster: "/images/home/home-hero-g1-timelapse-v1.webp", video: "/videos/home/home-hero-g1-timelapse-v1.mp4", still: "/images/home/home-hero-g1-still-v1.webp",
+  poster: "/images/home/home-hero-g1-timelapse-v1.webp", video: "/cms/videos/home/home-hero-g1-timelapse-v2.mp4", still: "/images/home/home-hero-g1-still-v1.webp",
   x: 70, y: 50, sm: { x: 80 }, timing: TIMING, wash: ["lg"], layer: <G1Layer />,
 };
