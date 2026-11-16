@@ -26,6 +26,12 @@ import "../v5/statement-v5.css";
 import "./v7.css";
 import "./rail-v7.css";
 
+// the lower page's photos: literal black and white with one green accent, after the CMS preview's story pictures (D170: Go deeper, the blog's own; D171: the rest)
+const BW = "/images/home/bw";
+const PHOTOS = { deeper: "/images/blog", origin: `${BW}/origin-lab.webp`, ridges: `${BW}/voices-ridges.webp`, meadow: `${BW}/close-meadow.webp` };
+const PATH_IMG = [`${BW}/paths-trade.webp`, `${BW}/paths-integrate.webp`, `${BW}/paths-build.webp`];
+const DEEPER = { ...V4_DEEPER, paths: V4_DEEPER.paths.map((p, i) => ({ ...p, img: PATH_IMG[i] ?? p.img })) };
+
 const REV = "a" as const;   /* v5's revenue band and Origin; the voices are v6's own ("timer": on a clock, not the scroll; D135) */
 
 /** hero: another hero in place of the ridges (the hero options sheet, D155); tx: one of the hero-to-intro transition studies (D109), at /home-v6/<key>; st: one of the intro layout studies (D144), at /home-v6/intro/<key> */
@@ -35,7 +41,7 @@ export function V7Page({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroAl
       {/* as v5: no globe, and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
       <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={<WorldV7 tx={tx} st={st} hero={hero} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
-        afterStack={<ProofDeeper content={{ ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: "timer", originRatio: ORIGIN_RATIO[REV], scope: "v7" }} />} footer={<V3Footer />} />
+        afterStack={<ProofDeeper content={{ ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer", originRatio: ORIGIN_RATIO[REV], scope: "v7", photos: PHOTOS }} />} footer={<V3Footer />} />
     </>
   );
 }

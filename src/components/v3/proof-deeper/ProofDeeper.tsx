@@ -31,7 +31,7 @@ type Item = { id: string; type: Type; title: string; source: string; url?: strin
 const FILTERS: { key: "all" | Type; label: string }[] = [{ key: "all", label: "All" }, { key: "story", label: "Stories" }, { key: "read", label: "Read" }, { key: "watch", label: "Watch" }];
 const TYPE_LABEL: Record<Type, string> = { story: "Customer story", read: "Read", watch: "Watch" };
 const TILE_LABEL: Record<Type, string> = { ...TYPE_LABEL, story: "Story" };
-const img = (id: string) => `/v3/deeper/${id}.webp`;
+const img = (id: string, dir = "/v3/deeper") => `${dir}/${id}.webp`;
 const ITEMS: Item[] = [
   { id: "agent-economy", type: "read", title: "The Agent Economy: Who Owns the Rails AI Runs On", source: "NEAR blog" },
   { id: "abound", type: "story", title: "Abound is bringing agentic payments to cross-border finance with NEAR AI", source: "Abound", url: "https://near.ai/blog/near-ai-and-the-times-of-india-groups-abound-are-bringing-agentic-payments-to-cross-border-finance", note: "NEAR Foundation is an investor in Abound." },
@@ -89,6 +89,9 @@ export type DeeperContent = {
   /** the page this runs on, as data-scope on the wrapper (v6: its own tweaks in v6/v6.css). A plain attribute, not html:has(...): a :has() on the root
    *  restyles the whole page on every DOM change, every frame while a figure counts up (D134) */
   scope?: string;
+  /** other photos in place of v3's: deeper, the folder Go deeper's come from (none = /v3/deeper); origin, ridges (the voices' bleed) and meadow (the
+   *  close's bleed), single files. v7 uses the blog's black-and-white-with-green photos and its own in that style (D170, D171) */
+  photos?: { deeper?: string; origin?: string; ridges?: string; meadow?: string };
 };
 const Who = ({ q }: { q: Voice }) => (
   <figcaption className="l-who"><i className="l-who__dot" aria-hidden="true" /><span className="l-who__n">{q.name}</span>{q.role && <span className="l-who__r">{q.role}</span>}</figcaption>
@@ -109,11 +112,11 @@ const Photo = ({ src, cls }: { src: string; cls: string }) => (
   <div className={`l-ph ${cls}`} data-ph=""><img className="l-img" src={src} alt="" loading="lazy" decoding="async" /></div>
 );
 
-function Featured({ it, i, wide }: { it: Item; i: number; wide: boolean }) {
+function Featured({ it, i, wide, photos }: { it: Item; i: number; wide: boolean; photos?: string }) {
   return (
     <article className={`l-feat${wide ? " is-wide" : ""}`} data-i={i}>
       <a className="l-feat__a" href={href(it)}>
-        <Photo src={img(it.id)} cls="l-feat__ph" />
+        <Photo src={img(it.id, photos)} cls="l-feat__ph" />
         {it.type === "watch" && <span className="l-play" aria-hidden="true"><i data-icon="play" /></span>}
         <span className="l-feat__body">
           <span className="l-meta t-label">{TYPE_LABEL[it.type]}</span>
@@ -139,13 +142,13 @@ function Tile({ it, j }: { it: Item; j: number }) {
   );
 }
 
-function Panel({ f }: { f: (typeof FILTERS)[number] }) {
+function Panel({ f, photos }: { f: (typeof FILTERS)[number]; photos?: string }) {
   const { featured: F, more: M } = select(f.key), wide = F.length === 1, on = f.key === "all";
   return (
     <div className={`l-panel${wide ? " is-one" : ""}`} role="tabpanel" id={`l-deeper-p-${f.key}`} aria-labelledby={`l-deeper-tab-${f.key}`} data-key={f.key}
       data-on={on ? "" : undefined} aria-hidden={on ? undefined : true} inert={!on}>
-      <div className="l-cell l-feat-cell l-feat-cell--a">{F[0] && <Featured it={F[0]} i={0} wide={wide} />}</div>
-      <div className="l-cell l-feat-cell l-feat-cell--b">{F[1] && <Featured it={F[1]} i={1} wide={false} />}</div>
+      <div className="l-cell l-feat-cell l-feat-cell--a">{F[0] && <Featured it={F[0]} i={0} wide={wide} photos={photos} />}</div>
+      <div className="l-cell l-feat-cell l-feat-cell--b">{F[1] && <Featured it={F[1]} i={1} wide={false} photos={photos} />}</div>
       <div className="l-cell l-list-cell">
         {M.length
           ? <ol className="l-tiles" aria-label={`More in ${f.label}`}>{M.map((it, j) => <Tile key={it.id} it={it} j={j} />)}</ol>
@@ -219,7 +222,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           </div>
         </div>
         <div className="l-row l-deeper__body" data-row="">
-          {FILTERS.map((f) => <Panel key={f.key} f={f} />)}
+          {FILTERS.map((f) => <Panel key={f.key} f={f} photos={c.photos?.deeper} />)}
         </div>
         <div className="l-row l-deeper__foot" data-row="">
           <div className="l-cell"><a className="l-link" href={BLOG}><span>View everything</span><Arrow /></a></div>
@@ -227,7 +230,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
       </section>
       <section className="l-sec l-origin" id="origin" aria-labelledby="l-origin-t" data-ratio={c.originRatio}>
         <div className="l-row l-origin__row" data-row="">
-          <div className="l-cell l-origin__ph"><Photo src="/v3/origin-attention.webp" cls="l-ph--fill" /></div>
+          <div className="l-cell l-origin__ph"><Photo src={c.photos?.origin ?? "/v3/origin-attention.webp"} cls="l-ph--fill" /></div>
           <div className="l-cell l-origin__body">
             <h2 id="l-origin-t" className="l-h2 l-h2--m" data-rv="">{c.origin.title}</h2>
             <div className="l-origin__text" data-rv="">
@@ -246,7 +249,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           {/* the scene (desktop, motion on: motion.ts, gsap): the stage holds while the three voices take turns over the ridges, the photo drifting under them */}
           <div className="l-bleed l-voices__bleed" data-bleed="" data-voices="" data-vmode={vm}>
             <div className="l-voices__stage">
-              <div className="l-ph l-bleed__ph" data-ph=""><div className="l-plate"><img className="l-img" src="/v3/bleed-ridges.webp" alt="" loading="lazy" decoding="async" /></div></div>
+              <div className="l-ph l-bleed__ph" data-ph=""><div className="l-plate"><img className="l-img" src={c.photos?.ridges ?? "/v3/bleed-ridges.webp"} alt="" loading="lazy" decoding="async" /></div></div>
               <div className="l-bleed__in l-voices__in">
                 <div className="l-voices__top" data-rv="">
                   <h2 id="l-voices-t" className="l-kicker">What the world is saying about NEAR</h2>
@@ -341,7 +344,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
         <div className="l-bleed-wrap">
           <div className="l-bleed l-close__bleed" data-bleed="" data-close="">
             <div className="l-close__stage">
-              <div className="l-ph l-bleed__ph l-close__ph" data-ph=""><div className="l-plate"><img className="l-img" src="/v3/bleed-meadow.webp" alt="" loading="lazy" decoding="async" /></div></div>
+              <div className="l-ph l-bleed__ph l-close__ph" data-ph=""><div className="l-plate"><img className="l-img" src={c.photos?.meadow ?? "/v3/bleed-meadow.webp"} alt="" loading="lazy" decoding="async" /></div></div>
               <div className="l-bleed__in l-close__in">
                 <h2 id="l-close-t" className="l-display l-close__h">
                   <span className="l-close__logo">
