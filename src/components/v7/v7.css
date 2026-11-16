@@ -8,6 +8,13 @@
 .hero--v7 { --h6-x: 30%; --h6-y: 50%; --h6-rise: 0; }
 .hero--v7 .hero__bg { background: var(--paper); }
 .hero6__media { position: absolute; inset: 0; will-change: transform; }
+/* another hero's wash for the copy (D156: World.tsx's `hero.wash`): on desktop a soft paper wash from the left, under the copy only */
+.hero--v7[data-wash~="lg"] .hero6__media::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--paper) 62%, transparent) 0%, color-mix(in srgb, var(--paper) 40%, transparent) 32%, transparent 58%);
+}
+/* another hero's crop (the hero options sheet, D155: World.tsx's `hero`), over the ridges' own */
+.hero--v7[data-alt] { --h6-x: var(--alt-x, 50%); --h6-y: var(--alt-y, 50%); --hero-fx: var(--alt-fx, .5); --hero-fy: var(--alt-fy, .5); }
 .hero--v7 .hero__bg :is(.hero6__img, .hero6__video) {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--h6-x) var(--h6-y); transform: none;
 }
@@ -40,6 +47,21 @@
 /* phones and portrait tablets: the ridges sit under the copy, with v5's soft wash at the top for the headline and the paper at the foot */
 @media (max-width: 760px), (max-width: 900px) and (orientation: portrait) {
   .hero--v7 { --h6-x: 62%; }
+  .hero--v7[data-alt] {
+    --h6-x: var(--alt-x-sm, var(--alt-x, 50%)); --h6-y: var(--alt-y-sm, var(--alt-y, 50%));
+    --hero-fx: var(--alt-fx-sm, var(--alt-fx, .5)); --hero-fy: var(--alt-fy-sm, var(--alt-fy, .5));
+  }
+  /* the wash (D156): none from the left here; from the top instead, where the copy sits over the picture */
+  .hero--v7[data-wash~="lg"] .hero6__media::after { content: none; }
+  .hero--v7[data-wash~="sm"] .hero6__media::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 62%, transparent) 0%, color-mix(in srgb, var(--paper) 45%, transparent) 40%, transparent 68%);
+  }
+  /* smx: a stronger top wash, for a picture whose subject fills the phone screen behind the copy (D158) */
+  .hero--v7[data-wash~="smx"] .hero6__media::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--paper) 76%, transparent) 0%, color-mix(in srgb, var(--paper) 66%, transparent) 48%, transparent 74%);
+  }
   .hero--v7 .hero__bg::after {
     background:
       linear-gradient(180deg, color-mix(in srgb, var(--paper) 60%, transparent) 0%, color-mix(in srgb, var(--paper) 20%, transparent) 40%, transparent 62%),

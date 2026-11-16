@@ -17,7 +17,9 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 export const HERO_VIDEO = "/videos/home/home-hero-ridges-crane-v1.mp4";
 
 // `end`: where the move ends, as a ScrollTrigger end on the hero's root (home-v6's transition studies stretch it over a longer pin; D109)
-export function HeroVideo({ src, fps: FPS = 24, end = "top -120%" }: { src?: string; fps?: number; end?: string }) {
+// `timing`: where the film is (0-1) at even steps of the scroll, first 0 and last 1, eased between (D162: a film that plays most of its time-lapse while it
+// fills the screen and slows, never stopping, as the hand-over wipes it off). Without it, the film runs evenly with the scroll.
+export function HeroVideo({ src, fps: FPS = 24, end = "top -120%", timing }: { src?: string; fps?: number; end?: string; timing?: number[] }) {
   const anchor = useRef<HTMLSpanElement>(null);
 
   useGSAP(() => {
@@ -50,11 +52,16 @@ export function HeroVideo({ src, fps: FPS = 24, end = "top -120%" }: { src?: str
         onUpdate: (s) => { target = s.progress; if (!raf) raf = requestAnimationFrame(tick); },
       });
       const frame = (t: number) => Math.round(t * FPS) / FPS;
+      const at = (p: number) => {
+        if (!timing || timing.length < 2) return p;
+        const x = Math.min(1, Math.max(0, p)) * (timing.length - 1), i = Math.min(timing.length - 2, Math.floor(x));
+        return timing[i] + (timing[i + 1] - timing[i]) * (x - i);
+      };
       function tick() {
         raf = 0;
         if (!video!.duration) return; // waits for loadeddata, which calls tick
         if (video!.seeking) { raf = requestAnimationFrame(tick); return; }
-        const goal = frame(target * (video!.duration - 1 / FPS));
+        const goal = frame(at(target) * (video!.duration - 1 / FPS));
         const now = video!.currentTime, diff = goal - now;
         if (Math.abs(diff) < 0.5 / FPS) return;
         // Ease towards the target (a third of the way per frame, at least one frame), so a fast flick still glides
@@ -65,7 +72,7 @@ export function HeroVideo({ src, fps: FPS = 24, end = "top -120%" }: { src?: str
         video!.setAttribute("data-ready", "");
         tick();
       };
-      const loaded = () => { video!.currentTime = frame(target * (video!.duration - 1 / FPS)); };
+      const loaded = () => { video!.currentTime = frame(at(target) * (video!.duration - 1 / FPS)); };
       video.addEventListener("seeked", ready, { once: true });
       video.addEventListener("loadeddata", loaded, { once: true });
       video.preload = "auto";
@@ -83,7 +90,7 @@ export function HeroVideo({ src, fps: FPS = 24, end = "top -120%" }: { src?: str
       };
     });
     return () => mm.revert();
-  }, { scope: anchor, dependencies: [src, FPS, end] });
+  }, { scope: anchor, dependencies: [src, FPS, end, timing] });
 
   return <span ref={anchor} hidden />;
 }

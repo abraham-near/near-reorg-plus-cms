@@ -4,7 +4,7 @@
 // Both are reused unchanged; they find each other through the data-ch hooks (root, stage, media, video, copy). On desktop with motion the hero is
 // 220 svh tall: the photo stays (sticky) while the copy scrolls away and the camera moves, which is HeroVideo's scroll range (top to -120 %). Phones,
 // tablets and reduced motion keep the still (the video's first frame) with the layer at frame 0 and a gentle parallax. Styles: ./v7.css.
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { HeroVideo } from "../v2/chapter-one/HeroVideo";
 import { HeroLayer } from "../v2/chapter-one/layer/HeroLayer";
 import { HeroRise } from "./HeroRise";
@@ -25,12 +25,30 @@ const N = (
 );
 const i = (n: number) => ({ "--i": n }) as CSSProperties;
 
+/* another hero in place of the ridges (the hero options sheet, D155): its still (the video's first frame), its camera move, its tracked layer (home-v2's
+   heroes, which find the picture through the same data-ch hooks) and its crop (object-position, %; sm: phones and portrait tablets, v7.css). Without it:
+   the ridges, as /home-v7 ships. */
+type Crop = { x?: number; y?: number };
+/* no video: a still (it stays put through the pin). wash: a soft paper wash for the copy where a picture is busy behind it, on the left on desktop (lg) and
+   from the top on phones and portrait tablets (sm), as v5's (v7.css) */
+/* still: where the film never plays (below 1280 px, or reduced motion), a sharper still in place of the film's first frame (D162). timing: the film's place at
+   even steps of its scroll range (HeroVideo), so its time-lapse can play out before the hand-over and still keep moving until it is gone (D162) */
+export type HeroAlt = { poster: string; video?: string; still?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[] } & Crop;
+
 // `tx`: one of the hero-to-intro transition studies (D109, ./tx): a longer pin (--tx-pin), the film stretched across it, no fade at the foot,
 // and the study's own pieces in the stage. Without it: /home-v6 as built (D108), with the paper rising at the foot (HeroRise).
 // `st`: one of the intro layout studies (D144, ./intro), at /home-v6/intro/<key>: the same words, wipe and marker, laid out another way (intro.css).
-export function WorldV7({ tx, st }: { tx?: TxKey; st?: StKey } = {}) {
+export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroAlt } = {}) {
   const T = tx ? TX[tx] : null;
-  const pinStyle = T ? ({ "--tx-pin": `${T.pin}svh`, "--tx-pin-vh": `${T.pin}vh` } as CSSProperties) : undefined;
+  const pc = (v?: number) => (v === undefined ? undefined : `${v}%`);
+  const fr = (v?: number) => (v === undefined ? undefined : String(v / 100));
+  /* the crop twice over: as object-position for the picture (--h6-x/y, v7.css) and as fractions for the heroes' still SVGs (--hero-fx/fy, which home v2's
+     ChapterOne sets; without them the clouds still falls back to 78 % across and misses the picture on phones and tablets) */
+  const crop = hero ? (Object.fromEntries(Object.entries({
+    "--alt-x": pc(hero.x), "--alt-y": pc(hero.y), "--alt-x-sm": pc(hero.sm?.x), "--alt-y-sm": pc(hero.sm?.y),
+    "--alt-fx": fr(hero.x), "--alt-fy": fr(hero.y), "--alt-fx-sm": fr(hero.sm?.x), "--alt-fy-sm": fr(hero.sm?.y),
+  }).filter(([, v]) => v)) as CSSProperties) : undefined;
+  const pinStyle = T ? ({ ...crop, "--tx-pin": `${T.pin}svh`, "--tx-pin-vh": `${T.pin}vh` } as CSSProperties) : crop;
   return (
     <div className="pin" data-tx={tx} style={T ? ({ "--tx-over": `${T.over}svh`, "--tx-over-vh": `${T.over}vh` } as CSSProperties) : undefined}>
       <div className="stage" aria-hidden="true"><canvas /></div>
@@ -40,14 +58,21 @@ export function WorldV7({ tx, st }: { tx?: TxKey; st?: StKey } = {}) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="globe__poster" src="/v1/world/poster-globe-a.svg" alt="" width={1000} height={1000} decoding="async" loading="lazy" />
       </div>
-      <section className="hero hero--v5 hero--v7" aria-labelledby="hero-h" data-ch="root" data-tx={tx} style={pinStyle}>
+      <section className="hero hero--v5 hero--v7" aria-labelledby="hero-h" data-ch="root" data-tx={tx} data-alt={hero ? "" : undefined} data-wash={hero?.wash?.join(" ") || undefined} style={pinStyle}>
         <div className="hero__bg" aria-hidden="true" data-ch="stage">
           <div className="hero6__media" data-ch="media">
-            {/* eslint-disable-next-line @next/next/no-img-element -- one still, already compressed (1920 x 1080 WebP, 32 KB) */}
-            <img className="hero6__img" src={POSTER} alt="" width={1920} height={1080} decoding="async" fetchPriority="high" />
+            {hero?.still ? (
+              <picture>
+                <source media="(max-width: 1279px), (prefers-reduced-motion: reduce)" srcSet={hero.still} />
+                <img className="hero6__img" src={hero.poster} alt="" width={1920} height={1080} decoding="async" fetchPriority="high" />
+              </picture>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element -- one still, already compressed (1920 x 1080 WebP, 32 KB) */
+              <img className="hero6__img" src={hero?.poster ?? POSTER} alt="" width={1920} height={1080} decoding="async" fetchPriority="high" />
+            )}
             <video className="hero6__video" data-ch="video" muted playsInline preload="none" tabIndex={-1} />
-            <HeroVideo src={VIDEO} end={T ? `top -${T.key === "d" ? T.pin : txEnd(T)}%` : undefined} />
-            <HeroLayer look="plexusDust" data="zj3" />
+            {(!hero || hero.video) && <HeroVideo src={hero?.video ?? VIDEO} timing={hero?.timing} end={T ? `top -${T.key === "d" ? T.pin : txEnd(T)}%` : undefined} />}
+            {hero ? hero.layer : <HeroLayer look="plexusDust" data="zj3" />}
           </div>
           {T ? <T.C pin={T.pin} end={txEnd(T)} /> : <HeroRise />}
         </div>
