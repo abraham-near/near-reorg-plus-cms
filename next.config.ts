@@ -10,13 +10,13 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }] }];
   },
-  // Old addresses of pages that moved: Foundation E is the Foundation page now (/near-foundation; versions A–D and F were removed), the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/") and Analytics C; Analytics B is /analytics
+  // Old addresses of pages that moved: Foundation E is the Foundation page now (/near-foundation; versions A–D and F were removed), the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/") and the first Analytics C; Analytics B is /analytics (/analytics-c is a new version now)
   async redirects() {
     return [
       { source: "/foundation", destination: "/near-foundation", permanent: true },
       { source: "/foundation-:v([a-f])", destination: "/near-foundation", permanent: true },
       { source: "/blog-:v([a-l])", destination: "/blog", permanent: true },
-      { source: "/analytics-:v(b|c)", destination: "/analytics", permanent: true },
+      { source: "/analytics-b", destination: "/analytics", permanent: true },
       { source: "/home-v:v([1-6])", destination: "/", permanent: true },
       { source: "/home-v:v([1-6])/:path*", destination: "/", permanent: true },
     ];
