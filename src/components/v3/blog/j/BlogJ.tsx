@@ -7,7 +7,7 @@
 //   - the body: the rail (sticky): search (live, a clear button, "/" to focus it), the type filter (a vertical radio group; the green dot slides to the
 //     chosen type; each type shows how many posts match the search), Sort (Newest / Oldest / A–Z) and View (Grid / List) as small text toggles; the
 //     newsletter waits at the rail's foot. The feed: its head (how many are showing, the active filters as chips you can remove), the latest post as the
-//     lead while browsing, then the posts as open cards (photo, type, title, source) three to a row, 18 to a page, or as rows, six to a page; numbered pages at the foot.
+//     lead while browsing, then the posts as open cards (photo, type, title, source) three to a row, 18 to a page, or as rows, six to a page; numbered pages at the foot (compact: the first, the last, the current and its neighbours; ./pager.ts).
 //   - below 1024 px the rail folds into a bar over the feed: the search full width and a Filters button that opens type, sort and view in place.
 // The state rides in the URL (?q=, ?type=, ?sort=, ?view=, ?page=) so a filtered view can be shared or come back to.
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
@@ -17,6 +17,7 @@ import { KIND } from "./parts";
 import { Arrow, Tabs } from "../parts";
 import { Card, GridIcon, Lead, ListIcon, Newsletter, Row, Seg, TypeList, fold } from "./parts";
 import { mount, type JMotion } from "./motion";
+import { pageItems } from "./pager";
 import "./blog-j.css";
 
 type Sort = "new" | "old" | "az";
@@ -260,11 +261,13 @@ export function BlogJ({ live = NONE }: { live?: Post[] }) {
                     <Arrow /><span>Previous</span>
                   </button>
                   <ol className="bj-pgs">
-                    {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
-                      <li key={n}><button type="button" className="bj-pg" aria-current={n === pg ? "page" : undefined} onClick={() => go(n)}>
-                        <span className="sr-only">Page </span>{n}
-                      </button></li>
-                    ))}
+                    {pageItems(pg, pages).map((n, i) => n === "gap"
+                      ? <li key={`gap-${i}`} className="bj-gap" aria-hidden="true">…</li>
+                      : (
+                        <li key={n}><button type="button" className="bj-pg" aria-current={n === pg ? "page" : undefined} onClick={() => go(n)}>
+                          <span className="sr-only">Page </span>{n}
+                        </button></li>
+                      ))}
                   </ol>
                   <button type="button" className="bj-step" onClick={() => go(pg + 1)} disabled={pg === pages}>
                     <span>Next</span><Arrow />
