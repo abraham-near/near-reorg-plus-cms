@@ -8,6 +8,7 @@ export type RawPost = {
   metaDescription?: string | null; metaImage?: string | null
   categories?: { category: { id: string; name: string; slug: string } }[]; tags?: { id: string; name: string; slug: string }[]
   author?: { name: string | null } | null
+  takeaways?: string[]; layout?: string | null
 }
 
 export function shapePost(origin: string, p: RawPost, withBody = false) {
@@ -17,6 +18,7 @@ export function shapePost(origin: string, p: RawPost, withBody = false) {
     excerpt: p.excerpt ?? null, featuredImage: p.featuredImage ?? null,
     metaTitle: p.metaTitle ?? null, metaDescription: p.metaDescription ?? null, metaImage: p.metaImage ?? null,
     categories: p.categories?.map((c) => c.category), tags: p.tags, author: p.author?.name ?? null,
+    takeaways: p.takeaways ?? [], layout: p.layout ?? null,
     ...(withBody ? { bodyHtml: p.body ?? '' } : {}),
     ...postUrls(origin, p.id),
   }

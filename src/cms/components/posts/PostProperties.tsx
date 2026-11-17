@@ -76,7 +76,7 @@ export type PostPropertiesProps = {
   /** the public layout ('a' Ruled, 'b' Cover, 'c' Notebook); null = the site default (Cover) */
   layout: PostLayout | null
   onLayout: (value: PostLayout | null) => void
-  /** up to three key points, shown after the summary by the Cover layout */
+  /** up to three key points, shown by every layout */
   takeaways: string[]
   onTakeaways: (value: string[]) => void
   onNavigate: (event: { preventDefault: () => void }) => void
@@ -187,12 +187,12 @@ export default function PostProperties(props: PostPropertiesProps) {
       </select></span>
     </div>
 
-    <Takeaways values={props.takeaways} onChange={props.onTakeaways} editable={editable} cover={(props.layout ?? 'b') === 'b'} />
+    <Takeaways values={props.takeaways} onChange={props.onTakeaways} editable={editable} />
   </section>
 }
 
-/** Up to three key points: one line each, an empty slot to add the next; the Cover layout shows them in three columns after the summary. */
-function Takeaways({ values, onChange, editable, cover }: { values: string[]; onChange: (value: string[]) => void; editable: boolean; cover: boolean }) {
+/** Up to three key points: one line each, an empty slot to add the next. Every layout shows them (Cover in three columns after the summary, Ruled and Notebook in their key-points box). */
+function Takeaways({ values, onChange, editable }: { values: string[]; onChange: (value: string[]) => void; editable: boolean }) {
   const slots = values.length < MAX_TAKEAWAYS && editable ? [...values, ''] : values
   const set = (i: number, value: string) => {
     const next = [...values]
@@ -209,7 +209,6 @@ function Takeaways({ values, onChange, editable, cover }: { values: string[]; on
           placeholder={i === 0 ? 'A key point, in one line (optional)' : 'Another key point'}
           className="-mx-1.5 min-w-0 flex-1 rounded-md px-1.5 py-[5px] text-sm leading-normal placeholder:text-muted-foreground hover:bg-muted/60 focus-visible:bg-muted/60" />
       </div>)}
-      {!cover && values.length > 0 && <p className="text-xs text-muted-foreground">Shown by the Cover layout only.</p>}
     </div>
   </div>
 }

@@ -40,9 +40,26 @@ describe('the editor keeps story blocks', () => {
     expect(html.match(/<li>/g)).toHaveLength(4)
   })
 
+  it('round-trips a footnote inside its paragraph (not as raw HTML)', () => {
+    const html = roundTrip('<p>Agents act for you.<sup data-type="footnote" data-footnote="Here, a model that can call tools."></sup> More text.</p>')
+    expect(html).toContain('<p>Agents act for you.<sup data-type="footnote" data-footnote="Here, a model that can call tools."></sup> More text.</p>')
+    expect(html).not.toContain('raw-html')
+    const p = editorFor(html).getJSON().content?.[0]
+    expect(p?.content?.map((node) => node.type)).toEqual(['text', 'footnote', 'text'])
+    expect(p?.content?.[1]).toMatchObject({ attrs: { text: 'Here, a model that can call tools.' } })
+  })
+
+  it('keeps a footnote out of the text a reader copies', () => {
+    expect(editorFor('<p>One<sup data-type="footnote" data-footnote="A note."></sup> two</p>').getText()).toBe('One two')
+  })
+
   it('offers the story blocks in the slash menu', () => {
     const ids = SLASH_ITEMS.map((item) => item.id)
-    for (const id of ['pullquote', 'callout', 'figures', 'pair']) expect(ids).toContain(id)
+    for (const id of ['pullquote', 'callout', 'figures', 'pair', 'footnote']) expect(ids).toContain(id)
+    const withNote = editorFor('<p>Text</p>')
+    withNote.commands.setTextSelection(5)
+    SLASH_ITEMS.find((item) => item.id === 'footnote')!.run(withNote)
+    expect(JSON.stringify(withNote.getJSON())).toContain('"type":"footnote"')
     for (const [id, type] of [['figures', 'figures'], ['callout', 'callout'], ['pullquote', 'blockquote']]) {
       const editor = editorFor('<p></p>')
       SLASH_ITEMS.find((item) => item.id === id)!.run(editor)

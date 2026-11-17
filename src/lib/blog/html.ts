@@ -7,7 +7,8 @@ import DOMPurify from "isomorphic-dompurify";
 export type Section = { id: string; t: string };
 /** what the Media table knows about an image, by its URL */
 export type MediaInfo = { w: number | null; h: number | null; alt: string | null };
-export type PreparedBody = { html: string; sections: Section[]; words: number; readMin: number; summary: string };
+/** notes: the footnotes' texts, in order (the body's markers link to #fn-1…; the layouts list them, Body.tsx Footnotes) */
+export type PreparedBody = { html: string; sections: Section[]; words: number; readMin: number; summary: string; notes: string[] };
 
 /** ids the page around the body already uses */
 const RESERVED = ["main", "pa-t", "pa-more-t", "pbv-t", "pbv-next-t", "pc-t", "pc-more-t"];
@@ -99,8 +100,20 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
   const all = plain(frag);
   const summary = summarize(all), words = countWords(`${opts.dek || ""} ${all}`);
 
-  // h2s: an id from the text, the layouts' number + title spans
-  const nextId = idMaker();
+  // footnotes: <sup data-type="footnote" data-footnote="…"> (the CMS editor's) become numbered links to the notes, in order; an empty one goes.
+  // Their text is an attribute, so it never counts as the body's words or summary
+  const notes: string[] = [];
+  frag.querySelectorAll('sup[data-type="footnote"]').forEach((s) => {
+    const t = (s.getAttribute("data-footnote") || "").replace(/\s+/g, " ").trim().slice(0, 600);
+    if (!t) { s.remove(); return; }
+    const n = notes.push(t);
+    const sup = el("sup", "pb-fn"), a = el("a");
+    a.id = `fnref-${n}`; a.setAttribute("href", `#fn-${n}`); a.setAttribute("aria-label", `Note ${n}`); a.textContent = String(n);
+    sup.append(a); s.replaceWith(sup);
+  });
+
+  // h2s: an id from the text, the layouts' number + title spans (never one of the notes' ids)
+  const nextId = idMaker([...RESERVED, ...notes.flatMap((_, i) => [`fn-${i + 1}`, `fnref-${i + 1}`])]);
   const sections: Section[] = [];
   frag.querySelectorAll("h2").forEach((h, i) => {
     const t = text(h), id = nextId(t);
@@ -239,5 +252,5 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
 
   const box = doc.createElement("div");
   box.append(frag);
-  return { html: box.innerHTML, sections, words, readMin: readMinutes(words), summary };
+  return { html: box.innerHTML, sections, words, readMin: readMinutes(words), summary, notes };
 }

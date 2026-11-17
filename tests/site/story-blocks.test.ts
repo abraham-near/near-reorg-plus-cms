@@ -41,6 +41,21 @@ describe('the public post draws them', () => {
     expect(body('<p><img src="/cms/a.webp" alt="A"></p>')).toMatch(/data-size="col"/)
   })
 
+  it('numbers the footnotes in order and lists their texts, leaving empty ones out', () => {
+    const fn = (t: string) => `<sup data-type="footnote" data-footnote="${t}"></sup>`
+    const out = prepareBody(`<p>First${fn('Note one.')} and${fn('')} second${fn('Note  two.')}</p><h2>Notes</h2><p>Words</p>`)
+    expect(out.notes).toEqual(['Note one.', 'Note two.'])
+    expect(out.html).toContain('<sup class="pb-fn"><a id="fnref-1" href="#fn-1" aria-label="Note 1">1</a></sup>')
+    expect(out.html).toContain('<sup class="pb-fn"><a id="fnref-2" href="#fn-2" aria-label="Note 2">2</a></sup>')
+    expect(out.html).not.toContain('data-footnote')
+    expect(out.words).toBe(5)   // the notes' text is not the body's
+  })
+
+  it('never gives a heading a footnote\'s id', () => {
+    const out = prepareBody('<h2>Fn 1</h2><p>A<sup data-type="footnote" data-footnote="N."></sup></p>')
+    expect(out.sections[0].id).not.toBe('fn-1')
+  })
+
   it('makes a figure of an image on its own line, with its caption', () => {
     const html = body('<img src="/cms/a.webp" alt="A" title="Dawn">')
     expect(html).toContain('class="pb-fig pb-fig--free"')

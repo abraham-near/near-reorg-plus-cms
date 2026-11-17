@@ -1,11 +1,14 @@
 import { Node } from '@tiptap/core'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { FiguresView } from '../node-views/FiguresView'
+import { FootnoteView } from '../node-views/FootnoteView'
 
 // Story blocks: what the post layouts draw beyond plain text (lib/blog/html.ts turns them into the layouts' markup).
 //   - Callout: a titled note. Its first paragraph is the title, the rest the text. Stored as <aside data-type="callout">.
 //   - Figures: two to four numbers with a label each, and a note for the source or the date. Stored as
 //     <figure data-type="figures"><ul><li><strong>$38B+</strong><span>Settled</span></li>…</ul><figcaption>note</figcaption></figure>.
+//   - Footnote: a numbered note at a point in the text, its text kept on the marker. Stored as
+//     <sup data-type="footnote" data-footnote="The note."></sup>; the page numbers them in order and lists them at the end.
 // Pull quotes are blockquotes (a last paragraph that starts with a dash names who said it) and image pairs are two images
 // on one line: neither needs a node of its own.
 
@@ -47,4 +50,19 @@ export const FiguresBlock = Node.create({
       ...(note ? [['figcaption', {}, note]] : [])]
   },
   addNodeView() { return ReactNodeViewRenderer(FiguresView) },
+})
+
+export const MAX_FOOTNOTE = 600
+export const footnoteText = (value: unknown) => clean(value, MAX_FOOTNOTE)
+
+export const Footnote = Node.create({
+  name: 'footnote', group: 'inline', inline: true, atom: true, selectable: true,
+  addAttributes() {
+    return { text: { default: '', rendered: false, parseHTML: (element) => footnoteText(element.getAttribute('data-footnote')) } }
+  },
+  // above any other rule for <sup> (a plain superscript would otherwise lose the note)
+  parseHTML() { return [{ tag: 'sup[data-type="footnote"]', priority: 1100 }] },
+  renderHTML({ node }) { return ['sup', { 'data-type': 'footnote', 'data-footnote': footnoteText(node.attrs.text) }] },
+  renderText() { return '' },
+  addNodeView() { return ReactNodeViewRenderer(FootnoteView) },
 })

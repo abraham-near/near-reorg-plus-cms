@@ -10,7 +10,7 @@ import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import { mountGrid } from "../../blog/grid";
 import { Photo } from "../../blog/parts";
 import type { Article } from "../article";
-import { Avatar, Body, MoreCard, Share, Tags } from "../Body";
+import { Avatar, Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
 import { useActiveSection, useReadProgress, useReveal } from "../hooks";
 import "../post.css";
 import "./post-a.css";
@@ -92,6 +92,7 @@ export function PostA({ article: A }: { article: Article }) {
               </aside>
             )}
             <Body article={A} notes="margin" />
+            {htmlNotes(A) && <Footnotes article={A} />}
           </div>
           <div className="bl-cell pa-margin" aria-hidden="true" />
         </div>

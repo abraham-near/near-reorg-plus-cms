@@ -19,7 +19,7 @@ export type LivePost = PostCard & {
   updatedAt: string;
   metaTitle: string | null; metaDescription: string | null; metaImage: string | null;
   categories: Term[]; tags: Term[];
-  html: string; sections: Section[]; readMin: number; summary: string;
+  html: string; sections: Section[]; readMin: number; summary: string; notes: string[];
   takeaways: string[]; layout: string | null;
 };
 
@@ -93,7 +93,7 @@ export async function getLivePost(slug: string): Promise<LivePost | null> {
     visibility: p.visibility, updatedAt: p.updatedAt.toISOString(),
     metaTitle: p.metaTitle, metaDescription: p.metaDescription, metaImage: p.metaImage,
     categories: p.categories.map((c) => c.category), tags: p.tags,
-    html: body.html, sections: body.sections, readMin: body.readMin, summary: body.summary,
+    html: body.html, sections: body.sections, readMin: body.readMin, summary: body.summary, notes: body.notes,
     takeaways: p.takeaways.filter((t) => t.trim()).slice(0, 3), layout: p.layout,
   };
 }

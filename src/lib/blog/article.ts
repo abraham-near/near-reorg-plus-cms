@@ -39,6 +39,7 @@ export function toArticle(p: LivePost, more: PostCard[], layout = DEFAULT_LAYOUT
     hero: p.image ? { src: p.image.src, alt: p.image.alt, w: p.image.w ?? undefined, h: p.image.h ?? undefined } : null,
     takeaways: p.takeaways,
     body: { html: p.html },
+    notes: p.notes,
     sections: p.sections,
     readMin: p.readMin,
     more: more.map((m) => toMore(m, layout)),

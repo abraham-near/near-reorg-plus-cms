@@ -20,7 +20,7 @@ import { common, createLowlight } from 'lowlight'
 import { safeUrl } from '@/cms/lib/sanitize'
 import { RawHtmlBlock } from './RawHtmlBlock'
 import { ImageView } from '../node-views/ImageView'
-import { Callout, FiguresBlock } from './StoryBlocks'
+import { Callout, FiguresBlock, Footnote } from './StoryBlocks'
 
 const lowlight = createLowlight(common)
 export type ImageSize = 'wide' | 'bleed'
@@ -65,7 +65,7 @@ export function getExtensions(options: EditorExtensionOptions | string = {}) {
     CodeBlockLowlight.configure({ lowlight }),
     Table.configure({ resizable: true, HTMLAttributes: { class: 'cms-editor-table' } }), TableRow, TableHeader, TableCell,
     TaskList, SafeTaskItem,
-    EmbedBlock, Callout, FiguresBlock, DragHandle, FindReplace, BlockKeymap, ImageUpload,
+    EmbedBlock, Callout, FiguresBlock, Footnote, DragHandle, FindReplace, BlockKeymap, ImageUpload,
     Placeholder.configure({
       includeChildren: true,
       showOnlyCurrent: true,

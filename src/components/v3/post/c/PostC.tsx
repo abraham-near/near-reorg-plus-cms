@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Arrow } from "../../blog/parts";
 import type { Article } from "../article";
-import { Avatar, Body, Share, Tags } from "../Body";
+import { Avatar, Body, Footnotes, Share, Tags, htmlNotes } from "../Body";
 import { useActiveSection, useReadProgress, useReveal } from "../hooks";
 import "../post.css";
 import "./post-c.css";
@@ -81,6 +81,7 @@ export function PostC({ article: A }: { article: Article }) {
 
           <div ref={art} className="pc-main">
             <Body article={A} notes="aside" />
+            {htmlNotes(A) && <Footnotes article={A} />}
             <footer className="pc-foot">
               <Tags article={A} />
               <div className="pc-author">

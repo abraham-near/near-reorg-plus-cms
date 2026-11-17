@@ -2,7 +2,7 @@
 // The post's body, the same markup in all three layouts (pb-* classes); each layout styles it in its own CSS. Notes either sit beside / under their
 // paragraph (notes="aside") or become numbered footnotes (notes="foot", with <Footnotes /> at the end). Plus the small shared pieces: byline, tags, share,
 // and the card the layouts' "more posts" use. A CMS body is sanitized HTML already given pb-* classes on the server (lib/blog/html.ts); post.css styles
-// the rest of its tags under .pb-body--html. It has no notes.
+// the rest of its tags under .pb-body--html. Its footnotes are numbered there too; <Footnotes /> lists them (article.notes).
 import { Fragment, useState, useSyncExternalStore, type ReactNode } from "react";
 import { isExt } from "../blog/data";
 import { Arrow, Photo } from "../blog/parts";
@@ -15,8 +15,10 @@ export function inline(t: string): ReactNode[] {
   );
 }
 
-/** the notes of a typed body (an HTML body has none) */
-export const notesOf = (a: Article) => ("blocks" in a.body ? a.body.blocks.flatMap((b) => (b.k === "p" && b.note ? [b.note] : [])) : []);
+/** the notes: a typed body's, from its paragraphs; an HTML body's, numbered on the server (its markers are in the HTML already) */
+export const notesOf = (a: Article) => ("blocks" in a.body ? a.body.blocks.flatMap((b) => (b.k === "p" && b.note ? [b.note] : [])) : a.notes ?? []);
+/** an HTML body (the CMS) has numbered footnotes in every layout: the layouts whose typed notes sit beside the text (A, C) list them at its end too */
+export const htmlNotes = (a: Article) => "html" in a.body && !!a.notes?.length;
 
 export function Figure({ img, cls = "", eager, size }: { img: Img; cls?: string; eager?: boolean; size?: string }) {
   return (

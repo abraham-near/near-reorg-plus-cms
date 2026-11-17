@@ -568,19 +568,24 @@
   color: #fecaca;
 }
 
-/* Footnote styles */
-.footnote-marker {
-  font-size: 0.875em;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-  top: -0.4em;
-}
+/* Footnotes (editor/extensions/StoryBlocks.ts, FootnoteView): a green number in the text, counted in order; its note in a box under it while selected */
+.cms-editor-body { counter-reset: cms-fn; }   /* the editor's root (ProseMirror) */
+.cms-fn { counter-increment: cms-fn; position: relative; display: inline-block; line-height: 0; vertical-align: super; font-size: .72em; margin: 0 1px; }
+.cms-fn__n { display: inline-grid; place-items: center; min-width: 1.5em; height: 1.5em; padding: 0 .3em; border-radius: 999px; background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); font-weight: 650; cursor: pointer; }
+.cms-fn__n::before { content: counter(cms-fn); }
+.cms-fn[data-empty] .cms-fn__n { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.cms-fn.is-open .cms-fn__n, .node-footnote.ProseMirror-selectednode .cms-fn__n { box-shadow: 0 0 0 2px var(--primary); }
+.node-footnote.ProseMirror-selectednode, .node-footnote.ProseMirror-selectednode .cms-fn { outline: none; }   /* the ring on the number says it */
+.cms-fn__box { position: absolute; z-index: 30; top: calc(100% + 10px); left: 50%; translate: -50% 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; width: min(340px, 80vw); padding: 10px 10px 10px 12px;
+  border-radius: 10px; background: var(--popover, #fff); color: var(--popover-foreground, inherit); box-shadow: 0 12px 30px rgb(15 15 15 / .14), 0 0 0 1px var(--border); line-height: 1.4; font-size: 14px; font-weight: 400; vertical-align: baseline; text-align: left; }
+.cms-fn__l { grid-column: 1 / -1; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground); }
+.cms-fn__text { width: 100%; min-height: 3.2em; resize: none; field-sizing: content; border: 0; outline: none; background: transparent; color: inherit; font: inherit; }
+.cms-fn__x { align-self: start; display: grid; place-items: center; width: 26px; height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--muted-foreground); cursor: pointer; }
+.cms-fn__x:hover { background: color-mix(in oklab, var(--destructive) 12%, transparent); color: var(--destructive); }
 
-.footnote-marker:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
+/* the preview's footnote markers, numbered as the site numbers them (empty ones are left out there) */
+.cms-preview-body { counter-reset: cms-pv-fn; }
+.cms-preview-body sup[data-type="footnote"]:not([data-footnote=""])::after { counter-increment: cms-pv-fn; content: counter(cms-pv-fn); margin-left: 1px; font-size: .75em; font-weight: 650; color: var(--primary); }
 
 /* Story blocks (editor/extensions/StoryBlocks.ts): a callout box, the figures band drawn as the Cover layout draws it */
 .cms-editor-body aside[data-type="callout"] { margin: 1.4rem 0; padding: 14px 18px; border-radius: 10px; background: var(--tint-0, color-mix(in oklab, var(--primary) 7%, transparent)); border-top: 2px solid var(--primary); }
@@ -594,6 +599,10 @@
 .cms-figures input::placeholder { color: rgb(245 244 241 / .35); }
 .cms-figures__n { font-size: 34px; line-height: 1.1; letter-spacing: -.02em; color: #00dc8d !important; }
 .cms-figures__l { font-size: 13px; color: rgb(245 244 241 / .75) !important; }
+/* the label wraps as it would on the page (it was one line, cut off) */
+.cms-figures textarea.cms-figures__l { width: 100%; min-width: 0; border: 0; border-radius: 6px; background: transparent; outline: none; padding: 2px 6px; margin: 0 -6px; resize: none; field-sizing: content; font: inherit; font-size: 13px; line-height: 1.35; }
+.cms-figures textarea.cms-figures__l:hover, .cms-figures textarea.cms-figures__l:focus-visible { background: rgb(245 244 241 / .08); }
+.cms-figures textarea.cms-figures__l::placeholder { color: rgb(245 244 241 / .35); }
 .cms-figures__note { font-size: 12px; color: rgb(245 244 241 / .55) !important; }
 .cms-figures__x { position: absolute; right: -4px; top: 6px; display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 6px; background: transparent; color: rgb(245 244 241 / .5); cursor: pointer; }
 .cms-figures__x:hover { background: rgb(245 244 241 / .1); color: #f5f4f1; }

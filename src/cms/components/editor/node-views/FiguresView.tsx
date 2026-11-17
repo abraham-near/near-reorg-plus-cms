@@ -23,8 +23,9 @@ export function FiguresView({ node, editor, updateAttributes }: NodeViewProps) {
           <div key={i} className="cms-figures__item">
             <input className="cms-figures__n" aria-label={`Figure ${i + 1}: number`} placeholder="$38B+" value={item.n} maxLength={24} disabled={!editable}
               onChange={(event) => edit(i, 'n', event.target.value)} />
-            <input className="cms-figures__l" aria-label={`Figure ${i + 1}: label`} placeholder="What it counts" value={item.l} maxLength={120} disabled={!editable}
-              onChange={(event) => edit(i, 'l', event.target.value)} />
+            <textarea className="cms-figures__l" rows={1} aria-label={`Figure ${i + 1}: label`} placeholder="What it counts" value={item.l} maxLength={120} disabled={!editable}
+              onChange={(event) => edit(i, 'l', event.target.value.replace(/\n/g, ' '))}
+              onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault() }} />
             {editable && items.length > 1 && (
               <button type="button" className="cms-figures__x" aria-label={`Remove figure ${i + 1}`} onClick={() => set(items.filter((_, j) => j !== i))}><X className="size-3.5" /></button>
             )}

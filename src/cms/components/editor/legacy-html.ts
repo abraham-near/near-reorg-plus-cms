@@ -1,6 +1,6 @@
 import { escapeHtml, sanitizeRichHtml } from '@/cms/lib/sanitize'
 
-const customBlocks = new Set(['embed-block', 'taskList', 'taskItem', 'callout', 'figures'])
+const customBlocks = new Set(['embed-block', 'taskList', 'taskItem', 'callout', 'figures', 'footnote'])
 const modeledTags = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'STRONG', 'B', 'EM', 'I', 'S', 'DEL', 'U', 'MARK', 'CODE', 'PRE', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'BR', 'HR', 'A', 'IMG'])
 const modeledAttributes: Record<string, Set<string>> = {
   A: new Set(['href', 'target', 'rel']),
