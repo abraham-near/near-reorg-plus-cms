@@ -1,5 +1,5 @@
 /* r17 v1 · the rail's illustrations from the Figma isometrics (TJ38G7245lEghviUBaCTFJ: problem 459:527, data 501:4977, assets 508:5715, intelligence 521:6082,
- * identity 521:6785). r17 v1's js/vig2.js.
+ * identity 918:299, was 521:6785). r17 v1's js/vig2.js.
  *   createVignette(key, host) -> { el, set(a), idle(t, w), dispose() }
  *   set(a): a pure function of the playhead, a in [0, 2]: 0 = not arrived (nothing shows), 0 -> 1 = arriving, 1 = at rest, 1 -> 2 = leaving, 2 = gone. Cheap,
  *           allocation free. Calls made before the art has loaded are remembered: the last one is applied when it lands.
