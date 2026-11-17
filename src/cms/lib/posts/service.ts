@@ -15,7 +15,7 @@ import { createPostSchema, updatePostSchema, type PostInput } from './schema'
 import { assertTokenPostWrite } from './token-rules'
 import { notifyTokenPublish } from './token-notify'
 
-const RESTORED_FIELDS = ['title', 'body', 'excerpt', 'featuredImage', 'metaTitle', 'metaDescription', 'metaImage'] as const
+const RESTORED_FIELDS = ['title', 'body', 'excerpt', 'featuredImage', 'metaTitle', 'metaDescription', 'metaImage', 'takeaways', 'layout'] as const
 
 export const LOCK_TTL_MS = 90_000
 export const activeLock = (post: Pick<AdminPost, 'lockedAt' | 'lockedById'>) => !!post.lockedById && !!post.lockedAt && post.lockedAt.getTime() > Date.now() - LOCK_TTL_MS

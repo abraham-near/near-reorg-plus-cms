@@ -18,7 +18,7 @@ import { AdminApiError, adminFetch } from '@/cms/lib/client'
 import { cn, fallbackSlug, slugify } from '@/cms/lib/utils'
 import { useNow } from '@/cms/lib/useStoredState'
 import { safeUrl } from '@/cms/lib/sanitize'
-import PostProperties, { AutoTextarea, PostStatusChip, type DisplayStatus } from './PostProperties'
+import PostProperties, { AutoTextarea, PostStatusChip, type DisplayStatus, type PostLayout } from './PostProperties'
 import PublishDialog, { SITE_HOST, type PublishKind } from './PublishDialog'
 import RevisionsPanel from './RevisionsPanel'
 import SaveState, { type SaveStatus } from './SaveState'
@@ -31,6 +31,7 @@ type Visibility = 'PUBLIC' | 'UNLISTED'
 type Form = {
   title: string; slug: string; excerpt: string; featuredImage: string; metaTitle: string; metaDescription: string
   metaImage: string; visibility: Visibility; categoryIds: string[]; tagIds: string[]; body: string
+  takeaways: string[]; layout: PostLayout | null
 }
 /** status/publishedAt change only through explicit actions (publish, schedule, archive…); `blocking` disables the form meanwhile. */
 type SaveOptions = { status?: Status; publishedAt?: string | null; auto?: boolean; blocking?: boolean }
@@ -45,6 +46,7 @@ function formFromPost(post: PostRecord | null): Form {
     visibility: post?.visibility ?? 'PUBLIC',
     categoryIds: post?.categories.map((join) => join.categoryId) ?? [], tagIds: post?.tags.map((tag) => tag.id) ?? [],
     body: post?.body ?? '',
+    takeaways: post?.takeaways ?? [], layout: (post?.layout as PostLayout | null | undefined) ?? null,
   }
 }
 /** True when the post's URL still follows its title: a draft never published whose slug is the title's (maybe with a -2 suffix or a post-xxxxxx fallback). */
@@ -545,7 +547,8 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           slug={form.slug} onSlug={(slug) => { setSlugAuto(false)
             update('slug', slug) }} wasLive={wasLive} savedSlug={post?.slug ?? null}
           visibility={form.visibility} onVisibility={(value) => update('visibility', value)}
-          excerpt={form.excerpt} onExcerpt={(value) => update('excerpt', value)} excerptRef={excerptRef} onNavigate={guardNavigation} />
+          excerpt={form.excerpt} onExcerpt={(value) => update('excerpt', value)} excerptRef={excerptRef} onNavigate={guardNavigation}
+          layout={form.layout} onLayout={(value) => update('layout', value)} takeaways={form.takeaways} onTakeaways={(value) => update('takeaways', value)} />
 
         <div ref={bodyRef} className="pt-5">
           <BlockEditor label="Post body" value={form.body} onChange={(value) => update('body', value)} editable={editable} onWordCount={setEditorWords} />

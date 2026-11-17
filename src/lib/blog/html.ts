@@ -49,7 +49,7 @@ export const imageUrls = (html: string) => [...html.matchAll(/<img\b[^>]*?\ssrc=
 // The CMS's own sanitizer settings (src/cms/lib/sanitize.ts), and its embed hosts: an iframe from anywhere else is dropped.
 const PURIFY = {
   ADD_TAGS: ["iframe", "figure", "figcaption", "video", "source"],
-  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "target", "rel", "controls", "loop", "muted", "playsinline", "poster", "colspan", "rowspan", "data-type", "data-callout", "data-footnote"],
+  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "target", "rel", "controls", "loop", "muted", "playsinline", "poster", "colspan", "rowspan", "data-type", "data-callout", "data-footnote", "data-size"],
   FORBID_TAGS: ["style", "form", "input", "button", "textarea", "select", "object", "embed", "base", "meta", "link"],
   FORBID_ATTR: ["style"],
   ALLOW_DATA_ATTR: false,
@@ -122,12 +122,47 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
     if (!img.getAttribute("alt")) img.setAttribute("alt", m?.alt || "");
   });
 
-  // a figure in the layouts' markup around one image (its own proportions: .pb-fig--free)
+  // a figure in the layouts' markup around one image (its own proportions: .pb-fig--free), as wide as the editor set it (data-size: wide / bleed)
   const figure = (img: Element, cap: string | null) => {
-    const fig = el("figure", "pb-fig pb-fig--free"); fig.setAttribute("data-size", "col"); fig.setAttribute("data-reveal", "");
+    const asked = img.getAttribute("data-size"), size = asked === "wide" || asked === "bleed" ? asked : "col";
+    img.removeAttribute("data-size");
+    const fig = el("figure", size === "bleed" ? "pb-fig" : "pb-fig pb-fig--free"); fig.setAttribute("data-size", size); fig.setAttribute("data-reveal", "");
     const ph = el("div", "pb-fig__ph"); img.classList.add("pb-fig__img"); ph.append(img); fig.append(ph);
     if (cap) { const c = el("figcaption", "pb-cap"); c.textContent = cap; fig.append(c); }
     return fig;
+  };
+
+  // two images side by side, one caption (the editor's "Image pair": two images on one line)
+  const pair = (imgs: Element[]) => {
+    const fig = el("figure", "pb-pair"); fig.setAttribute("data-reveal", "");
+    const row = el("div", "pb-pair__row");
+    const cap = imgs.map((img) => img.getAttribute("title")).find((t) => t && t.trim()) ?? null;
+    for (const img of imgs) { img.removeAttribute("title"); img.removeAttribute("data-size"); img.classList.add("pb-fig__img"); const ph = el("div", "pb-fig__ph"); ph.append(img); row.append(ph); }
+    fig.append(row);
+    if (cap) { const c = el("figcaption", "pb-cap"); c.textContent = cap; fig.append(c); }
+    return fig;
+  };
+  // the figures band (the editor's "Figures"): numbers with labels, and a note
+  const stats = (b: Element) => {
+    const box = el("div", "pb-stats"); box.setAttribute("data-reveal", "");
+    const list = el("ul", "pb-stats__list");
+    for (const li of b.querySelectorAll("li")) {
+      const n = text(li.querySelector("strong") ?? el("i")), l = text(li.querySelector("span") ?? el("i"));
+      if (!n && !l) continue;
+      const item = el("li", "pb-stat"), sn = el("strong", "pb-stat__n"), sl = el("span", "pb-stat__l");
+      sn.textContent = n; sl.textContent = l; item.append(sn, sl); list.append(item);
+    }
+    box.append(list);
+    const note = text(b.querySelector("figcaption") ?? el("i"));
+    if (note) { const p = el("p", "pb-stats__note"); p.textContent = note; box.append(p); }
+    return list.children.length ? box : null;
+  };
+  // a callout: its first paragraph is the title, the rest the text
+  const callout = (b: Element) => {
+    b.className = "pb-callout"; b.setAttribute("data-reveal", "");
+    const ps = [...b.children].filter((c) => c.tagName === "P" && text(c));
+    [...b.children].filter((c) => c.tagName === "P" && !text(c)).forEach((c) => c.remove());
+    ps.forEach((p, i) => p.classList.add(i === 0 && ps.length > 1 ? "pb-callout__t" : "pb-callout__b"));
   };
 
   for (const b of [...frag.children]) {
@@ -136,7 +171,9 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
         // a paragraph that only holds images (the editor's inline images): one figure each, the title as its caption
         const imgs = [...b.querySelectorAll("img")];
         if (imgs.length && !text(b) && [...b.children].every((c) => c.tagName === "IMG" || c.tagName === "BR")) {
-          b.replaceWith(...imgs.map((img) => { const cap = img.getAttribute("title"); img.removeAttribute("title"); return figure(img, cap); }));
+          // two images on one line: a pair side by side (the first title is its caption); otherwise one figure each
+          if (imgs.length === 2) b.replaceWith(pair(imgs));
+          else b.replaceWith(...imgs.map((img) => { const cap = img.getAttribute("title"); img.removeAttribute("title"); return figure(img, cap); }));
         } else b.classList.add("pb-p");
         break;
       }
@@ -161,7 +198,14 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
         }
         break;
       }
+      case "IMG": {
+        // an image on its own line (a block image): a figure, the title as its caption
+        const cap = b.getAttribute("title"); b.removeAttribute("title");
+        const at = el("i"); b.replaceWith(at); at.replaceWith(figure(b, cap));   // hold its place while figure() moves it
+        break;
+      }
       case "FIGURE": {
+        if (b.getAttribute("data-type") === "figures") { const s = stats(b); if (s) b.replaceWith(s); else b.remove(); break; }
         if (b.querySelector("iframe, video")) { b.classList.add("pb-embed"); break; }
         const img = b.querySelector("img");
         if (!img) break;
@@ -189,7 +233,7 @@ export function prepareBody(html: string, media: Record<string, MediaInfo> = {},
         } else if (b.hasAttribute("data-callout")) b.classList.add("pb-callout");
         break;
       }
-      case "ASIDE": if (b.hasAttribute("data-callout")) b.classList.add("pb-callout"); break;
+      case "ASIDE": if (b.hasAttribute("data-callout") || b.getAttribute("data-type") === "callout") callout(b); break;
     }
   }
 

@@ -78,7 +78,7 @@ export function sanitizeRichHtml(html: string): string {
   installHooks()
   return DOMPurify.sanitize(html, {
     ADD_TAGS: ['iframe', 'figure', 'figcaption', 'video', 'source'],
-    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'target', 'rel', 'controls', 'loop', 'muted', 'playsinline', 'poster', 'colspan', 'rowspan', 'data-type', 'data-callout', 'data-footnote'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'target', 'rel', 'controls', 'loop', 'muted', 'playsinline', 'poster', 'colspan', 'rowspan', 'data-type', 'data-callout', 'data-footnote', 'data-size'],
     FORBID_TAGS: ['style', 'form', 'input', 'button', 'textarea', 'select', 'object', 'embed', 'base', 'meta', 'link'],
     FORBID_ATTR: ['style'],
     ALLOW_DATA_ATTR: false,
