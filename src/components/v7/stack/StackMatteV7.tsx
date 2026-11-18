@@ -85,7 +85,7 @@ export function StackMatteV7() {
       const base = svg.querySelector(".s7-base")!, front = svg.querySelector(".s7-front")!;
       const ring = (k: string) => svg.querySelector<SVGGElement>(`:scope > .s7-ring[data-ring="${k}"]`)!;
       const rings = { intents: ring("intents"), ai: ring("ai"), com: ring("com") };
-      const states = PIECES.map(() => ({ dy: 0, alpha: 1, present: 1, top: false, lift: 0, dark: 0, line: 0, color: new THREE.Color(), hot: [] as number[], hotColor: new THREE.Color() }));
+      const states = PIECES.map(() => ({ dy: 0, alpha: 1, present: 1, top: false, lift: 0, dark: 0, line: 0, color: new THREE.Color(), hot: [] as number[], hotColor: new THREE.Color(), passing: false }));
       const sample = () => {
         /* the pillar: the copy that shows (the front one while parted or lit whole, else the one drawn in) */
         const copy = num(cs(front).opacity, 0) > 0.5 ? front : base;
@@ -97,7 +97,7 @@ export function StackMatteV7() {
           /* the pillar together (not parted): a cube lands as the drawing's comes within 6 units, its last 12 twice as fast. The drawing's drop eases out
              slowly, and a cube a few units over the one under it showed that one's top as a gap in the column (D150, Lawrence: no gaps when together) */
           const d = ty(g), ad = Math.abs(d);
-          st.dy = spread || ad >= 12 ? d : Math.sign(d) * Math.max(0, ad - 6) * 2; st.present = o;
+          st.dy = spread || ad >= 12 ? d : Math.sign(d) * Math.max(0, ad - 6) * 2; st.present = o; st.passing = arriving;
           st.top = copy === front && spread && g.hasAttribute("data-on");   /* the hovered cube, over everything (D129) */
           const fo = num(cs(l).fillOpacity);
           /* a ghost cube's .72; arriving, its fade is the cube's own (the green's is later, for the outline), solid by a third of it (see-through for longer, a
@@ -117,7 +117,7 @@ export function StackMatteV7() {
           const arriving = svg.hasAttribute("data-build") && (!r.hasAttribute("data-in") || r.hasAttribute("data-new"));   /* D203: its wireframe first, as a cube's */
           parts.forEach((p, j) => {
             const st = states[k === "intents" ? 6 : k === "ai" ? 7 + j : 10];
-            st.dy = dy; st.present = o;
+            st.dy = dy; st.present = o; st.passing = arriving;
             /* a dark ring solid (the drawing has it a little see-through, .84, to show the pillar behind it faintly; lit, the ghost pillar through graphite
                read murky, D149 critic) */
             const fo = arriving ? num(cs(p.querySelector(".s7-l")!).fillOpacity) : 1;
@@ -135,7 +135,7 @@ export function StackMatteV7() {
         });
         return { pieces: states, mark, joined: !spread };
       };
-      const keyOf = (s: ReturnType<typeof sample>) => s.mark.toFixed(3) + +s.joined + s.pieces.map((p) => `${p.dy.toFixed(2)},${p.alpha.toFixed(3)},${p.present.toFixed(3)},${+p.top},${p.lift.toFixed(4)},${p.dark.toFixed(3)},${p.line.toFixed(3)},${p.color.getHexString()},${p.hot.join(".")}:${p.hot.length ? p.hotColor.getHexString() : ""}`).join("|");
+      const keyOf = (s: ReturnType<typeof sample>) => s.mark.toFixed(3) + +s.joined + s.pieces.map((p) => `${p.dy.toFixed(2)},${p.alpha.toFixed(3)},${p.present.toFixed(3)},${+p.top},${p.lift.toFixed(4)},${p.dark.toFixed(3)},${p.line.toFixed(3)},${p.color.getHexString()},${p.hot.join(".")}:${p.hot.length ? p.hotColor.getHexString() : ""}${p.passing ? "p" : ""}`).join("|");
 
       /* the canvas over the drawing: its viewBox where the svg shows it (meet: centred), plus room above and below for what moves past it */
       let size = "";

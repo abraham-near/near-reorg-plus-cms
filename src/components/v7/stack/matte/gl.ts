@@ -30,7 +30,8 @@ const KEY = { at: new THREE.Vector3(-60, 320, 30), size: 640, I: 4.15 };
 /* lift: an even glow, for a piece put back (graphite), so its faces in the shade don't go black */
 /* line: its outline, as strong as the drawing has it (D150) */
 /* hot: a NEAR AI bar running hot alone (D203): its boxes (by their place in the piece), painted hotColor */
-export type PieceState = { dy: number; alpha: number; present: number; top: boolean; lift: number; dark: number; line: number; color: THREE.Color; hot: number[]; hotColor: THREE.Color };
+/* passing: coming in or going away in the build (D203): it hides no outline behind it; they show through it as far as its body is clear */
+export type PieceState = { dy: number; alpha: number; present: number; top: boolean; lift: number; dark: number; line: number; color: THREE.Color; hot: number[]; hotColor: THREE.Color; passing: boolean };
 export type MatteGL = {
   /* joined: the pillar's cubes together, outlined as one piece */
   render: (s: { pieces: PieceState[]; mark: number; joined: boolean }) => void;
@@ -354,8 +355,14 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
      edges and its folds, where one piece passes in front of another, never between faces of one surface (a ring's beams outline as one shape; the
      pillar's cubes, together, as one tall piece) and never on an edge something hides. The line is on the near side of the edge, as wide as the
      drawing's .8 px, as strong as the drawing has that piece's (its fade in, ghost, dark) */
-  const ids = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true });
-  ids.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedIntType);
+  const target = () => {
+    const t = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true });
+    t.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedIntType);
+    return t;
+  };
+  /* ids: every piece; held: only the pieces not passing (D203, Lawrence: near.com going away hid NEAR AI's outline under it, which came back all at once
+     when it had gone; a piece coming in or going away is see-through, so what is behind it keeps its outline, seen through it) */
+  const ids = target(), held = target();
   const idScene = new THREE.Scene();
   const idMeshes = meshes.map((m) => {
     const mat = new THREE.ShaderMaterial({
@@ -376,28 +383,42 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
   });
   const lineMat = new THREE.ShaderMaterial({
     glslVersion: THREE.GLSL3, transparent: true, depthTest: false, depthWrite: false,
-    uniforms: { tId: { value: ids.texture }, tDepth: { value: ids.depthTexture }, uW: { value: 1 }, uInk: { value: new THREE.Vector3(245 / 255, 244 / 255, 241 / 255) } },
+    uniforms: { tId: { value: ids.texture }, tDepth: { value: ids.depthTexture }, tHeld: { value: held.texture }, tHeldDepth: { value: held.depthTexture },
+      uThrough: { value: 0 }, uClear: { value: new Array(16).fill(0) }, uW: { value: 1 }, uInk: { value: new THREE.Vector3(245 / 255, 244 / 255, 241 / 255) } },
     vertexShader: /* glsl */ `void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }`,
     fragmentShader: /* glsl */ `precision highp float;
       out vec4 outColor;
-      uniform sampler2D tId; uniform sampler2D tDepth; uniform int uW; uniform vec3 uInk;
+      uniform sampler2D tId; uniform sampler2D tDepth; uniform sampler2D tHeld; uniform sampler2D tHeldDepth; uniform int uW; uniform vec3 uInk;
+      uniform bool uThrough; uniform float uClear[16];   // a passing piece's clearness (1 - its body's opacity), by its id
       bool other(vec4 c, vec4 o) { return o.r < 0.06 || abs(o.r - c.r) > 0.06 || abs(o.g - c.g) > 0.015 || abs(o.a - c.a) > 0.002; }
-      void main() {
-        ivec2 sz = textureSize(tId, 0), p = ivec2(gl_FragCoord.xy);
-        vec4 c = texelFetch(tId, p, 0);
-        if (c.r < 0.06) discard;
-        float dc = texelFetch(tDepth, p, 0).r, a = 0.0;
+      /* the line at p in one map (which piece and its depth): c, what is there */
+      float edge(sampler2D tI, sampler2D tD, ivec2 p, out vec4 c) {
+        ivec2 sz = textureSize(tI, 0);
+        c = texelFetch(tI, p, 0);
+        if (c.r < 0.06) return 0.0;
+        float dc = texelFetch(tD, p, 0).r, a = 0.0;
         for (int d = 0; d < 4; d++) {
           ivec2 dir = d == 0 ? ivec2(1, 0) : d == 1 ? ivec2(-1, 0) : d == 2 ? ivec2(0, 1) : ivec2(0, -1);
           for (int k = 1; k <= 4; k++) {
             if (k > uW) break;
             ivec2 q = clamp(p + dir * k, ivec2(0), sz - 1);
-            vec4 o = texelFetch(tId, q, 0);
+            vec4 o = texelFetch(tI, q, 0);
             if (!other(c, o)) continue;
             /* on the near side; where both sides are as near (a fold, two pieces meeting), on one side only */
-            float dq = o.r < 0.06 ? 1.0 : texelFetch(tDepth, q, 0).r, tol = 4e-4 * float(k);
+            float dq = o.r < 0.06 ? 1.0 : texelFetch(tD, q, 0).r, tol = 4e-4 * float(k);
             if (dc < dq - tol || (abs(dc - dq) <= tol && (d == 0 || d == 2))) a = max(a, c.b);
           }
+        }
+        return a;
+      }
+      void main() {
+        ivec2 p = ivec2(gl_FragCoord.xy);
+        vec4 c, h;
+        float a = edge(tId, tDepth, p, c);
+        /* the outlines of the pieces held in place, seen through a passing piece over them, as far as it is clear */
+        if (uThrough) {
+          float b = edge(tHeld, tHeldDepth, p, h);
+          if (b > 0.0) a = max(a, b * (abs(c.g - h.g) < 0.015 ? 1.0 : uClear[int(c.g * 32.0 + 0.5)]));
         }
         if (a <= 0.0) discard;
         outColor = vec4(uInk, a);
@@ -408,6 +429,7 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
   const lineScene = new THREE.Scene();
   lineScene.add(lineQuad);
   const buf = new THREE.Vector2();
+  const clear = lineMat.uniforms.uClear.value as number[];
 
   /* the shaders compiled before the first frame, off the main thread where the browser can (no stall as the band comes in) */
   await Promise.all([renderer.compileAsync(scene, cam), renderer.compileAsync(idScene, cam), renderer.compileAsync(lineScene, cam)]);
@@ -415,7 +437,7 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
   return {
     resize(w, h, dpr) {
       renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
-      renderer.getDrawingBufferSize(buf); ids.setSize(buf.x, buf.y);
+      renderer.getDrawingBufferSize(buf); ids.setSize(buf.x, buf.y); held.setSize(buf.x, buf.y);
       lineMat.uniforms.uW.value = Math.max(1, Math.round(0.8 * dpr));   /* the drawing's .8 px */
     },
     render({ pieces, mark: markA, joined }) {
@@ -442,7 +464,10 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
         im.mat.depthFunc = s.top ? THREE.AlwaysDepth : THREE.LessEqualDepth;
         im.mat.uniforms.uId.value = joined && i < 6 ? 1 : i + 2;
         im.mat.uniforms.uLine.value = Math.min(1, Math.max(0, s.line));
+        clear[im.mat.uniforms.uId.value] = s.passing ? 1 - Math.min(1, Math.max(0, s.alpha)) : 0;
       });
+      /* the pillar's cubes together share an id: as clear as the least clear of them */
+      if (joined) clear[1] = Math.min(...pieces.slice(0, 6).map((s) => (s.passing ? 1 - Math.min(1, Math.max(0, s.alpha)) : 0)));
       /* a bar running hot alone (D203): its boxes where they are now */
       const hi = pieces.findIndex((s) => s.hot.length);
       uni.uHotPiece.value = hi; uni.uHotN.value = 0;
@@ -457,14 +482,24 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
       }
       markMat.opacity = markA;
       mark.visible = markA > 0.002;
-      renderer.setRenderTarget(ids); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(idScene, cam); renderer.setRenderTarget(null);
+      renderer.setRenderTarget(ids); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(idScene, cam);
+      /* while a piece passes: the map again without it (and anything else passing) */
+      const through = pieces.some((s, i) => s.passing && idMeshes[i].mesh.visible);
+      lineMat.uniforms.uThrough.value = through;
+      if (through) {
+        const vis = idMeshes.map((m) => m.mesh.visible);
+        idMeshes.forEach((m, i) => { m.mesh.visible = vis[i] && !pieces[i].passing; });
+        renderer.setRenderTarget(held); renderer.clear(); renderer.render(idScene, cam);
+        idMeshes.forEach((m, i) => { m.mesh.visible = vis[i]; });
+      }
+      renderer.setRenderTarget(null);
       renderer.render(scene, cam);
       renderer.autoClear = false; renderer.render(lineScene, cam); renderer.autoClear = true;
     },
     dispose() {
       meshes.forEach((m) => { m.mesh.geometry.dispose(); m.mat.dispose(); });
       mark.geometry.dispose(); markMat.dispose(); tex.dispose();
-      idMeshes.forEach((m) => m.mat.dispose()); lineQuad.geometry.dispose(); lineMat.dispose(); ids.dispose(); ids.depthTexture?.dispose(); renderer.dispose();
+      idMeshes.forEach((m) => m.mat.dispose()); lineQuad.geometry.dispose(); lineMat.dispose(); ids.dispose(); ids.depthTexture?.dispose(); held.dispose(); held.depthTexture?.dispose(); renderer.dispose();
     },
   };
 }
