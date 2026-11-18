@@ -35,7 +35,8 @@ export function WorldPrivate({ copy = "cycle" }: { copy?: "cycle" | "privacy" } 
             </>
           )}
           <div className="ph__cta">
-            <a className="cta" href="https://near.com">Get started <span className="arr" aria-hidden="true" /><span className="sr-only"> (another NEAR site)</span></a>
+            {/* Lawrence: the hero's Get started jumps to Get into NEAR lower on the page (ProofDeeper #paths); the header's Get started keeps near.com */}
+            <a className="cta" href="#paths">Get started <span className="arr" aria-hidden="true" /></a>
           </div>
         </div>
       </section>
