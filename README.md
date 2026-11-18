@@ -26,7 +26,8 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 Explorations that still have their own routes are listed at `/extra`:
 - the blog post layouts `/post-a`, `/post-b` and `/post-c`;
 - Analytics A, B, D and E at `/analytics-a`, `/analytics-b`, `/analytics-d`, `/analytics-e`;
-- Economics B and C at `/economics-b`, `/economics-c`, History A and B at `/history-a`, `/history-b`, and Community A and C at `/community-a`, `/community-c`.
+- Economics B and C at `/economics-b`, `/economics-c`, History A and B at `/history-a`, `/history-b`, and Community A and C at `/community-a`, `/community-c`;
+- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (no final version chosen yet: the menu's `/solutions`, `/research` and `/brand` don't exist yet). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
 
 ### What changed (November 2026)
 
@@ -168,7 +169,7 @@ Dev notes:
 - `main` is protected by the ruleset `main-solo-owner`: only the repo's owner can update it.
 - Everyone else works on a branch and opens a pull request. Lawrence's branch is `Lawrence001`.
 - Backups of `main` are kept as branches named `backup-YYYY-MM-DD`.
-- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/history-*`, `/economics-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
+- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/history-*`, `/economics-*`, `/solutions-*`, `/research-*`, `/brand-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
 
 ## Working with Claude
 

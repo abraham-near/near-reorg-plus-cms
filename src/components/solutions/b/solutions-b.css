@@ -1,0 +1,206 @@
+/* Solutions B ("Drawn", SolutionsB.tsx, /solutions-b): the Foundation page's hand on v3's ruled grid (proof-deeper.css: .l-page tokens, .l-row, .l-cell,
+   the + crosshairs), after Economics B's sheet. Everything scoped under .so-b. Motion states are keyed to .l-page[data-motion] (the grid's motion sets it
+   unless reduced motion) or to classes the motion adds (is-ready); without them every section is simply finished. */
+.so-b { background: var(--paper-0); overflow-x: clip; --sb-mono: var(--font-montreal-mono), ui-monospace, monospace;
+  --sb-g1: #5fe0ae; --sb-g2: #3cc994; --sb-g3: #22a374; --sb-ink: #111; --sb-lit: #d4f8e7; }
+.so-b [id] { scroll-margin-top: 96px; }
+.so-b .l-sec { padding-top: clamp(80px, 12vh, 136px); }
+
+/* ================================================================ the hand: white tops, light grey sides, ink hairlines, one green */
+.so-b .sb-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.so-b .sb-svg * { vector-effect: non-scaling-stroke; }
+.so-b .sl polygon { stroke: var(--sb-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-b .sl__t { fill: #fff; } .so-b .sl__l { fill: #f2f2f0; } .so-b .sl__r { fill: #e8e8e6; }
+.so-b .sl--g .sl__t { fill: var(--sb-g1); } .so-b .sl--g .sl__l { fill: var(--sb-g2); } .so-b .sl--g .sl__r { fill: var(--sb-g3); }
+.so-b .sl--lit .sl__t { fill: var(--sb-lit); }
+/* edges drawn in by their dash offset (pathLength 1): plain strokes, Chrome measures dashes in screen space under non-scaling-stroke */
+.so-b .sl__e { fill: none; stroke: var(--sb-ink); stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; vector-effect: none; }
+/* glass (the enclave): see-through faces, its back edges dashed */
+.so-b .gl polygon { stroke: none; }
+.so-b .gl__t { fill: rgb(255 255 255 / 0.32); } .so-b .gl__l { fill: rgb(242 242 240 / 0.42); } .so-b .gl__r { fill: rgb(232 232 230 / 0.5); }
+.so-b .gl__e { fill: none; stroke: var(--sb-ink); stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; vector-effect: none; }
+.so-b .gl__h { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.5; stroke-width: 1; stroke-dasharray: 2 3; }
+.so-b .cn__s { fill: #e8e8e6; stroke: var(--sb-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-b .cn__t { fill: #fff; stroke: var(--sb-ink); stroke-width: 1; }
+.so-b .cn--g .cn__t { fill: var(--emerald); }
+.so-b .pw__b { fill: #e8e8e6; stroke: var(--sb-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-b .pw__t, .so-b .pw__h { fill: #fff; stroke: var(--sb-ink); stroke-width: 1; }
+.so-b .pw__h--g { fill: var(--emerald); }
+/* the NEAR token: a thick white coin, the N in ink on its face */
+.so-b .tk__s { fill: #ecebe8; stroke: var(--sb-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-b .tk__t { fill: #fff; stroke: var(--sb-ink); stroke-width: 1; }
+.so-b .tk__rim { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.28; stroke-width: 1; }
+.so-b .tk__n { fill: var(--sb-ink); stroke: none; vector-effect: none; }
+/* an agent's antenna and lamp; a vault's door; a padlock; a rack's slots */
+.so-b .ag__ant { fill: none; stroke: var(--sb-ink); stroke-width: 1.1; }
+.so-b .ag__dot { fill: var(--emerald); stroke: var(--sb-ink); stroke-width: 0.9; }
+.so-b .vt__door circle, .so-b .vt__door path { fill: none; stroke: var(--sb-ink); stroke-width: 1; stroke-linecap: round; }
+.so-b .vt__door .vt__hub { fill: var(--sb-ink); }
+.so-b .vt__lamp { fill: var(--emerald); stroke: var(--sb-ink); stroke-width: 0.9; }
+.so-b .pl__b { fill: #fff; stroke: var(--sb-ink); stroke-width: 1; }
+.so-b .pl__sh { fill: none; stroke: var(--sb-ink); stroke-width: 1.6; stroke-linecap: round; }
+.so-b .pl__k { fill: var(--sb-ink); stroke: var(--sb-ink); stroke-width: 1; stroke-linecap: round; }
+.so-b .sb-rack path { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.55; stroke-width: 1; stroke-linecap: round; }
+.so-b .sb-slot { fill: none; stroke: var(--sb-ink); stroke-width: 2.6; stroke-linecap: round; }
+/* floors, routes and signals */
+.so-b .sb-dots { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.36; stroke-width: 1.6; stroke-linecap: round; }
+.so-b .sb-route, .so-b .sb-route path { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.6; stroke-width: 1.2; stroke-dasharray: 1 5; stroke-linecap: round; }
+.so-b .sb-route--floor path { stroke-opacity: 0.45; stroke-dasharray: 1 4; }
+.so-b .sb-route--swap { stroke-opacity: 0.85; stroke-width: 1.6; stroke-dasharray: 5 4; }
+.so-b .sb-sigs circle { fill: var(--emerald); stroke: var(--sb-ink); stroke-width: 0.8; }
+.so-b .sb-fig { margin: 0; width: 100%; }
+
+/* ================================================================ type and small pieces */
+.so-b .sb-kick { display: flex; align-items: center; gap: 10px; font: 400 13px/1.2 var(--sb-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+.so-b .sb-kick i, .so-b .sb-eb i { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); flex: none; }
+.so-b .sb-eb { display: flex; align-items: center; gap: 12px; font: 400 12px/1.2 var(--sb-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.so-b .sb-n { display: inline-flex; align-items: center; gap: 8px; font: 400 12px/1 var(--sb-mono); letter-spacing: 0.08em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.so-b .sb-n::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+.so-b .sb-h2 { margin-top: 18px; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); max-width: 14em; text-wrap: balance; }
+.so-b .sb-h3 { margin-top: 16px; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h2, var(--t-h3)); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; }
+.so-b .sb-body { margin-top: 14px; max-width: 32em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.so-b .sb-w { display: inline-block; will-change: transform; }
+.so-b .sb-ext { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ease-tick); }
+.so-b .cnt { position: relative; display: inline-block; font-variant-numeric: tabular-nums; }
+.so-b .cnt__ghost { visibility: hidden; }
+.so-b .cnt__live { position: absolute; left: 0; top: 0; white-space: nowrap; }
+
+/* buttons: the site's pill, filled in ink; the outlined one fills on hover; a green dot opens before the label */
+.so-b .sb-btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 24px; border: 0; border-radius: 999px; cursor: pointer;
+  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink);
+  transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick), padding 0.3s var(--ease-settle); white-space: nowrap; }
+.so-b .sb-btn::before { content: ""; position: absolute; left: 20px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
+  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+.so-b .sb-btn--fill { background: var(--ink); color: var(--paper-0); }
+@media (hover: hover) {
+  .so-b .sb-btn:hover { padding-left: 38px; background: var(--ink); color: var(--paper-0); }
+  .so-b .sb-btn:hover::before { transform: scale(1); }
+  .so-b .sb-btn:hover .sb-btn__ext { translate: 2px -2px; }
+  .so-b .sb-go:hover :is(.l-arr, .l-ext, .sb-ext) { translate: 2px -2px; }
+}
+.so-b :is(a, button, [tabindex]):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+/* the grid's boxes close at the bottom: a section's last row carries the last rule */
+.so-b .l-sec > .l-row:last-child::after { border-bottom: var(--hair) solid var(--l-line); }
+.so-b .sb-head { grid-template-columns: minmax(0, 1fr); }
+.so-b .sb-head > .l-cell { padding: 40px var(--l-pad) 36px; }
+.so-b .sb-bd .sb-h2 { max-width: 20em; }
+
+/* ================================================================ 1 · hero */
+.so-b .sb-hero { position: relative; z-index: 3; }
+.so-b .sb-hero__stage { position: relative; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; min-height: min(100svh, 980px);
+  padding: clamp(112px, 15vh, 156px) var(--margin) clamp(40px, 6vh, 72px); column-gap: clamp(16px, 2vw, 40px); }
+.so-b .sb-hero__copy { position: relative; z-index: 2; grid-column: 1; grid-row: 1; }
+.so-b .sb-hero__art { position: relative; z-index: 1; grid-column: 2; grid-row: 1; align-self: center; margin: 0 calc(-0.4 * var(--margin)) 0 0; pointer-events: none; }
+.so-b .sb-hero__cam { will-change: transform; }
+.so-b .hb { max-height: min(74vh, 700px); margin: 0 auto; }
+.so-b .sb-h1 { margin-top: clamp(20px, 3.4vh, 36px); max-width: 9em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.75rem, 0.9rem + 4.4vw, 6rem);
+  line-height: 0.98; letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.so-b .sb-h1 .accent { line-height: 0.9; }
+.so-b .sb-hero__sub { margin-top: clamp(22px, 3.6vh, 40px); max-width: 31em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
+.so-b .sb-hero__btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(28px, 4vh, 44px); }
+.so-b .hb-lab text { font: 400 11px/1 var(--sb-mono); letter-spacing: 0.08em; text-transform: uppercase; fill: var(--graphite);
+  paint-order: stroke; stroke: var(--paper-0); stroke-width: 5px; stroke-linejoin: round; }   /* a paper halo where a name crosses a route */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .so-b .sb-hero:not(.is-ready) :is(.sb-h1, [data-hero-up], .sb-hero__art) { opacity: 0; }
+}
+
+/* ================================================================ 2 · the proof strip */
+.so-b .sb-pf { padding-top: 0; }
+.so-b .sb-pf__row { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 0; list-style: none; }
+.so-b .sb-pf__cell { display: flex; flex-direction: column; padding: 28px var(--l-pad) 36px; }
+.so-b .sb-pf__art { height: 92px; margin-bottom: 22px; }
+.so-b .sb-pf__art .sb-svg { width: auto; height: 100%; max-width: 100%; }
+.so-b .sb-pf__v { font-family: var(--sans-display); font-size: clamp(2rem, 1.3rem + 1.6vw, 3rem); line-height: 1; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
+.so-b .sb-pf__l { margin-top: 12px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); text-wrap: pretty; }
+.so-b .sb-link { fill: none; stroke: var(--emerald); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.so-b .sb-node { fill: #fff; stroke: var(--sb-ink); stroke-width: 1; }
+.so-b .sb-node.is-g { fill: var(--emerald); }
+.so-b .sb-ghost { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.5; stroke-width: 1; stroke-dasharray: 2 3; }
+.so-b .sb-fee { fill: var(--emerald); }
+
+/* ================================================================ 3 · the five solutions */
+.so-b .sb-item { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.so-b .sb-item__txt { display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 5vh, 56px) var(--l-pad); }
+.so-b .sb-item__art { display: flex; align-items: center; justify-content: center; padding: clamp(28px, 5vh, 56px) clamp(16px, 3vw, 48px); }
+.so-b .sb-item__art .sb-svg { max-width: 600px; max-height: 48vh; margin: 0 auto; }
+.so-b .sb-item--flip .sb-item__txt { order: 2; }
+.so-b .sb-item--flip { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.so-b .sb-item .sb-h3 { font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.5rem); line-height: 1.08; letter-spacing: -0.02em; }
+.so-b .sb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 20px 0 0; padding: 0; list-style: none; }
+.so-b .sb-chips li { padding: 5px 10px 4px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); font: 400 11px/1.2 var(--sb-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--graphite); }
+.so-b .sb-item__cta { margin-top: 24px; }
+.so-b .sb-go { color: var(--ink); }
+.so-b .sb-go .sb-ext, .so-b .sb-go .l-arr { width: 14px; height: 14px; }
+/* the solvers' bids: dotted, the winning one solid green, its lamp lit */
+.so-b .df-bid { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.55; stroke-width: 1.1; stroke-dasharray: 1 4; stroke-linecap: round; transition: stroke 0.3s; }
+.so-b .df-bid.is-on { stroke: var(--emerald-deep, #00a86b); stroke-opacity: 1; stroke-width: 1.8; stroke-dasharray: none; }
+.so-b .df-lamp { fill: #fff; stroke: var(--sb-ink); stroke-width: 0.9; transition: fill 0.3s; }
+.so-b .df-lamp.is-on { fill: var(--emerald); }
+/* the host's probe and the glass it stops at */
+.so-b .ai-probe { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.45; stroke-width: 1.1; stroke-dasharray: 1 4; stroke-linecap: round; }
+.so-b .ai-wall { fill: none; stroke: var(--sb-ink); stroke-width: 2.4; stroke-linecap: round; opacity: 0.6; }
+.so-b .ai-poke { fill: #fff; stroke: var(--sb-ink); stroke-width: 1; }
+
+/* ================================================================ 4 · the spotlight: the private shard */
+.so-b .sb-sp__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.so-b .sb-sp__art { display: flex; align-items: center; justify-content: center; padding: clamp(32px, 6vh, 72px) clamp(16px, 3vw, 48px); background: rgb(255 255 255 / 0.45); }
+.so-b .sb-sp__art .sb-svg { max-width: 640px; max-height: 62vh; margin: 0 auto; }
+.so-b .sb-sp__txt { display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 6vh, 64px) var(--l-pad); }
+.so-b .sb-sp__body { font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); }
+.so-b .sb-sp__cta { margin-top: 28px; }
+.so-b .sh-entry { fill: none; stroke: var(--sb-ink); stroke-opacity: 0.5; stroke-width: 1; stroke-linecap: round; }
+.so-b .sh-bar { fill: var(--sb-ink); stroke: none; }
+.so-b .sh-open { fill: var(--sb-lit); stroke: var(--emerald-deep, #00a86b); stroke-width: 1.2; }
+.so-b .sh-row--open .sh-entry { stroke: var(--sb-ink); stroke-opacity: 1; }
+.so-b .sh-row--open { isolation: isolate; }
+.so-b .sh-row--open .sh-open { mix-blend-mode: multiply; }
+.so-b .sh-look { fill: none; stroke: var(--emerald-deep, #00a86b); stroke-width: 1.6; stroke-dasharray: 1 4; stroke-linecap: round; }
+
+/* ================================================================ 5 · who builds: the logo wall */
+.so-b .sb-bd__row { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 0; list-style: none; }
+.so-b .sb-bd__row > .l-cell:nth-child(n + 6) { border-top: var(--hair) solid var(--l-line); }
+.so-b .sb-bd__row > .l-cell:nth-child(6)::before { display: none; }
+.so-b .sb-bd__cell { display: flex; align-items: center; justify-content: center; min-height: 128px; padding: 24px var(--l-pad); }
+/* one ink, one height: the files are recoloured to the ink; the names set in the display face at the same visual weight */
+.so-b .sb-bd__logo { display: block; height: 26px; width: auto; max-width: 100%; object-fit: contain; filter: brightness(0); opacity: 0.86; }
+.so-b .sb-bd__name { font-family: var(--sans-display); font-weight: 500; font-size: 24px; line-height: 1; letter-spacing: -0.02em; color: var(--ink); opacity: 0.86; white-space: nowrap; }
+
+/* ================================================================ phones and narrow screens */
+@media (max-width: 1099px) and (min-width: 860px) {
+  .so-b .sb-pf__row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .so-b .sb-pf__row > .l-cell:nth-child(n + 4) { border-top: var(--hair) solid var(--l-line); }
+  .so-b .sb-pf__row > .l-cell:nth-child(4)::before { display: none; }
+}
+@media (max-width: 859px) {
+  .so-b .l-sec { padding-top: 72px; }
+  .so-b .sb-pf { padding-top: 0; }
+  .so-b .sb-hero__stage { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-top: 112px; }
+  .so-b .sb-hero__art { grid-column: 1; grid-row: 2; margin: 28px -8px 0; }
+  .so-b .hb-labs { display: none; }   /* too small to read at this width: the sections name them */
+  .so-b .sb-head > .l-cell { padding: 32px var(--l-pad) 28px; }
+  .so-b :is(.sb-item, .sb-item--flip, .sb-sp__row) { grid-template-columns: minmax(0, 1fr); }
+  .so-b .sb-item__art { order: -1; padding: 24px 8px 8px; }
+  .so-b .sb-item--flip .sb-item__txt { order: 2; }
+  .so-b .sb-item__txt { padding: 24px var(--l-pad) 36px; border-top: var(--hair) solid var(--l-soft); }
+  .so-b :is(.sb-item, .sb-sp__row) > .l-cell + .l-cell::before { display: none; }
+  .so-b .sb-sp__txt { border-top: var(--hair) solid var(--l-line); }
+  .so-b .sb-sp__art { padding: 24px 8px; }
+  .so-b .sb-pf__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .so-b .sb-pf__row > .l-cell:nth-child(n + 3) { border-top: var(--hair) solid var(--l-line); }
+  .so-b .sb-pf__row > .l-cell:nth-child(odd)::before { display: none; }
+  .so-b .sb-pf__row > .l-cell:nth-child(5) { grid-column: 1 / -1; }   /* (not :last-child: the crosshairs are appended to the row) */
+  .so-b .sb-pf__art { height: 76px; }
+  .so-b .sb-pf__cell { padding: 24px 16px 28px; }
+  .so-b .sb-pf__v { font-size: clamp(1.5rem, 1rem + 2.4vw, 2rem); }
+  .so-b :is(.sb-pf__row, .sb-bd__row) > .l-cell:nth-child(even)::before { display: block; }
+  .so-b .sb-bd__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .so-b .sb-bd__row > .l-cell:nth-child(n + 3) { border-top: var(--hair) solid var(--l-line); }
+  .so-b .sb-bd__row > .l-cell:nth-child(odd)::before { display: none; }
+  .so-b .sb-bd__cell { min-height: 96px; }
+  .so-b .sb-bd__logo { height: 22px; }
+  .so-b .sb-bd__name { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .so-b *, .so-b *::before, .so-b *::after { transition: none !important; animation: none !important; }
+}

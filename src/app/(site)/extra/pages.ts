@@ -57,6 +57,36 @@ export const GROUPS: Group[] = [
       { href: "/economics-c", n: "C", name: "Economics · Editorial", note: "The homepage's big type: the four facts as large figures, the loop as a held dark band where a dot travels a ring as each step comes up.", tags: ["Editorial", "Pinned loop", "Dark band"], img: "/extra/economics-c.webp" },
     ],
   },
+  {
+    id: "solutions",
+    title: "Solutions",
+    note: "near.org/solutions (Solutions, \"Explore use cases\" in the menu) from the October 2026 doc's Solutions Hub copy, three versions in the official pages' hand. Copy verbatim (components/solutions/content.ts); the logo wall uses the partner files in the repo, the rest set as names until their logos are in.",
+    pages: [
+      { href: "/solutions-a", n: "A", name: "Solutions · Ruled grid", note: "The homepage's ruled grid as a precise index: the five solutions as ruled rows (number, title, body, builder chips, link) that light as you scroll, Confidential Intents on the dark band, the builders as a ruled logo wall.", tags: ["Ruled grid", "Scroll index", "Logo wall"], img: "/extra/solutions-a.webp" },
+      { href: "/solutions-b", n: "B", name: "Solutions · Drawn", note: "NEAR Foundation's isometric hand: each solution a small machine that builds as you scroll (payments crossing chains, agents settling, solvers bidding, a vault rebalancing, an enclave with the host locked out), the private shard under redaction bars.", tags: ["Iso drawings", "Foundation hand", "Builds on scroll"], img: "/extra/solutions-b.webp" },
+      { href: "/solutions-c", n: "C", name: "Solutions · Editorial", note: "The homepage's big type and bw photos: the five solutions as chapters whose numeral and title hold while the story passes, the spotlight on a dark band, a quiet logo wall.", tags: ["Editorial", "Sticky chapters", "Dark band"], img: "/extra/solutions-c.webp" },
+    ],
+  },
+  {
+    id: "research",
+    title: "Research",
+    note: "near.org/research (Research, \"White paper and protocol work\" in the menu; near.org/papers redirects here), three versions in the official pages' hand. Hero and paper list from the October 2026 doc's Technical Papers note, summaries from the live papers page (components/research/content.ts).",
+    pages: [
+      { href: "/research-a", n: "A", name: "Research · Ruled grid", note: "The papers as a library catalogue on the ruled grid: topic chips in the hero's bar, one ruled row per paper (number, title and summary, topic, year, source, read).", tags: ["Ruled grid", "Catalogue", "Topic filter"], img: "/extra/research-a.webp" },
+      { href: "/research-b", n: "B", name: "Research · Drawn", note: "NEAR Foundation's isometric hand: the four papers drawn as a stack in the hero, then a card grid where each paper's iso cover builds as you scroll, under a topic filter.", tags: ["Iso drawings", "Paper covers", "Topic filter"], img: "/extra/research-b.webp" },
+      { href: "/research-c", n: "C", name: "Research · Editorial", note: "A journal and its contents in the homepage's big type: the White Paper as a cover over a bleeding bw photo, the other papers as a ruled list with huge numerals, the user-owned AI papers on the dark band.", tags: ["Editorial", "Contents list", "Dark band"], img: "/extra/research-c.webp" },
+    ],
+  },
+  {
+    id: "brand",
+    title: "Brand",
+    note: "near.org/brand (Brand, \"Logos and guidelines\" in the menu), three versions in the official pages' hand. The doc has no copy for it and near.org/brand is a 404: the copy is adapted from the doc's agency brief (logo, green, fonts, voice), with the site's own palette and the SVGs in public/brand/ (components/brand/content.ts).",
+    pages: [
+      { href: "/brand-a", n: "A", name: "Brand · Ruled grid", note: "A specimen sheet on the ruled grid: every logo file on its own plate with an SVG download, do/don't drawn on the real marks, swatches that copy their hex, the two faces set large.", tags: ["Ruled grid", "Downloads", "Specimens"], img: "/extra/brand-a.webp" },
+      { href: "/brand-b", n: "B", name: "Brand · Drawn", note: "The brand book as a construction drawing: the real mark stands on its tile while its keylines, clear space and dimensions draw themselves as you scroll; colour as an iso stack in proportion, the files as specimen plates.", tags: ["Iso drawings", "Construction", "Scroll-built"], img: "/extra/brand-b.webp" },
+      { href: "/brand-c", n: "C", name: "Brand · Editorial", note: "The homepage's big type as a brand book: the logo across the page, the files on paper tiles and ink bands, the palette as full-bleed bands sized by use, giant type specimens and the voice on the dark band.", tags: ["Editorial", "Swatch bands", "Type specimens"], img: "/extra/brand-c.webp" },
+    ],
+  },
 ];
 
 export const COUNT = GROUPS.reduce((s, g) => s + g.pages.length, 0);
