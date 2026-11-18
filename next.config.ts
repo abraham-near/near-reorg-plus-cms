@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   async headers() {
     const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     if (process.env.SITE_INDEXABLE !== "true") return [{ source: "/:path*", headers: noindex }];
-    return ["/admin/:path*", "/api/:path*", "/cms/:path*", "/extra", "/index", "/home-v7", "/post-:v(a|b|c)", "/analytics-:v", "/community-:v", "/foundation-:v"]
+    return ["/admin/:path*", "/api/:path*", "/cms/:path*", "/extra", "/index", "/home-v:n", "/post-:v(a|b|c)", "/analytics-:v", "/community-:v", "/foundation-:v"]
       .map((source) => ({ source, headers: noindex }));
   },
   // Old addresses of pages that moved: Foundation E is the Foundation page now (/near-foundation; versions A–D and F were removed), the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/") and the first Analytics C; Analytics B is /analytics (/analytics-c is a new version now)

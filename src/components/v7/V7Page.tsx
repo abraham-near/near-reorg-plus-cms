@@ -42,15 +42,24 @@ const ORIGIN_RATIO = "4/3" as const;   /* v5's Origin photo (revenue option A's 
  *  voices: another photo under "What the world is saying about NEAR" (the voices photo studies, D174);
  *  origin: another photo beside "Built by the people who invented modern AI" (the origin photo studies, D179);
  *  close: another picture behind "NEAR belongs to you" (the close studies, D186: photos and all-graphic treatments);
- *  top: "private" (branch NEAR-is-private-CYCLE, D200): the hero and the intro merged into one type-only section (./private), in place of both;
- *  "privacy" (branch NEAR-is-privacy-HEADLINE, D202): the same section with one still headline and two sentences under it */
+ *  top: "private" (home v8, Lawrence's branch NEAR-is-private-CYCLE, D200): the hero and the intro merged into one type-only section (./private), in place of both;
+ *  "privacy" (home v9, branch NEAR-is-privacy-HEADLINE, D202): the same section with one still headline and two sentences under it.
+ *  With `top`, the page below is those branches' too: the signed identity in the rail (D189), Origin above Go deeper (D179), the black-and-white photos
+ *  (D170, D171), the voices one at a time (D190) and the mailboxes (D199); html[data-v7="priv"] scopes their styles (./v7.css). Without it: home v7 as on main */
 export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy" } = {}) {
+  const priv = !!top;
+  const photos = { ...(priv ? PHOTOS : {}), ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) };
+  const deeper = priv
+    ? { ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer" as const, voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO, originFirst: true, scope: "v7", photos }
+    : { ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: "timer" as const, originRatio: ORIGIN_RATIO, scope: "v7", photos };
   return (
     <>
-      {/* as v5: no globe, and v5's style scope */}
-      <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} /> : <WorldV7 tx={tx} st={st} hero={hero} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity="sign" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
-        afterStack={<ProofDeeper content={{ ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer", voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO, originFirst: true, scope: "v7", photos: { ...PHOTOS, ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) } }} />} footer={<V3Footer />} />
+      {/* as v5: no globe, and v5's style scope; v8 and v9 (top) also html[data-v7="priv"] */}
+      <InlineScript html={`document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')${priv ? ";document.documentElement.setAttribute('data-v7','priv')" : ""}`} />
+      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} /> : <WorldV7 tx={tx} st={st} hero={hero} />}
+        rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity={priv ? "sign" : undefined} />}
+        stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
+        afterStack={<ProofDeeper content={deeper} />} footer={<V3Footer />} />
     </>
   );
 }

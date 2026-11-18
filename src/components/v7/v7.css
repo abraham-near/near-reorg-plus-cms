@@ -107,20 +107,22 @@ html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transfo
 .l-page[data-scope="v7"] .l-gi__cap { display: none; }
 .l-page[data-scope="v7"] .l-gi__frame { flex: 1 1 auto; aspect-ratio: auto; }
 
+/* Home v8 and v9 (Lawrence's branches NEAR-is-private-CYCLE and NEAR-is-privacy-HEADLINE): the rules below that start html[data-v7="priv"] are theirs
+   (V7Page with `top`); home v7 keeps main's look */
 /* D177: the voices' crowd filming on a phone (R2, deep venue). The phone sits right of centre at source x 1300 to 1920 of 2400, y 400 to 760 of 1350.
    Phones and tablets: the photo can't sit behind the quote and show the phone too, so its plate drops below the copy (its top fades into the paper)
    and the crop shifts right onto the phone. motion.ts only writes the plate's transform, so its top and height are free. */
 @media (max-width: 859px) {
-  .l-page[data-scope="v7"] .l-voices__bleed .l-plate { top: 34%; height: 80%;
+  html[data-v7="priv"] .l-page[data-scope="v7"] .l-voices__bleed .l-plate { top: 34%; height: 80%;
     -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%); mask-image: linear-gradient(180deg, transparent, #000 18%); }
-  .l-page[data-scope="v7"] .l-voices__bleed .l-img { object-position: 76% 50%; }
+  html[data-v7="priv"] .l-page[data-scope="v7"] .l-voices__bleed .l-img { object-position: 76% 50%; }
 }
 /* desktop: the lower half (the crowd's bokeh) eased toward the paper, so the section stays light */
-.l-page[data-scope="v7"] .l-voices__bleed.is-mode[data-vmode="timer"] .l-voices__stage::before {
+html[data-v7="priv"] .l-page[data-scope="v7"] .l-voices__bleed.is-mode[data-vmode="timer"] .l-voices__stage::before {
   background: radial-gradient(120% 90% at 0% 0%, rgb(245 244 241 / 0.62) 0%, rgb(245 244 241 / 0.32) 38%, rgb(245 244 241 / 0) 66%),
     linear-gradient(180deg, rgb(245 244 241 / 0) 40%, rgb(245 244 241 / 0.5) 100%); }
 /* very wide screens: the foreground man's blurred head at the right edge is pushed off the frame (the phone still fits) */
-@media (min-width: 1700px) { .l-page[data-scope="v7"] .l-voices__bleed .l-img { object-position: 40% 50%; } }
+@media (min-width: 1700px) { html[data-v7="priv"] .l-page[data-scope="v7"] .l-voices__bleed .l-img { object-position: 40% 50%; } }
 
 /* D178: another headline (World.tsx's `hero.h1`, h1[data-alt]): "Finance and AI, / private by default." Its key line is about 6.4 times the H1 wide, where
    "Own your / world." is far narrower, so phones and portrait tablets size it to the screen's width instead of its height; and its italic line has
@@ -143,18 +145,18 @@ html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transfo
 
 /* D182: origin's whiteboard photo shown whole top to bottom (the shared .l-img starts 8% above its cell, which hid "Output Probabilities"),
    and centred a little right of middle, on the diagram */
-.l-page[data-scope="v7"] .l-origin .l-ph > .l-img { top: 0; height: 100%; object-position: 58% 50%; }
+html[data-v7="priv"] .l-page[data-scope="v7"] .l-origin .l-ph > .l-img { top: 0; height: 100%; object-position: 58% 50%; }
 
 /* D185: a band of the grid between the proof strip and origin, as tall as the one above "Go deeper" (v5's head cell, clamp(96px, 14vh, 168px)).
    It stays inside the ruled frame: the proof strip closes on a rule with a + at each outer corner, the frame's two side lines run on through it,
    and origin's own rule (with its + marks) opens the section below. Empty, so no inner dividers cross it. */
-.l-page[data-scope="v7"] .l-origin { --o-band: clamp(96px, 14vh, 168px); padding-top: var(--o-band); }
-.l-page[data-scope="v7"] .l-origin::before { content: ""; position: absolute; z-index: 2; top: 0; left: var(--margin); right: var(--margin); height: var(--o-band);
+html[data-v7="priv"] .l-page[data-scope="v7"] .l-origin { --o-band: clamp(96px, 14vh, 168px); padding-top: var(--o-band); }
+html[data-v7="priv"] .l-page[data-scope="v7"] .l-origin::before { content: ""; position: absolute; z-index: 2; top: 0; left: var(--margin); right: var(--margin); height: var(--o-band);
   border: var(--hair) solid var(--l-line); border-bottom: 0; pointer-events: none; }
-.l-page[data-scope="v7"] .l-origin::after { content: ""; position: absolute; z-index: 3; top: -4px; left: calc(var(--margin) - 4px); right: calc(var(--margin) - 4px); height: 9px; pointer-events: none;
+html[data-v7="priv"] .l-page[data-scope="v7"] .l-origin::after { content: ""; position: absolute; z-index: 3; top: -4px; left: calc(var(--margin) - 4px); right: calc(var(--margin) - 4px); height: 9px; pointer-events: none;
   background: linear-gradient(var(--l-x), var(--l-x)) 4px 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 0 50% / 9px var(--hair) no-repeat,
     linear-gradient(var(--l-x), var(--l-x)) calc(100% - 4px) 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 100% 50% / 9px var(--hair) no-repeat; }
 
 /* the close's mailboxes (D199): the green box is right of centre (about 67% across), so below 860 px, where only a third to a fifth of the width shows, the
    picture slides left to keep it in view */
-@media (max-width: 859px) { .l-page[data-scope="v7"] .l-close__bleed .l-img { object-position: 70% 70%; } }
+@media (max-width: 859px) { html[data-v7="priv"] .l-page[data-scope="v7"] .l-close__bleed .l-img { object-position: 70% 70%; } }

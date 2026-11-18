@@ -108,6 +108,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 ## The homepage (home v7)
 
 - **Route and owner:** `/home-v7/page.tsx` is the page, and `/` re-exports it (`src/app/(site)/page.tsx`), so changes to v7 show on both. Lawrence works on v7 on his branch, `Lawrence001`.
+- **Home v8 and v9** (`/home-v8`, `/home-v9`, listed in `/extra`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/` stays as it is.
 - **Code:** `src/components/v7` builds the page from pieces of v1–v5:
   - `V1Page` and its boot (world, rail, Stack);
   - v4's rail and Stack;
@@ -162,7 +163,7 @@ Dev notes:
 - `main` is protected by the ruleset `main-solo-owner`: only the repo's owner can update it.
 - Everyone else works on a branch and opens a pull request. Lawrence's branch is `Lawrence001`.
 - Backups of `main` are kept as branches named `backup-YYYY-MM-DD`.
-- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/home-v7`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
+- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
 
 ## Working with Claude
 

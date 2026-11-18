@@ -6,6 +6,15 @@ export type Group = { id: string; title: string; note: string; pages: Extra[] };
 
 export const GROUPS: Group[] = [
   {
+    id: "home",
+    title: "Homepage",
+    note: "Home v7 (/) with the hero and the intro merged into one type-only section, from Lawrence's two privacy branches, and the lower page those branches bring: the signed identity in the rail, Origin above Go deeper, black-and-white photos with one green accent, the voices one at a time and the mailboxes.",
+    pages: [
+      { href: "/home-v8", n: "v8", name: "NEAR is private", note: "\"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", then the intro's paragraph and the button. Branch NEAR-is-private-CYCLE.", tags: ["Type only", "Cycling word"], img: "/extra/home-v8.webp" },
+      { href: "/home-v9", n: "v9", name: "NEAR is privacy", note: "One still headline, \"NEAR is privacy for onchain capital and the agent economy.\", two sentences under it and the button. Branch NEAR-is-privacy-HEADLINE.", tags: ["Type only", "One headline"], img: "/extra/home-v9.webp" },
+    ],
+  },
+  {
     id: "post",
     title: "Blog post",
     note: "Three layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",

@@ -21,8 +21,14 @@ export function StackMatteV7() {
     const canvas = ref.current, art = canvas?.parentElement, svg = art?.querySelector<SVGSVGElement>("svg.stk7");
     if (!canvas || !art || !svg) return;
     let dead = false, cleanup = () => {};
-    /* three.js and the WebGL setup wait until the drawing is a screen and a half away: it sits far below the hero, and the drawing shows unlit until then */
-    const near = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { near.disconnect(); start(); } }, { rootMargin: "150% 0px" });
+    /* three.js and the WebGL setup wait until the drawing is a screen and a half away: it sits far below the hero, and the drawing shows unlit until then.
+       The observer's first report can come before the rail above has its full height (a short hero, as home v8 and v9's, puts the drawing in reach while
+       the page is still short), so a report counts only if the drawing is still that close on the next frame but one; otherwise the observer keeps watching */
+    const close = () => art.getBoundingClientRect().top < innerHeight * 2.5;
+    const near = new IntersectionObserver((es) => {
+      if (!es.some((e) => e.isIntersecting)) return;
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (!dead && close()) { near.disconnect(); start(); } }));
+    }, { rootMargin: "150% 0px" });
     near.observe(art);
     const start = () => (async () => {
       const [THREE, { createMatte, ALBEDO, PAD }] = await Promise.all([import("three"), import("./matte/gl")]);
