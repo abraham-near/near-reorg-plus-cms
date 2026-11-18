@@ -1,13 +1,13 @@
 // Foundation E's motion (markup: FoundationE.tsx). B's for the sections it keeps (../b/motion.ts); new here:
 //   · the hero: the headline's words rise and the drawing builds (C's: the plinth draws, the wireframes draw, the columns rise inside them). Then it
 //     stays alive on its own: the columns breathe, green signals run the plinth's seams, the drawing leans to the pointer. Scrolled (no pin), a wave runs
-//     the columns up and down with the page, and the drawing travels down into the stair's empty corner in the pillars below, barely smaller (desktop).
+//     the columns up and down with the page, and the drawing eases a little smaller (the pillars below are F's ruled row now, so it stays in the hero).
 //   · "smaller" (desktop): the two lines start the width of the screen and shrink to the left; the text beside them arrives on the right; the section
 //     then scrolls on.
 // Reduced motion: everything in its final state, still.
 import type { Mount, MotionCtx } from "@/lib/motion/scroll";
 import { mount as gridMount } from "../../v3/proof-deeper/motion";
-import { mountCouncil, mountGlass, mountPillars, mountReveals } from "../b/motion";
+import { mountGlass, mountReveals } from "../b/motion";
 import { mountOperateE } from "./operate-motion";
 import { LANES, PILLARS, pFaces } from "../c/hero-geo";
 
@@ -50,7 +50,7 @@ function mountHero(root: HTMLElement, { reduced, gsap, ScrollTrigger }: MotionCt
   };
 
   /* the arrival */
-  gsap.set(words, { yPercent: 112 });
+  gsap.set(words, { yPercent: 40, autoAlpha: 0 });   /* unmasked: the words rise a little and fade in, so no letter is ever clipped */
   gsap.set(after, { autoAlpha: 0, y: 18 });
   gsap.set(edges, { strokeDasharray: "1 1", strokeDashoffset: 1 });
   gsap.set([...fills, svg.querySelector(".fc-h-ground"), svg.querySelector(".fc-h-grid"), ...sig, ...lead], { opacity: 0 });
@@ -60,7 +60,7 @@ function mountHero(root: HTMLElement, { reduced, gsap, ScrollTrigger }: MotionCt
   hero.classList.add("is-ready");
 
   const tl = gsap.timeline({ delay: 0.1 });
-  tl.to(words, { yPercent: 0, duration: 1.1, ease: "power4.out", stagger: 0.04 }, 0)
+  tl.to(words, { yPercent: 0, autoAlpha: 1, duration: 1.1, ease: "power4.out", stagger: 0.04 }, 0)
     .to(after, { autoAlpha: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: 0.1 }, 0.45)
     .to(svg.querySelector(".fc-h-ground"), { opacity: 1, duration: 1.2, ease: "power2.out" }, 0.1)
     .to(edges, { strokeDashoffset: 0, duration: 1, ease: "power2.inOut", stagger: 0.14 }, 0.15)
@@ -92,7 +92,7 @@ function mountHero(root: HTMLElement, { reduced, gsap, ScrollTrigger }: MotionCt
   };
   ScrollTrigger.create({ trigger: hero, start: "top top", end: "bottom top", onUpdate: (s) => { pt = s.progress; }, onRefreshInit: measure, onRefresh: (s) => { pt = s.progress; } });
   // alive while the hero or the pillars (where the drawing settles) are on screen
-  ScrollTrigger.create({ trigger: hero, start: "top bottom", endTrigger: root.querySelector(".fe-pl") ?? hero, end: "bottom top", onToggle: (s) => { alive = s.isActive; } });
+  ScrollTrigger.create({ trigger: hero, start: "top bottom", endTrigger: root.querySelector(".ff-pillars") ?? hero, end: "bottom top", onToggle: (s) => { alive = s.isActive; } });
   const onMove = (e: PointerEvent) => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; };
   addEventListener("pointermove", onMove, { passive: true });
   measure();
@@ -152,6 +152,6 @@ function mountSmall(root: HTMLElement, { reduced, ScrollTrigger }: MotionCtx) {
 
 /** every section's motion, under one gsap context (useScrollMotion) */
 export const mountAll: Mount = (root, ctx) => {
-  const offs = [gridMount(root, ctx), mountHero(root, ctx), mountReveals(root, ctx), mountPillars(root, ctx), mountSmall(root, ctx), mountGlass(root, ctx), mountCouncil(root, ctx), mountOperateE(root, ctx)];
+  const offs = [gridMount(root, ctx), mountHero(root, ctx), mountReveals(root, ctx), mountSmall(root, ctx), mountGlass(root, ctx), mountOperateE(root, ctx)];
   return () => offs.forEach((o) => { if (typeof o === "function") o(); });
 };

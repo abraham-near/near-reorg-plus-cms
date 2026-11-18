@@ -11,7 +11,6 @@ import { V3Footer } from "../v3/footer/Footer";
 import { RailV4 } from "../v4/Rail";
 import { StackV4 } from "../v4/Stack";
 import { V4_DEEPER } from "../v4/content";
-import { ORIGIN_RATIO } from "../v4/revenue/variants";
 import { RevenueD } from "../v4/revenue/d/RevenueD";
 import { VoicesOne } from "./voices/VoicesOne";
 import { WorldV7, type HeroAlt } from "./World";
@@ -37,7 +36,7 @@ const PATH_IMG = [`${BW}/paths-trade.webp`, `${BW}/paths-integrate.webp`, `${BW}
 const ORIGIN_TITLE = <>Built by the people <span className="l-nb">who invented</span> <span className="l-nb">modern AI</span></>;   // no lone "who" on phones
 const DEEPER = { ...V4_DEEPER, origin: { ...V4_DEEPER.origin, title: ORIGIN_TITLE }, paths: V4_DEEPER.paths.map((p, i) => ({ ...p, img: PATH_IMG[i] ?? p.img })) };
 
-const REV = "a" as const;   /* v5's revenue band and Origin; the voices are v6's own ("timer": on a clock, not the scroll; D135) */
+const ORIGIN_RATIO = "4/3" as const;   /* v5's Origin photo (revenue option A's shape, ../v4/revenue/variants.tsx); the voices are v6's own ("timer": on a clock, not the scroll; D135) */
 
 /** hero: another hero in place of the ridges (the hero options sheet, D155); tx: one of the hero-to-intro transition studies (D109), at /home-v6/<key>; st: one of the intro layout studies (D144), at /home-v6/intro/<key>;
  *  voices: another photo under "What the world is saying about NEAR" (the voices photo studies, D174);
@@ -51,7 +50,7 @@ export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKe
       {/* as v5: no globe, and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
       <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} /> : <WorldV7 tx={tx} st={st} hero={hero} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity="sign" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
-        afterStack={<ProofDeeper content={{ ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer", voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO[REV], originFirst: true, scope: "v7", photos: { ...PHOTOS, ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) } }} />} footer={<V3Footer />} />
+        afterStack={<ProofDeeper content={{ ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer", voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO, originFirst: true, scope: "v7", photos: { ...PHOTOS, ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) } }} />} footer={<V3Footer />} />
     </>
   );
 }

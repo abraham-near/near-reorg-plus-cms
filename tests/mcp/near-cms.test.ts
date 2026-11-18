@@ -179,6 +179,21 @@ describe('create_draft', () => {
     expect(JSON.parse(calls[0].init.body as string)).toEqual({ title: 'Hello World', slug: 'hello-world', autoSlug: true, status: 'DRAFT', body: '<p>Hi</p>', metaImage: '/cms/a.png' })
     expect(r.text).toContain('"bodyHtml": "<p>old</p>"')
   })
+  it('passes the story-mode fields (layout, takeaways) and returns them', async () => {
+    respond = () => ({ status: 201, json: post({ layout: 'c', takeaways: ['One', 'Two'] }) })
+    const { call } = await connect()
+    const r = await call('create_draft', { title: 'Hello World', html: '<p>Hi<sup data-type="footnote" data-footnote="A note."></sup></p>', layout: 'c', takeaways: ['One', 'Two'] })
+    expect(r.isError).toBe(false)
+    expect(JSON.parse(calls[0].init.body as string)).toMatchObject({ layout: 'c', takeaways: ['One', 'Two'], body: '<p>Hi<sup data-type="footnote" data-footnote="A note."></sup></p>' })
+    expect(r.text).toContain('"layout": "c"')
+    expect(r.text).toMatch(/"takeaways": \[\s*"One",\s*"Two"\s*\]/)
+  })
+  it('refuses a fourth takeaway and an unknown layout', async () => {
+    const { call } = await connect()
+    expect((await call('create_draft', { title: 'T', html: '<p>x</p>', takeaways: ['1', '2', '3', '4'] })).isError).toBe(true)
+    expect((await call('create_draft', { title: 'T', html: '<p>x</p>', layout: 'z' })).isError).toBe(true)
+    expect(calls).toHaveLength(0)
+  })
 })
 
 describe('update_post', () => {
@@ -200,6 +215,12 @@ describe('update_post', () => {
     expect(body.expectedUpdatedAt).toBe('2026-01-01T00:00:00.000Z')
     expect(body).toMatchObject({ title: 'N', body: '<p>new</p>' })
     expect(body).not.toHaveProperty('blocks')
+  })
+  it('resets the layout to the default with null and clears the takeaways with []', async () => {
+    respond = route
+    const { call } = await connect()
+    expect((await call('update_post', { id: 'p1', layout: null, takeaways: [] })).isError).toBe(false)
+    expect(JSON.parse(calls[2].init.body as string)).toMatchObject({ layout: null, takeaways: [] })
   })
   it('unlocks even when PATCH fails', async () => {
     respond = (m, u, b) => (m === 'PATCH' ? { status: 409, json: { error: 'stale' } } : route(m, u, b))

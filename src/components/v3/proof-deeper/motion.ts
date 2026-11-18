@@ -271,7 +271,13 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
     let crz = 0;
     addEventListener("resize", () => { clearTimeout(crz); crz = window.setTimeout(() => { if (want() !== closeScene.on) setOn(want()); else if (closeScene.on) measure(); tick(); }, 120); }, on);
     document.fonts?.ready.then(() => { if (!dead && closeScene.on) { measure(); tick(); } });
-    if (!reduced) { const loop = () => { if (dead) return; tick(); sraf = requestAnimationFrame(loop); }; sraf = requestAnimationFrame(loop); }
+    if (!reduced) {
+      /* the loop runs only while the scene is near the screen (it read the scene's rect every frame from the top of the page) */
+      let nearSc = false;
+      const loop = () => { sraf = 0; if (dead || !nearSc) return; tick(); sraf = requestAnimationFrame(loop); };
+      const nio = new IntersectionObserver(([en]) => { nearSc = en.isIntersecting; if (nearSc && !sraf) sraf = requestAnimationFrame(loop); }, { rootMargin: "25% 0px" });
+      nio.observe(sc); ac.signal.addEventListener("abort", () => nio.disconnect());
+    }
     if (!closeScene.on && !reduced) {
       const lio = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { lio.disconnect(); sc.classList.add("is-lit"); } }), { threshold: 0.3 });
       lio.observe(sc); ac.signal.addEventListener("abort", () => lio.disconnect());

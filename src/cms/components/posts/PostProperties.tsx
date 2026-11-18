@@ -2,13 +2,15 @@
 
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { AlignLeft, ArrowDown, ArrowUp, CalendarDays, Check, CircleDot, Eye, Hash, Link2, Plus, Tag, TriangleAlert, X } from 'lucide-react'
+import { AlignLeft, ArrowDown, ArrowUp, CalendarDays, Check, CircleDot, Eye, Hash, LayoutTemplate, Link2, ListOrdered, Plus, Tag, TriangleAlert, X } from 'lucide-react'
 import { Popover } from 'radix-ui'
 import { cn } from '@/cms/lib/utils'
 import { SITE_HOST } from './PublishDialog'
 import type { TaxonomyOption } from './types'
 
 export type DisplayStatus = 'Draft' | 'Scheduled' | 'Published' | 'Archived'
+export type PostLayout = 'a' | 'b' | 'c'
+const MAX_TAKEAWAYS = 3
 type Visibility = 'PUBLIC' | 'UNLISTED'
 
 const STATUS_VARS: Record<DisplayStatus, string> = { Draft: 'draft', Scheduled: 'scheduled', Published: 'published', Archived: 'archived' }
@@ -71,6 +73,12 @@ export type PostPropertiesProps = {
   excerpt: string
   onExcerpt: (value: string) => void
   excerptRef: React.Ref<HTMLTextAreaElement>
+  /** the public layout ('a' Ruled, 'b' Cover, 'c' Notebook); null = the site default (Cover) */
+  layout: PostLayout | null
+  onLayout: (value: PostLayout | null) => void
+  /** up to three key points, shown by every layout */
+  takeaways: string[]
+  onTakeaways: (value: string[]) => void
   onNavigate: (event: { preventDefault: () => void }) => void
 }
 
@@ -172,5 +180,35 @@ export default function PostProperties(props: PostPropertiesProps) {
       <AutoTextarea id="post-excerpt" ref={excerptRef} value={props.excerpt} disabled={!editable} maxLength={10000} onChange={(event) => props.onExcerpt(event.target.value)}
         placeholder="Add a one-line summary for listings and search…" className="-mx-1.5 rounded-md px-1.5 py-[5px] text-sm leading-normal placeholder:text-muted-foreground hover:bg-muted/60 focus-visible:bg-muted/60" />
     </div>
+
+    <div className={rowClass}><Key icon={LayoutTemplate} htmlFor="post-layout">Layout</Key>
+      <span><select id="post-layout" disabled={!editable} value={props.layout ?? 'b'} onChange={(event) => props.onLayout(event.target.value === 'b' ? null : event.target.value as PostLayout)} className="-mx-1.5 h-[30px] rounded-md border-0 bg-transparent px-1.5 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20 disabled:hover:bg-transparent">
+        <option value="b">Cover · photo first, magazine feature</option><option value="a">Ruled · the blog&apos;s grid</option><option value="c">Notebook · margin notes</option>
+      </select></span>
+    </div>
+
+    <Takeaways values={props.takeaways} onChange={props.onTakeaways} editable={editable} />
   </section>
+}
+
+/** Up to three key points: one line each, an empty slot to add the next. Every layout shows them (Cover in three columns after the summary, Ruled and Notebook in their key-points box). */
+function Takeaways({ values, onChange, editable }: { values: string[]; onChange: (value: string[]) => void; editable: boolean }) {
+  const slots = values.length < MAX_TAKEAWAYS && editable ? [...values, ''] : values
+  const set = (i: number, value: string) => {
+    const next = [...values]
+    next[i] = value.replace(/\n/g, ' ')
+    // an emptied point goes away (the slot after it stays the "add" one)
+    onChange(i < values.length && !next[i].trim() ? next.filter((_, j) => j !== i) : next)
+  }
+  return <div className={cn(rowClass, 'items-start')}><span className="pt-[5px]"><Key icon={ListOrdered} htmlFor="post-takeaway-0">Takeaways</Key></span>
+    <div className="min-w-0 space-y-0.5">
+      {slots.map((value, i) => <div key={i} className="flex items-start gap-2">
+        <span aria-hidden className="pt-[6px] font-mono text-[11px] text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
+        <AutoTextarea id={`post-takeaway-${i}`} value={value} disabled={!editable} maxLength={300} aria-label={`Takeaway ${i + 1}`}
+          onChange={(event) => set(i, event.target.value)}
+          placeholder={i === 0 ? 'A key point, in one line (optional)' : 'Another key point'}
+          className="-mx-1.5 min-w-0 flex-1 rounded-md px-1.5 py-[5px] text-sm leading-normal placeholder:text-muted-foreground hover:bg-muted/60 focus-visible:bg-muted/60" />
+      </div>)}
+    </div>
+  </div>
 }

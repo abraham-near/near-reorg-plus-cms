@@ -1,6 +1,6 @@
 import type { Editor } from '@tiptap/core'
 import type { LucideIcon } from 'lucide-react'
-import { Code2, FileCode2, Image, List, ListChecks, ListOrdered, Minus, MonitorPlay, Pilcrow, Quote, Table2 } from 'lucide-react'
+import { ChartColumn, Code2, Asterisk, FileCode2, Image, Images, Info, List, ListChecks, ListOrdered, Minus, MonitorPlay, Pilcrow, Quote, Table2, TextQuote } from 'lucide-react'
 
 export type SlashGroup = 'Text' | 'Lists' | 'Media' | 'Layout' | 'Advanced'
 /** Dispatched on the editor DOM: the image picker lives in React (BlockEditor listens). */
@@ -37,10 +37,25 @@ export const SLASH_ITEMS: SlashItem[] = [
     run: (editor) => { editor.chain().focus().clearNodes().toggleTaskList().run() } },
   { id: 'image', title: 'Image', description: 'Upload or pick from the library', group: 'Media', aliases: ['img', 'picture', 'photo', 'media', 'upload', 'figure'], tile: Image,
     run: (editor) => { editor.view.dom.dispatchEvent(new CustomEvent(OPEN_IMAGE_PICKER_EVENT, { bubbles: true })) } },
+  { id: 'pair', title: 'Image pair', description: 'Pick two photos: they sit side by side', group: 'Media', aliases: ['pair', 'two images', 'side by side', 'gallery', 'photos', 'diptych'], tile: Images,
+    run: (editor) => { editor.view.dom.dispatchEvent(new CustomEvent(OPEN_IMAGE_PICKER_EVENT, { bubbles: true })) } },
   { id: 'embed', title: 'Embed', description: 'YouTube, Vimeo, Spotify, Luma…', group: 'Media', aliases: ['youtube', 'vimeo', 'video', 'iframe', 'spotify', 'soundcloud', 'luma', 'media'], tile: MonitorPlay,
     run: (editor) => { editor.chain().focus().insertContent({ type: 'embedBlock', attrs: { url: '' } }).run() } },
   { id: 'quote', title: 'Quote', description: 'Pull a quote out of the text', group: 'Layout', shortcut: '>', aliases: ['blockquote', 'citation', 'cite'], tile: Quote,
     run: (editor) => { editor.chain().focus().clearNodes().setBlockquote().run() } },
+  { id: 'pullquote', title: 'Pull quote', description: 'A line set large, with who said it', group: 'Layout', aliases: ['pull quote', 'quote', 'testimonial', 'citation', 'said'], tile: TextQuote,
+    run: (editor) => { editor.chain().focus().insertContent({ type: 'blockquote', content: [{ type: 'paragraph' }, { type: 'paragraph', content: [{ type: 'text', text: '— ' }] }] }).run() } },
+  { id: 'callout', title: 'Callout', description: 'A titled note in a soft box', group: 'Layout', aliases: ['note', 'aside', 'tip', 'info', 'box', 'highlight'], tile: Info,
+    run: (editor) => { editor.chain().focus().insertContent({ type: 'callout', content: [{ type: 'paragraph' }, { type: 'paragraph' }] }).run() } },
+  { id: 'figures', title: 'Figures', description: '2–4 numbers on an ink band', group: 'Layout', aliases: ['stats', 'numbers', 'metrics', 'figures', 'kpi', 'data', 'band'], tile: ChartColumn,
+    run: (editor) => { editor.chain().focus().insertContent({ type: 'figures' }).run() } },
+  { id: 'footnote', title: 'Footnote', description: 'A numbered note, listed at the end of the post', group: 'Text', aliases: ['footnote', 'note', 'reference', 'source', 'cite', 'sup'], tile: Asterisk,
+    run: (editor) => {
+      // the menu opens after a space ("word /"): the marker sits right after the word, so that space goes
+      const { from } = editor.state.selection
+      const space = from > 1 && editor.state.doc.textBetween(from - 1, from) === ' '
+      editor.chain().focus().command(({ tr }) => { if (space) tr.delete(from - 1, from); return true }).insertContent({ type: 'footnote', attrs: { text: '' } }).run()
+    } },
   { id: 'divider', title: 'Divider', description: 'Separate sections', group: 'Layout', shortcut: '---', aliases: ['hr', 'line', 'separator', 'rule', 'break'], tile: Minus,
     run: (editor) => { editor.chain().focus().setHorizontalRule().run() } },
   { id: 'table', title: 'Table', description: 'Rows and columns', group: 'Advanced', aliases: ['grid', 'columns', 'rows', 'spreadsheet'], tile: Table2,

@@ -1,26 +1,22 @@
 /* Blog J · Reading rail, open (BlogJ.tsx). E's structure on open paper: no ruled cells, no crosshairs, no dividers, no boxed cards.
-   One invisible column grid runs through the head and the body (the rail's column | the feed's), so the lede sits over the rail and the counts over
-   the feed. Lines: one hairline under the head, hairlines between rows in the list view; nothing else is ruled. Photos sit in 6 px rounded frames.
+   The head is Blog A's hero, the one ruled block (8 / 4: the heading | the lede, frame lines and crosshairs). Below it, lines are only hairlines
+   between rows in the list view. Photos sit in 6 px rounded frames.
    Below 1024 the rail folds into a bar over the feed; below 600 everything is one column. Tokens from blog.css (.bl). */
 .bl-j { --j-top: 104px; --j-rail: clamp(220px, 18vw, 272px); --j-gap: clamp(40px, 6vw, 112px); --r: 6px;
   --j-line: rgb(38 38 38 / 0.14); padding-bottom: clamp(88px, 13vh, 150px); }
 
-/* ---------------------------------------------------------------- the head */
-.bj-head { position: relative; display: grid; grid-template-columns: var(--j-rail) minmax(0, 1fr); column-gap: var(--j-gap); row-gap: clamp(28px, 4vh, 44px);
-  align-items: end; margin: 0 var(--margin); padding: var(--top) 0 clamp(40px, 6vh, 64px); }
-.bj-h1 { grid-column: 1 / -1; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 1.4rem + 4.9vw, 5.75rem); line-height: 0.98;
-  letter-spacing: -0.035em; text-wrap: balance; }
-.bj-w { padding: 0 0.14em 0.26em; margin: 0 -0.14em -0.26em; }   /* SplitText's word masks: room for the descenders and the accent */
-.bj-h1 .accent [class^="bj-w"] { line-height: 0.92; padding-top: 0.06em; margin-top: -0.06em; }
-.bj-lede { max-width: 17em; padding-bottom: 4px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); text-wrap: pretty; }
-.bj-figs { display: flex; flex-wrap: wrap; gap: 20px clamp(32px, 4.4vw, 72px); }
-.bj-fig { min-width: 0; }
-.bj-fig__n { font-family: var(--sans-display); font-weight: 400; font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.bj-fig__c { margin-top: 10px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); white-space: nowrap; }
-/* the one line under the head */
-.bj-rule { position: absolute; left: 0; right: 0; bottom: 0; height: var(--hair); background: var(--j-line); transform-origin: 0 50%; }
-:where(.bl-j[data-motion]) .bj-rule { animation: bj-draw 1.4s var(--ease-settle) 0.25s both; }
-@keyframes bj-draw { from { transform: scaleX(0); } to { transform: none; } }
+/* ---------------------------------------------------------------- the head: Blog A's hero (blog.css's ruled row, crosshairs from ../grid.ts) */
+.bj-head { padding-bottom: clamp(40px, 6vh, 64px); }
+.bj-hero { grid-template-columns: 8fr 4fr; }
+.bj-hero__title { padding: var(--top) var(--l-pad) 40px; }
+.bj-h1 { max-width: 9em; }
+.bj-h1 .accent .bj-w { line-height: 0.92; }
+.bj-hero__intro { display: flex; align-items: flex-end; padding-bottom: 44px; }
+/* the bar: the tabs | how many are showing */
+.bj-bar__cell { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
+.bj-bar__n { font-variant-numeric: tabular-nums; }
+/* the closing rule: a row with no height, its cell only placing the crosshairs */
+.bj-hero__foot > .bl-cell { padding: 0; }
 
 /* ---------------------------------------------------------------- the body: rail (+ newsletter at its foot) | feed */
 .bj-body { display: grid; grid-template-columns: var(--j-rail) minmax(0, 1fr); grid-template-rows: 1fr auto; column-gap: var(--j-gap);
@@ -241,9 +237,6 @@
 
 /* ---------------------------------------------------------------- below 1024: one column; the rail folds into a bar over the feed */
 @media (max-width: 1023px) {
-  .bj-head { grid-template-columns: minmax(0, 1fr); row-gap: 20px; }
-  .bj-lede { max-width: 30em; }
-  .bj-figs { margin-top: 12px; }
   .bj-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; padding-top: 28px; }
   .bj-rail, .bj-feed, .bj-nl { grid-column: 1; grid-row: auto; }
   .bj-rail__in { position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 14px; padding-bottom: 36px; }
@@ -266,12 +259,14 @@
   @media (hover: hover) { .bj-more[aria-expanded="false"]:hover { box-shadow: inset 0 0 0 1px var(--ink); } }
 }
 @media (max-width: 859px) {
+  .bj-hero { grid-template-columns: minmax(0, 1fr); }
+  .bj-hero__title { padding-bottom: 24px; }
+  .bj-hero__intro { padding-top: 20px; padding-bottom: 32px; }
   .bj-lead { grid-template-columns: minmax(0, 1fr); row-gap: 22px; }
   .bj-lead__go { margin-top: 18px; }
 }
 @media (max-width: 599px) {
   .bj-kbd { display: none; }
-  .bj-figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
   .bj-opts.is-open { grid-template-columns: minmax(0, 1fr); }
   .bj-grp--types { grid-row: auto; }
   .bj-cards { grid-template-columns: minmax(0, 1fr); row-gap: 48px; }

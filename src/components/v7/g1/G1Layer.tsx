@@ -155,7 +155,7 @@ export function G1Layer() {
       const f = film ? frameNow() : 0, now = performance.now();
       const still = `${f.toFixed(2)}|${W}|${H}|${onStill}|${copy ? copy[1].toFixed(0) : "-"}|${dots.length}`, changed = still !== lastStill;
       if (changed) { lastStill = still; lastMove = now; }
-      if (!changed && key && now - lastMove > 250 && now - lastDraw < 33) return;
+      if (!changed && key && now - lastMove > 250 && now - lastDraw < 42) return;   /* the idle drift: ~24 fps */
       const t = live.matches ? clock : 0;
       const k = `${still}#${t.toFixed(3)}`;
       if (k === key) return;
@@ -370,19 +370,28 @@ export function G1Layer() {
       host.setAttribute("data-live", "");
     };
 
+    /* the loop runs only while the hero is in view (the observer starts and stops it), and the idle drift (the clock) waits until the page has loaded and
+       gone idle: until then the layer is drawn when something changes (the film's frame, the size, the copy), not every frame */
+    let idleOk = false, idleId = 0, idleT = 0;
     const tick = () => {
+      raf = 0;
+      if (!inView || dead) return;
       raf = requestAnimationFrame(tick);
       const now = performance.now();
-      if (inView) { if (live.matches) clock += Math.min(now - lastNow, 100) / 1000; draw(); }
+      if (live.matches && idleOk) clock += Math.min(now - lastNow, 100) / 1000;
+      draw();
       lastNow = now;
     };
+    const goIdle = () => { idleT = window.setTimeout(() => { idleId = typeof requestIdleCallback === "function" ? requestIdleCallback(() => { idleOk = true; }, { timeout: 1500 }) : (idleOk = true, 0); }, 800); };
+    if (document.readyState === "complete") goIdle(); else window.addEventListener("load", goIdle, { once: true });
     import("./data/motion.json").then((m) => { if (!dead) { motion = m.default as unknown as Motion; key = ""; } });
     import("./data/dots.json").then((m) => { if (!dead) { dots = m.default as unknown as Dot[]; key = ""; } });
     raf = requestAnimationFrame(tick);
-    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; }, { rootMargin: "100px" });
+    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView && !raf) { lastNow = performance.now(); raf = requestAnimationFrame(tick); } }, { rootMargin: "100px" });
     io.observe(media);
     return () => {
       dead = true;
+      window.removeEventListener("load", goIdle); clearTimeout(idleT); if (idleId && typeof cancelIdleCallback === "function") cancelIdleCallback(idleId);
       cancelAnimationFrame(raf);
       if (video && hasVFC && vfc) video.cancelVideoFrameCallback(vfc);
       io.disconnect();

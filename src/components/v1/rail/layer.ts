@@ -57,6 +57,8 @@ import { sampleText, samplePoly, mulberry32, type Pt, type Org } from "./sample"
 import { loadTone, buildField, nearestDot, type Field, type Tone } from "./field";
 import { makeLattice, xOf, jRange, type Lattice } from "./planet";
 import { createVignette, type Vignette, type VigKey } from "./vig2";
+import { yieldToMain } from "@/lib/motion/yield";
+import { requestRefresh } from "@/lib/motion/scroll";
 import { mountRailGlobe, type RailGlobe } from "./railglobe";
 import { TIDES } from "./tide";
 
@@ -203,13 +205,16 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const it: Item = Object.assign({ a: 0, o: 0, dr: 0, ge: false, dir: 1, space: "stage" as const, W: 1, F: 40, L: 32, x0: 0, r0: 1.45, color: 0 as const, kind: "css" as const, dots: null, leaves: false, refWv: 50, _e: -1, sc: undefined }, def);
     items.push(it); return it;
   }
-  function setDots(it: Item, pts: Pt[], seed = 7) {
-    if (it.wd) { it.dots = null; return; }                  /* v5: words, no dots */
+  function setDots(it: Item, src: Pt[] | (() => Pt[]), seed = 7) {
+    if (it.wd) { it.dots = null; return; }                  /* v5: words, no dots (and no sampling: the points come as a thunk, so a word item never draws its text to a canvas) */
+    const pts = typeof src === "function" ? src() : src;
     const n = pts.length, rnd = mulberry32(seed + n), F = () => new Float32Array(n);
     const d: Dots = { n, hx: F(), hy: F(), rr: F(), dl: F(), ax: F(), tx: F(), ty: F(), tk: F(), tr: F(), ta: F() };
     for (let i = 0; i < n; i++) { d.hx[i] = pts[i][0]; d.hy[i] = pts[i][1]; d.rr[i] = 0.82 + rnd() * 0.34; d.dl[i] = rnd(); d.ax[i] = (rnd() - 0.5) * 2; }
     it.dots = d;
   }
+  /* the field is only read for items with dots that leave (v5's words have none): without one, the ridges image is never loaded nor analysed */
+  const needsField = () => [...items, ...(I?.prob?.kids ?? [])].some((it) => !!it.dots && !!it.leaves);
   /* the field's nearest dot for every dot of a leaving item (layer space), so each dot drifts INTO a dot of the field */
   function retarget(it: Item) {
     const d = it.dots; if (!d || !it.leaves) return;
@@ -303,18 +308,18 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     M.P1 = [(ns.x - slot.x) * (M.dk - 1), M.dockY + (ns.y - slot.y) * (M.dk - 1), M.dk];
     M.P2 = [ns2.x - ns.x, ns2.y - ns.y, M.sT];
     /* the phrases: lines 1 and 2 enter with the approach and leave with their own edge; line 3 enters with it (its mask: the slot's line; NEAR's own) */
-    [I.c[0], I.c[1]].forEach((it, i) => { const el = R!.cl[i], r = rect(el); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w); it.L = it.F * 0.8; setDots(it, dotText(el), 3 + i); });
-    { const it = I.c[2], r = rect(R.cl[2]); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w); it.L = it.F * 0.8; setDots(it, dotText(R.rest1), 5); }
-    { const it = I.near, r = rect(R.near); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 70, 0.55); it.L = it.F * 0.8; setDots(it, dotText(R.near), 6); }
+    [I.c[0], I.c[1]].forEach((it, i) => { const el = R!.cl[i], r = rect(el); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w); it.L = it.F * 0.8; setDots(it, () => dotText(el), 3 + i); });
+    { const it = I.c[2], r = rect(R.cl[2]); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w); it.L = it.F * 0.8; setDots(it, () => dotText(R!.rest1), 5); }
+    { const it = I.near, r = rect(R.near); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 70, 0.55); it.L = it.F * 0.8; setDots(it, () => dotText(R!.near), 6); }
     /* "is where they connect." leaves from the docked pose (its dots sampled there; its mask is in the slot's own, scaled px) */
     R.slot.style.transform = `translate3d(0,${M.dockY.toFixed(2)}px,0) scale(${M.dk})`;
-    { const it = I.rest1, r = rect(R.rest1); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 90); it.L = it.F * 0.8; it.msc = M.dk; setDots(it, sampleText(R.rest1, textPitch(R.rest1) * M.dk, M.org, M.dk), 7); it.refWv = 60; }
+    { const it = I.rest1, r = rect(R.rest1); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 30, 90); it.L = it.F * 0.8; it.msc = M.dk; setDots(it, () => sampleText(R!.rest1, textPitch(R!.rest1) * M.dk, M.org, M.dk), 7); it.refWv = 60; }
     R.slot.style.transform = "none";
     /* the problem: a staircase in; out word by word, each word an item of its own (mask + dots that drift away) */
     measureStair(I.prob, R.problem.querySelectorAll<HTMLElement>(".sk"), STP);
-    I.prob.kids!.forEach((k, i) => { const r = rect(k.el); k.x0 = r.x; k.W = r.w; k.F = clamp(r.w * 0.5, 14, 44); k.L = k.F * 0.8; setDots(k, dotText(k.el), 60 + i); });
+    I.prob.kids!.forEach((k, i) => { const r = rect(k.el); k.x0 = r.x; k.W = r.w; k.F = clamp(r.w * 0.5, 14, 44); k.L = k.F * 0.8; setDots(k, () => dotText(k.el), 60 + i); });
     /* the title (NEAR is not part of it: its dots are "On" and ", that layer is user-owned.") */
-    { const it = I.ans, r = rect(R.ans); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 40, 140); it.L = it.F * 0.8; setDots(it, dotText(R.pre).concat(dotText(R.rest2), R.next ? dotText(R.next) : []), 9); }
+    { const it = I.ans, r = rect(R.ans); it.x0 = r.x; it.W = r.w; it.F = fOf(r.w, 40, 140); it.L = it.F * 0.8; setDots(it, () => dotText(R!.pre).concat(dotText(R!.rest2), R!.next ? dotText(R!.next) : []), 9); }
     /* the line: it enters with the approach and never leaves (green, across the stage; its dots green while it sweeps in) */
     { const it = I.rail1; it.x0 = 0; it.W = M.W; it.F = 150; it.L = 120; setDots(it, samplePoly([[0, M.railY], [M.W, M.railY]], 9), 11); it.r0 = 1.3; }
     /* the end labels (world items; at wv = 50 the world is in stage coordinates) */
@@ -332,7 +337,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     /* the survey hairlines' height */
     M.tall = M.H * 0.26;
     /* the field (budget 8200 dots, the travel of the whole rail) */
-    field = toneImg ? buildField(toneImg, { W: M.W, H: M.H, railY: M.railY, travel: M.px(RAIL.stations[3] - 50), budget: 8200 }) : null;
+    field = toneImg && needsField() ? buildField(toneImg, { W: M.W, H: M.H, railY: M.railY, travel: M.px(RAIL.stations[3] - 50), budget: 8200 }) : null;
     /* quiet zones: the field dims under the phrases and the title */
     { const a = R.cl.map(rect), x1 = Math.max(...a.map((r) => r.x + r.w)), t = rect(R.ans), pb = rect(R.problem);
       M.quiet = [{ x0: a[0].x - 24, x1: x1 + 24, y0: a[0].y - 12, y1: a[2].y + a[2].h + 12 }, { x0: t.x - 24, x1: t.x + t.w + 24, y0: t.y - 14, y1: t.y + t.h + 14 }, { x0: pb.x - 24, x1: pb.x + pb.w + 24, y0: pb.y - 12, y1: pb.y + pb.h + 12 }]; }
@@ -1035,13 +1040,19 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   try {
     const copy = readCopy(sec);
     await loadFonts(sec);
-    toneImg = await loadTone(RIDGES).catch(() => null);
+    /* the ridges image feeds the field (a 3840 px image read pixel by pixel): v5's words never use it, so it waits until an item is known to need it */
+    if (!WORDS) toneImg = await loadTone(RIDGES).catch(() => null);
+    if (sig.aborted) { dispose(); return null; }
+    await yieldToMain();
     if (sig.aborted) { dispose(); return null; }
     R = buildStage(copy);
     RGl = WORLD && !PHOTO ? mountRailGlobe(R.stage, { quiet: R.fin }) : null;   /* v5: the ridges instead */                      /* the faint world, the stage's lowest layer (async: it draws once its globe is ready) */
     html.setAttribute("data-rail", "");
     makeItems();
+    await yieldToMain();                       /* the stage (its vignettes' SVGs) and the measuring, apart */
+    if (sig.aborted || !R) { dispose(); return null; }
     layout();
+    if (!toneImg && needsField()) loadTone(RIDGES).then((t) => { if (disposed || !R) return; toneImg = t; layout(); apply(); }).catch(() => {});
   } catch (e) {
     console.warn("[rail] static section", e);
     dispose();
@@ -1052,6 +1063,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const PLACE = html.getAttribute("data-stk-enter") === "place";
   const setOv = () => { if (band) band.style.setProperty("--ov", (PLACE ? innerHeight : (TR.ov / TOTAL) * pinPx()).toFixed(1) + "px"); };
   setOv();
+  await yieldToMain();
+  if (disposed) return null;
   main = gsap.timeline({ paused: true });
   build(main);
   enterTl = gsap.timeline({ paused: true }); enterTl.to(S, { enter: 1, duration: 1, ease: "none" }, 0); enterTl.eventCallback("onUpdate", apply);
@@ -1061,7 +1074,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true, onRefresh: redraw }));
   trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1, onRefresh: redraw }));
   apply(); html.setAttribute("data-ly-ready", "");
-  requestAnimationFrame(() => { if (!disposed) ScrollTrigger.refresh(); });
+  requestRefresh();
   idleLoop(main);
   addEventListener("resize", () => { setOv(); clearTimeout(rsTm); rsTm = window.setTimeout(() => { layout(); apply(); }, 180); }, { signal: sig });
   return dispose;

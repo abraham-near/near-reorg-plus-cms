@@ -38,8 +38,9 @@ export function Card({ p, j = 0, h = "h3", cls = "" }: { p: Post; j?: number; h?
 }
 
 /** the filters: a tablist over one results region (`controls`); the green dot slides to the chosen tab */
-export function Tabs({ value, onChange, id, controls, label = "Filter by type", counts }: {
+export function Tabs({ value, onChange, id, controls, label = "Filter by type", counts, items = FILTERS }: {
   value: FilterKey; onChange: (k: FilterKey) => void; id: string; controls: string; label?: string; counts?: Record<FilterKey, number>;
+  items?: { key: FilterKey; label: string }[];   // the tabs and their labels (default: data.ts's FILTERS)
 }) {
   const ref = useRef<HTMLDivElement>(null), dot = useRef<HTMLElement>(null);
   // the dot sits 14 px before the chosen label (b10's .l-tabs); placed again on resize and once the fonts are in
@@ -53,14 +54,14 @@ export function Tabs({ value, onChange, id, controls, label = "Filter by type", 
     return () => removeEventListener("resize", place);
   }, [value]);
   const keys = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
-    const n = FILTERS.length, to = ({ ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 } as Record<string, number>)[e.key];
+    const n = items.length, to = ({ ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 } as Record<string, number>)[e.key];
     if (to === undefined) return;
-    e.preventDefault(); onChange(FILTERS[to].key);
+    e.preventDefault(); onChange(items[to].key);
     ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[to]?.focus();
   };
   return (
     <div ref={ref} className="bl-tabs" role="tablist" aria-label={label}>
-      {FILTERS.map((f, i) => (
+      {items.map((f, i) => (
         <button key={f.key} className="bl-tab" type="button" role="tab" id={`${id}-${f.key}`} aria-controls={controls}
           aria-selected={value === f.key} tabIndex={value === f.key ? 0 : -1} onClick={() => onChange(f.key)} onKeyDown={(e) => keys(e, i)}>
           {f.label}{counts && <span className="bl-tab__n" aria-hidden="true">{counts[f.key]}</span>}

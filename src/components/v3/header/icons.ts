@@ -144,6 +144,12 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
     go(st, 0, REWIND * st.T, () => go(st, 1, DUR, () => { st.busy = false; }));
   }
 
+  /* a deferred icon (flush) gets its dots half a screen before it is in view, so it shows as dots, as the others do, before it draws */
+  const prep = new IntersectionObserver((entries) => {
+    const sts = entries.filter((e) => e.isIntersecting).map((e) => { prep.unobserve(e.target); return stOf.get(e.target); }).filter((st): st is St => !!st && !st.measured && !st.busy);
+    const ws = sts.map((st) => st.i.getBoundingClientRect().width);
+    sts.forEach((st, k) => { if (!ws[k]) return; layout(st, ws[k]); render(st, st.T); });
+  }, { rootMargin: "50% 0px" });
   const io = new IntersectionObserver((entries) => {
     let n = 0;
     entries.forEach((e) => {
@@ -189,11 +195,27 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
     const st: St = { i, svg, gDots, strokes, fills, accs, T: 0, raf: 0, busy: false, size: 0, measured: false, paths: [] };
     stOf.set(i, st);
     all.push(st);
-    layout(st);
-    if (reduced) { render(st, 1); return; }
-    render(st, 0);
-    io.observe(i);
-    bindHost(st);
+    queue.push(st);
+    if (!flushRaf) flushRaf = requestAnimationFrame(flush);
+  }
+  /* the icons that arrived since the last frame, laid out together: every one inserted, then every size read at once (one layout), then each laid out.
+     One by one, each insert-then-measure forced a layout of the whole page (20 in the header at load, 30 more after the boot) */
+  const queue: St[] = [];
+  let flushRaf = 0;
+  function flush() {
+    flushRaf = 0;
+    if (dead) return;
+    const sts = queue.splice(0), rs = sts.map((st) => st.i.getBoundingClientRect()), vh = innerHeight;
+    sts.forEach((st, k) => {
+      const r = rs[k];
+      if (reduced) { layout(st, r.width); render(st, 1); return; }
+      /* an icon in a closed panel (no size) or far from the screen keeps its geometry for later: its dots are worked out (getTotalLength along every
+         path) when it comes into view, its panel opens or its host is hovered (draw, replay). Until then its lines are simply hidden */
+      if (!r.width || r.top > vh * 1.5 || r.bottom < -vh * 0.5) { st.strokes.forEach((n) => { n.style.opacity = "0"; }); st.accs.forEach((n) => { n.style.opacity = "0"; }); prep.observe(st.i); }
+      else { layout(st, r.width); render(st, 0); }
+      io.observe(st.i);
+      bindHost(st);
+    });
   }
 
   root.querySelectorAll<HTMLElement>("i[data-icon]").forEach((i) => {
@@ -228,7 +250,7 @@ export function mountIcons(root: HTMLElement, reduced: boolean) {
       });
     },
     dispose() {
-      dead = true; ac.abort(); io.disconnect(); clearTimeout(rt);
+      dead = true; ac.abort(); io.disconnect(); prep.disconnect(); clearTimeout(rt); cancelAnimationFrame(flushRaf);
       all.forEach((st) => { cancelAnimationFrame(st.raf); st.i.textContent = ""; });
       all.length = 0;
     },

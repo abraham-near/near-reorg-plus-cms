@@ -1,10 +1,10 @@
 import { escapeHtml, sanitizeRichHtml } from '@/cms/lib/sanitize'
 
-const customBlocks = new Set(['embed-block', 'taskList', 'taskItem'])
+const customBlocks = new Set(['embed-block', 'taskList', 'taskItem', 'callout', 'figures', 'footnote'])
 const modeledTags = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'STRONG', 'B', 'EM', 'I', 'S', 'DEL', 'U', 'MARK', 'CODE', 'PRE', 'BLOCKQUOTE', 'UL', 'OL', 'LI', 'BR', 'HR', 'A', 'IMG'])
 const modeledAttributes: Record<string, Set<string>> = {
   A: new Set(['href', 'target', 'rel']),
-  IMG: new Set(['src', 'alt', 'title', 'width', 'height']),
+  IMG: new Set(['src', 'alt', 'title', 'width', 'height', 'data-size']),
   OL: new Set(['start']),
   CODE: new Set(['class']),
 }
@@ -29,6 +29,8 @@ export function htmlForEditor(html: string): string {
   return [...template.content.childNodes].map((node) => {
     if (node.nodeType !== 1) return node.nodeType === 3 && node.textContent ? escapeHtml(node.textContent) : ''
     const element = node as Element
+    // an image on its own line (HTML written elsewhere: imports, the API): the editor's images are inline, so give it its paragraph
+    if (element.tagName === 'IMG') return `<p>${element.outerHTML}</p>`
     return needsPreservation(element)
       ? `<div data-type="raw-html" data-content="${escapeHtml(element.outerHTML)}"></div>`
       : element.outerHTML

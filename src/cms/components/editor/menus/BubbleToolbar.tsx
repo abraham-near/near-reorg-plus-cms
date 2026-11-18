@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { type Editor, useEditorState } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import { NodeSelection, TextSelection } from '@tiptap/pm/state'
-import { Bold, Check, ChevronDown, Code, Highlighter, Italic, Link2, Strikethrough, Trash2, Underline } from 'lucide-react'
+import { Asterisk, Bold, Check, ChevronDown, Code, Highlighter, Italic, Link2, Strikethrough, Trash2, Underline } from 'lucide-react'
 import { safeUrl } from '@/cms/lib/sanitize'
 import { BLOCK_KINDS, blockKind, topLevelBlockAt, turnSelectionInto, type BlockKind } from '../extensions/block-actions'
 
@@ -169,6 +169,8 @@ export function BubbleToolbar({ editor, linkRequest }: { editor: Editor; linkReq
             <span className="cms-bubble-separator" aria-hidden="true" />
             {button(state.link ? 'Edit link' : 'Link', state.link, openLink, <Link2 className="size-4" />, '⌘K')}
             {button('Highlight', state.highlight, () => editor.chain().focus().toggleHighlight().run(), <Highlighter className="size-4" />, '⌘⇧H')}
+            {/* a footnote after the selected words (its note box opens on it) */}
+            {button('Footnote', false, () => editor.chain().focus().setTextSelection(editor.state.selection.to).insertContent({ type: 'footnote', attrs: { text: '' } }).run(), <Asterisk className="size-4" />)}
           </div>
         )}
       </div>

@@ -25,10 +25,11 @@ html[data-home="v5"] .layer[data-type="even"] :is(.rail__h, .rail__problem, .rai
 }
 
 /* the stations' drawings centred on the tile (D117). Each sits in its box (rail.css .rs__art, centred on the station) by its svg's viewBox (xMidYMax meet), but
-   identity's and intelligence's drawings are off the middle of their viewBox: 10.6 % of the drawn width right (identity: its floor, 106 - 494 of 495) and 2.7 % left
-   (intelligence: -4 - 394 of 412), from their svg geometry. The drawn width is the box's, or its height x the viewBox's aspect where that is less (495 x 328, 412 x 294) */
-html[data-home="v5"] .layer[data-square="early"] .rs__art[data-art="identity"] { translate: calc(-.106 * min(var(--art-w), var(--art-h) * 1.509)) 0; }
+   intelligence's drawing is off the middle of its viewBox: 2.7 % left (-4 - 394 of 412), from its svg geometry. The drawn width is the box's, or its height x the
+   viewBox's aspect where that is less (412 x 294). Identity's (Figma 918:299) is centred in its viewBox: no offset */
 html[data-home="v5"] .layer[data-square="early"] .rs__art[data-art="intelligence"] { translate: calc(.0267 * min(var(--art-w), var(--art-h) * 1.401)) 0; }
+/* identity (Figma 918:299) is a tall drawing: contained by the box's height it read smaller than its neighbours, so it is drawn 18 % bigger from its foot */
+html[data-home="v5"] .rs__art[data-art="identity"] .v2 svg { transform: scale(1.18); transform-origin: 50% 100%; }
 
 /* the playhead's square over every tile that lands in it (D128): the stations' tiles (.rs__track, z 5) and NEAR's (z 4) grow up behind its outline, never over it */
 .layer[data-square="early"] .rs__play { z-index: 6; }

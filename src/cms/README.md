@@ -52,6 +52,14 @@ Accounts created from the command line can sign in right away. Without `RESEND_A
 - Set `CMS_ORIGIN` to the public address: emails link to it, Claude is told to use it, and same-origin checks accept it.
 - Run `npm run db:deploy` on release. Secure cookies (`__Host-`) are used in production.
 
+## Writing a post: story mode
+
+Besides the text, a post can carry the parts the public layouts draw:
+- **Layout** (properties): Cover (the default), Ruled or Notebook. `?layout=a|b|c` on the public URL still switches for a look.
+- **Takeaways** (properties): up to three one-line key points; every layout shows them.
+- **Blocks** (type `/`): Pull quote (a last line "— Name, role"), Callout (the first line is the title), Figures (2–4 numbers on an ink band, with a source note), Image pair, and an image's width (Column / Wide / Full bleed, on the selected image).
+- **Footnotes**: type `/footnote` after a word, or select words and press the footnote button (✱) in the toolbar. A green number marks it; click it to edit or remove the note. The site numbers the notes in order and lists them at the end of the post (`src/lib/blog/html.ts`); the admin preview lists them too. Stored as `<sup data-type="footnote" data-footnote="…"></sup>`.
+
 ## Claude
 
 ### Connector: Claude Desktop, Cowork and claude.ai
@@ -61,6 +69,7 @@ The CMS is a remote MCP server at `<CMS_ORIGIN>/api/mcp` with its own OAuth sign
 - **Connecting.** People add the URL in Claude (Settings › Connectors › Add custom connector; on Team and Enterprise an Owner adds it once for everyone), click Connect, sign in to the CMS and allow it. The exact URL is in Settings › Claude, which also lists each person's connections with a Disconnect button.
 - **What Claude can do.** The local MCP's tools, minus the file ones, limited by what the person allowed (read, write drafts, add images, publish) and by `TOKEN_CAP`. Never deletes, never manages people.
 - **Publishing.** Publishing tools are marked destructive, so Claude asks before each call. They also take the title and `updatedAt` of the version the person reviewed: a post changed after the review is refused. At most 10 publish/schedule/unpublish actions an hour per connection. The owner gets an email for each one. Owners should set the publish tools to "Needs approval" in Claude.
+- **Story mode.** `create_draft`, `update_post` and `update_live_post` also take `layout` (`"a"` Ruled, `"b"` Cover, `"c"` Notebook, `null` = Cover) and `takeaways` (up to three lines); `get_post` returns both. The guide (`src/cms/mcp/guide.ts`, "Story mode") tells Claude how to write the story blocks and footnotes in the body's HTML.
 - **Images** come in only through Google Docs: `import_google_doc` makes a new draft with the Doc's text and images. Images attached in a chat never reach MCP tools (a Claude limitation).
 - **Security model.**
   - Authorization code with PKCE S256 only, for public clients.

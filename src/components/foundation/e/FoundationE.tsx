@@ -1,22 +1,32 @@
 "use client";
-// near.org/foundation, version E: version B's page (paper, ink, one green, the isometric hand) with three changes:
-//   1 the hero: Foundation C's drawing (the plinth and its green columns) on paper, alive without scrolling (the columns breathe, signals run the
-//     seams, it leans to the pointer); scrolled, the columns lift and the drawing settles into the stair's empty corner below (HeroColumns.tsx);
-//   2 the pillars: three boxes in the homepage's hand (hairlines, a + at each corner), a descending stair, tighter; no lines in the empty steps;
-//   3 "Our goal is to make ourselves smaller.": C's statement on two lines, the size of the screen, shrinking to the left as the text arrives on the
-//     right; then the page scrolls on.
-// The rest is B's (Art.tsx, motion.ts). Copy: the October 2026 doc, verbatim.
+// near.org/foundation (/near-foundation): the Foundation page, version E with two sections of version F (the other versions were removed). From the top:
+//   1 the hero (E): Foundation C's drawing (the plinth and its green columns) on paper, alive without scrolling (the columns breathe, signals run the
+//     seams, it leans to the pointer; HeroColumns.tsx);
+//   2 the pillars (F): one ruled row, three cells, each with its icon and a mono label (Structure / Focus / Direction);
+//   3 "Our goal is to make ourselves smaller." (E): C's statement on two lines, the size of the screen, shrinking to the left as the text arrives on
+//     the right; then the page scrolls on;
+//   4 transparency (E): the glass Stiftung in a box on the ruled grid;
+//   5 the Council (F): the Stack's dark, the heading | the text and who reports to whom;
+//   6–8 how the Foundation operates, the ecosystem and the close (E).
+// Copy: the October 2026 doc, verbatim (the pillars' labels and the Council's chain are the Figma page's, via F).
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
 import { LOCKUP_LETTERS, LOCKUP_TILE, LOCKUP_VIEWBOX } from "../../v3/proof-deeper/lockup";
-import { ArtCouncil, ArtGlass } from "../b/Art";
-import { Arrow, CAREERS, COMMUNITY, ECOSYSTEM, PILLARS, Words, idx } from "../b/FoundationB";
+import { ArtGlass } from "../b/Art";
+import { Arrow, CAREERS, COMMUNITY, ECOSYSTEM, Words } from "./parts";
 import { HeroColumns } from "./HeroColumns";
 import { OperateSection } from "./Operate";
 import { mountAll } from "./motion";
 import "../../v3/proof-deeper/proof-deeper.css";
 import "../b/foundation-b.css";
 import "./foundation-e.css";
+
+// the pillars (from version F's Figma page): an icon, a mono label, the title and the text
+const PILLARS = [
+  { icon: "nonprofit", k: "Structure", t: "Nonprofit", b: "A Swiss nonprofit foundation (Stiftung), legally bound to its purpose, operating with the transparency that structure demands." },
+  { icon: "growth", k: "Focus", t: "Ecosystem growth", b: "We support the growth of the NEAR ecosystem, directing resources to the people and projects building on it rather than competing with them." },
+  { icon: "decentral", k: "Direction", t: "Decentralization", b: "We champion a decentralized, self-sufficient ecosystem, and work to devolve our own functions to it over time." },
+];
 
 export function FoundationE() {
   const ref = useRef<HTMLDivElement>(null);
@@ -35,25 +45,19 @@ export function FoundationE() {
         </div>
       </section>
 
-      {/* 2 · three pillars: three boxes, a descending stair */}
-      <section className="l-sec fe-pl" id="fb-pillars" aria-labelledby="fb-pillars-t">
+      {/* 2 · three pillars: Foundation F's ruled row (an icon, a mono label, the title and the text in each cell) */}
+      <section className="l-sec ff-pillars" id="fb-pillars" aria-labelledby="fb-pillars-t">
         <h2 id="fb-pillars-t" className="sr-only">What the Foundation is</h2>
-        <ol className="fe-pl__row">
-          {PILLARS.map(({ t, b, Art }, i) => (
-            <li key={t} className="fe-pl__cell" style={{ ["--i" as string]: i }}>
-              {i > 0 && <span className="fe-pl__spot" aria-hidden="true" />}
-              <div className="fb-pillar fe-pl__card" data-pillar={i}>
-                <span className="fe-pl__x" aria-hidden="true" /><span className="fe-pl__x fe-pl__x--r" aria-hidden="true" />
-                <div className="fb-pillar__art"><Art /></div>
-                <div className="fe-pl__txt" data-fb-rv="">
-                  <span className="fb-n">{idx(i)}</span>
-                  <h3 className="fb-h3">{t}</h3>
-                  <p className="fb-body">{b}</p>
-                </div>
-              </div>
+        <ul className="l-row ff-pillars__row" data-row="">
+          {PILLARS.map((p) => (
+            <li key={p.t} className="l-cell ff-pillar">
+              <img className="ff-pillar__ic" src={`/foundation/icon-${p.icon}.svg`} alt="" width={32} height={32} />
+              <p className="ff-k" data-rv="">{p.k}</p>
+              <h3 className="ff-h3" data-rv="">{p.t}</h3>
+              <p className="ff-body" data-rv="">{p.b}</p>
             </li>
           ))}
-        </ol>
+        </ul>
       </section>
 
       {/* 3 · the thesis on two lines: it shrinks to the left as the text arrives on the right */}
@@ -86,17 +90,19 @@ export function FoundationE() {
         </div>
       </section>
 
-      {/* 5 · the Council: the same box (text | drawing), the Stack's ink only inside the frame */}
-      <section className="l-sec fb-council fe-box fe-council" id="fb-council" aria-labelledby="fb-council-t">
-        <div className="l-row fe-box__row" data-row="">
-          <div className="l-cell fe-box__txt fb-council__txt">
-            <h2 id="fb-council-t" className="fb-h2" data-fb-rv="">The NEAR Foundation <span className="accent">Council</span></h2>
-            <p className="l-lede" data-fb-rv="">The NEAR Foundation Council is the governing body of the Foundation, responsible for its ultimate oversight and its most significant decisions. The Council is separate from the executive team, which the Council empowers to manage day-to-day operations and which reports back to it.</p>
-            <b className="l-x fe-x" aria-hidden="true" /><b className="l-x fe-x fe-x--r fe-x--m" aria-hidden="true" />
+      {/* 5 · the Council: Foundation F's, on the Stack's dark (../foundation.css): the heading | the text and who reports to whom */}
+      <section className="l-sec f-council" id="fb-council" aria-labelledby="fb-council-t">
+        <div className="l-row f-council__row" data-row="">
+          <div className="l-cell f-council__h">
+            <i className="l-ic" data-icon="governance" data-icon-size="20" aria-hidden="true" />
+            <h2 id="fb-council-t" className="l-h2 l-h2--m" data-rv="">The NEAR Foundation <span className="accent">Council</span></h2>
           </div>
-          <div className="l-cell fe-box__art">
-            <figure className="fb-council__art" data-council=""><ArtCouncil /></figure>
-            <b className="l-x fe-x" aria-hidden="true" /><b className="l-x fe-x fe-x--r" aria-hidden="true" />
+          <div className="l-cell f-council__b">
+            <p className="l-lede" data-rv="">The NEAR Foundation Council is the governing body of the Foundation, responsible for its ultimate oversight and its most significant decisions. The Council is separate from the executive team, which the Council empowers to manage day-to-day operations and which reports back to it.</p>
+            <ol className="f-chain" data-rv="" aria-label="Who reports to whom">
+              <li><span className="f-chain__n">Council</span><span className="f-chain__r">Oversight and the most significant decisions</span></li>
+              <li><span className="f-chain__n">Executive team</span><span className="f-chain__r">Day-to-day operations, reporting back to the Council</span></li>
+            </ol>
           </div>
         </div>
       </section>

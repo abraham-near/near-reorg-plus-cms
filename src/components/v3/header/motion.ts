@@ -361,11 +361,18 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
   /* ── go ── */
   fixStarts();
   placePop(true); frame();
-  const loop = () => {   // own rAF loop: a throwing page listener elsewhere never stalls the nav
+  /* own rAF loop (a throwing page listener elsewhere never stalls the nav), awake only while something can change what it reads: a scroll (and 1.5 s after,
+     while scrubbed bands settle and the tone needs its frames), a resize, input, or an open panel / map. At rest it sleeps: no layout reads every frame */
+  let until = 0;
+  const loop = () => {
+    raf = 0;
     try { frame(); } catch (err) { console.warn("[header]", err instanceof Error ? err.message : err); }
-    raf = requestAnimationFrame(loop);
+    if (!dead && (performance.now() < until || st.openId || st.map)) raf = requestAnimationFrame(loop);
   };
-  raf = requestAnimationFrame(loop);
+  const wake = () => { until = performance.now() + 1500; if (!raf && !dead) raf = requestAnimationFrame(loop); };
+  for (const t of ["scroll", "resize", "wheel", "touchmove", "keydown", "pointerdown", "click", "focusin"]) addEventListener(t, wake, { signal: ac.signal, passive: true, capture: true });
+  header.addEventListener("pointerover", wake, on);
+  wake();
   addEventListener("resize", () => { placePop(true); fitMap(); measureSpread(); if (!isMob() && st.map) setMap(false); }, on);
   measureSpread();
   addEventListener("load", () => { placePop(true); fixStarts(); }, on);

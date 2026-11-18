@@ -22,9 +22,12 @@ const H = PILLAR.height / CUBES;
 const off = (i: number) => (i - MID) * GAP;            /* a parted cube's shift */
 const GAP = 32, MID = 2.2;                           /* the parted cubes' extra spacing (drawing units) and the cube that stays put: more room goes below (the pillar's top is near the screen's) */
 
+/* coordinates to 0.01 unit: the cube height (644 / 6) printed 107.33333333333333 into every point, ~16 KB of the page's HTML */
+const r2 = (n: number) => Math.round(n * 100) / 100;
 const cube = (i: number) => {
-  const { half: w, rise: r } = PILLAR, y0 = i * H, y1 = y0 + H;
-  return [`${-w},${y1} 0,${y1 + r} 0,${y0 + r} ${-w},${y0}`, `${w},${y1} 0,${y1 + r} 0,${y0 + r} ${w},${y0}`, `0,${y0 - r} ${w},${y0} 0,${y0 + r} ${-w},${y0}`];
+  const { half: w, rise: r } = PILLAR, y0 = r2(i * H), y1 = r2(y0 + H);
+  const a = r2(y0 - r), b = r2(y0 + r), c = r2(y1 + r);
+  return [`${-w},${y1} 0,${c} 0,${b} ${-w},${y0}`, `${w},${y1} 0,${c} 0,${b} ${w},${y0}`, `0,${a} ${w},${y0} 0,${b} ${-w},${y0}`];
 };
 /* a box: its three faces (fill only), then its outline (.s7-e): the faces' real edges, the joints with the rest of its piece left out (edges.ts, D131) */
 const FACE = ["s7-l", "s7-r", "s7-t"];
@@ -33,8 +36,8 @@ const Faces = ({ b, e }: { b: Box; e: BoxEdges }) => (
 );
 /* a cube's outline (its silhouette): where the blurred view behind a ghost cube shows */
 const sil = (i: number) => {
-  const { half: w, rise: r } = PILLAR, y0 = i * H, y1 = y0 + H;
-  return `${-w},${y0} 0,${y0 - r} ${w},${y0} ${w},${y1} 0,${y1 + r} ${-w},${y1}`;
+  const { half: w, rise: r } = PILLAR, y0 = r2(i * H), y1 = r2(y0 + H);
+  return `${-w},${y0} 0,${r2(y0 - r)} ${w},${y0} ${w},${y1} 0,${r2(y1 + r)} ${-w},${y1}`;
 };
 /* the N on the cap: the official mark (public/v1/stack/stack-icon.svg, its glyph centred in a square), its square laid on the cap's top face by the face's own
    two edges, so it sits in the face's plane and centre; ICON, the square's share of the face (D130: 0.98, was v1's 0.82, so the N is about a fifth bigger) */
@@ -221,6 +224,8 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
     let io: IntersectionObserver | null = null, near: IntersectionObserver | null = null;
     if (RM) { showCubes(CUBES); built = true; ringsIn = 0; for (let k = 0; k < 3; k++) { showRing(k, true); ringsIn++; } }
     else {
+      /* data-build (the pieces at rest, unbuilt) comes in the server's markup: set here, after the first paint, it started ~350 SVG transitions at once
+         (fill, stroke, opacity: none of them composited) on every load, far above the drawing */
       svg.setAttribute("data-build", "");
       /* unpinned: built when the drawing's top comes 18 % above the screen's foot, put away when it goes back below it (an observer, not a ScrollTrigger:
          this mounts before the pins above it exist, so a trigger's start would be measured thousands of px early) */
@@ -383,7 +388,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
 
   return (
     <>
-      <svg ref={svgRef} className="stk-iso stk7" viewBox={VIEWBOX} aria-hidden="true" focusable="false" data-iso="" style={{ "--s7-gap": `${GAP}px`, "--s7-mid": MID } as CSSProperties}>
+      <svg ref={svgRef} className="stk-iso stk7" viewBox={VIEWBOX} aria-hidden="true" focusable="false" data-iso="" data-build="" style={{ "--s7-gap": `${GAP}px`, "--s7-mid": MID } as CSSProperties}>
         <defs>
           {(["intents", "ai", "com"] as const).map((k) => (
             <clipPath key={k} id={`stk7-cover-${k}`}>{COVERS[k].map((p, i) => <polygon key={i} points={p} />)}</clipPath>

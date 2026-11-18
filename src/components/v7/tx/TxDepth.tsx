@@ -75,7 +75,19 @@ export function TxDepth({ end }: { pin: number; end: number }) {
 
     /* the intro's words hold the lines back: under their box (padded, soft edged) the lines are faint, so the grid reads behind the words, not through them */
     const introEl = statement?.querySelector<HTMLElement>(".statement__inner") ?? null;
-    const introAt = () => { if (!introEl) return null; const s = stage.getBoundingClientRect(), r = introEl.getBoundingClientRect(); return { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height }; };
+    /* where the intro sits over the stage: it moves only with the scroll, its own lift, a resize or a refresh (the pins), so it is measured again only then. Three loops
+       read it every frame; measured each time, it was two rects three times a frame, forcing layouts while the page loads */
+    let atMemo: { x: number; y: number; w: number; h: number } | null = null, atKey = "", refreshes = 0;
+    const onRefreshCount = () => { refreshes++; };
+    ScrollTrigger.addEventListener("refresh", onRefreshCount);
+    const introAt = () => {
+      if (!introEl) return null;
+      const k = `${scrollY}|${innerWidth}|${innerHeight}|${refreshes}|${introEl.style.translate}`;   /* its own lift (scrubbed: it settles after the scroll stops) */
+      if (k === atKey && atMemo) return atMemo;
+      const s = stage.getBoundingClientRect(), r = introEl.getBoundingClientRect();
+      atKey = k; atMemo = { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height };
+      return atMemo;
+    };
     const introKey = () => { const r = introAt(); return r ? `${r.y.toFixed(0)}` : ""; };
     const holdBehindIntro = (ctx: CanvasRenderingContext2D, h: number, strength: number) => {
       const r = introAt(); if (!r || r.y >= h || r.y + r.h <= 0) return;
@@ -174,8 +186,11 @@ export function TxDepth({ end }: { pin: number; end: number }) {
       }
       inner.style.clipPath = `path("${rects.map(([x, y, w, h]) => `M${x.toFixed(1)} ${y.toFixed(1)}h${w.toFixed(1)}v${h.toFixed(1)}h${(-w).toFixed(1)}Z`).join("")}")`;
     };
-    let raf = 0, lastReveal = "";
-    const revealLoop = () => { raf = requestAnimationFrame(revealLoop); const k = `${p.clear.toFixed(4)}|${introKey()}|${G.w}|${G.h}`; if (k !== lastReveal) { lastReveal = k; reveal(); } };
+    let raf = 0, lastReveal = "", near = true;
+    /* only while the stage is within half a screen, as canvasLoop (common.ts): it read two rects every frame for the life of the page */
+    const revealLoop = () => { raf = near ? requestAnimationFrame(revealLoop) : 0; const k = `${p.clear.toFixed(4)}|${introKey()}|${G.w}|${G.h}`; if (k !== lastReveal) { lastReveal = k; reveal(); } };
+    const nearIO = new IntersectionObserver(([en]) => { near = en.isIntersecting; if (near && !raf) raf = requestAnimationFrame(revealLoop); }, { rootMargin: "50% 0px" });
+    nearIO.observe(stage);
     raf = requestAnimationFrame(revealLoop);
 
     build();
@@ -187,7 +202,7 @@ export function TxDepth({ end }: { pin: number; end: number }) {
       track(hero, "top -112%", `top -${end + 26}%`, lift),
     ];
     ScrollTrigger.addEventListener("refresh", build);
-    return () => { offs.forEach((f) => f()); back(); front(); ScrollTrigger.removeEventListener("refresh", build); root.remove(); cancelAnimationFrame(raf); if (inner) { inner.style.translate = ""; inner.style.clipPath = ""; } };
+    return () => { offs.forEach((f) => f()); back(); front(); ScrollTrigger.removeEventListener("refresh", build); ScrollTrigger.removeEventListener("refresh", onRefreshCount); root.remove(); cancelAnimationFrame(raf); nearIO.disconnect(); if (inner) { inner.style.translate = ""; inner.style.clipPath = ""; } };
   });
   return <span ref={ref} hidden />;
 }

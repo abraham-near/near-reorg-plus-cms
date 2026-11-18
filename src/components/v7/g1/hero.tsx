@@ -13,7 +13,10 @@ const TIMING = [0, 0.0226, 0.0451, 0.0677, 0.0902, 0.1128, 0.1353, 0.1579, 0.180
 
 /* the film lives in the media bucket, not the repo: /cms/... redirects to it on Railway ((cms)/cms/[...path]/route.ts) and is served from public/cms
    (gitignored) in development. v2 is v1 re-encoded smaller (H.264 CRF 27, tune film, a keyframe every 8 frames for the scrub, no B-frames; 7.2 to 4.2 MB) */
+/* G1's still in three widths (from the 2400 px master, home-hero-g1-still-v1.webp, which G1Layer's coordinates refer to): a phone loaded the 469 KB
+   master; it now takes 28-107 KB. The still covers the hero (aspect 1.79), so on an upright phone it is drawn ~1.8 screen heights wide: sizes says so. */
+const STILL_SET = [828, 1280, 1920].map((w) => `/images/home/home-hero-g1-still-v1-${w}.webp ${w}w`).join(", ");
 export const G1_HERO: HeroAlt = {
-  poster: "/images/home/home-hero-g1-timelapse-v1.webp", video: "/cms/videos/home/home-hero-g1-timelapse-v2.mp4", still: "/images/home/home-hero-g1-still-v1.webp",
+  poster: "/images/home/home-hero-g1-timelapse-v1.webp", video: "/cms/videos/home/home-hero-g1-timelapse-v2.mp4", still: STILL_SET, stillSizes: "max(100vw, 179vh)",
   x: 70, y: 50, sm: { x: 80 }, timing: TIMING, wash: ["lg"], layer: <G1Layer />,
 };
