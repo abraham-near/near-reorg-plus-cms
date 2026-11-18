@@ -338,6 +338,14 @@ html[data-rm] .nvh .nv-pop, html[data-rm] .nvh .nv-panel, html[data-rm] .nvh .nv
 .nvh[data-spread].nv-calm .nv-bar > *, .nvh[data-spread].nv-calm .nv-surface { transition: none !important; }
 @media (max-width: 859px) { .nvh[data-spread].nv-wide .nv-bar > * { transform: none; } .nvh[data-spread].nv-wide .nv-surface { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .nvh[data-spread] .nv-bar > *, .nvh[data-spread] .nv-surface { transition: none !important; } }
+/* spread, a menu open: no pill to unfold from, so the panel just fades in and out where it lands (no growing box). Its box jumps to its place at once on
+   open and, on close, only after the fade, so it never shrinks in view; the contents fade with it (no rise). Between menus the box jumps, the contents
+   cross-fade. In the pill (gathered) the unfolding stays. */
+.nvh[data-spread].nv-wide .nv-pop { transition: opacity 220ms var(--ease-tick), visibility 0s linear 220ms,
+  left 0s 220ms, top 0s 220ms, width 0s 220ms, height 0s 220ms, border-radius 0s 220ms; }
+.nvh[data-spread].nv-wide .nv-pop.is-open { border-radius: 20px; transition: opacity 220ms var(--ease-tick), visibility 0s, left 0s, top 0s, width 0s, height 0s, border-radius 0s; }
+.nvh[data-spread].nv-wide .nv-panel { transform: none; transition: opacity 180ms var(--ease-tick), visibility 0s linear 180ms; }
+.nvh[data-spread].nv-wide .nv-panel.is-on { transition: opacity 220ms var(--ease-tick), visibility 0s; }
 
 /* soft tone (header[data-soft], home v5): while .nv-toning is on (motion.ts, ~0.6 s) the pill's ground, its type, the N and Get started cross-fade
    between light and dark; outside it every transition keeps its own speed (hover stays quick). */
