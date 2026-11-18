@@ -28,9 +28,9 @@ import "./v7.css";
 import "./rail-v7.css";
 
 // the lower page's photos: literal black and white with one green accent, after the CMS preview's story pictures (D170: Go deeper, the blog's own; D171: the rest; D177: the voices' crowd filming on a phone, in place of D171's ridges; D180: Origin's whiteboard, the Transformer's architecture as in the paper's
-// Figure 1, among 2017-era machines, in place of D171's lab)
+// Figure 1, among 2017-era machines, in place of D171's lab; D199: the close's row of mailboxes, D186's P3 with its green box closed, in place of D171's meadow)
 const BW = "/images/home/bw";
-const PHOTOS = { deeper: "/images/blog", origin: `${BW}/origin-transformer.webp`, ridges: `${BW}/voices-crowd.webp`, meadow: `${BW}/close-meadow.webp` };
+const PHOTOS = { deeper: "/images/blog", origin: `${BW}/origin-transformer.webp`, ridges: `${BW}/voices-crowd.webp`, meadow: `${BW}/close-mailboxes.webp` };
 const PATH_IMG = [`${BW}/paths-trade.webp`, `${BW}/paths-integrate.webp`, `${BW}/paths-build.webp`];
 // D179: Lawrence's title for Origin ("helped invent" in v4's copy, which other versions keep)
 const ORIGIN_TITLE = <>Built by the people <span className="l-nb">who invented</span> <span className="l-nb">modern AI</span></>;   // no lone "who" on phones

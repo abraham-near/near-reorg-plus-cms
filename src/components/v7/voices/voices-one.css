@@ -3,8 +3,10 @@
    D194: no count; a drawn quote mark hangs in the margin beside the first line (D195, D196: in the rail's isometric art). Lawrence (D190): no list, no bars, the quote alone with a lot of paper around it, so the page
    breathes here. Motion only under [data-clock] (set by the component unless reduced motion). */
 
-/* ---------------------------------------------------------------- the head: the heading alone; the next row's rule runs under it */
+/* ---------------------------------------------------------------- the head: the heading alone; the next row's rule runs under it. D198: more paper above it, so
+   it stands clear of Go deeper's "View everything" row just above (Lawrence) */
 .l-vo__h { text-wrap: balance; }
+.l-vo .l-head__cell.l-vo__head { padding-top: clamp(96px, 9vw, 152px); }
 
 /* ---------------------------------------------------------------- the quote: alone in a tall band of paper, from the 4th of 12 columns (where the
    Figma sets it), all four sharing one place (the band is as tall as the longest), the one on shows. They sit at the band's top, so every first line

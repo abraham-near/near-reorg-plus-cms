@@ -154,3 +154,7 @@ html[data-home="v5"] .statement[data-reveal="wipe"].is-pre { opacity: 1; transfo
 .l-page[data-scope="v7"] .l-origin::after { content: ""; position: absolute; z-index: 3; top: -4px; left: calc(var(--margin) - 4px); right: calc(var(--margin) - 4px); height: 9px; pointer-events: none;
   background: linear-gradient(var(--l-x), var(--l-x)) 4px 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 0 50% / 9px var(--hair) no-repeat,
     linear-gradient(var(--l-x), var(--l-x)) calc(100% - 4px) 0 / var(--hair) 100% no-repeat, linear-gradient(var(--l-x), var(--l-x)) 100% 50% / 9px var(--hair) no-repeat; }
+
+/* the close's mailboxes (D199): the green box is right of centre (about 67% across), so below 860 px, where only a third to a fifth of the width shows, the
+   picture slides left to keep it in view */
+@media (max-width: 859px) { .l-page[data-scope="v7"] .l-close__bleed .l-img { object-position: 70% 70%; } }
