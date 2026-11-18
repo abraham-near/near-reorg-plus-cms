@@ -26,7 +26,9 @@ export const POSTS: Post[] = [
   { id: "bermuda", type: "story", title: "Government of Bermuda and NEAR AI partner to deploy AI-powered public services", source: "Government of Bermuda", url: "https://near.ai/blog/government-of-bermuda-and-near-ai-partner-to-deploy-ai-powered-public-services" },
 ];
 
-export const img = (id: string) => `/v3/deeper/${id}.webp`;
+// the blog's own photos (D170): black and white with one green accent, after the CMS preview's story images. The six stories are that site's own pictures; the read
+// and the five talks are made in the same style. The homepages' Go deeper keeps v3's pictures (proof-deeper/ProofDeeper.tsx).
+export const img = (id: string) => `/images/blog/${id}.webp`;
 /** a post's photo: its own (a CMS post), else the Go deeper image by id; null when a CMS post has none */
 export const picOf = (p: Post) => (p.pic === undefined ? img(p.id) : p.pic);
 export const href = (p: Post) => p.url || BLOG;

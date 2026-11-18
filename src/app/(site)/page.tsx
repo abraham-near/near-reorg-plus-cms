@@ -5,7 +5,7 @@ import { og } from "@/lib/site";
 export { default } from "./home-v7/page";
 
 export const metadata: Metadata = {
-  title: { absolute: "NEAR: Own your world" },
+  title: { absolute: "NEAR: Finance and AI, private by default" },
   description: "AI is starting to act for you. NEAR keeps your assets, your data, and your intelligence in your hands.",
   alternates: { canonical: "/" },
   openGraph: og({ title: "NEAR: Own your world", description: "AI is starting to act for you. NEAR keeps your assets, your data, and your intelligence in your hands.", url: "/" }),

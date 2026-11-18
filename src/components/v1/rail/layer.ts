@@ -135,6 +135,9 @@ const stairText = (text: string) => stair(text.split(/\s+/).filter(Boolean).map(
 const words = (text: string) => text.split(/(\s+)/).map((p) => (!p ? "" : /^\s+$/.test(p) ? p : `<span class="wd">${esc(p)}</span>`)).join("");
 const txt = (el: Element | null) => (el?.textContent || "").trim();
 
+/** a station's illustration: its li's data-own, but home v7's identity (.layer[data-identity="sign"], D189) is the signed account (vig2/sign.ts) */
+const ownKey = (sec: HTMLElement, li: HTMLElement): VigKey => (li.dataset.own === "identity" && sec.dataset.identity === "sign" ? "sign" : (li.dataset.own as VigKey));
+
 function readCopy(sec: HTMLElement): Copy {
   const c = [...sec.querySelectorAll(".rail__s")].map(txt);
   // the answer: "On NEAR" + the rest + the marked phrase (v1: the mark ends it). Optional (v4): text after the mark on the same line (tail), then a second line (.rail__next).
@@ -144,7 +147,7 @@ function readCopy(sec: HTMLElement): Copy {
   for (let nd = mkEl?.nextSibling ?? null; nd && nd !== nextEl; nd = nd.nextSibling) tail += nd.textContent || "";
   pre = pre.trimStart(); tail = tail.trimEnd();
   const n = pre.indexOf("NEAR");
-  const list = [...sec.querySelectorAll<HTMLElement>(".rail__list > li")].map((li) => { const h = li.querySelector("h3") as HTMLElement, acc = txt(h.querySelector(".acc")); return { key: li.dataset.own as VigKey, own: txt(h).slice(0, -acc.length).trim(), acc, line: txt(li.querySelector("p")) }; });
+  const list = [...sec.querySelectorAll<HTMLElement>(".rail__list > li")].map((li) => { const h = li.querySelector("h3") as HTMLElement, acc = txt(h.querySelector(".acc")); return { key: ownKey(sec, li), own: txt(h).slice(0, -acc.length).trim(), acc, line: txt(li.querySelector("p")) }; });
   return { c, problem: txt(sec.querySelector(".rail__problem")), on: pre.slice(0, n), mid: pre.slice(n + 4), owned, tail, next: txt(nextEl), list };
 }
 
@@ -176,6 +179,9 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const EARLY = SPLIT && sec.dataset.square === "early";
   const WU = (n: number) => (EARLY ? `calc(${n} * var(--wu, 1vw))` : `${n}vw`);         /* v6: line 3 lingers, then leaves whole before the problem; nothing docks; the answer has its own "NEAR" (see the header) */
   const LINES = SPLIT && sec.dataset.words === "lines";   /* v6: line by line, line 3 after a beat (see the header) */
+  /* home v7 (data-identity="sign", D189): identity's drawing holds through the words' leave and goes with the "wipe": it rides up with the line and plays its leave
+     on the way, instead of being gone before anything rises */
+  const SIGNOUT = sec.dataset.identity === "sign" && EXIT === "wipe";
   const TX = (t: string) => (WORDS ? words(t) : esc(t));   /* a text for the stage: v5 wraps its words */
   const html = document.documentElement;
   if (html.hasAttribute("data-rm") || ctx.reduced) return staticPage(sec);
@@ -790,6 +796,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     put("tw", R.world, `translate3d(${wx.toFixed(2)}px,0,0)`);
     put("tt", R.track, `translate3d(${wx.toFixed(2)}px,${ry}px,0)`);
     put("tp", R.play, M.rise ? `translate3d(0,${ry}px,0)` : "none");
+    if (SIGNOUT) { const v = M.rise ? `0 ${ry}px` : ""; if (last.sg !== v) { last.sg = v; R.arts[3].style.translate = v; } }   /* v7: identity's drawing rides the line up (its transform is rail.css' centring) */
     /* the frame draws itself around the first tile as it lands, then stays; it fades as the dark starts (ink on the dark would vanish half-way) */
     { const pf = S.pf.toFixed(3), po = (1 - s01(S.tk * 4)).toFixed(3);
       if (last.pf !== pf) { last.pf = pf; R.playRect.style.strokeDashoffset = (1 - S.pf).toFixed(3); if (EARLY) R.playRect.style.strokeDasharray = S.pf >= 0.999 ? "none" : "";   /* v6: no seam where the drawn path starts (D117) */ R.play.style.visibility = S.pf > 0.001 ? "visible" : "hidden"; }
@@ -952,7 +959,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       }
     });
     /* 92.3 - 95.2 identity leaves as the others do, before any dark: the words up through their windows, the drawing (set(a) 1 -> 2: gone by a = 1.85), the viewfinder */
-    to(S.va, { 3: 2, duration: 3.4, ease: "none" }, ID_OUT);
+    if (SIGNOUT) to(S.va, { 3: 2, duration: 4.6, ease: "none" }, TR.t0 + 0.4);   /* v7: with the rise (see SIGNOUT) */
+    else to(S.va, { 3: 2, duration: 3.4, ease: "none" }, ID_OUT);
     to(I.ln[3], { o: 1, duration: 2.2, ease: "none" }, ID_OUT); to(I.tit[3], { o: 1, duration: 2.2, ease: "none" }, ID_OUT + 0.3);
     to(I.fin, { a: 0, duration: 2.0, ease: "none" }, ID_OUT);
     /* 95.8 - 106.3 THE WORLD BECOMES THE STACK: S.tk the cells under the line darken and merge from just under the centre outwards; S.tg the tide: the dark rises from the line as a straight edge,
@@ -1078,7 +1086,7 @@ function staticPage(sec: HTMLElement): Dispose {
   html.setAttribute("data-ly", "static");
   sec.querySelectorAll<HTMLElement>(".rail__list > li").forEach((li) => {
     const h = li.querySelector<HTMLElement>(".rail__art"); if (!h || h.childElementCount) return;
-    try { const v = createVignette(li.dataset.own as VigKey, h); v.set(1); vigs.push(v); } catch (e) { console.warn("[rail] vignette", e); }
+    try { const v = createVignette(ownKey(sec, li), h); v.set(1); vigs.push(v); } catch (e) { console.warn("[rail] vignette", e); }
   });
   let done = false;
   return () => {

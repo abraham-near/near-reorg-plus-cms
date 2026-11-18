@@ -1,0 +1,64 @@
+/* Home v7: the voices one at a time (D190; VoicesOne.tsx), on ProofDeeper's ruled grid (.l-row / .l-cell, its tokens: --t-section, --l-pad, --emerald…).
+   Figma 939:402 set on the site's scale: the heading is every section opener's 56 (.l-h2), the quote 1.15 of it (Figma 65); the caption body-large (D191).
+   D194: no count; a drawn quote mark hangs in the margin beside the first line (D195, D196: in the rail's isometric art). Lawrence (D190): no list, no bars, the quote alone with a lot of paper around it, so the page
+   breathes here. Motion only under [data-clock] (set by the component unless reduced motion). */
+
+/* ---------------------------------------------------------------- the head: the heading alone; the next row's rule runs under it. D198: more paper above it, so
+   it stands clear of Go deeper's "View everything" row just above (Lawrence) */
+.l-vo__h { text-wrap: balance; }
+.l-vo .l-head__cell.l-vo__head { padding-top: clamp(96px, 9vw, 152px); }
+
+/* ---------------------------------------------------------------- the quote: alone in a tall band of paper, from the 4th of 12 columns (where the
+   Figma sets it), all four sharing one place (the band is as tall as the longest), the one on shows. They sit at the band's top, so every first line
+   is beside the mark */
+.l-vo__row { grid-template-columns: minmax(0, 1fr); }
+.l-vo__stage { display: grid; align-items: start; padding: clamp(112px, 20vh, 220px) var(--l-pad) clamp(120px, 22vh, 240px) calc(25% + var(--l-pad)); }
+.l-vo__q { grid-area: 1 / 1; min-width: 0; }
+.l-vo__q:not([data-on]) { visibility: hidden; }
+.l-vo__q blockquote { margin: 0; font-family: var(--sans-display); font-weight: 400; font-size: calc(var(--t-section) * 1.15);
+  line-height: 1.06; letter-spacing: -0.035em; color: var(--ink); }
+.l-vo__q blockquote p { max-width: 17em; text-wrap: balance; }
+/* the opening mark (D194; D195, live: an isometric solid in the rail’s art language; D196: the flat option; qmark.ts), hung in the margin left of the first line. Each quote has its own */
+.l-vo__q { position: relative; }
+.l-vo__qm { position: absolute; top: calc(var(--t-section) * 1.15 * -0.28); right: calc(100% + 20px); width: calc(var(--t-section) * 1.2); height: auto; overflow: visible; pointer-events: none; }
+.l-vo__qm--flat { top: calc(var(--t-section) * 1.15 * -0.12); width: calc(var(--t-section) * 1.5); }
+.l-vo__qm path { stroke-linejoin: round; stroke-linecap: round; }
+.l-vo__qm-t { fill: #fff; stroke: #fff; stroke-width: 0.5; }
+.l-vo__qm-l { fill: #f5f5f5; stroke: #f5f5f5; stroke-width: 0.5; }
+.l-vo__qm-r { fill: #ececec; stroke: #ececec; stroke-width: 0.5; }
+.l-vo__qm-ln { fill: none; stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.l-vo__qm-f { fill: #fff; stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+/* the marked phrase on the green: one background across its line break, so it wipes as one stroke, left to right */
+.l-vo__mk { color: inherit; background: linear-gradient(var(--emerald), var(--emerald)) no-repeat 0 0 / 100% 100%; padding: 0 0.08em 0.04em; margin: 0 -0.08em; }
+.l-vo__by { display: flex; flex-wrap: wrap; margin-top: 32px; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); }
+.l-vo__byn { color: var(--ink); }
+.l-vo__byr { color: var(--muted); }
+.l-vo__byr::before { content: "·"; margin: 0 0.55em; }
+
+/* ---------------------------------------------------------------- motion ([data-clock]): 2.25 s a voice (D194), the change included. The last lifts away
+   (0.2 s); the next rises in (from 0.12 s, settled by about 0.8 s), its caption a beat after; the green wipes in from 0.45 s and is full by 1.15 s */
+[data-clock] .l-vo__q:not([data-on]) { transition: visibility 0s linear 0.28s; }
+[data-clock] .l-vo__q :is(blockquote, .l-vo__by) { opacity: 0; translate: 0 20px; transition: opacity 0.2s ease-in, translate 0.25s ease-in; }
+[data-clock] .l-vo__q[data-out] :is(blockquote, .l-vo__by) { translate: 0 -12px; }
+[data-clock] .l-vo__q[data-on] blockquote { opacity: 1; translate: none; transition: opacity 0.35s ease 0.12s, translate 0.65s var(--ease-settle) 0.12s; }
+[data-clock] .l-vo__q[data-on] .l-vo__by { opacity: 1; translate: none; transition: opacity 0.35s ease 0.24s, translate 0.65s var(--ease-settle) 0.24s; }
+/* the mark (D196): it goes off entirely before the next comes on (out by 0.27 s, then in from 0.3 s), lifting away and rising in, its right half a beat
+   after its left both ways */
+[data-clock] .l-vo__qmg { opacity: 0; translate: 0 22px; transition: opacity 0.2s ease-in, translate 0.2s ease-in; }
+[data-clock] .l-vo__qmg + .l-vo__qmg { transition-delay: 0.07s; }
+[data-clock] .l-vo__q[data-out] .l-vo__qmg { translate: 0 -18px; }
+[data-clock] .l-vo__q[data-on] .l-vo__qmg { opacity: 1; translate: none; transition: opacity 0.3s ease 0.3s, translate 0.7s var(--ease-settle) 0.3s; }
+[data-clock] .l-vo__q[data-on] .l-vo__qmg + .l-vo__qmg { transition-delay: 0.4s; }
+/* the green wipes in once the words are up (from the first time the quote is read: data-seen), and is gone before the next voice */
+[data-clock] .l-vo__mk { background-size: 0% 100%; transition: background-size 0.2s ease-in; }
+[data-clock][data-seen] .l-vo__q[data-on] .l-vo__mk { background-size: 100% 100%; transition: background-size 0.7s cubic-bezier(0.65, 0, 0.35, 1) 0.45s; }
+
+/* ---------------------------------------------------------------- tablets: the quote from the 2nd column; phones: from the text's edge, the mark above it */
+@media (max-width: 1099px) { .l-vo__stage { padding-left: calc(8.333% + var(--l-pad)); } }
+@media (max-width: 859px) {
+  .l-vo__stage { padding: clamp(88px, 16vh, 140px) var(--l-pad) clamp(96px, 18vh, 152px); }
+  .l-vo__qm { position: static; display: block; width: 48px; margin: 0 0 18px; }
+  .l-vo__qm--flat { width: 64px; }
+  .l-vo__by { flex-direction: column; }
+  .l-vo__byr::before { display: none; }
+}
