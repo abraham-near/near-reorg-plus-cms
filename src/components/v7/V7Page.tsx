@@ -36,7 +36,11 @@ const PHOTOS = { deeper: "/images/blog", origin: `${BW}/origin-transformer.webp`
 const PATH_IMG = [`${BW}/paths-trade.webp`, `${BW}/paths-integrate-build.webp`, `${BW}/paths-build.webp`];
 // D179: Lawrence's title for Origin ("helped invent" in v4's copy, which other versions keep)
 const ORIGIN_TITLE = <>Built by the people <span className="l-nb">who invented</span> <span className="l-nb">modern AI</span></>;   // no lone "who" on phones
-const DEEPER = { ...V4_DEEPER, origin: { ...V4_DEEPER.origin, title: ORIGIN_TITLE }, paths: V4_DEEPER.paths.map((p, i) => ({ ...p, img: PATH_IMG[i] ?? p.img })) };
+/* Integrate's two ways in (D209, Lawrence): NEAR Intents and NEAR AI, each to its own site (PRODUCT.md), in place of the one "Integration docs" link */
+const PATH_LINKS = [undefined, [{ label: "NEAR Intents", href: "https://intents.near.org" }, { label: "NEAR AI", href: "https://near.ai" }]];
+const PATH_HOST = [undefined, "intents.near.org · near.ai"];
+const DEEPER = { ...V4_DEEPER, origin: { ...V4_DEEPER.origin, title: ORIGIN_TITLE },
+  paths: V4_DEEPER.paths.map((p, i) => ({ ...p, img: PATH_IMG[i] ?? p.img, links: PATH_LINKS[i] ?? p.links, host: PATH_HOST[i] ?? p.host })) };
 
 const ORIGIN_RATIO = "4/3" as const;   /* v5's Origin photo (revenue option A's shape, ../v4/revenue/variants.tsx); the voices are v6's own ("timer": on a clock, not the scroll; D135) */
 

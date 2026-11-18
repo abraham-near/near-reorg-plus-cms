@@ -47,7 +47,8 @@ const ITEMS: Item[] = [
   { id: "bermuda", type: "story", title: "Government of Bermuda and NEAR AI partner to deploy AI-powered public services", source: "Government of Bermuda", url: "https://near.ai/blog/government-of-bermuda-and-near-ai-partner-to-deploy-ai-powered-public-services" },
 ];
 // Get into NEAR: ours (shared/get-into/GetIntoNear.tsx), copy and photos as they are
-export type Path = { name: string; line: ReactNode; label: string; href: string; host: string; img: string };
+/** links: a path with more than one way in (v7's Integrate, D209); each is its own target, in place of label/href's one whole-path target */
+export type Path = { name: string; line: ReactNode; label: string; href: string; host: string; img: string; links?: { label: string; href: string }[] };
 const PATHS: Path[] = [
   { name: "Trade on NEAR", line: <>Trade, earn yield and go confidential, all from one near.com account.</>,
     label: "Open near.com", href: "https://near.com", host: "near.com", img: "/home/get-into/home-paths-trade-v3.webp" },
@@ -337,11 +338,13 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
                     <h3 className="l-gi__name">{p.name}</h3>
                     <p className="l-gi__line">{p.line}</p>
                   </div>
-                  <p className="l-gi__act" data-rv="">
-                    <a className="l-gi__a" href={p.href}>
-                      <span className="l-gi__go"><span className="l-gi__label">{p.label}</span><Ext /></span>
-                      <span className="sr-only"> (another NEAR site)</span>
-                    </a>
+                  <p className={p.links ? "l-gi__act l-gi__act--links" : "l-gi__act"} data-rv="">
+                    {(p.links ?? [{ label: p.label, href: p.href }]).map((l) => (
+                      <a key={l.href} className="l-gi__a" href={l.href}>
+                        <span className="l-gi__go"><span className="l-gi__label">{l.label}</span><Ext /></span>
+                        <span className="sr-only"> (another NEAR site)</span>
+                      </a>
+                    ))}
                   </p>
                 </li>
               ))}

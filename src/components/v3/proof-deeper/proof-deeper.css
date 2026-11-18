@@ -333,6 +333,19 @@
 .l-gi__item:has(.l-gi__a:focus-visible)::after { transform: none; }
 .l-gi__item:has(.l-gi__a:focus-visible) .l-gi__line, .l-gi__item:has(.l-gi__a:focus-visible) .l-gi__idx { color: rgb(245 244 241 / 0.65); }
 .l-gi__item:has(.l-gi__a:focus-visible) .l-gi__label { background-size: 100% var(--hair); }
+/* a path with its own links (v7's Integrate, D209): each link is its own target, stacked; the row still inks on hover, only the pointed link's hairline sweeps in */
+.l-gi__act--links { display: flex; flex-direction: column; align-items: flex-start; }
+.l-gi__act--links .l-gi__a { position: relative; z-index: 2; }
+.l-gi__act--links .l-gi__a::after { content: none; }
+.l-gi__act--links .l-gi__a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.l-gi__item:has(.l-gi__a:focus-visible) .l-gi__act--links .l-gi__label { background-size: 0 var(--hair); }
+.l-gi__act--links .l-gi__a:focus-visible .l-gi__label { background-size: 100% var(--hair); }
+@media (hover: hover) and (pointer: fine) {
+  .l-gi__item:hover .l-gi__act--links .l-gi__label { background-size: 0 var(--hair); }
+  .l-gi__item:hover .l-gi__act--links .l-ext { transform: none; }
+  .l-gi__act--links .l-gi__a:hover .l-gi__label { background-size: 100% var(--hair); }
+  .l-gi__act--links .l-gi__a:hover .l-ext { transform: translate(2px, -2px); }
+}
 /* the preview: the photo fills its cell, the caption sits on a strip under it */
 .l-gi__pv { display: flex; flex-direction: column; }
 .l-gi__frame { position: relative; flex: none; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-2); }   /* ~4:3 (was the row's height) */
