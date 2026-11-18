@@ -1,0 +1,206 @@
+/* History A · Ruled grid (HistoryA.tsx). The homepage's lower half (proof-deeper.css: .l-page tokens, .l-row / .l-cell, + crosshairs, arrivals, the
+   full-bleed photo), Blog J's ruled hero and bar, the Foundation's Council band on the Stack's dark. Read as an archival record: an index of years, a
+   ledger of entries in four chapters with a green marker on its left rule, a colophon at the end. Mono labels, one green, the Kepler word once per heading.
+   Motion only under .hs-a[data-motion] (motion.ts). Everything scoped under .hs-a. */
+.hs-a { --top: clamp(144px, 17vh, 184px); --mono: var(--font-montreal-mono), ui-monospace, monospace; --yr-col: 3fr; --what-col: 6fr; --tag-col: 3fr;
+  padding-bottom: clamp(72px, 11vh, 128px); background: var(--paper-0); overflow-x: clip; }
+.hs-a .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
+.hs-a .l-ext { width: 10px; height: 10px; }
+.hs-a :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.hs-a [id] { scroll-margin-top: 96px; }
+
+/* ---------------------------------------------------------------- shared bits */
+.hs-a .ha-k { display: flex; align-items: center; gap: 10px; font: 400 12px/1.2 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-sq { flex: none; width: 6px; height: 6px; background: var(--emerald); }
+.hs-a .ha-btn { background: var(--ink); color: var(--paper-0); }
+.hs-a .ha-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 28px; }
+:where(.hs-a[data-motion]) [data-in]:not(.is-in) { opacity: 0; translate: 0 18px; }
+:where(.hs-a[data-motion]) [data-in].is-in { transition: opacity 0.8s var(--ease-glide) var(--d, 0s), translate 1s var(--ease-settle) var(--d, 0s); }
+/* the head rows: the heading | the lede (or the count) */
+.hs-a .ha-head { grid-template-columns: 7fr 5fr; }
+.hs-a .ha-head__h { display: flex; flex-direction: column; gap: 22px; padding: 64px var(--l-pad) 36px; }
+.hs-a .ha-head__end { display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 16px; padding-bottom: 36px; }
+.hs-a .ha-head__n { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font: 400 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-head__n span { font: 400 clamp(3rem, 2rem + 2.4vw, 4.5rem)/0.9 var(--sans-display); letter-spacing: -0.04em; color: var(--ink); text-transform: none; }
+.hs-a .ha-head__n span + span { margin-left: 18px; }
+
+/* ---------------------------------------------------------------- 1 · hero: Blog J's ruled head, its bar, the index of years */
+.hs-a .ha-hero__row { grid-template-columns: 8fr 4fr; }
+.hs-a .ha-hero__title { display: flex; flex-direction: column; gap: 28px; padding: var(--top) var(--l-pad) 44px; }
+.hs-a .ha-h1 { max-width: 12em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.75rem, 1rem + 4.3vw, 5.25rem); line-height: 0.98; letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.hs-a .ha-h1 .accent .ha-w { line-height: 0.92; }
+.hs-a .ha-hero__intro { display: flex; flex-direction: column; justify-content: flex-end; gap: 32px; padding-bottom: 44px; }
+.hs-a .ha-bar__cell { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 32px; padding-top: 10px; padding-bottom: 10px; }
+.hs-a .ha-nav { display: flex; flex-wrap: wrap; gap: 4px 28px; }
+.hs-a .ha-nav a { position: relative; display: inline-flex; align-items: center; padding: 10px 0; font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--muted); transition: color 0.2s var(--ease-tick); }
+.hs-a .ha-nav a::before { content: ""; position: absolute; left: -12px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald); transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+@media (hover: hover) { .hs-a .ha-nav a:hover { color: var(--ink); } .hs-a .ha-nav a:hover::before { transform: scale(1); } }
+.hs-a .ha-range { display: inline-flex; align-items: center; gap: 12px; font: 400 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--graphite); }
+.hs-a .ha-range i { width: 40px; height: var(--hair); background: var(--ink); }
+.hs-a .ha-range__n { margin-left: 12px; color: var(--green-text); }
+
+/* the index: a cell per year, a square per entry */
+.hs-a .ha-index { grid-template-columns: repeat(10, minmax(0, 1fr)); border-bottom: var(--hair) solid var(--l-line); }
+.hs-a .ha-yr { padding: 0; }
+.hs-a .ha-yr__a { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; height: 100%; padding: 18px 14px 20px var(--l-pad); }
+.hs-a a.ha-yr__a::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); transform: scaleY(0); transform-origin: 50% 100%; transition: transform 0.45s var(--ease-settle); }
+@media (hover: hover) { .hs-a a.ha-yr__a:hover::before { transform: none; } }
+.hs-a a.ha-yr__a:focus-visible { outline-offset: -2px; }
+.hs-a .ha-yr__y { font: 400 clamp(1.25rem, 0.9rem + 0.8vw, 1.75rem)/1 var(--sans-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.hs-a .ha-yr.is-empty .ha-yr__y { color: var(--muted); }
+.hs-a .ha-yr__marks { display: flex; gap: 6px; height: 9px; align-items: center; }
+.hs-a .ha-yr__marks i { width: 9px; height: 9px; background: var(--ink); }
+.hs-a .ha-yr__marks i.is-now { background: var(--emerald); }
+.hs-a .ha-yr__marks b { width: 14px; height: var(--hair); background: var(--line-strong); }
+:where(.hs-a[data-motion]) .ha-index .ha-yr__a > * { opacity: 0; translate: 0 10px; }
+:where(.hs-a[data-motion]) .ha-index.is-in .ha-yr__a > * { opacity: 1; translate: none;
+  transition: opacity 0.8s var(--ease-glide) calc(0.3s + var(--j) * 0.05s), translate 1s var(--ease-settle) calc(0.3s + var(--j) * 0.05s); }
+
+/* ---------------------------------------------------------------- 2 · origin: the copy | the whiteboard */
+.hs-a .ha-origin { margin-top: clamp(56px, 9vh, 104px); }
+.hs-a .ha-or { grid-template-columns: 6fr 6fr; border-bottom: var(--hair) solid var(--l-line); }
+.hs-a .ha-or__copy { display: flex; flex-direction: column; gap: 24px; padding: 64px var(--l-pad) 0; }
+.hs-a .ha-or__body { display: flex; flex-direction: column; gap: 16px; max-width: 32em; }
+.hs-a .ha-or__body p { font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.hs-a .ha-or__stat { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 8px 20px; margin: auto calc(var(--l-pad) * -1) 0; padding: 22px var(--l-pad) 24px; border-top: var(--hair) solid var(--l-soft); }
+.hs-a .ha-or__v { font: 400 clamp(3.5rem, 2rem + 3.6vw, 5.5rem)/0.82 var(--sans-display); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.hs-a .ha-or__l { padding-bottom: 4px; font: 400 12px/1.3 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-or__ph { min-height: clamp(380px, 62vh, 600px); padding: 0; }
+.hs-a .ha-or__ph .l-img { object-position: 58% 50%; }
+
+/* ---------------------------------------------------------------- 3 · the record: the ledger */
+.hs-a .ha-record { margin-top: clamp(56px, 9vh, 104px); }
+.hs-a .ha-ledger { position: relative; --p: 0; }
+.hs-a :is(.ha-cols, .ha-era, .ha-m) { grid-template-columns: var(--yr-col) var(--what-col) var(--tag-col); }
+.hs-a .ha-cols .l-cell { padding-top: 12px; padding-bottom: 12px; font: 400 11px/1.2 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-cols--end { border-bottom: var(--hair) solid var(--l-line); }
+.hs-a .ha-cols--end .l-cell:first-child { color: var(--ink); }
+/* a chapter: a band of paper-1, its number | its name | its years */
+.hs-a .ha-era { background: var(--paper-1); }
+.hs-a .ha-era .l-cell { display: flex; align-items: center; padding-top: 18px; padding-bottom: 18px; }
+.hs-a .ha-era__n, .hs-a .ha-era__r { font: 400 12px/1.2 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--graphite); }
+.hs-a .ha-era__t h3 { font-family: var(--sans-display); font-weight: 500; font-size: clamp(1.25rem, 1rem + 0.6vw, 1.625rem); line-height: 1.1; letter-spacing: -0.015em; }
+.hs-a .ha-era__r { justify-content: space-between; gap: 12px; }
+.hs-a .ha-era__c { color: var(--muted); }
+.hs-a .ha-short { display: none; }
+/* an entry: no. and year | title and note | filed under */
+.hs-a .ha-m__when { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding-top: 28px; padding-bottom: 32px; }
+.hs-a .ha-m__no { display: inline-flex; align-items: center; gap: 10px; font: 400 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-m__dot { width: 7px; height: 7px; box-shadow: inset 0 0 0 1px var(--ink); transition: background-color 0.35s var(--ease-tick), box-shadow 0.35s var(--ease-tick); }
+.hs-a .ha-m.is-past .ha-m__dot { background: var(--ink); }
+.hs-a .ha-m.is-now.is-past .ha-m__dot { background: var(--emerald); box-shadow: none; }
+.hs-a .ha-m__y { font: 400 clamp(3.25rem, 1.9rem + 3.4vw, 5.5rem)/0.84 var(--sans-display); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.hs-a .ha-now { display: inline-flex; align-items: center; gap: 8px; font: 400 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-text); }
+.hs-a .ha-pulse { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); }
+.hs-a .ha-pulse::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; opacity: 0; }
+:where(.hs-a[data-motion]) .ha-pulse::after { animation: ha-pulse 2.4s var(--ease-glide) infinite; }
+@keyframes ha-pulse { 0% { opacity: 0.55; scale: 1; } 70%, 100% { opacity: 0; scale: 2.8; } }
+.hs-a .ha-m__what { display: flex; flex-direction: column; gap: 14px; padding-top: 28px; padding-bottom: 32px; }
+.hs-a .ha-m__t { max-width: 20em; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; }
+.hs-a .ha-m__b { max-width: 36em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.hs-a .ha-m__tags { padding-top: 30px; padding-bottom: 32px; }
+.hs-a .ha-m__tags ul { display: flex; flex-wrap: wrap; gap: 8px; }
+.hs-a .ha-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 3px; box-shadow: inset 0 0 0 1px var(--line-strong);
+  font: 400 10.5px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--graphite); white-space: nowrap; }
+.hs-a .ha-m.is-now { background: linear-gradient(90deg, rgb(0 220 141 / 0.07), transparent 60%); }
+/* the marker: a green rule down the left frame line, its head a square carrying the year (motion only) */
+.hs-a .ha-prog { display: none; }
+.hs-a .ha-ledger[data-live] .ha-prog { position: absolute; z-index: 4; top: 0; bottom: 0; left: var(--margin); display: block; width: 2px; margin-left: -1px; pointer-events: none; }
+.hs-a .ha-prog__fill { position: absolute; inset: 0; background: var(--emerald); transform: scaleY(var(--p)); transform-origin: 50% 0; }
+.hs-a .ha-prog__head { position: absolute; left: 50%; top: calc(var(--p) * 100%); width: 11px; height: 11px; margin: -5px 0 0 -5.5px; background: var(--emerald); box-shadow: 0 0 0 3px var(--paper-0); }
+.hs-a .ha-prog__yr { position: absolute; right: calc(100% + 10px); top: 50%; translate: 0 -50%; font: 400 11px/1 var(--mono); letter-spacing: 0.08em; color: var(--green-text); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- 4 · today: the layers on the dark band (the Council's tokens) */
+.hs-a .ha-dark { margin-top: clamp(56px, 9vh, 104px); background: var(--ink); color: var(--paper-0);
+  --l-line: rgb(245 244 241 / 0.18); --l-soft: rgb(245 244 241 / 0.12); --l-x: rgb(245 244 241 / 0.7); --graphite: rgb(245 244 241 / 0.76); --muted: rgb(245 244 241 / 0.6); }
+.hs-a .ha-dark :focus-visible { outline-color: var(--paper-0); }
+.hs-a .ha-dark .ha-head__h { padding-top: clamp(72px, 11vh, 120px); }
+.hs-a .ha-dark .l-lede { color: var(--graphite); }
+.hs-a .ha-layers { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.hs-a .ha-layer { display: flex; flex-direction: column; gap: 22px; padding: 32px var(--l-pad) 36px; }
+.hs-a .ha-layer__n { font: 400 12px/1.2 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-layer__stack { display: flex; flex-direction: column; gap: 4px; width: 72px; }
+.hs-a .ha-layer__stack i { height: 8px; box-shadow: inset 0 0 0 1px rgb(245 244 241 / 0.4); }
+.hs-a .ha-layer__stack i.is-on { background: var(--emerald); box-shadow: none; }
+.hs-a .ha-layer__t { margin-top: auto; padding-top: 24px; font-family: var(--sans-display); font-size: clamp(1.5rem, 1.1rem + 1vw, 2.125rem); line-height: 1.05; letter-spacing: -0.02em; }
+:where(.hs-a[data-motion]) .ha-layers .ha-layer > * { opacity: 0; translate: 0 12px; }
+:where(.hs-a[data-motion]) .ha-layers.is-in .ha-layer > * { opacity: 1; translate: none;
+  transition: opacity 0.8s var(--ease-glide) calc(0.25s + var(--j) * 0.08s), translate 1s var(--ease-settle) calc(0.25s + var(--j) * 0.08s); }
+.hs-a .ha-dark__end .l-cell { height: clamp(56px, 8vh, 88px); }
+
+/* ---------------------------------------------------------------- 5 · ahead: the line, the ownerships, the ridges */
+.hs-a .ha-ah__h { max-width: 11em; text-wrap: balance; }
+.hs-a .ha-owns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hs-a .ha-own { display: flex; flex-direction: column; gap: 40px; padding: 28px var(--l-pad) 32px; }
+.hs-a .ha-own__n { font: 400 12px/1 var(--mono); letter-spacing: 0.14em; color: var(--muted); }
+.hs-a .ha-own__t { max-width: 11em; font-family: var(--sans-display); font-size: clamp(1.5rem, 1.1rem + 1vw, 2.125rem); line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance; }
+:where(.hs-a[data-motion]) .ha-owns .ha-own > * { opacity: 0; translate: 0 12px; }
+:where(.hs-a[data-motion]) .ha-owns.is-in .ha-own > * { opacity: 1; translate: none;
+  transition: opacity 0.8s var(--ease-glide) calc(0.25s + var(--j) * 0.09s), translate 1s var(--ease-settle) calc(0.25s + var(--j) * 0.09s); }
+.hs-a .ha-bl { height: min(100svh, 900px); min-height: 560px; }
+.hs-a .ha-bl .l-img { object-position: 60% 60%; }
+.hs-a .ha-bl__in { display: flex; flex-direction: column; justify-content: flex-start; gap: 22px; padding-top: clamp(80px, 14vh, 150px); }
+.hs-a .ha-bl__line { max-width: 17em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2rem, 1.1rem + 2.6vw, 3.75rem); line-height: 1.04; letter-spacing: -0.03em; text-wrap: balance; }
+
+/* ---------------------------------------------------------------- 6 · the close: the line | the colophon */
+.hs-a .ha-cl { grid-template-columns: 8fr 4fr; border-bottom: var(--hair) solid var(--l-line); }
+.hs-a .ha-cl__h { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; padding: 72px var(--l-pad) 56px; }
+.hs-a .ha-cl__t { font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.75rem, 1.4rem + 4vw, 5.5rem); line-height: 0.96; letter-spacing: var(--t-display-tr); }
+.hs-a .ha-colo { display: flex; align-items: flex-end; padding-bottom: 56px; }
+.hs-a .ha-colo dl { width: 100%; }
+.hs-a .ha-colo dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: var(--hair) solid var(--l-soft); }
+.hs-a .ha-colo dl > div:last-child { border-bottom: var(--hair) solid var(--l-soft); }
+.hs-a .ha-colo dt { font: 400 11px/1.4 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.hs-a .ha-colo dd { margin: 0; font: 400 13px/1.4 var(--mono); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+.hs-a .ha-colo dd a { text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 3px; }
+
+/* ---------------------------------------------------------------- below 1100 / 860 / 520 */
+@media (max-width: 1099px) {
+  .hs-a .ha-layers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hs-a .ha-layers .ha-layer:nth-child(n + 3) { border-top: var(--hair) solid var(--l-line); }
+  .hs-a .ha-layers .ha-layer:nth-child(3)::before { display: none; }
+  .hs-a .ha-index { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .hs-a .ha-index .ha-yr:nth-child(n + 6) { border-top: var(--hair) solid var(--l-line); }
+  .hs-a .ha-index .ha-yr:nth-child(6)::before { display: none; }
+}
+@media (max-width: 859px) {
+  .hs-a .ha-hero__row, .hs-a .ha-head, .hs-a .ha-or, .hs-a .ha-cl, .hs-a .ha-owns { grid-template-columns: minmax(0, 1fr); }
+  .hs-a .ha-hero__title { padding-bottom: 20px; }
+  .hs-a .ha-hero__intro { gap: 24px; padding-top: 0; padding-bottom: 36px; }
+  .hs-a .ha-nav { gap: 2px 20px; }
+  .hs-a .ha-nav a::before { display: none; }
+  .hs-a .ha-range { display: none; }
+  .hs-a .ha-yr__a { gap: 18px; padding: 14px 8px 16px 12px; }
+  .hs-a .ha-index .ha-yr:nth-child(5n + 1)::before { display: none; }
+  .hs-a .ha-index .ha-yr:not(:nth-child(5n + 1))::before { display: block; }
+  .hs-a .ha-head__h { padding-top: 48px; padding-bottom: 16px; }
+  .hs-a .ha-head__end { padding-top: 0; padding-bottom: 32px; }
+  .hs-a .ha-or__copy { padding-top: 48px; }
+  .hs-a .ha-or__ph { min-height: 300px; border-top: var(--hair) solid var(--l-line); }
+  /* the ledger: the year | the entry, its tags under it */
+  .hs-a :is(.ha-cols, .ha-era, .ha-m) { grid-template-columns: 96px minmax(0, 1fr); }
+  .hs-a :is(.ha-cols, .ha-era, .ha-m) > .l-cell:nth-child(2)::before { display: block; }
+  .hs-a .ha-cols .l-cell:nth-child(3), .hs-a .ha-cols--end .l-cell:nth-child(3) { display: none; }
+  .hs-a .ha-long { display: none; }
+  .hs-a .ha-short { display: inline; }
+  .hs-a .ha-cols .l-cell, .hs-a .ha-era .l-cell, .hs-a .ha-m .l-cell { padding-left: 14px; padding-right: 14px; }
+  .hs-a .ha-era__r { grid-column: 2; padding-top: 0 !important; }
+  .hs-a .ha-era__r::before { display: none; }
+  .hs-a .ha-era { row-gap: 0; }
+  .hs-a .ha-era .ha-era__t { padding-bottom: 6px; }
+  .hs-a .ha-m__when { gap: 10px; padding-top: 24px; }
+  .hs-a .ha-m__y { font-size: 2rem; letter-spacing: -0.03em; }
+  .hs-a .ha-m__no { font-size: 10px; letter-spacing: 0.1em; gap: 6px; }
+  .hs-a .ha-m__what { padding-top: 22px; padding-bottom: 12px; }
+  .hs-a .ha-m__tags { grid-column: 2; padding-top: 0; padding-bottom: 28px; }
+  .hs-a .ha-m__tags::before { display: none; }
+  .hs-a .ha-m__when { grid-row: 1 / span 2; }
+  .hs-a .ha-prog__yr { display: none; }
+  .hs-a .ha-own + .ha-own { border-top: var(--hair) solid var(--l-line); }
+  .hs-a .ha-own { gap: 18px; }
+  .hs-a .ha-bl { height: auto; min-height: 80svh; }
+  .hs-a .ha-bl .l-img { object-position: 72% 60%; }
+  .hs-a .ha-bl__in { padding-top: 64px; padding-bottom: 64px; }
+  .hs-a .ha-cl__h { padding-top: 56px; padding-bottom: 32px; }
+  .hs-a .ha-colo { padding-top: 0; padding-bottom: 40px; }
+}

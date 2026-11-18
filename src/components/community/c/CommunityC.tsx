@@ -8,11 +8,11 @@
 //   5 socials: the dek in Kepler, then the channels as a refined two-column index (number, name, line, handle);
 //   6 ways to get involved: a tall photo (the fern unfurling) beside four numbered ways, the numerals outlined as the Cover's sections;
 //   7 the FAQ: a quiet accordion (<details>), the answers tagged as samples;
-//   8 the close: a photo that opens to full bleed with "Start building the open web." on its sky, then the newsletter on the paper under it.
+//   8 the close: the homepage's scene (shared/CloseScene), set after this component in the route (app/(site)/community-c/page.tsx).
 // Copy and links: ../content.ts (the doc, verbatim; [[TBD]] there). No photo here shows a person, so no text ever sits on a face.
-import { useRef, useState, type FormEvent } from "react";
+import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
-import { CLOSE, EVENTS, EVENTS_HEAD, FAQ, HERO, LEGION, SOCIALS, SOCIALS_HEAD, STATS, WAYS, WAYS_HEAD } from "../content";
+import { EVENTS, EVENTS_HEAD, FAQ, HERO, LEGION, SOCIALS, SOCIALS_HEAD, STATS, WAYS, WAYS_HEAD } from "../content";
 import { Acc, Arrow, Count, Ext, NewTab, Sample, WipeWords } from "./parts";
 import { mount } from "./motion";
 import "./community-c.css";
@@ -20,29 +20,6 @@ import "./community-c.css";
 const idx = (i: number) => String(i + 1).padStart(2, "0");
 const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 const isExt = (href: string) => /^https?:/.test(href);
-
-function Newsletter() {
-  const [done, setDone] = useState(false), [err, setErr] = useState<string | null>(null);
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const v = String(new FormData(e.currentTarget).get("email") || "").trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr("Enter a valid email address."); return; }
-    setErr(null); setDone(true);
-  };
-  return (
-    <form className={`cm-c-nl__form${err ? " is-invalid" : ""}`} method="post" noValidate onSubmit={onSubmit}>
-      <label htmlFor="cm-c-email" className="sr-only">Email address</label>
-      <div className="cm-c-field" inert={done}>
-        <input id="cm-c-email" name="email" type="email" required autoComplete="email" inputMode="email" spellCheck={false} placeholder="you@example.com"
-          aria-invalid={err ? true : undefined} aria-describedby="cm-c-email-msg" onInput={() => { if (err) setErr(null); }} />
-        <button type="submit" className="cm-c-btn cm-c-btn--ink"><span>{CLOSE.newsletter.cta}</span><Arrow /></button>
-      </div>
-      <p id="cm-c-email-msg" className="cm-c-nl__msg" role="status">
-        {err ?? (done ? "Thanks for subscribing. Preview only: nothing was sent." : "")}
-      </p>
-    </form>
-  );
-}
 
 export function CommunityC() {
   const ref = useRef<HTMLDivElement>(null);
@@ -205,31 +182,6 @@ export function CommunityC() {
               </div>
             </details>
           ))}
-        </div>
-      </section>
-
-      {/* ───────────── 8 · the close: the photo opens, the line sits on its sky; then the newsletter */}
-      <section className="cm-c-close" id="close" aria-labelledby="cm-c-close-t">
-        <div className="cm-c-bleed cm-c-close__bleed" data-open="">
-          <div className="cm-c-plate" data-par="">
-            {/* eslint-disable-next-line @next/next/no-img-element -- a 1920 × 1080 still, 41 KB */}
-            <img src="/images/home/home-hero-clouds-v1.webp" alt="" width={1920} height={1080} loading="lazy" decoding="async" />
-          </div>
-          <div className="cm-c-close__in">
-            <h2 id="cm-c-close-t" className="cm-c-close__h" data-rise=""><Acc t={CLOSE.h} a="web" sq /></h2>
-            <p className="cm-c-close__sub" data-rv="">{CLOSE.sub}</p>
-            <p className="cm-c-actions cm-c-actions--c" data-rv="" style={{ ["--rv" as string]: 1 }}>
-              <a className="cm-c-btn cm-c-btn--ink" href={CLOSE.primary.href}><span>{CLOSE.primary.label}</span><Arrow /></a>
-              <a className="cm-c-btn cm-c-btn--paper" href={CLOSE.secondary.href} {...ext}><span>{CLOSE.secondary.label}</span><Ext /><NewTab /></a>
-            </p>
-          </div>
-        </div>
-        <div className="cm-c-nl" aria-labelledby="cm-c-nl-t" role="group">
-          <div className="cm-c-nl__txt" data-rv="">
-            <h3 id="cm-c-nl-t" className="cm-c-nl__h"><Acc t={CLOSE.newsletter.h} a="inbox" /></h3>
-            <p className="cm-c-nl__sub">{CLOSE.newsletter.sub}</p>
-          </div>
-          <div data-rv="" style={{ ["--rv" as string]: 1 }}><Newsletter /></div>
         </div>
       </section>
     </div>

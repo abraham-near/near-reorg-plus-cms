@@ -1,5 +1,5 @@
 // Community A's motion. The homepage's ruled grid does the arrivals (../../v3/proof-deeper/motion.ts: rows draw in, + crosshairs, [data-rv] rises,
-// the photos opening in their cells and the two full-bleed photos opening to the whole screen with their parallax); on top of it, once each:
+// the photos opening in their cells and the full-bleed photo opening to the whole screen with its parallax); on top of it, once each:
 //   - the h1 rises word by word (SplitText, no masks: the Kepler word's overhang is never clipped); the hero's [data-in] lines follow;
 //   - the figures ([data-count]) count up from zero as their row comes in, keeping prefix, decimals, thousands and suffix; a ghost copy holds the width;
 //   - the event cells, the channels and the questions rise in turn: CSS keyed on the row's .is-in (community-a.css).

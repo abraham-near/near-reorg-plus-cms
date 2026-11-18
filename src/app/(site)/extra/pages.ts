@@ -37,6 +37,26 @@ export const GROUPS: Group[] = [
       { href: "/community-c", n: "C", name: "Community · Editorial", note: "The homepage's big type, photos that bleed and a dark band for the Legion: a warm editorial page.", tags: ["Editorial", "Dark band"], img: "/extra/community-c.webp" },
     ],
   },
+  {
+    id: "history",
+    title: "History",
+    note: "near.org/about (History, \"From 2017 to now\" in the menu), three versions in the official pages' hand. The October 2026 doc has no copy for it: the timeline is near.org/roadmap-history's milestones, the rest adapted from the doc's Anthem Video beats (components/history/content.ts).",
+    pages: [
+      { href: "/about-a", n: "A", name: "History · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: an index of years, then the timeline as a ledger of entries in four chapters, with a green marker that runs down it as you read.", tags: ["Ruled grid", "Ledger", "Homepage hand"], img: "/extra/about-a.webp" },
+      { href: "/about-b", n: "B", name: "History · Drawn", note: "NEAR Foundation's isometric hand: ten years as line drawings that build as you scroll, a road of years climbing to now, and today's stack on the dark.", tags: ["Iso drawings", "Foundation hand", "Timeline"], img: "/extra/about-b.webp" },
+      { href: "/about-c", n: "C", name: "History · Editorial", note: "The homepage's big type: the bw whiteboard bleeding into the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band.", tags: ["Editorial", "Sticky year", "Dark band"], img: "/extra/about-c.webp" },
+    ],
+  },
+  {
+    id: "economics",
+    title: "Economics",
+    note: "near.org/economics from the October 2026 doc, three versions in the official pages' hand. Copy verbatim (components/economics/content.ts); no moving figures, by the doc's design: live numbers stay at revenue.near.org.",
+    pages: [
+      { href: "/economics-a", n: "A", name: "Economics · Ruled grid", note: "The homepage's ruled grid: the four facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, one asset on the dark band.", tags: ["Ruled grid", "Scroll diagram", "Proof strip"], img: "/extra/economics-a.webp" },
+      { href: "/economics-b", n: "B", name: "Economics · Drawn", note: "NEAR Foundation's isometric hand: the economy as a machine, a flywheel that builds station by station as the four steps scroll past, the facts on plinths, two engines feeding the loop.", tags: ["Iso drawings", "Foundation hand", "Flywheel"], img: "/extra/economics-b.webp" },
+      { href: "/economics-c", n: "C", name: "Economics · Editorial", note: "The homepage's big type: the four facts as large figures, the loop as a held dark band where a dot travels a ring as each step comes up.", tags: ["Editorial", "Pinned loop", "Dark band"], img: "/extra/economics-c.webp" },
+    ],
+  },
 ];
 
 export const COUNT = GROUPS.reduce((s, g) => s + g.pages.length, 0);

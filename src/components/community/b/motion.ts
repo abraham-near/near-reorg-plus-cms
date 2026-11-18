@@ -1,4 +1,4 @@
-// Community B's motion (markup: CommunityB.tsx). The ruled grid's draw-in, crosshairs, [data-rv] rises and the meadow's bleed are the shared kit's
+// Community B's motion (markup: CommunityB.tsx). The ruled grid's draw-in, crosshairs and [data-rv] rises are the shared kit's
 // (v3/proof-deeper/motion.ts); the small drawings build as they arrive (kit.ts mountDraw); figures count once. New here:
 //   · the hero: the words rise, the map of crews builds (ground, slabs, people, then the arcs); then it lives: signals run the arcs, the arcs flow,
 //     people shift on their feet, and the drawing leans to the pointer;

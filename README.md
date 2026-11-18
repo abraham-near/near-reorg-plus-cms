@@ -96,6 +96,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
   - the blog's pieces (`src/components/v3/blog/blog.css`: `.bl-btn`, `.bl-link`, `.accent`);
   - Blog J's fields and rail (`v3/blog/j/blog-j.css`);
   - the ruled grid of the Foundation and Analytics pages.
+  - the homepage's close (`src/components/shared/CloseScene.tsx`): "NEAR belongs to you" over the meadow, with the page's own line, buttons and optional newsletter. Put it after the page's component in the route; pass `ruled` on pages built on the ruled grid.
 - **Motion:**
   - Use `useScrollMotion` (`src/lib/motion/scroll.ts`) for GSAP and ScrollTrigger, and respect reduced motion.
   - A heading that rises word by word: split it with SplitText **without masks** and tween each word from `{ yPercent: 40, autoAlpha: 0 }`. A mask clips the italic accent and the descenders while the words rise, and reverting it at the end makes the text jump.

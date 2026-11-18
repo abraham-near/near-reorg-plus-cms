@@ -1,6 +1,6 @@
 "use client";
 // near.org/community, version A · "Ruled grid": the page built from the lower half of the homepage (v3/proof-deeper: ruled rows that draw in, + crosshairs,
-// the proof strip under its green rule, full-bleed photos that open to the whole screen, Get into NEAR's ink rows and preview, the newsletter field), Blog J's
+// the proof strip under its green rule, a full-bleed photo that opens to the whole screen, Get into NEAR's ink rows and preview), Blog J's
 // ruled hero and bar, NEAR Foundation's pillars (an icon and a mono label per cell) and its Council band on the Stack's dark. From the top (the doc's order):
 //   1 hero: Blog J's ruled head (the H1 and the two actions | the subhead), its bar (on this page · the next event), then the bridge as a wide panorama;
 //   2 community stats: the proof strip, four figures with their icons, counting up once (SAMPLE, each marked);
@@ -9,11 +9,11 @@
 //   5 socials: the eight channels as pillar cells on the dark band;
 //   6 ways to get involved: Get into NEAR's rows (ink on hover) beside the preview photo;
 //   7 FAQ: the questions as an accordion (<details>), the answers marked SAMPLE;
-//   8 the close: the meadow, the line and the two actions, then the newsletter on the grid.
+//   8 the close: the homepage's scene (shared/CloseScene, on its ruled row), set after this component in the route (app/(site)/community-a/page.tsx).
 // Copy and links: ../content.ts (the doc, verbatim; [[TBD]] there for figures, answers and some links).
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
-import { CLOSE, EVENTS, EVENTS_HEAD, FAQ, HERO, LEGION, SOCIALS, SOCIALS_HEAD, STATS, WAYS, WAYS_HEAD } from "../content";
+import { EVENTS, EVENTS_HEAD, FAQ, HERO, LEGION, SOCIALS, SOCIALS_HEAD, STATS, WAYS, WAYS_HEAD } from "../content";
 import { mount } from "./motion";
 import "../../v3/proof-deeper/proof-deeper.css";
 import "./community-a.css";
@@ -27,7 +27,6 @@ const idx = (i: number) => String(i + 1).padStart(2, "0");
 const isExt = (h: string) => /^https?:/.test(h);
 const host = (u: string) => (isExt(u) ? new URL(u).hostname.replace(/^www\./, "") : "near.org");
 const ext = (h: string) => (isExt(h) ? { target: "_blank", rel: "noopener noreferrer" } : {});
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const STAT_ICON = ["people", "roadmap", "solutions", "clock"];
 const WAY_IMG: Record<string, { src: string; set?: boolean }> = {
@@ -71,48 +70,6 @@ const DRAWN = new Set(["x", "discord", "telegram", "github", "reddit", "youtube"
 
 const day = (iso: string) => new Date(`${iso}T00:00:00Z`);
 const wkd = (iso: string) => day(iso).toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
-
-/** the newsletter (the homepage's field): required, a simple pattern, an inline error, success in place. No provider is wired: nothing is sent. */
-function Newsletter() {
-  const input = useRef<HTMLInputElement>(null), ok = useRef<HTMLParagraphElement>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
-  useEffect(() => { if (done) ok.current?.focus({ preventScroll: true }); }, [done]);
-  const submit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const v = (input.current?.value ?? "").trim();
-    const problem = !v ? "Enter your email address." : !EMAIL.test(v) ? "Enter an email address like name@example.com." : null;
-    setError(problem);
-    if (problem) { input.current?.focus(); return; }
-    // [[TBD: newsletter provider]]: send `v` here. Nothing is sent.
-    setDone(true);
-  };
-  return (
-    <form className={`l-form ca-form${error ? " is-invalid" : ""}`} method="post" noValidate onSubmit={submit}>
-      <label htmlFor="ca-email" className="l-form__label ca-form__label"><i className="l-ic l-ic--s" data-icon="mail" data-icon-size="16" aria-hidden="true" />Email address</label>
-      <div className={`l-form__slot${done ? " is-done" : ""}`}>
-        <div className="l-field" inert={done}>
-          <input ref={input} id="ca-email" name="email" type="email" required autoComplete="email" inputMode="email" spellCheck={false} placeholder="you@example.com"
-            aria-invalid={error ? true : undefined} aria-describedby="ca-email-err ca-email-note" onInput={() => { if (error) setError(null); }} />
-          <button type="submit" className="l-field__btn"><span>{CLOSE.newsletter.cta}</span><Arrow /></button>
-          <i className="l-field__line" aria-hidden="true" />
-        </div>
-        <div role="status" className="l-form__status">
-          {done && (
-            <p ref={ok} className="l-form__ok" tabIndex={-1}>
-              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              <span>Thanks for subscribing.</span><span className="l-form__pre">Preview only: nothing was sent.</span>
-            </p>
-          )}
-        </div>
-      </div>
-      <p id="ca-email-err" className="l-form__err">
-        {error && (<><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M8 4.5v4.5M8 11v.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg><span>{error}</span></>)}
-      </p>
-      <p id="ca-email-note" className="l-form__note">By subscribing, you agree to our <a href="https://www.near.org/privacy-policy">Privacy Policy</a>.</p>
-    </form>
-  );
-}
 
 export function CommunityA() {
   const ref = useRef<HTMLDivElement>(null);
@@ -336,33 +293,6 @@ export function CommunityA() {
               </details>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ───────────── 8 · the close: the meadow, then the newsletter on the grid */}
-      <section className="l-sec ca-close" aria-labelledby="ca-cl-t">
-        <div className="l-row l-spacer" data-row="" aria-hidden="true"><div className="l-cell" /></div>
-        <div className="l-bleed-wrap">
-          <div className="l-bleed ca-cl" data-bleed="">
-            <div className="l-ph l-bleed__ph" data-ph="">
-              <div className="l-plate"><img className="l-img" src="/v3/bleed-meadow.webp" alt="" loading="lazy" decoding="async" /></div>
-            </div>
-            <div className="l-bleed__in ca-cl__in">
-              <h2 id="ca-cl-t" className="ca-cl__h" data-rv=""><Acc h={CLOSE.h} a="open web." /></h2>
-              <p className="ca-cl__sub" data-rv="">{CLOSE.sub}</p>
-              <p className="ca-acts ca-cl__acts" data-rv="">
-                <a className="l-btn ca-btn" href={CLOSE.primary.href}><span>{CLOSE.primary.label}</span></a>
-                <a className="l-btn" href={CLOSE.secondary.href} {...ext(CLOSE.secondary.href)}><span>{CLOSE.secondary.label}</span><ExtSr h={CLOSE.secondary.href} /></a>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="l-row ca-nl" data-row="" data-after-bleed="">
-          <div className="l-cell ca-nl__h">
-            <h3 className="ca-nl__t" data-rv=""><Acc h={CLOSE.newsletter.h} a="inbox" /></h3>
-            <p className="ca-nl__sub" data-rv="">{CLOSE.newsletter.sub}</p>
-          </div>
-          <div className="l-cell ca-nl__f" data-rv=""><Newsletter /></div>
         </div>
       </section>
     </div>

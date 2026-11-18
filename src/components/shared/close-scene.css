@@ -1,0 +1,20 @@
+/* CloseScene (CloseScene.tsx): the homepage's close (proof-deeper.css .l-close) with a page's own line, buttons and newsletter under the lockup. */
+.cs-page { background: var(--paper-0); }
+.cs-nl { text-align: center; }
+.cs-nl .l-lede { margin-inline: auto; }
+.cs-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0; }
+.cs-btn--fill { color: var(--paper-0); background: var(--ink); }
+@media (hover: hover) { .cs-btn--fill:hover { background: #000; } }
+.cs-form { margin-top: clamp(32px, 5vh, 56px); text-align: left; }
+.cs-form__h { margin: 0 0 4px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink); }
+.cs-form__sub { color: var(--graphite); }
+/* off the ruled grid (no `ruled`), the grid's rule along the photo's top edge has nothing to join: hidden */
+.cs-page:not(.cs-page--ruled) .l-bleed-wrap::before { display: none; }
+/* off the grid, the scene keeps a band of paper above it (on the grid, the ruled spacer row is that band) */
+.cs-page:not(.cs-page--ruled) { padding-top: clamp(64px, 10vh, 128px); }
+/* with a newsletter (buttons + field): the whole block sits higher and tighter, so the field stays on the sky, not the grass */
+.cs-page--nl .l-close__in { padding-top: clamp(104px, 16vh, 180px); }
+.cs-page--nl .l-close__nl { margin-top: clamp(28px, 4.5vh, 56px); }
+.cs-page--nl .l-close__nl .l-lede { margin-bottom: 20px; }
+.cs-page--nl .cs-form { margin-top: clamp(24px, 3.6vh, 40px); }
+.cs-page--nl .l-close__nl .l-field { height: 64px; }

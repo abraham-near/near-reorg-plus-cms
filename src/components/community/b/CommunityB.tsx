@@ -8,11 +8,11 @@
 //   4 socials: the eight channels, each mark laid on an iso tile that lifts on hover;
 //   5 ways to get involved (#get-involved): one plot that becomes each way as the four pass by (WaysScene.tsx), the steps on a dotted axis;
 //   6 FAQ: a ruled accordion (<details>), the answers marked as sample until the community team writes them;
-//   7 the close: the homepage's meadow, the line and its two buttons, the newsletter under it.
+//   7 the close: the homepage's scene (shared/CloseScene), set after this component in the route (app/(site)/community-b/page.tsx).
 // Copy and links: ../content.ts, verbatim ([[TBD]]: figures, events feed, FAQ answers, some links).
-import { useRef, useState, type FormEvent } from "react";
+import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
-import { HERO, STATS, EVENTS_HEAD, EVENTS, LEGION, SOCIALS_HEAD, SOCIALS, WAYS, FAQ, CLOSE } from "../content";
+import { HERO, STATS, EVENTS_HEAD, EVENTS, LEGION, SOCIALS_HEAD, SOCIALS, WAYS, FAQ } from "../content";
 import { HeroCrews } from "./HeroCrews";
 import { EventStage } from "./EventStage";
 import { LegionFormation } from "./LegionFormation";
@@ -25,35 +25,6 @@ import "./community-b.css";
 
 const idx = (i: number) => String(i + 1).padStart(2, "0");
 const ext = (h: string) => /^https?:/.test(h);
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function Newsletter() {
-  const [state, setState] = useState<"idle" | "bad" | "done">("idle");
-  const [email, setEmail] = useState("");
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    setState(EMAIL.test(email.trim()) ? "done" : "bad");
-  };
-  return (
-    <form className="cb-nl" onSubmit={submit} noValidate data-rv="">
-      <p className="cb-nl__h">{CLOSE.newsletter.h}</p>
-      <p className="cb-nl__sub">{CLOSE.newsletter.sub}</p>
-      {state === "done" ? (
-        <p className="cb-nl__ok" role="status">Thanks: {email.trim()} is noted. <span>Preview only: the sign-up is not connected yet.</span></p>
-      ) : (
-        <>
-          <label className="sr-only" htmlFor="cb-nl-email">Email address</label>
-          <div className="cb-nl__field">
-            <input id="cb-nl-email" type="email" autoComplete="email" placeholder="you@example.com" value={email}
-              onChange={(e) => { setEmail(e.target.value); if (state === "bad") setState("idle"); }} aria-invalid={state === "bad"} aria-describedby="cb-nl-err" />
-            <button type="submit" className="cb-btn cb-btn--fill"><span>{CLOSE.newsletter.cta}</span></button>
-          </div>
-          <p className="cb-nl__err" id="cb-nl-err" aria-live="polite">{state === "bad" ? "Enter a valid email address." : ""}</p>
-        </>
-      )}
-    </form>
-  );
-}
 
 export function CommunityB() {
   const ref = useRef<HTMLDivElement>(null);
@@ -218,25 +189,6 @@ export function CommunityB() {
                 <div className="cb-q__a"><p>{q.a}</p></div>
               </details>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────────── 7 · the close: the meadow, the line, the newsletter */}
-      <section className="l-sec cb-close" aria-labelledby="cb-close-t">
-        <div className="l-row l-spacer" data-row="" aria-hidden="true"><div className="l-cell" /></div>
-        <div className="l-bleed-wrap">
-          <div className="l-bleed cb-close__bleed" data-bleed="">
-            <div className="l-ph l-bleed__ph" data-ph=""><div className="l-plate"><img className="l-img" src="/v3/bleed-meadow.webp" alt="" loading="lazy" decoding="async" /></div></div>
-            <div className="l-bleed__in cb-close__in">
-              <h2 id="cb-close-t" className="cb-close__h" data-rv="">Start building the <span className="accent">open web.</span></h2>
-              <p className="cb-close__sub" data-rv="">{CLOSE.sub}</p>
-              <p className="cb-close__btns" data-rv="">
-                <a className="cb-btn cb-btn--fill" href={CLOSE.primary.href}><span>{CLOSE.primary.label}</span></a>
-                <a className="cb-btn cb-btn--glass" href={CLOSE.secondary.href}><span>{CLOSE.secondary.label}</span></a>
-              </p>
-              <Newsletter />
-            </div>
           </div>
         </div>
       </section>

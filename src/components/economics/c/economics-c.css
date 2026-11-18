@@ -1,0 +1,244 @@
+/* Economics C · Editorial (EconomicsC.tsx, /economics-c). One calm feature on paper in the homepage v9's hand: big statements in Montreal Book with one
+   Kepler word, a type-only hero ending on the green square, figures set large, one dark band (the loop, held while its steps advance) and a photo that
+   opens to the whole screen at the close. The tokens are b10's (as the homepage's sections and Community C), set here so nothing depends on another
+   page's stylesheet. Everything is scoped under .ec-c; motion only under .ec-c[data-motion] (motion.ts). */
+.ec-c {
+  --ink: #262626; --graphite: #3d3e3f; --muted: #5f6669; --green-text: #00774f; --emerald: #00dc8d;
+  --paper-0: #f5f4f1; --paper-1: #edece8; --paper-2: #e2e1de; --band: #262626;
+  --line: rgb(38 38 38 / 0.12); --line-strong: rgb(38 38 38 / 0.24); --hair: 1px;
+  --on-line: rgb(245 244 241 / 0.2); --on-soft: rgb(245 244 241 / 0.72);
+  --margin: clamp(20px, 5.56vw, 96px);
+  --gut: max(var(--margin), calc(50% - 820px));     /* the page's side gutter: the margin, or wider past a 1640 px column */
+  --sans: var(--font-montreal-nav, var(--font-montreal)), ui-sans-serif, system-ui, sans-serif;
+  --text: var(--font-text);                          /* Montreal Book */
+  --acc: var(--font-acc);                            /* Kepler Medium Condensed Italic Display */
+  --mono: var(--font-montreal-mono), ui-monospace, monospace;
+  --ease-tick: cubic-bezier(0.2, 0, 0, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-h1: clamp(2.75rem, 1rem + 7vw, 8.25rem);
+  --t-h2: clamp(2.5rem, 1.2rem + 3.6vw, 4.75rem);
+  --t-big: clamp(2rem, 1rem + 2.9vw, 4rem);
+  --t-statement: clamp(1.625rem, 0.9rem + 2.3vw, 3rem);
+  --t-dek: clamp(1.5rem, 1rem + 1.6vw, 2.5rem);
+  --t-h3: clamp(1.375rem, 1.15rem + 0.7vw, 1.875rem);
+  --t-lede: clamp(1.125rem, 0.95rem + 0.45vw, 1.375rem);
+  --t-body: clamp(1rem, 0.93rem + 0.15vw, 1.0625rem);
+  --t-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);
+  --sec: clamp(96px, 15vh, 176px);
+  position: relative; z-index: 3; overflow-x: clip;
+  color: var(--ink); background: var(--paper-0); font-family: var(--sans); font-size: var(--t-body); line-height: 1.55;
+}
+.ec-c .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:where(.ec-c) :where(p, h1, h2, h3, figure, ol, ul) { margin: 0; padding: 0; }
+:where(.ec-c) :where(ol, ul) { list-style: none; }
+:where(.ec-c) a { color: inherit; text-decoration: none; }
+.ec-c img { display: block; max-width: none; }
+.ec-c :focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.ec-c [id] { scroll-margin-top: 96px; }
+
+/* ---------------------------------------------------------------- type: the headings' words, the Kepler word, the green square */
+.ec-c :is(h1, h2, h3) { font-family: var(--text); font-weight: 400; color: inherit; text-wrap: balance; }
+.ec-c .accent { font-family: var(--acc); font-style: italic; font-weight: 500; font-size: 1.24em; letter-spacing: -0.02em; line-height: 0; }
+.ec-c .accent .ec-c-w { line-height: 1; }
+.ec-c-sq { display: inline-block; width: 0.19em; height: 0.19em; margin-left: 0.07em; background: var(--emerald); vertical-align: baseline; }
+.ec-c-h2 { font-size: var(--t-h2); line-height: 1.02; letter-spacing: -0.028em; }
+.ec-c-dek { max-width: 22em; font-family: var(--acc); font-style: italic; font-weight: 500; font-size: var(--t-dek); line-height: 1.12; letter-spacing: -0.01em; color: var(--graphite); text-wrap: balance; }
+.ec-c-lede { max-width: 32em; font-size: var(--t-lede); line-height: 1.5; letter-spacing: -0.006em; color: var(--graphite); text-wrap: pretty; }
+.ec-c-lede--on { color: var(--on-soft); }
+.ec-c-statement { max-width: 24em; font-family: var(--text); font-size: var(--t-statement); line-height: 1.16; letter-spacing: -0.02em; text-wrap: pretty; }
+.ec-c-eye { display: inline-flex; align-items: center; gap: 10px; margin-bottom: clamp(18px, 2.6vh, 28px); font: 400 12px/1.2 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.ec-c-eye i { width: 7px; height: 7px; background: var(--emerald); }
+.ec-c-eye--on { color: rgb(245 244 241 / 0.7); }
+
+/* ---------------------------------------------------------------- actions: b10's pill (48 px, the emerald dot on hover) and the text link */
+.ec-c-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+.ec-c-arr, .ec-c-ext { flex: none; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.3s var(--ease-settle); }
+.ec-c-ext { width: 13px; height: 13px; }
+.ec-c-btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 500 var(--t-small)/1.2 var(--sans); letter-spacing: -0.003em; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink);
+  transition: background-color 0.24s var(--ease-tick), color 0.24s var(--ease-tick), box-shadow 0.24s var(--ease-tick), padding 0.3s var(--ease-settle); }
+.ec-c-btn::before { content: ""; position: absolute; left: 19px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
+  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+.ec-c-btn--ink { color: var(--paper-0); background: var(--ink); }
+.ec-c-btn--paper { background: var(--paper-0); box-shadow: none; }
+.ec-c-link { display: inline-flex; align-items: center; gap: 10px; padding: 6px 0; font: 500 var(--t-small)/1.2 var(--sans); letter-spacing: -0.003em;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
+@media (hover: hover) {
+  .ec-c-btn:hover { padding-left: 36px; color: var(--paper-0); background: var(--ink); box-shadow: none; }
+  .ec-c-btn:hover::before { transform: scale(1); }
+  .ec-c-btn:hover :is(.ec-c-arr, .ec-c-ext) { translate: 3px 0; }
+  .ec-c-link:hover { background-size: 100% var(--hair); }
+  .ec-c-link:hover .ec-c-arr { translate: 4px 0; }
+  .ec-c-link:hover .ec-c-ext { translate: 3px -3px; }
+}
+.ec-c-btn:focus-visible { padding-left: 36px; }
+.ec-c-btn:focus-visible::before { transform: scale(1); }
+.ec-c-link:focus-visible { background-size: 100% var(--hair); }
+
+/* ================================================================ 1 · the hero: type only, one screen of the paper */
+.ec-c-hero { display: flex; flex-direction: column; justify-content: flex-end; min-height: min(100svh, 1040px);
+  padding: clamp(132px, 18vh, 196px) var(--gut) clamp(56px, 9vh, 104px); }
+.ec-c-h1 { font-size: var(--t-h1); line-height: 0.98; letter-spacing: -0.034em; max-width: 11.5em; }
+.ec-c-h1 .accent { font-size: 1.3em; letter-spacing: -0.035em; }
+.ec-c-hero__foot { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 28px 64px; align-items: end; margin-top: clamp(40px, 7vh, 80px);
+  padding-top: clamp(24px, 3.4vh, 36px); border-top: var(--hair) solid var(--line-strong); }
+.ec-c-hero__sub { max-width: 34em; font-size: var(--t-lede); line-height: 1.45; letter-spacing: -0.006em; color: var(--graphite); text-wrap: pretty; }
+.ec-c-hero .ec-c-actions { justify-content: flex-end; }
+
+/* ================================================================ sections */
+.ec-c-sec { padding: var(--sec) var(--gut) 0; }
+.ec-c-split { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 28px clamp(40px, 6vw, 112px); align-items: end; }
+.ec-c-split .ec-c-h2 { max-width: 11em; }
+
+/* ================================================================ 2 · the foundation: four figures in one ruled row */
+.ec-c-mature { padding-top: clamp(72px, 11vh, 128px); }
+.ec-c-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: clamp(56px, 8vh, 96px); border-top: var(--hair) solid var(--line-strong); }
+.ec-c-fact { display: flex; flex-direction: column; padding: clamp(28px, 4vh, 40px) 24px 0 0; }
+.ec-c-fact + .ec-c-fact { padding-left: 24px; border-left: var(--hair) solid var(--line); }
+.ec-c-fact__v { font-family: var(--text); font-size: clamp(3rem, 1.4rem + 4.1vw, 6.5rem); line-height: 1; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ec-c-fact__v--word { font-family: var(--acc); font-style: italic; font-weight: 500; font-size: clamp(3.4rem, 1.6rem + 4.6vw, 7.25rem); line-height: 0.88; letter-spacing: -0.03em; }
+.ec-c-fact__l { min-height: 1.4em; margin-top: 14px; font: 400 12px/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.ec-c-fact__a { display: inline-flex; align-items: center; gap: 8px; color: var(--green-text);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
+@media (hover: hover) { .ec-c-fact__a:hover { background-size: 100% var(--hair); } .ec-c-fact__a:hover .ec-c-ext { translate: 3px -3px; } }
+.ec-c-fact__a:focus-visible { background-size: 100% var(--hair); }
+.ec-c-fact__t { margin-top: clamp(32px, 5vh, 56px); padding-top: 18px; border-top: var(--hair) solid var(--line); font-size: var(--t-h3); line-height: 1.12; letter-spacing: -0.015em; }
+.ec-c-fact__n { display: block; margin-bottom: 10px; font: 400 12px/1 var(--mono); letter-spacing: 0.1em; color: var(--muted); }
+.ec-c-fact__b { margin-top: 14px; max-width: 24em; color: var(--graphite); text-wrap: pretty; }
+
+/* ================================================================ 3 · the loop: the dark band, its stage held while the steps advance */
+.ec-c-loop { margin-top: clamp(112px, 17vh, 200px); background: var(--band); color: var(--paper-0); }
+.ec-c-loop :focus-visible { outline-color: var(--paper-0); }
+.ec-c-loop__head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 28px clamp(40px, 6vw, 112px); align-items: end;
+  padding: clamp(104px, 17vh, 200px) var(--gut) 0; }
+.ec-c-loop__h { max-width: 9em; font-size: clamp(3rem, 1.2rem + 5vw, 6.5rem); line-height: 0.98; letter-spacing: -0.034em; }
+.ec-c-loop__h .accent { font-size: 1.3em; }
+
+/* the stage: the ring | the steps. Static (reduced motion, a short screen): the ring stands still beside the four steps listed */
+.ec-c-track { position: relative; }
+.ec-c-stage { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px clamp(40px, 6vw, 112px); align-items: start;
+  padding: clamp(72px, 11vh, 128px) var(--gut) 0; }
+.ec-c-stage__ring { display: flex; justify-content: center; }
+.ec-c-steps { counter-reset: none; }
+.ec-c-step { padding: 28px 0 clamp(36px, 5vh, 52px); border-top: var(--hair) solid var(--on-line); }
+.ec-c-step__n { display: flex; align-items: center; gap: 12px; font: 400 12px/1 var(--mono); letter-spacing: 0.14em; color: rgb(245 244 241 / 0.6); }
+.ec-c-step__n span:first-child { color: var(--emerald); }
+.ec-c-step__n i { width: 28px; height: var(--hair); background: var(--on-line); }
+.ec-c-step__t { margin-top: clamp(18px, 2.6vh, 28px); max-width: 13em; font-size: var(--t-big); line-height: 1.04; letter-spacing: -0.026em; }
+.ec-c-step__b { margin-top: clamp(16px, 2.4vh, 24px); max-width: 32em; font-size: var(--t-lede); line-height: 1.5; color: var(--on-soft); text-wrap: pretty; }
+
+/* the ring: a thin track, the arc travelled, four nodes, the dot (its halo), the labels outside, the step's word in the middle */
+.ec-c-ring { position: relative; width: min(100%, 480px); aspect-ratio: 1; container-type: inline-size; }
+.ec-c-ring__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ec-c-ring__track { fill: none; stroke: rgb(245 244 241 / 0.24); stroke-width: 1; vector-effect: non-scaling-stroke; }
+/* the arc's dashes are in its path length (pathLength 1), so it keeps a stroke in the drawing's units (non-scaling-stroke would measure the dashes on screen) */
+.ec-c-ring__arc { fill: none; stroke: var(--emerald); stroke-width: 2.25; stroke-dasharray: 1 1; stroke-dashoffset: 1;
+  transform: rotate(-90deg); transform-origin: 200px 200px; }
+.ec-c-ring__node { fill: var(--paper-0); stroke: var(--paper-0); stroke-width: 1.5; vector-effect: non-scaling-stroke; transition: fill 0.4s var(--ease-tick), stroke 0.4s var(--ease-tick); }
+.ec-c-ring__run { transform-origin: 200px 200px; }
+.ec-c-ring__dot { fill: var(--emerald); }
+.ec-c-ring__halo { fill: none; stroke: rgb(0 220 141 / 0.4); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ec-c-ring__lab { position: absolute; display: flex; flex-direction: column; gap: 4px; font-size: var(--t-small); line-height: 1.1; color: rgb(245 244 241 / 0.78);
+  white-space: nowrap; transition: color 0.4s var(--ease-tick); }
+.ec-c-ring__n { font: 400 11px/1 var(--mono); letter-spacing: 0.12em; color: rgb(245 244 241 / 0.5); transition: color 0.4s var(--ease-tick); }
+/* nodes at 12, 3, 6 and 9 o'clock: the ring spans 15 %–85 % of the box */
+.ec-c-ring__lab--0 { left: 50%; top: 15%; align-items: center; text-align: center; translate: -50% calc(-100% - 30px); }
+.ec-c-ring__lab--1 { left: calc(85% + 30px); top: 50%; translate: 0 -50%; }
+.ec-c-ring__lab--2 { left: 50%; top: calc(85% + 30px); align-items: center; text-align: center; translate: -50% 0; }
+.ec-c-ring__lab--3 { right: calc(85% + 30px); top: 50%; align-items: flex-end; text-align: right; translate: 0 -50%; }
+.ec-c-ring__mid { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.ec-c-ring__w { grid-area: 1 / 1; display: none; font-family: var(--acc); font-style: italic; font-weight: 500; font-size: 15cqi; line-height: 1; letter-spacing: -0.02em; }
+
+/* held (motion.ts sets data-pin on a screen tall enough): the track gives the stage 70 % of a screen of scroll per step; the stage sticks, the steps
+   share one place and the one on shows; the nodes light as the dot reaches them */
+.ec-c-loop[data-pin] .ec-c-track { height: calc(100svh + 4 * 70svh); }
+.ec-c-loop[data-pin] .ec-c-stage { position: sticky; top: 0; height: 100svh; min-height: 600px; align-items: center; align-content: center;
+  padding-top: clamp(88px, 11svh, 112px); padding-bottom: clamp(32px, 6svh, 64px); }
+.ec-c-loop[data-pin] .ec-c-ring { width: min(100%, 62svh, 520px); }
+.ec-c-loop[data-pin] .ec-c-steps { display: grid; }
+.ec-c-loop[data-pin] .ec-c-step { grid-area: 1 / 1; border-top: 0; padding: 0; opacity: 0; translate: 0 28px;
+  transition: opacity 0.45s var(--ease-tick), translate 0.7s var(--ease-settle); }
+.ec-c-loop[data-pin] .ec-c-step[data-on] { opacity: 1; translate: none; transition: opacity 0.7s var(--ease-glide) 0.12s, translate 0.9s var(--ease-settle) 0.12s; }
+.ec-c-loop[data-pin] .ec-c-step__t { font-size: clamp(2.25rem, 1rem + 3.4vw, 4.5rem); }
+.ec-c-loop[data-pin] .ec-c-ring__node { fill: var(--band); stroke: rgb(245 244 241 / 0.5); }
+.ec-c-loop[data-pin] .ec-c-ring__node[data-past] { fill: var(--paper-0); stroke: var(--paper-0); }
+.ec-c-loop[data-pin] .ec-c-ring__node[data-on] { fill: var(--emerald); stroke: var(--emerald); }
+.ec-c-loop[data-pin] .ec-c-ring__lab { color: rgb(245 244 241 / 0.5); }
+.ec-c-loop[data-pin] .ec-c-ring__lab[data-on] { color: var(--paper-0); }
+.ec-c-loop[data-pin] .ec-c-ring__lab[data-on] .ec-c-ring__n { color: var(--emerald); }
+.ec-c-loop[data-pin] .ec-c-ring__w { display: block; opacity: 0; translate: 0 0.18em; transition: opacity 0.35s var(--ease-tick), translate 0.6s var(--ease-settle); }
+.ec-c-loop[data-pin] .ec-c-ring__w[data-on] { opacity: 1; translate: none; transition: opacity 0.6s var(--ease-glide) 0.1s, translate 0.8s var(--ease-settle) 0.1s; }
+
+/* the close line: after the stage lets go, set large and wiped from faint to paper */
+.ec-c-loop__close { padding: clamp(96px, 14vh, 168px) var(--gut) clamp(112px, 17vh, 200px); }
+.ec-c-loop__close .ec-c-statement { max-width: 22em; font-size: clamp(1.75rem, 0.8rem + 2.7vw, 3.375rem); line-height: 1.14; }
+
+/* ================================================================ 4 · the revenue: two big editorial blocks */
+.ec-c-src__h { max-width: 10em; }
+.ec-c-src__list { margin-top: clamp(56px, 8vh, 96px); border-bottom: var(--hair) solid var(--line-strong); }
+.ec-c-block { padding: clamp(32px, 5vh, 56px) 0 clamp(48px, 8vh, 88px); border-top: var(--hair) solid var(--line-strong); }
+.ec-c-block__name { display: flex; align-items: flex-start; gap: clamp(16px, 2vw, 32px); }
+.ec-c-block__n { padding-top: 0.9em; font: 400 12px/1 var(--mono); letter-spacing: 0.1em; color: var(--muted); }
+.ec-c-block__h { font-size: clamp(3.5rem, 1rem + 7.4vw, 9.5rem); line-height: 0.95; letter-spacing: -0.045em; }
+.ec-c-block__h .accent { font-size: 1.22em; letter-spacing: -0.03em; }
+.ec-c-block__txt { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px clamp(40px, 6vw, 112px); margin-top: clamp(28px, 5vh, 56px); }
+.ec-c-block__txt .ec-c-dek { grid-row: span 2; max-width: 12em; color: var(--ink); }
+.ec-c-block__b { max-width: 34em; font-size: var(--t-lede); line-height: 1.5; color: var(--graphite); text-wrap: pretty; }
+.ec-c-tie { max-width: 26em; margin-top: clamp(56px, 9vh, 104px); font-family: var(--text); font-size: var(--t-statement); line-height: 1.18; letter-spacing: -0.02em; text-wrap: pretty; }
+
+/* ================================================================ 5 · NEAR at the center: three jobs set large */
+.ec-c-center__lead { margin-top: clamp(56px, 9vh, 104px); color: var(--ink); }
+.ec-c-jobs { margin-top: clamp(28px, 4vh, 44px); border-bottom: var(--hair) solid var(--line-strong); }
+.ec-c-job { display: grid; grid-template-columns: 64px minmax(0, 6fr) minmax(0, 5fr); gap: 16px clamp(28px, 4vw, 72px); align-items: baseline;
+  padding: clamp(28px, 4.4vh, 48px) 0; border-top: var(--hair) solid var(--line-strong); }
+.ec-c-job__n { font: 400 12px/1 var(--mono); letter-spacing: 0.1em; color: var(--muted); }
+.ec-c-job__t { font-size: var(--t-big); line-height: 1.02; letter-spacing: -0.028em; }
+.ec-c-job__b { max-width: 26em; font-size: var(--t-lede); line-height: 1.45; color: var(--graphite); text-wrap: pretty; }
+.ec-c-center__body { max-width: 34em; margin: clamp(40px, 6vh, 64px) 0 0 auto; font-size: var(--t-lede); line-height: 1.5; color: var(--graphite); text-wrap: pretty; }
+.ec-c-center__fw { max-width: 18em; margin-top: clamp(80px, 13vh, 152px); font-size: clamp(2.25rem, 1rem + 3.9vw, 5.5rem); line-height: 1.02; letter-spacing: -0.032em; text-wrap: balance; }
+
+/* ================================================================ phones and portrait tablets */
+@media (max-width: 1023px) {
+  .ec-c-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ec-c-fact { padding: 28px 16px 40px 0; }
+  .ec-c-fact + .ec-c-fact { padding-left: 16px; }
+  .ec-c-fact:nth-child(3) { padding-left: 0; border-left: 0; }
+  .ec-c-fact:nth-child(n + 3) { border-top: var(--hair) solid var(--line-strong); }
+}
+@media (max-width: 859px) {
+  .ec-c-hero__foot, .ec-c-split, .ec-c-loop__head, .ec-c-block__txt { grid-template-columns: minmax(0, 1fr); }
+  .ec-c-hero .ec-c-actions { justify-content: flex-start; }
+  .ec-c-block__txt .ec-c-dek { grid-row: auto; }
+  .ec-c-stage { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .ec-c-ring { width: min(100% - 160px, 360px); }
+  .ec-c-job { grid-template-columns: 36px minmax(0, 1fr); }
+  .ec-c-job__b { grid-column: 2; }
+  .ec-c-center__body { margin-left: 0; }
+  /* held on a phone: the ring above, the step under it */
+  .ec-c-loop[data-pin] .ec-c-stage { grid-template-rows: auto auto; align-content: center; align-items: start; gap: clamp(20px, 3.6svh, 36px);
+    padding-top: clamp(120px, 17svh, 152px); padding-bottom: 24px; }   /* clear of the header, the top node's label included */
+  .ec-c-loop[data-pin] .ec-c-ring { width: min(100% - 130px, 34svh, 340px); }
+  .ec-c-loop[data-pin] .ec-c-step__t { font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem); }
+  .ec-c-loop[data-pin] .ec-c-step__b { font-size: var(--t-body); }
+}
+@media (max-width: 520px) {
+  .ec-c-facts { grid-template-columns: minmax(0, 1fr); }
+  .ec-c-fact, .ec-c-fact + .ec-c-fact { padding: 28px 0 36px; border-left: 0; }
+  .ec-c-fact:nth-child(n + 2) { border-top: var(--hair) solid var(--line-strong); }
+  .ec-c-fact__t { margin-top: 24px; }
+}
+
+/* ================================================================ motion (motion.ts sets data-motion; reduced motion never does) */
+:where(.ec-c[data-motion]) [data-rv]:not(.is-in) { opacity: 0; translate: 0 24px; }
+:where(.ec-c[data-motion]) [data-rv].is-in { transition: opacity 0.9s var(--ease-glide) calc(0.05s + var(--rv, 0) * 0.09s), translate 1.1s var(--ease-settle) calc(0.05s + var(--rv, 0) * 0.09s); }
+:where(.ec-c[data-motion]) [data-rv].is-now { transition: none; }
+/* the long lines: each word between faint and full (--k, scrubbed); on the band faint to paper, on the paper faint to ink */
+.ec-c-statement.is-wipe .ec-c-ww { color: color-mix(in srgb, var(--ink) calc(22% + var(--k, 0) * 78%), var(--paper-0)); }
+.ec-c-statement--on.is-wipe .ec-c-ww { color: color-mix(in srgb, var(--paper-0) calc(30% + var(--k, 0) * 70%), var(--band)); }
+/* the hero's line is hidden for the instant before its words are split (a safety brings it back if the script never runs) */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .ec-c:not([data-motion]) [data-rise="now"] { opacity: 0; animation: ec-c-safe 0s linear 2.5s forwards; }
+}
+@keyframes ec-c-safe { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .ec-c *, .ec-c *::before, .ec-c *::after { transition-duration: 0.01ms !important; }
+}
