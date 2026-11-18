@@ -10,7 +10,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 | Address | Page | Code |
 |---|---|---|
-| `/` (and `/home-v7`) | **Homepage**: home v7. G1's time-lapse film is the hero, then the intro, the rail, the Stack in lit matte, proof and Go deeper. | `src/components/v7` (on pieces of v1–v5) |
+| `/` (and `/home-v9`) | **Homepage**: home v9. One type-only section, "NEAR is privacy for onchain capital and the agent economy.", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) and v8 (`/home-v8`, the cycling word) stay at their own addresses, also on `/index`. | `src/components/v7` (on pieces of v1–v5) |
 | `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c` shows A or C. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
@@ -26,7 +26,7 @@ Explorations that still have their own routes are listed at `/extra`:
 
 ### What changed (November 2026)
 
-- **Homepage:** home v7 is the first page. Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
+- **Homepage:** home v9 is the first page (v7 and v8 at `/home-v7`, `/home-v8`). Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
 - **Removed pages:**
   - the blog directions A–L (J is `/blog`);
   - the 404 previews and designs B and C;
@@ -105,10 +105,10 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
   - `src/app/(site)/not-found.tsx` handles a page that calls `notFound()`.
   - Both render `NotFoundA`.
 
-## The homepage (home v7)
+## The homepage (home v7, v8 and v9)
 
-- **Route and owner:** `/home-v7/page.tsx` is the page, and `/` re-exports it (`src/app/(site)/page.tsx`), so changes to v7 show on both. Lawrence works on v7 on his branch, `Lawrence001`.
-- **Home v8 and v9** (`/home-v8`, `/home-v9`, listed in `/extra`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/` stays as it is.
+- **Route and owner:** the homepage is home v9: `/` re-exports `/home-v9/page.tsx` (`src/app/(site)/page.tsx`), so changes to v9 show on both. `/home-v7` and `/home-v8` are the earlier versions, on the same code. Lawrence owns `src/components/v7`.
+- **Home v8 and v9** (`/home-v8`, `/home-v9`; v9 is `/`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/home-v7` stays as it was.
 - **Code:** `src/components/v7` builds the page from pieces of v1–v5:
   - `V1Page` and its boot (world, rail, Stack);
   - v4's rail and Stack;

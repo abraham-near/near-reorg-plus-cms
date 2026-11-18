@@ -7,9 +7,19 @@ export type Final = { id: string; href: string; path?: string; name: string; not
 
 export const FINALS: Final[] = [
   {
-    id: "home", href: "/", name: "Homepage",
-    note: "Home v7: G1's time-lapse film as the hero under its traced layer, the spread wordmark header, the intro through the grid, the rail, the Stack in lit matte, proof and Go deeper.",
-    tags: ["Scroll-scrubbed film", "Tracked vectors", "Lit matte Stack"], img: "/index/home.webp",
+    id: "home", href: "/", name: "Homepage · v9",
+    note: "Home v9: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", then the rail with the signed identity, the Stack in lit matte, Origin, Go deeper, the voices one at a time and the mailboxes. Also at /home-v9.",
+    tags: ["Type-only hero", "Black-and-white photos", "Lit matte Stack"], img: "/index/home.webp",
+  },
+  {
+    id: "home-v8", href: "/home-v8", name: "Home v8",
+    note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it.",
+    tags: ["Type-only hero", "Cycling word"], img: "/index/home-v8.webp",
+  },
+  {
+    id: "home-v7", href: "/home-v7", name: "Home v7",
+    note: "The homepage before v9: G1's time-lapse film as the hero under its traced layer, the intro through the grid, the rail, the Stack in lit matte, proof and Go deeper.",
+    tags: ["Scroll-scrubbed film", "Tracked vectors", "Lit matte Stack"], img: "/index/home-v7.webp",
   },
   {
     id: "blog", href: "/blog", name: "Blog",

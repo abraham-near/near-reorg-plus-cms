@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 // Home v8 = Lawrence's branch NEAR-is-private-CYCLE (D200): home v7 with the hero and the intro merged into one type-only section, "NEAR is private" and a
-// word that cycles to "by design" (components/v7/private), and the lower page of that branch (V7Page `top`). Home v7 (/) is unchanged.
+// word that cycles to "by design" (components/v7/private), and the lower page of that branch (V7Page `top`). The homepage (/) is v9.
 export default function HomeV8() {
   return <V7Page top="private" />;
 }
