@@ -6,7 +6,6 @@
 // tablets and reduced motion keep the still (the video's first frame) with the layer at frame 0 and a gentle parallax. Styles: ./v7.css.
 import type { CSSProperties, ReactNode } from "react";
 import { HeroVideo } from "../v2/chapter-one/HeroVideo";
-import { HeroLayer } from "../v2/chapter-one/layer/HeroLayer";
 import { HeroRise } from "./HeroRise";
 import { StatementWipe } from "./StatementWipe";
 import { TX, txEnd, type TxKey } from "./tx";
@@ -31,11 +30,12 @@ const i = (n: number) => ({ "--i": n }) as CSSProperties;
 type Crop = { x?: number; y?: number };
 /* no video: a still (it stays put through the pin). wash: a soft paper wash for the copy where a picture is busy behind it, on the left on desktop (lg) and
    from the top on phones and portrait tablets (sm), as v5's (v7.css) */
-/* still: where the film never plays (below 1280 px, or reduced motion), a sharper still in place of the film's first frame (D162). timing: the film's place at
+/* still: where the film never plays (below 1280 px, or reduced motion), a sharper still in place of the film's first frame (D162): one URL, or a srcset
+   with its stillSizes (the still covers the hero, so it is drawn wider than the screen on a phone held upright). timing: the film's place at
    even steps of its scroll range (HeroVideo), so its time-lapse can play out before the hand-over and still keep moving until it is gone (D162) */
 /* h1: another headline, in the same .ln / .ln--key spans (the hero studies, D172: "Finance and AI, private by default"). smTop: on phones and portrait tablets,
    the picture starts this far down (svh), under the copy, its top faded into the paper (D178), where a busy picture can't sit behind the words */
-export type HeroAlt = { poster: string; video?: string; still?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[]; h1?: ReactNode; smTop?: number } & Crop;
+export type HeroAlt = { poster: string; video?: string; still?: string; stillSizes?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[]; h1?: ReactNode; smTop?: number } & Crop;
 
 // `tx`: one of the hero-to-intro transition studies (D109, ./tx): a longer pin (--tx-pin), the film stretched across it, no fade at the foot,
 // and the study's own pieces in the stage. Without it: /home-v6 as built (D108), with the paper rising at the foot (HeroRise).
@@ -66,7 +66,7 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
           <div className="hero6__media" data-ch="media">
             {hero?.still ? (
               <picture>
-                <source media="(max-width: 1279px), (prefers-reduced-motion: reduce)" srcSet={hero.still} />
+                <source media="(max-width: 1279px), (prefers-reduced-motion: reduce)" srcSet={hero.still} sizes={hero.stillSizes} />
                 <img className="hero6__img" src={hero.poster} alt="" width={1920} height={1080} decoding="async" fetchPriority="high" />
               </picture>
             ) : (
@@ -75,9 +75,9 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
             )}
             <video className="hero6__video" data-ch="video" muted playsInline preload="none" tabIndex={-1} />
             {(!hero || hero.video) && <HeroVideo src={hero?.video ?? VIDEO} timing={hero?.timing} end={T ? `top -${T.key === "d" ? T.pin : txEnd(T)}%` : undefined} />}
-            {hero ? hero.layer : <HeroLayer look="plexusDust" data="zj3" />}
+            {hero?.layer /* v6's ridges had HeroLayer ("plexusDust", zj3) here; every hero now brings its own */}
           </div>
-          {T ? <T.C pin={T.pin} end={txEnd(T)} /> : <HeroRise />}
+          {T?.C ? <T.C pin={T.pin} end={txEnd(T)} /> : <HeroRise />}
         </div>
         <div className="wrap hero__main">
           <div className="hero__copy" data-ch="copy">

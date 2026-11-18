@@ -10,7 +10,7 @@ import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import { mountGrid } from "../../blog/grid";
 import { Photo } from "../../blog/parts";
 import type { Article } from "../article";
-import { Avatar, Body, MoreCard, Share, Tags } from "../Body";
+import { Avatar, Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
 import { useActiveSection, useReadProgress, useReveal } from "../hooks";
 import "../post.css";
 import "./post-a.css";
@@ -21,10 +21,9 @@ function mount(root: HTMLElement, ctx: MotionCtx) {
   const h = root.querySelector<HTMLElement>(".pa-h1");
   if (h && !ctx.reduced) {
     ctx.gsap.registerPlugin(SplitText);
-    split = SplitText.create(h, { type: "words", mask: "words", wordsClass: "pa-w" });
-    ctx.gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.045, delay: 0.1,
-      /* risen: the words leave their masks, which clip the italic accent's overhang and descenders (the g of "blog") */
-      onComplete: () => { split?.revert(); split = null; } });
+    split = SplitText.create(h, { type: "words", wordsClass: "pa-w" });
+    ctx.gsap.from(split.words, { yPercent: 40, autoAlpha: 0, duration: 1.1, ease: "expo.out", stagger: 0.045, delay: 0.1 });
+    /* each word rises a little and fades in, unmasked: no box clips a letter (the italic accent's overhang, the g's tail) at any point of the rise */
   }
   return () => { split?.revert(); grid.dispose(); };
 }
@@ -93,6 +92,7 @@ export function PostA({ article: A }: { article: Article }) {
               </aside>
             )}
             <Body article={A} notes="margin" />
+            {htmlNotes(A) && <Footnotes article={A} />}
           </div>
           <div className="bl-cell pa-margin" aria-hidden="true" />
         </div>

@@ -1,4 +1,5 @@
-// Blog J's motion, light on purpose (no ruled grid to draw):
+// Blog J's motion, light on purpose:
+//   - the hero's ruled rows (../grid.ts: lines, crosshairs, the lede after them);
 //   - the heading rises word by word (gsap SplitText, as E);
 //   - [data-in] blocks fade and rise as they come in: the ones already in view in turn (their own --d), the rest as they reach it; a block above the view
 //     is simply there. sync() picks up what React has just made (a filter, sort, view or page change re-keys the posts, so they rise again);
@@ -7,6 +8,7 @@
 import { SplitText } from "gsap/SplitText";
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { mountIcons } from "../../header/icons";
+import { mountGrid } from "../grid";
 
 export type JMotion = { sync: () => void; dispose: () => void };
 
@@ -15,16 +17,16 @@ export function mount(root: HTMLElement, ctx: MotionCtx): JMotion {
   let dead = false;
   const ac = new AbortController();
   if (!reduced) root.setAttribute("data-motion", "");
+  const grid = mountGrid(root, ctx);   // the hero's ruled rows: frame lines, crosshairs, the lede rising after them
 
   /* ── the heading ── */
   let split: SplitText | null = null;
   const h = root.querySelector<HTMLElement>(".bj-h1");
   if (h && !reduced) {
     ctx.gsap.registerPlugin(SplitText);
-    split = SplitText.create(h, { type: "words", mask: "words", wordsClass: "bj-w" });
-    ctx.gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.07, delay: 0.1,
-      /* risen: the words leave their masks, which clip the italic accent's overhang and descenders (the g of "blog") */
-      onComplete: () => { split?.revert(); split = null; } });
+    split = SplitText.create(h, { type: "words", wordsClass: "bj-w" });
+    ctx.gsap.from(split.words, { yPercent: 40, autoAlpha: 0, duration: 1.1, ease: "expo.out", stagger: 0.07, delay: 0.1 });
+    /* each word rises a little and fades in, unmasked: no box clips a letter (the italic accent's overhang, the g's tail) at any point of the rise */
   }
 
   /* ── arrivals ── */
@@ -60,7 +62,7 @@ export function mount(root: HTMLElement, ctx: MotionCtx): JMotion {
   return {
     sync,
     dispose() {
-      dead = true; ac.abort(); io?.disconnect(); split?.revert();
+      dead = true; ac.abort(); io?.disconnect(); split?.revert(); grid.dispose();
       icons.forEach((s) => s.dispose()); icons.clear();
       root.removeAttribute("data-motion");
       root.querySelectorAll("[data-in]").forEach((el) => el.classList.remove("is-in", "is-now"));

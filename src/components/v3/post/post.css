@@ -2,7 +2,7 @@
    file (a/post-a.css, b/post-b.css, c/post-c.css) for the page around the body and its own take on headings, notes and figures. */
 .pst {
   --mono: var(--font-montreal-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --serif: var(--font-acc, var(--font-kepler-light, var(--font-kepler))), Georgia, serif;
+  --serif: var(--font-acc, var(--font-kepler-cn)), Georgia, serif;
   --t-read: clamp(1.0625rem, 0.98rem + 0.3vw, 1.1875rem); --t-read-lh: 1.65;
   --col: 680px;
 }
@@ -65,6 +65,7 @@
 .pst .pb-fn { font-size: 0.65em; line-height: 0; margin-left: 2px; }
 .pst .pb-fn a { color: var(--green-text); font-weight: 600; padding: 0 2px; }
 .pst .pb-fns { padding-top: 20px; border-top: var(--hair) solid var(--l-line); }
+.pst .pb-body--html + .pb-fns { margin-top: 56px; }   /* a CMS post's notes, after its body in every layout (Body.tsx htmlNotes) */
 .pst .pb-fns__h { font: 500 var(--t-label)/1 var(--sans); letter-spacing: var(--t-label-tr); text-transform: uppercase; color: var(--muted); }
 .pst .pb-fns ol { list-style: decimal; padding-left: 1.2em; margin-top: 12px; display: grid; gap: 8px; font-size: var(--t-small); line-height: 1.5; color: var(--graphite); }
 .pst .pb-fns a { color: var(--green-text); }

@@ -20,10 +20,9 @@ export function mount(root: HTMLElement, ctx: MotionCtx) {
   const h = root.querySelector<HTMLElement>(".an-a-h1");
   if (h) {
     gsap.registerPlugin(SplitText);
-    split = SplitText.create(h, { type: "words", mask: "words", wordsClass: "an-a-w" });
-    gsap.from(split.words, { yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.07, delay: 0.1,
-      /* risen: the words leave their masks, which clip the italic accent's overhang and descenders (the g of "blog") */
-      onComplete: () => { split?.revert(); split = null; } });
+    split = SplitText.create(h, { type: "words", wordsClass: "an-a-w" });
+    gsap.from(split.words, { yPercent: 40, autoAlpha: 0, duration: 1.1, ease: "expo.out", stagger: 0.07, delay: 0.1 });
+    /* each word rises a little and fades in, unmasked: no box clips a letter (the italic accent's overhang, the g's tail) at any point of the rise */
   }
   root.querySelectorAll<HTMLElement>("[data-in]").forEach((el, i) => {
     el.style.setProperty("--d", `${(0.35 + i * 0.1).toFixed(2)}s`);

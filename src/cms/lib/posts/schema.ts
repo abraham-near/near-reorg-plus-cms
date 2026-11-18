@@ -19,6 +19,8 @@ export const postFields = {
   metaTitle: nullableText(500, true),
   metaDescription: nullableText(5000),
   metaImage: url,
+  takeaways: z.array(line(300).pipe(z.string().trim())).max(3).transform((v) => v.filter(Boolean)).optional(),
+  layout: z.enum(['a', 'b', 'c']).nullable().optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   visibility: z.enum(['PUBLIC', 'UNLISTED']).optional(),
   publishedAt: date,

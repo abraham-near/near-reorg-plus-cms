@@ -13,7 +13,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | `/` (and `/home-v7`) | **Homepage**: home v7. G1's time-lapse film is the hero, then the intro, the rail, the Stack in lit matte, proof and Go deeper. | `src/components/v7` (on pieces of v1–v5) |
 | `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c` shows A or C. `/post-b` is the sample article. | `src/components/v3/post` |
-| `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns). | `src/components/foundation/e` |
+| `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
 | `/analytics` | **Analytics**: B (Instrument panel). Sample figures until the live feed lands. | `src/components/analytics/b` |
 | `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
 | any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
@@ -22,7 +22,6 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 Explorations that still have their own routes are listed at `/extra`:
 - the blog post layouts `/post-a`, `/post-b` and `/post-c`;
-- Foundation A–F: `/foundation`, `/foundation-b`, `-c`, `-d`, `/near-foundation` (E) and `/foundation-f`;
 - Analytics A at `/analytics-a`.
 
 ### What changed (November 2026)
@@ -32,9 +31,10 @@ Explorations that still have their own routes are listed at `/extra`:
   - the blog directions A–L (J is `/blog`);
   - the 404 previews and designs B and C;
   - `/template`;
-  - Analytics C.
+  - Analytics C;
+  - Foundation A, B, C, D and F (`/foundation`, `/foundation-b`…`-f` redirect to `/near-foundation`).
 - **Moved pages:**
-  - Foundation E moved to `/near-foundation`.
+  - Foundation E moved to `/near-foundation`. It now has F's pillars and F's Council, and no badges on its drawings. It still uses a few of B's and C's pieces (`foundation/b`, `foundation/c`).
   - Analytics B is `/analytics`, and A moved to `/analytics-a`.
   - Old addresses redirect: see `redirects()` in `next.config.ts`.
 - **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, Contact → `/contact`.
@@ -66,7 +66,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 1. **Route:** add it under `src/app/(site)/<page>-<letter>/page.tsx`, for example `/contact-b` or `/foundation-g`.
    - Its code goes in `src/components/<page>/<letter>/`.
    - Wrap it in `BlogShell` (`src/components/v3/blog/BlogShell.tsx`), which gives it the site's header, footer and v3 values.
-2. **Switch (optional):** if the page has versions, add a switch to move between them. Copy `FoundationSwitch` or `AnalyticsSwitch`; they sit under the header, at the top left.
+2. **Switch (optional):** if the page has versions, add a switch to move between them. Copy `AnalyticsSwitch`; they sit under the header, at the top left.
 3. **List it:** add an entry to the right group in `extra/pages.ts` (or a new group), then capture its picture into `public/extra/`.
 4. **Leave the final page alone:** don't touch the final page or its entry in `index/pages.ts` until the new version is chosen.
 
@@ -98,7 +98,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
   - the ruled grid of the Foundation and Analytics pages.
 - **Motion:**
   - Use `useScrollMotion` (`src/lib/motion/scroll.ts`) for GSAP and ScrollTrigger, and respect reduced motion.
-  - A heading that rises word by word with SplitText masks must revert the split when the rise ends (`onComplete: () => split.revert()`). Give the masks room (padding with an equal negative margin), or they clip the italic accent.
+  - A heading that rises word by word: split it with SplitText **without masks** and tween each word from `{ yPercent: 40, autoAlpha: 0 }`. A mask clips the italic accent and the descenders while the words rise, and reverting it at the end makes the text jump.
 - **Links:** use plain `<a>` between the site's pages, on purpose. Each page loads fresh, so one page's global CSS and boot never meet another's.
 - **404:**
   - `src/app/global-not-found.tsx` handles any URL no route matches (`experimental.globalNotFound`).
@@ -115,6 +115,17 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
   - v3's header, footer and proof / Go deeper.
   These folders hold only what the homepage and the pages still use. Before deleting anything in them, check that nothing imports it.
 - **Hero film:** `/cms/videos/home/home-hero-g1-timelapse-v2.mp4` (see "Big media").
+
+## Performance (homepage)
+
+The homepage boots a lot of motion; keep its first load light (Lighthouse desktop with CPU ×4 ≈ the production report):
+- **Nothing heavy at first paint.** three.js loads on demand (the Stack's lit drawing, a screen and a half before it); the hero film gets its source on the first scroll intent or 5 s after load.
+- **No work for what isn't on screen.** rAF loops run only while their section is near the screen (IntersectionObserver), the header's sleeps at rest, icons get their geometry when they come close.
+- **Precompute, don't compute at load.** The Stack's outlines come from `scripts/stack-edges.ts` (`npx tsx scripts/stack-edges.ts` after changing `src/components/v7/stack/geometry.ts`).
+- **One refresh.** Call `requestRefresh()` (`src/lib/motion/scroll.ts`) instead of `ScrollTrigger.refresh()`; split long boots with `yieldToMain()` (`src/lib/motion/yield.ts`).
+- **Measure reads, then writes.** Read every size first and write after; a read after a write forces a layout of the whole page.
+- **Images:** give big pictures a smaller version and a `srcset` (the hero still, the Go deeper covers' `-960.webp`).
+- **Imports are bundled even when unused.** A component imported as a default or fallback ships to the browser even if it never renders.
 
 ## Big media
 

@@ -7,7 +7,8 @@ import { mountRail } from "./rail/motion";
 import { mountStack } from "./stack/motion";
 import { mountStatementWords } from "./world/words";
 import { markReady, resetReady, type Dispose } from "./ctx";
-import { keepScroll } from "@/lib/motion/scroll";
+import { keepScroll, requestRefresh } from "@/lib/motion/scroll";
+import { yieldToMain } from "@/lib/motion/yield";
 
 type Live = { refs: number; kill: number; dispose: Dispose };
 let live: Live | null = null;
@@ -43,12 +44,15 @@ function start(): Live {
     }
     const words = mountStatementWords(ctx);     // opt-in (.statement[data-reveal="words"], home v5): the statement word by word, scrubbed
     if (words) offs.push(words);
+    await yieldToMain();                         // each step its own task: the world, the rail, the Stack each measure the page
+    if (ac.signal.aborted) return;
     const rail = await mountRail(ctx);
     if (rail) offs.push(rail);
+    await yieldToMain();
     if (ac.signal.aborted) return;
     offs.push(mountStack(ctx));
     markReady();
-    requestAnimationFrame(() => ctx.ScrollTrigger.refresh());
+    requestRefresh();
   })().catch((e) => { console.error("[v1] boot", e); markReady(); });
   return {
     refs: 1, kill: 0,

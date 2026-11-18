@@ -112,9 +112,15 @@ const ExtSr = ({ h }: { h: string }) => (isExt(h) ? <span className="sr-only"> (
 const Arrow = () => (
   <svg className="l-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>
 );
-const Photo = ({ src, cls }: { src: string; cls: string }) => (
-  <div className={`l-ph ${cls}`} data-ph=""><img className="l-img" src={src} alt="" loading="lazy" decoding="async" /></div>
-);
+/* a Go deeper cover (1600 x 900) also comes 960 px wide (-960.webp): the featured cell is at most ~5/12 of the page, so a 1x screen takes the small one
+   (a fifth of the bytes) and a 2x screen the full one */
+const srcSetOf = (src: string) => (/^\/v3\/deeper\/[a-z-]+\.webp$/.test(src) ? `${src.replace(".webp", "-960.webp")} 960w, ${src} 1600w` : undefined);
+const Photo = ({ src, cls }: { src: string; cls: string }) => {
+  const set = srcSetOf(src);
+  return (
+    <div className={`l-ph ${cls}`} data-ph=""><img className="l-img" src={src} srcSet={set} sizes={set ? "(max-width: 859px) 100vw, 42vw" : undefined} width={set ? 1600 : undefined} height={set ? 900 : undefined} alt="" loading="lazy" decoding="async" /></div>
+  );
+};
 
 function Featured({ it, i, wide, photos }: { it: Item; i: number; wide: boolean; photos?: string }) {
   return (

@@ -58,7 +58,7 @@ html[data-close-cover] .b10f { margin-top: -100vh; }
 .b10f-head { align-items: center; padding: 0 var(--f-inset) var(--s120); }
 .b10f-line { grid-column: 1 / span 9; padding: 0.06em 0 0.16em; margin: -0.06em 0 -0.16em;
   font-family: var(--sans); font-weight: 500; font-size: var(--t-h2s); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--f-fg); }
-.b10f-w { display: inline-block; line-height: var(--t-h2s-lh); clip-path: inset(-0.12em -0.2em -0.26em -0.2em); } /* one mask per word, on the baseline */
+.b10f-w { display: inline-block; line-height: var(--t-h2s-lh); } /* one box per word, on the baseline; no mask: the words rise and fade in, so no letter is clipped */
 .b10f-wi { display: inline-block; }
 /* Get started (b10's .btn.btn-lg): a 48 px paper pill; hover: the green dot opens before the label, the label steps right, the arrow steps on */
 .b10f-cta { grid-column: 11 / span 2; justify-self: end; position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border-radius: 999px;
@@ -149,8 +149,8 @@ html[data-close-cover] .b10f { margin-top: -100vh; }
 
 /* ---------------------------------------------------------------- arrival, in sequence (motion only)
    Each piece waits its own --d (Footer.tsx). The line rises word by word in its masks; rules draw from the left; rows, links and meta settle 8 px up. */
-.b10f.is-motion .b10f-wi { transition: transform 1100ms var(--ease-glide) var(--d, 0ms); }
-.b10f.is-motion .b10f-rv:not(.is-in) .b10f-wi { transform: translateY(112%); }
+.b10f.is-motion .b10f-wi { transition: transform 1100ms var(--ease-glide) var(--d, 0ms), opacity 900ms var(--ease-glide) var(--d, 0ms); }
+.b10f.is-motion .b10f-rv:not(.is-in) .b10f-wi { transform: translateY(40%); opacity: 0; }
 .b10f.is-motion :is(.b10f-cta, .b10f-h, .b10f-tx, .b10f-go, .b10f-col li, .b10f-meta > *, .b10f-soc li) { transition: opacity 900ms var(--ease-settle) var(--d, 0ms), transform 900ms var(--ease-glide) var(--d, 0ms), color var(--dur-tick) var(--ease-tick), background-color var(--dur-tick); }
 .b10f.is-motion .b10f-rv:not(.is-in) :is(.b10f-cta, .b10f-h, .b10f-tx, .b10f-col li, .b10f-meta > *, .b10f-soc li) { opacity: 0; transform: translateY(8px); }
 .b10f.is-motion .b10f-rv:not(.is-in) .b10f-go { opacity: 0; }

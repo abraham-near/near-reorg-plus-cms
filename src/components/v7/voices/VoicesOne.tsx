@@ -7,7 +7,7 @@
 // and runs only while the section is. Reduced motion: no clock, the first voice stays. The words are the shared voices' verbatim data
 // (shared/voices/data.ts: Abraham's approved wording); never reword.
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { FEATURED, MORE, TITLE, type Voice } from "@/components/shared/voices/data";
+import { FEATURED, MORE, TITLE, type Voice } from "./data";
 import { QM, QM_FLAT, QM_FLAT_VIEWBOX, QM_VIEWBOX } from "./qmark";
 import "./voices-one.css";
 

@@ -7,7 +7,7 @@ import { InlineScript } from "@/components/InlineScript";
 import { useScrollMotion } from "@/lib/motion/scroll";
 import { GROUPS, isExt, type Item } from "./links";
 import { mount } from "./motion";
-import { keplerLight, montrealNav } from "./font";
+import { montrealNav } from "./font";
 import "./header.css";
 
 // the NEAR mark: b10's geometry (nav-pre.js), the N alone in currentColor
@@ -101,7 +101,7 @@ export function V3Header({ home = "/", spread = false, stay = false, soft = fals
   return (
     <>
       {/* on <html>: b10's UI face (Montreal Medium; v3's buttons across the page use it too, ../buttons.css) and Kepler Light Italic (v3's large accents, styles/versions.css) */}
-      <InlineScript html={`document.documentElement.classList.add('${montrealNav.variable}','${keplerLight.variable}')`} />
+      <InlineScript html={`document.documentElement.classList.add('${montrealNav.variable}')`} />
       <header ref={ref} className={`nvh ${montrealNav.variable}${spread ? " nv-wide nv-calm" : ""}`} data-spread={spread ? "" : undefined} data-stay={stay ? "" : undefined} data-soft={soft ? "" : undefined}>
         <a className="nv-skip" href="#main">Skip to content</a>
         <div className="nv-bar">

@@ -13,6 +13,8 @@ const meta = {
   metaImage: z.string().max(2048).optional().describe('Social share image URL; defaults to featuredImage'),
   categoryIds: ids.optional(),
   tagIds: ids.optional(),
+  takeaways: z.array(z.string().max(300)).max(3).optional().describe('Up to three key points, one short line each, shown after the dek (story mode). [] clears them'),
+  layout: z.enum(['a', 'b', 'c']).nullable().optional().describe('The public layout: "a" Ruled, "b" Cover, "c" Notebook; null = the site default (Cover)'),
 }
 const META_KEYS = Object.keys(meta) as (keyof typeof meta)[]
 const pick = (a: Record<string, unknown>, keys: readonly string[]) => Object.fromEntries(keys.filter((k) => a[k] !== undefined).map((k) => [k, a[k]]))
@@ -69,7 +71,7 @@ const editShape = { id, title: z.string().min(1).max(500).optional(), html: z.st
 export const postTools: Def[] = [
   {
     name: 'create_draft', title: 'Create draft post', annotations: { destructiveHint: false, idempotentHint: false }, requires: [...WRITE],
-    description: 'Create a new DRAFT blog post whose body is the given HTML. It is not public until publish_post or schedule_post.',
+    description: 'Create a new DRAFT blog post whose body is the given HTML (story blocks and footnotes as in the guide\'s Story mode section). It is not public until publish_post or schedule_post.',
     shape: { title: z.string().min(1).max(500), slug: z.string().min(1).max(200).optional(), html: z.string().max(1_400_000), ...meta },
     run: async (a: { title: string; slug?: string; html: string } & Record<string, unknown>, { api }: Ctx) => {
       // Without an explicit slug the URL follows the title, and the CMS picks the next free one if it is taken.

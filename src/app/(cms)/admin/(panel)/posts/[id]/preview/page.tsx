@@ -25,6 +25,11 @@ function shareCard(post: { title: string; excerpt: string | null; body: string; 
   }
 }
 
+/** the footnotes' texts, in order (the site numbers them the same way: src/lib/blog/html.ts); empty ones are left out there too */
+const decode = (s: string) => s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+const notesOf = (html: string) => [...html.matchAll(/<sup\b[^>]*data-type="footnote"[^>]*>/g)]
+  .map((m) => decode(/data-footnote="([^"]*)"/.exec(m[0])?.[1] ?? '').replace(/\s+/g, ' ').trim()).filter(Boolean)
+
 // The saved post as readers will see it, plus the card social networks show when it is shared.
 // Rendered with the CMS's own styles: the site has no blog yet, and the CMS never imports the site.
 export default async function PostPreviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,6 +41,7 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
   const featured = safeUrl(post.featuredImage)
   const state = isScheduled(post) ? <>Scheduled for <LocalTime value={post.publishedAt} /></> : isLive(post) ? <>Published <LocalTime value={post.publishedAt} /></> : post.status === 'ARCHIVED' ? 'Archived' : 'Draft'
   const categories = post.categories.map((join) => join.category.name)
+  const notes = notesOf(post.body)
 
   return (
     <div className="mx-auto max-w-[720px] space-y-10 pb-16">
@@ -61,7 +67,13 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
         {categories.length > 0 && <p className="text-xs font-semibold tracking-[.05em] text-primary">{categories.join(' · ').toUpperCase()}</p>}
         <h1 className="text-[40px] font-bold leading-[1.12] tracking-[-0.02em]">{post.title}</h1>
         {post.excerpt && <p className="text-lg leading-relaxed text-muted-foreground">{post.excerpt}</p>}
-        <div className="prose max-w-none text-[16.5px] leading-[1.7] prose-headings:tracking-[-0.01em] prose-a:text-primary prose-img:rounded-lg" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(post.body) }} />
+        <div className="cms-preview-body prose max-w-none text-[16.5px] leading-[1.7] prose-headings:tracking-[-0.01em] prose-a:text-primary prose-img:rounded-lg" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(post.body) }} />
+        {notes.length > 0 && (
+          <section aria-label="Notes" className="space-y-2 border-t border-[var(--border-soft)] pt-5">
+            <p className="text-xs font-semibold tracking-[.05em] text-muted-foreground">NOTES</p>
+            <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground">{notes.map((n, i) => <li key={i}>{n}</li>)}</ol>
+          </section>
+        )}
       </article>
     </div>
   )

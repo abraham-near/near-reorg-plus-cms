@@ -323,6 +323,12 @@
 .cms-image.is-selected img { outline: 2px solid var(--primary); outline-offset: 2px; }
 .cms-image-missing { display: inline-block; padding: 1rem; border: 1px dashed var(--border); border-radius: 8px; color: var(--muted-foreground); font-size: 13px; line-height: 1.4; }
 .cms-image-tools { position: absolute; left: 10px; bottom: 18px; display: flex; line-height: 1.4; }
+/* the width control (Column / Wide / Full bleed), top left of a selected image; a quiet tag on a wide image otherwise */
+.cms-image-size { position: absolute; left: 10px; top: 18px; display: flex; gap: 2px; padding: 3px; border-radius: 8px; background: color-mix(in oklab, var(--foreground) 88%, transparent); line-height: 1.4; box-shadow: 0 6px 18px rgb(var(--shadow) / .18); }
+.cms-image-size button { height: 24px; padding: 0 9px; border: 0; border-radius: 6px; background: transparent; color: color-mix(in oklab, var(--background) 78%, transparent); font-size: 12px; font-weight: 550; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.cms-image-size button:hover { color: var(--background); }
+.cms-image-size button[aria-checked="true"] { background: var(--background); color: var(--foreground); }
+.cms-image-size-tag { position: absolute; left: 10px; top: 18px; height: 20px; padding: 0 7px; border-radius: 5px; background: color-mix(in oklab, var(--popover) 90%, transparent); color: var(--muted-foreground); font-size: 11px; font-weight: 550; line-height: 20px; }
 .cms-image-alt-button { height: 24px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border); background: color-mix(in oklab, var(--popover) 92%, transparent); color: var(--foreground); font-size: 12px; font-weight: 550; box-shadow: 0 2px 8px rgb(var(--shadow) / .08); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out); }
 .cms-image-alt-button:hover { background: var(--popover); }
 .cms-image-alt-button.is-missing { border-color: color-mix(in oklab, var(--warning-fg) 30%, transparent); background: var(--warning-bg); color: var(--warning-fg); }
@@ -562,16 +568,49 @@
   color: #fecaca;
 }
 
-/* Footnote styles */
-.footnote-marker {
-  font-size: 0.875em;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-  top: -0.4em;
-}
+/* Footnotes (editor/extensions/StoryBlocks.ts, FootnoteView): a green number in the text, counted in order; its note in a box under it while selected */
+.cms-editor-body { counter-reset: cms-fn; }   /* the editor's root (ProseMirror) */
+.cms-fn { counter-increment: cms-fn; position: relative; display: inline-block; line-height: 0; vertical-align: super; font-size: .72em; margin: 0 1px; }
+.cms-fn__n { display: inline-grid; place-items: center; min-width: 1.5em; height: 1.5em; padding: 0 .3em; border-radius: 999px; background: color-mix(in oklab, var(--primary) 14%, transparent); color: var(--primary); font-weight: 650; cursor: pointer; }
+.cms-fn__n::before { content: counter(cms-fn); }
+.cms-fn[data-empty] .cms-fn__n { background: color-mix(in oklab, var(--destructive) 14%, transparent); color: var(--destructive); }
+.cms-fn.is-open .cms-fn__n, .node-footnote.ProseMirror-selectednode .cms-fn__n { box-shadow: 0 0 0 2px var(--primary); }
+.node-footnote.ProseMirror-selectednode, .node-footnote.ProseMirror-selectednode .cms-fn { outline: none; }   /* the ring on the number says it */
+.cms-fn__box { position: absolute; z-index: 30; top: calc(100% + 10px); left: 50%; translate: -50% 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; width: min(340px, 80vw); padding: 10px 10px 10px 12px;
+  border-radius: 10px; background: var(--popover, #fff); color: var(--popover-foreground, inherit); box-shadow: 0 12px 30px rgb(15 15 15 / .14), 0 0 0 1px var(--border); line-height: 1.4; font-size: 14px; font-weight: 400; vertical-align: baseline; text-align: left; }
+.cms-fn__l { grid-column: 1 / -1; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground); }
+.cms-fn__text { width: 100%; min-height: 3.2em; resize: none; field-sizing: content; border: 0; outline: none; background: transparent; color: inherit; font: inherit; }
+.cms-fn__x { align-self: start; display: grid; place-items: center; width: 26px; height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--muted-foreground); cursor: pointer; }
+.cms-fn__x:hover { background: color-mix(in oklab, var(--destructive) 12%, transparent); color: var(--destructive); }
 
-.footnote-marker:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
+/* the preview's footnote markers, numbered as the site numbers them (empty ones are left out there) */
+.cms-preview-body { counter-reset: cms-pv-fn; }
+.cms-preview-body sup[data-type="footnote"]:not([data-footnote=""])::after { counter-increment: cms-pv-fn; content: counter(cms-pv-fn); margin-left: 1px; font-size: .75em; font-weight: 650; color: var(--primary); }
+
+/* Story blocks (editor/extensions/StoryBlocks.ts): a callout box, the figures band drawn as the Cover layout draws it */
+.cms-editor-body aside[data-type="callout"] { margin: 1.4rem 0; padding: 14px 18px; border-radius: 10px; background: var(--tint-0, color-mix(in oklab, var(--primary) 7%, transparent)); border-top: 2px solid var(--primary); }
+.cms-editor-body aside[data-type="callout"] > p:first-child { font-weight: 650; }
+.cms-figures { position: relative; margin: 1.4rem 0; padding: 22px 22px 16px; border-radius: 10px; background: #1c1917; color: #f5f4f1; display: grid; gap: 14px; }
+.cms-figures__tag { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #9ff0cf; }
+.cms-figures__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.cms-figures__item { position: relative; display: grid; gap: 4px; padding-top: 10px; border-top: 1px solid rgb(245 244 241 / .22); }
+.cms-figures input { width: 100%; min-width: 0; border: 0; border-radius: 6px; background: transparent; color: inherit; outline: none; padding: 2px 6px; margin: 0 -6px; }
+.cms-figures input:hover, .cms-figures input:focus-visible { background: rgb(245 244 241 / .08); }
+.cms-figures input::placeholder { color: rgb(245 244 241 / .35); }
+.cms-figures__n { font-size: 34px; line-height: 1.1; letter-spacing: -.02em; color: #00dc8d !important; }
+.cms-figures__l { font-size: 13px; color: rgb(245 244 241 / .75) !important; }
+/* the label wraps as it would on the page (it was one line, cut off) */
+.cms-figures textarea.cms-figures__l { width: 100%; min-width: 0; border: 0; border-radius: 6px; background: transparent; outline: none; padding: 2px 6px; margin: 0 -6px; resize: none; field-sizing: content; font: inherit; font-size: 13px; line-height: 1.35; }
+.cms-figures textarea.cms-figures__l:hover, .cms-figures textarea.cms-figures__l:focus-visible { background: rgb(245 244 241 / .08); }
+.cms-figures textarea.cms-figures__l::placeholder { color: rgb(245 244 241 / .35); }
+.cms-figures__note { font-size: 12px; color: rgb(245 244 241 / .55) !important; }
+.cms-figures__x { position: absolute; right: -4px; top: 6px; display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 6px; background: transparent; color: rgb(245 244 241 / .5); cursor: pointer; }
+.cms-figures__x:hover { background: rgb(245 244 241 / .1); color: #f5f4f1; }
+.cms-figures__add { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 64px; border: 1px dashed rgb(245 244 241 / .3); border-radius: 8px; background: transparent; color: rgb(245 244 241 / .65); font-size: 13px; cursor: pointer; }
+.cms-figures__add:hover { color: #f5f4f1; border-color: rgb(245 244 241 / .55); }
+/* an image pair (two images on one line, html.ts draws them side by side): side by side here too. Each image sits in
+   React's node-view span (.node-image), with ProseMirror's separators between them. */
+.cms-editor-body p:has(> .node-image ~ .node-image):not(:has(> .node-image ~ .node-image ~ .node-image)) { display: flex; gap: 12px; }
+.cms-editor-body p:has(> .node-image ~ .node-image):not(:has(> .node-image ~ .node-image ~ .node-image)) > .node-image { flex: 1 1 0; min-width: 0; }
+.cms-editor-body p:has(> .node-image ~ .node-image):not(:has(> .node-image ~ .node-image ~ .node-image)) .cms-image { display: block; }
+.cms-editor-body p:has(> .node-image ~ .node-image):not(:has(> .node-image ~ .node-image ~ .node-image)) .cms-image img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }

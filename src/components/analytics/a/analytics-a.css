@@ -10,8 +10,7 @@
 /* ---------------------------------------------------------------- 1 · the hero (Blog J's head: open paper) */
 .an-a-hero { margin: 0 var(--margin); padding: var(--top) 0 clamp(48px, 7vh, 80px); }
 .an-a-h1 { font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 1.4rem + 4.9vw, 5.75rem); line-height: 0.98; letter-spacing: -0.035em; text-wrap: balance; }
-.an-a-w { padding: 0 0.14em 0.26em; margin: 0 -0.14em -0.26em; }   /* SplitText's word masks: room for the descenders and the accent */
-.an-a-h1 .accent [class^="an-a-w"] { line-height: 0.92; padding-top: 0.06em; margin-top: -0.06em; }
+.an-a-h1 .accent .an-a-w { line-height: 0.92; }
 .an-a-hero__foot { display: grid; grid-template-columns: minmax(0, 34rem) auto; justify-content: space-between; align-items: end; gap: 24px 48px; margin-top: clamp(28px, 4.4vh, 48px); }
 .an-a-lede { font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
 /* the status line: a live dot, the words, a small down arrow (it jumps to the status card) */

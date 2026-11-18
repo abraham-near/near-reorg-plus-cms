@@ -8,7 +8,7 @@
 // The geometry is one function of a stage s (−1 empty, 0, 1, 2 = the three states) and a clock t, so the markup (any fixed stage) and the motion (every
 // frame) draw the same thing. The steps sit beside it on a dotted axis whose dots join into a line as the reader passes them.
 import { useId, type ReactNode } from "react";
-import { ACTS, idx } from "../b/FoundationB";
+import { ACTS, idx } from "./parts";
 import "./operate.css";
 import { P, f, line, box, coin, floorDots, onTop, smooth, ease3, INK, TOP, SIDE_L, SIDE_R, GREEN, C, type V } from "../b/iso";
 

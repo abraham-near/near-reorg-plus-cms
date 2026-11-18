@@ -9,14 +9,14 @@
 //           them on the back wall (both rebuilt from the time), the $11.61M tag pops at its end;
 //   290–322 the gauge fills to 37 %;  304–334 the last 30 days count up;  324–336 the button;  the finished bento holds to the release.
 // The header's tone follows the ground (data-nav-tone). Phones, short screens, reduced motion: nothing here runs; the markup is the finished paper bento.
-import type { MotionCtx } from "@/lib/motion/scroll";
+import { requestRefresh, type MotionCtx } from "@/lib/motion/scroll";
 import { smooth } from "@/lib/motion/smooth";
 import { ISO } from "./iso";
 import { FLAT } from "./flat";
 
 const T = 350;
 
-export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: MotionCtx) {
+export function mount(root: HTMLElement, { reduced, gsap }: MotionCtx) {
   if (reduced) return;
   const mm = gsap.matchMedia();
   mm.add("(min-width: 860px) and (min-height: 640px)", () => {
@@ -178,7 +178,7 @@ export function mount(root: HTMLElement, { reduced, gsap, ScrollTrigger }: Motio
     };
     root.addEventListener("focusin", onFocus);
     let live = true;
-    document.fonts?.ready.then(() => { if (live) ScrollTrigger.refresh(); });
+    document.fonts?.ready.then(() => { if (live) requestRefresh(); });
     paint();
 
     return () => {

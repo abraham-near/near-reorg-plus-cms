@@ -35,6 +35,8 @@ export type Article = {
   takeaways: string[];
   /** typed blocks (the example) or sanitized HTML (the CMS) */
   body: { blocks: Block[] } | { html: string };
+  /** an HTML body's footnotes, in order (lib/blog/html.ts numbers its markers); a typed body keeps its notes on its paragraphs */
+  notes?: string[];
   sections: Section[];
   readMin: number;
   more: MorePost[];

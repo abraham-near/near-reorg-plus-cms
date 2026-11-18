@@ -3,7 +3,7 @@ import type { Prisma } from '@/generated/prisma/client'
 // This projection is also the boundary for revisions and client responses.
 export const postSelect = {
   id: true, slug: true, title: true, body: true, excerpt: true,
-  featuredImage: true, metaTitle: true, metaDescription: true, metaImage: true,
+  featuredImage: true, metaTitle: true, metaDescription: true, metaImage: true, takeaways: true, layout: true,
   status: true, visibility: true, publishedAt: true,
   authorId: true, lastEditedById: true, lockedAt: true, lockedById: true, lockedByTokenId: true,
   createdAt: true, updatedAt: true,

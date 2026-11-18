@@ -2,8 +2,8 @@
 // Blog J · Reading rail, open. Blog E's structure and behaviour (the same head, rail and feed, the same controls and pages) without the ruled grid:
 // no cells, no crosshairs, no dividers, no boxed cards. The structure is whitespace, an invisible column grid shared by the head and the body (the rail's
 // column | the feed's), the type scale, and two kinds of line only: one hairline under the head, and hairlines between rows in the list view.
-//   - the head: the heading at display scale (its accent in Kepler Light Italic); under it, in the rail's column a one-line lede, in the feed's the counts
-//     (how many posts, by type: counted from data.ts, nothing else);
+//   - the head: Blog A's hero, the one ruled block on the page: the heading at display scale (its accent in Kepler) in an 8 / 4 row with the lede,
+//     then the bar (the types as tabs, the same choice as the rail's Type, and how many are showing); frame lines and crosshairs (../grid.ts);
 //   - the body: the rail (sticky): search (live, a clear button, "/" to focus it), the type filter (a vertical radio group; the green dot slides to the
 //     chosen type; each type shows how many posts match the search), Sort (Newest / Oldest / A–Z) and View (Grid / List) as small text toggles; the
 //     newsletter waits at the rail's foot. The feed: its head (how many are showing, the active filters as chips you can remove), the latest post as the
@@ -14,7 +14,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { prefersReduced, useScrollMotion } from "@/lib/motion/scroll";
 import { BLOG, POSTS, type FilterKey, type Post } from "../data";
 import { KIND } from "./parts";
-import { Arrow } from "../parts";
+import { Arrow, Tabs } from "../parts";
 import { Card, GridIcon, Lead, ListIcon, Newsletter, Row, Seg, TypeList, fold } from "./parts";
 import { mount, type JMotion } from "./motion";
 import "./blog-j.css";
@@ -28,20 +28,13 @@ const OFFSET = 104;     // the floating header (16 px inset + 64 px bar) and som
 const TYPES: { key: FilterKey; label: string }[] = [{ key: "all", label: "All" }, { key: "read", label: KIND.read }, { key: "story", label: KIND.story }, { key: "watch", label: KIND.watch }];
 const SORTS: { key: Sort; label: string }[] = [{ key: "new", label: "Newest" }, { key: "old", label: "Oldest" }, { key: "az", label: "A–Z" }];
 const VIEWS: { key: View; label: string; icon: ReactNode }[] = [{ key: "grid", label: "Grid", icon: <GridIcon /> }, { key: "list", label: "List", icon: <ListIcon /> }];
-// the head's figures: counts of data.ts, nothing more
 const NONE: Post[] = [];
-const figs = (all: Post[]) => [
-  { n: all.length, c: "Posts" },
-  { n: all.filter((p) => p.type === "read").length, c: KIND.read },
-  { n: all.filter((p) => p.type === "story").length, c: KIND.story },
-  { n: all.filter((p) => p.type === "watch").length, c: KIND.watch },
-];
 const plural = (n: number) => `${n} ${n === 1 ? "post" : "posts"}`;
 const matches = (p: Post, q: string) => !q || fold(`${p.title} ${p.source} ${KIND[p.type]}`).includes(q);
 
 /** `live`: the CMS's published posts (as Blog), listed first, before data.ts's */
 export function BlogJ({ live = NONE }: { live?: Post[] }) {
-  const all = [...live, ...POSTS], FIGS = figs(all);
+  const all = [...live, ...POSTS];
   const ref = useRef<HTMLDivElement>(null), motion = useRef<JMotion | null>(null);
   const input = useRef<HTMLInputElement>(null), head = useRef<HTMLHeadingElement>(null);
   const [f, setF] = useState<FilterKey>("all");
@@ -151,19 +144,24 @@ export function BlogJ({ live = NONE }: { live?: Post[] }) {
 
   return (
     <div ref={ref} className="bl bl-j">
-      {/* ── the head: the heading, the lede and the counts ── */}
+      {/* ── the head: Blog A's hero on its ruled rows (the heading | the lede, then the bar), closed by a rule with its crosshairs (../grid.ts) ── */}
       <section className="bj-head" aria-labelledby="bl-j-t">
-        <h1 id="bl-j-t" className="bj-h1">The NEAR <span className="accent">blog</span></h1>
-        <p className="bj-lede" data-in="" style={{ ["--d" as string]: "0.35s" }}>Blog posts, press and talks from across the NEAR ecosystem.</p>
-        <ul className="bj-figs" aria-label="On the blog">
-          {FIGS.map((x, i) => (
-            <li key={x.c} className="bj-fig" data-in="" style={{ ["--d" as string]: `${(0.4 + i * 0.07).toFixed(2)}s` }}>
-              <p className="bj-fig__n">{x.n}</p>
-              <p className="bj-fig__c">{x.c}</p>
-            </li>
-          ))}
-        </ul>
-        <i className="bj-rule" aria-hidden="true" />
+        <div className="bl-row bj-hero" data-row="" data-start="">
+          <div className="bl-cell bj-hero__title">
+            <h1 id="bl-j-t" className="bl-display bj-h1">The NEAR <span className="accent">blog</span></h1>
+          </div>
+          <div className="bl-cell bj-hero__intro">
+            <p className="bl-lede" data-rv="">Customer stories from teams building with NEAR, reads on the agent economy and talks from Inside NEAR.</p>
+          </div>
+        </div>
+        {/* the bar: the types as tabs (the same choice as the rail's Type) and how many are showing */}
+        <div className="bl-row bj-bar" data-row="">
+          <div className="bl-cell bj-bar__cell">
+            <Tabs value={f} onChange={chooseType} id="bl-j-tab" controls="bl-j-feed" items={TYPES} counts={counts} />
+            <p className="bj-bar__n t-label">Showing {slice.length} of {list.length}</p>
+          </div>
+        </div>
+        <div className="bl-row bj-hero__foot" data-row="" data-start="" aria-hidden="true"><i className="bl-cell" /></div>
       </section>
 
       {/* ── the body: the rail and the feed ── */}
