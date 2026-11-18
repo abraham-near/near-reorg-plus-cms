@@ -5,6 +5,7 @@ import { G1_HERO } from "@/components/v7/g1/hero";
 export const metadata: Metadata = {
   title: "Home v7",
   description: "AI is starting to act for you. NEAR keeps your assets, your data, and your intelligence in your hands.",
+  alternates: { canonical: "/" },   // the work copy of the homepage: search engines are pointed to /
 };
 
 // Home v7 = home v6 at 5316b50, where the next changes go (D153). The hero hands over to the intro with transition I (D121) and the intro is layout G

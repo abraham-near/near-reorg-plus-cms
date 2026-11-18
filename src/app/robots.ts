@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
+import { NEVER_INDEXED, indexable, siteOrigin } from "@/lib/site";
 
-// D74: the site is a confidential work in progress, so nothing on it may be crawled or indexed, wherever it is hosted
-// (a preview link included). With the X-Robots-Tag header in next.config.ts. Revisit only at launch.
+// D74: until launch the site is a confidential work in progress, so nothing on it may be crawled, wherever it is hosted (a preview link included);
+// with the meta robots (site layout) and the X-Robots-Tag header (next.config.ts). At launch, SITE_INDEXABLE=true (src/lib/site.ts) opens the final pages
+// and lists the sitemap; the explorations, the CMS and the API stay out.
 export default function robots(): MetadataRoute.Robots {
-  return { rules: { userAgent: "*", disallow: "/" } };
+  if (!indexable()) return { rules: { userAgent: "*", disallow: "/" } };
+  return { rules: { userAgent: "*", allow: "/", disallow: NEVER_INDEXED }, sitemap: new URL("/sitemap.xml", siteOrigin()).href };
 }

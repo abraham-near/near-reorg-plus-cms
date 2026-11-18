@@ -162,6 +162,7 @@ Dev notes:
 - `main` is protected by the ruleset `main-solo-owner`: only the repo's owner can update it.
 - Everyone else works on a branch and opens a pull request. Lawrence's branch is `Lawrence001`.
 - Backups of `main` are kept as branches named `backup-YYYY-MM-DD`.
+- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/home-v7`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
 
 ## Working with Claude
 

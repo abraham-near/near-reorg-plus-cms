@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { AnalyticsB } from "@/components/analytics/b/AnalyticsB";
 import { AnalyticsSwitch } from "@/components/analytics/AnalyticsSwitch";
@@ -8,6 +9,8 @@ import { HERO } from "@/components/analytics/content";
 export const metadata: Metadata = {
   title: "Analytics",
   description: HERO.sub,
+  alternates: { canonical: "/analytics" },
+  openGraph: og({ url: "/analytics" }),
 };
 
 export default function AnalyticsBPage() {

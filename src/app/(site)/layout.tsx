@@ -2,13 +2,19 @@ import type { Metadata } from "next";
 import { fontVariables } from "@/styles/fonts";
 import { InlineScript } from "@/components/InlineScript";
 import { VERSION_HEAD } from "@/components/shared/version";
+import { indexable, siteOrigin } from "@/lib/site";
 import "../globals.css";
 
 export const metadata: Metadata = {
   title: { default: "NEAR: Own your world", template: "%s · NEAR" },
   description: "NEAR is open infrastructure for the agent economy: one account across every chain, private AI you can verify, and money that moves at machine speed.",
   icons: { icon: "/brand/icon.svg" },
-  robots: { index: false, follow: false },
+  metadataBase: siteOrigin(),
+  // not indexed until launch (SITE_INDEXABLE, src/lib/site.ts); the explorations set their own noindex in next.config.ts headers()
+  robots: indexable() ? { index: true, follow: true } : { index: false, follow: false },
+  // shared by every page that has no card of its own (the picture: ./opengraph-image.jpg); a blog post brings its own
+  openGraph: { type: "website", siteName: "NEAR", locale: "en_US" },
+  twitter: { card: "summary_large_image", site: "@NEARProtocol" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

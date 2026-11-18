@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { og } from "@/lib/site";
 import { connection } from "next/server";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { BlogJ } from "@/components/v3/blog/j/BlogJ";
@@ -17,6 +18,8 @@ const TYPE: Record<string, Post["type"]> = { press: "story", watch: "watch" };
 export const metadata: Metadata = {
   title: "Blog",
   description: "Customer stories, reads and talks from across the NEAR ecosystem.",
+  alternates: { canonical: "/blog" },
+  openGraph: og({ url: "/blog" }),
 };
 
 export default async function BlogIndex() {

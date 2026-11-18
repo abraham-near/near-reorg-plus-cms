@@ -7,6 +7,7 @@ import { PostC } from "@/components/v3/post/c/PostC";
 import { PostSwitch, type PostLayout } from "@/components/v3/post/PostSwitch";
 import { postHref, shareOf, toArticle } from "@/lib/blog/article";
 import { getLivePost, getMorePosts } from "@/lib/blog/posts";
+import { siteOrigin } from "@/lib/site";
 
 // A post published in the CMS, in one of the post layouts: the one chosen in the CMS (B, Cover, when none), or ?layout=a / b / c, with the same pill as
 // /post-a…c to switch. Rendered on request (the slug and the layout are only known then; the database is not reachable at build), its reads cached by
@@ -19,8 +20,6 @@ const layoutOf = (v: string | string[] | undefined): PostLayout => (v === "a" ||
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** absolute URLs for the share image and canonical: SITE_ORIGIN, else the CMS's (they are the same app) */
-const origin = () => { try { return new URL(process.env.SITE_ORIGIN || process.env.CMS_ORIGIN || "http://localhost:3000"); } catch { return undefined; } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -29,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const share = shareOf(post), url = postHref(post.slug);
   const images = share.image ? [{ url: share.image, ...(post.image?.src === share.image && post.image.w && post.image.h ? { width: post.image.w, height: post.image.h } : {}) }] : undefined;
   return {
-    metadataBase: origin(),
+    metadataBase: siteOrigin(),   // absolute URLs for the share image and canonical (src/lib/site.ts)
     title: share.title,
     description: share.description,
     alternates: { canonical: url },
