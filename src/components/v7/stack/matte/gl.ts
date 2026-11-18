@@ -366,9 +366,15 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
   const idScene = new THREE.Scene();
   const idMeshes = meshes.map((m) => {
     const mat = new THREE.ShaderMaterial({
-      uniforms: { uId: { value: 0 }, uLine: { value: 0 } },
-      vertexShader: /* glsl */ `varying vec3 vN; varying float vPlane;
-        void main() { vN = normal; vec4 w = modelMatrix * vec4(position, 1.0); vPlane = dot(abs(normal), w.xyz); gl_Position = projectionMatrix * viewMatrix * w; }`,
+      uniforms: { uId: { value: 0 }, uLine: { value: 0 }, uTop: { value: 0 } },
+      /* the hovered cube, drawn over everything, is nearest here too: its depth put in front of all the rest (its own faces kept in order). At its true depth,
+         its outline went on the far side of an edge where a ring piece really in front of it met it, and on its own side where the band did: the line
+         stepped sideways along one edge (Lawrence, D129's cube over a front ring) */
+      vertexShader: /* glsl */ `uniform float uTop; varying vec3 vN; varying float vPlane;
+        void main() {
+          vN = normal; vec4 w = modelMatrix * vec4(position, 1.0); vPlane = dot(abs(normal), w.xyz); gl_Position = projectionMatrix * viewMatrix * w;
+          if (uTop > 0.5) gl_Position.z = (-1.0 + (gl_Position.z / gl_Position.w + 1.0) * 0.1) * gl_Position.w;
+        }`,
       /* r: which way it faces (1 to 6, of 8; 0 nothing), g: which piece (of 32), b: its line's strength, a: its plane (the face's coordinate, 6 units a step) */
       fragmentShader: /* glsl */ `uniform float uId; uniform float uLine; varying vec3 vN; varying float vPlane;
         void main() {
@@ -464,6 +470,7 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
         im.mat.depthFunc = s.top ? THREE.AlwaysDepth : THREE.LessEqualDepth;
         im.mat.uniforms.uId.value = joined && i < 6 ? 1 : i + 2;
         im.mat.uniforms.uLine.value = Math.min(1, Math.max(0, s.line));
+        im.mat.uniforms.uTop.value = s.top ? 1 : 0;
         clear[im.mat.uniforms.uId.value] = s.passing ? 1 - Math.min(1, Math.max(0, s.alpha)) : 0;
       });
       /* the pillar's cubes together share an id: as clear as the least clear of them */
