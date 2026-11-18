@@ -20,7 +20,7 @@ export const FEATURED: Voice = {
 };
 
 export const MORE: Voice[] = [
-  { id: "horsley", text: "I wouldn’t bet against NEAR.", mark: "bet against NEAR", name: "Hunter Horsley", role: "CEO of Bitwise" },
+  { id: "horsley", text: "I wouldn’t bet against NEAR.", mark: "I wouldn’t bet against NEAR", name: "Hunter Horsley", role: "CEO of Bitwise" },
   { id: "mumtaz", text: "NEAR still feels like the most underrated team in crypto…", mark: "the most underrated team", name: "Mert Mumtaz", role: "Co-founder of Helius" },
   {
     id: "swihart",
