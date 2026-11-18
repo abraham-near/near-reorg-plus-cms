@@ -43,13 +43,14 @@ const REV = "a" as const;   /* v5's revenue band and Origin; the voices are v6's
  *  voices: another photo under "What the world is saying about NEAR" (the voices photo studies, D174);
  *  origin: another photo beside "Built by the people who invented modern AI" (the origin photo studies, D179);
  *  close: another picture behind "NEAR belongs to you" (the close studies, D186: photos and all-graphic treatments);
- *  top: "private" (branch NEAR-is-private-CYCLE, D200): the hero and the intro merged into one type-only section (./private), in place of both */
-export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" } = {}) {
+ *  top: "private" (branch NEAR-is-private-CYCLE, D200): the hero and the intro merged into one type-only section (./private), in place of both;
+ *  "privacy" (branch NEAR-is-privacy-HEADLINE, D202): the same section with one still headline and two sentences under it */
+export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy" } = {}) {
   return (
     <>
       {/* as v5: no globe, and v5's style scope */}
       <InlineScript html="document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')" />
-      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top === "private" ? <WorldPrivate /> : <WorldV7 tx={tx} st={st} hero={hero} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity="sign" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
+      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} /> : <WorldV7 tx={tx} st={st} hero={hero} />} rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity="sign" />} stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
         afterStack={<ProofDeeper content={{ ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer", voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO[REV], originFirst: true, scope: "v7", photos: { ...PHOTOS, ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) } }} />} footer={<V3Footer />} />
     </>
   );
