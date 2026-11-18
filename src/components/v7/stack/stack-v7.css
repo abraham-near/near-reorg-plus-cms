@@ -78,10 +78,30 @@ svg.stk7 .s7-e {
 }
 /* a ghost product fades as one piece (group opacity, D131): only its outside shows, no inside faces or joints; its outline .9 of that (.23 on screen) */
 .stk7[data-seg-lit] .s7-seg:not([data-on]) { opacity: .26; --so: .9; }
-/* the N on the cap (part of the top cube, D130): dimmed when the pillar goes dark (a ring lit). On a ghost cap (another cube lit, the cap a mixed-back
-   green) it stays black, full (D139, Lawrence; it went back to .3 with its cube) */
+/* a ghost going dark (another ring, the pillar, a cube hovered; StackArtV7 marks it data-unghost for --s7-back): one smooth change from its ghost to the dark
+   gray (D203, Lawrence: first it went full green, then its colour changed before its see-through caught up). Its opacity eases out as every piece going dark
+   does; its colour runs ahead on a curve worked out from that (its share of the mix, e / (.26 + .74 e), the ghost's .26 opacity), so what shows on screen
+   (colour over the band) moves in a straight line from the ghost to the gray on that same ease */
+.stk7 .s7-ring .s7-seg[data-unghost] { --s7-mix: linear(0, .381, .588, .713, .794, .849, .888, .915, .936, .952, .964, .973, .98, .986, .99, .994, .996, .998, .999, 1, 1);
+  transition: opacity var(--s7-back) var(--s7-out); }
+.stk7[data-lit] .s7-ring .s7-seg[data-unghost] :is(polygon, .s7-e) {
+  transition: fill var(--s7-back) var(--s7-mix), stroke var(--s7-back) var(--s7-mix), fill-opacity var(--s7-back) var(--s7-mix), stroke-opacity var(--s7-back) var(--s7-mix); }
+/* and the other way (D203, Lawrence: from near.com onto a NEAR AI product, all three went full green and then two faded): the products going from the dark
+   ring to ghosts (StackArtV7 marks them data-ghostin) go straight from the dark gray to their ghost, never brighter. The same working the other way round:
+   opacity eases out from 1 to .26, the colour's share of the mix is .26 e / (1 - .74 e), so what shows moves in a straight line on that ease */
+/* ... and quickly (Lawrence: "the two less green segments should hit their full less green color at the same time as the selected one becomes full
+   green"; the lit one's flash is on at once, s7-hot): in --s7-ghostin, not --s7-back. And from the flash's own frame ("start their color transition on
+   the same frame as the selected one starts flashing"): a transition's first frame shows where it starts, an animation's its 0 %, so these start a frame in
+   (--s7-ghostin-at, a negative delay) */
+.stk7 { --s7-ghostin: .2s; --s7-ghostin-at: -17ms; }
+.stk7[data-seg-lit] .s7-ring .s7-seg[data-ghostin] { --s7-mix: linear(0, .04, .088, .144, .207, .276, .348, .422, .497, .57, .641, .708, .769, .824, .872, .912, .945, .97, .987, .997, 1);
+  transition: opacity var(--s7-ghostin) var(--s7-out) var(--s7-ghostin-at); }
+.stk7[data-seg-lit] .s7-ring .s7-seg[data-ghostin] :is(polygon, .s7-e) {
+  transition: fill var(--s7-ghostin) var(--s7-mix) var(--s7-ghostin-at), stroke var(--s7-ghostin) var(--s7-mix) var(--s7-ghostin-at),
+    fill-opacity var(--s7-ghostin) var(--s7-mix) var(--s7-ghostin-at), stroke-opacity var(--s7-ghostin) var(--s7-mix) var(--s7-ghostin-at); }
+/* the N on the cap (part of the top cube, D130): it stays black and full whatever the pillar does: on a ghost cap (another cube lit, D139) and on the
+   dark pillar (a ring lit: D203, Lawrence; it dimmed to .3 there before) */
 .stk7 .s7-icon { transition: opacity .3s ease; }
-.stk7:is([data-lit="intents"], [data-lit="ai"], [data-lit="com"]) .s7-icon { opacity: .3; transition: opacity var(--s7-back) var(--s7-out); }
 
 /* the pillar parts: the copy in front of everything shows (the drawn-in copies hide) and its cubes spread (--s7-gap apart, about cube --s7-mid: set by the
    script). Closing, the front copy stays whole while its cubes close, then the drawn-in copies take over (D130). A row's hover on the protocol shows the front copy
@@ -140,23 +160,35 @@ svg.stk7 .s7-e {
 .stk7 [data-hot] polygon { animation: s7-hot .65s; transition: fill-opacity .3s ease, stroke-opacity .3s ease; }
 .stk7 [data-hot] .s7-e { animation: s7-hot-e .65s; transition: none; }
 
-/* the build (data-build: the script runs): a cube drops in from 48 units above; a ring fades up (quickly) as it comes down 56 units, easing into place (D127) */
+/* the build (data-build: the script runs): a cube drops in from 64 units above, a ring from 72; going away they leave quickly (D127, D136's pace) */
 .stk7 .s7-ring { transition: opacity .42s ease-out, transform .56s var(--s7-ease); }   /* D136: 30 % quicker (.6 s, .8 s) */
-.stk7[data-build] .s7-cube:not([data-in]) { opacity: 0; transform: translateY(-48px); pointer-events: none; }
-.stk7[data-build] .s7-ring:not([data-in]) { opacity: 0; transform: translateY(-56px); pointer-events: none; }
+.stk7[data-build] .s7-cube:not([data-in]) { opacity: 0; transform: translateY(-64px); pointer-events: none; }
+.stk7[data-build] .s7-ring:not([data-in]) { opacity: 0; transform: translateY(-72px); pointer-events: none; }
 /* D135: as a piece comes in, its wireframe (the cream outline) fades up with it as it drops; its green fills in a beat later and slower (data-new, set
    for the arrival only, so a hover's quick changes keep their own pace). Out of the build, the faces are clear */
 .stk7[data-build] :is(.s7-cube, .s7-ring):not([data-in]) :is(polygon, .s7-icon) { fill-opacity: 0; stroke-opacity: 0; opacity: 0; }
-/* the green starts while the outline is still coming up (D135 critic: at .3 s they barely overlapped); the outline's own fade is .6 s. Not while something is
-   lit: a piece going dark keeps its own easing (--s7-back) */
-/* D136: the whole arrival 30 % quicker (Lawrence): the outline .42 s (was .6), the drop .35 s (.5), the green .13 s in over .84 s (.18 s, 1.2 s) */
-.stk7[data-build] .s7-cube[data-new] { transition: transform .35s var(--s7-ease), opacity .42s ease; }
+/* D203 (Lawrence): each piece fades up as a wireframe first, then fills in green as it eases into place, with a long, soft settle. The outline fades up
+   over .4 s (the piece's own opacity) and is stronger while it is alone (.7, settling to the drawing's .36 as the green comes); the drop eases over .88 s
+   (rings .96 s) on a long tail (--s7-settle); the green starts at .06 s, just after the outline (Lawrence: longer, by starting sooner; it was .35 s), and
+   fills in slowly over the whole drop, full by .92 s. Then the whole arrival 20 % quicker (Lawrence; it was .5, 1.1, 1.2, .08 and 1.15 s). Not while
+   something is lit: a piece going dark keeps its own easing (--s7-back) */
+.stk7 { --s7-settle: cubic-bezier(.16, 1, .3, 1); --s7-leave: cubic-bezier(.33, 1, .68, 1); }
+.stk7[data-build] .s7-cube[data-new] { transition: transform .88s var(--s7-settle), opacity .4s ease-out; }
+.stk7[data-build] .s7-ring[data-new] { transition: transform .96s var(--s7-settle), opacity .4s ease-out; }
+@keyframes s7-wire { 0%, 30% { stroke-opacity: .7; } 100% { stroke-opacity: var(--so, .36); } }
+.stk7[data-build]:not([data-lit]) :is(.s7-cube, .s7-ring)[data-new] .s7-e { animation: s7-wire .92s cubic-bezier(.4, 0, .2, 1) both; }
 /* D143: a face's stroke (its own green, 1 px, there to close the hairline seams between faces once solid) stays off while the green fades in and comes on
-   at once as it lands (.13 + .84 s). Faded with the fill, half see-through over the half see-through fill and its neighbour's, it drew a lighter line on
-   every edge and corner of the piece for the length of the fade (Lawrence) */
+   at once when it is full. Faded with the fill, half see-through over the half see-through fill and its neighbour's, it drew a lighter line on every edge
+   and corner of the piece for the length of the fade (Lawrence) */
 .stk7[data-build]:not([data-lit]) :is(.s7-cube, .s7-ring)[data-new] polygon {
-  transition: fill .16s ease, stroke .16s ease, fill-opacity .84s cubic-bezier(.4, 0, .2, 1) .13s, stroke-opacity 0s linear .97s; }
-.stk7[data-build] .s7-cube[data-new] .s7-icon { transition: opacity .84s cubic-bezier(.4, 0, .2, 1) .13s; }
+  transition: fill .16s ease, stroke .16s ease, fill-opacity .86s cubic-bezier(.4, 0, .2, 1) .06s, stroke-opacity 0s linear .92s; }
+.stk7[data-build] .s7-cube[data-new] .s7-icon { transition: opacity .86s cubic-bezier(.4, 0, .2, 1) .06s; }
+/* going away (D203, Lawrence: less ease at the start): it fades and lifts off at once, quickest at the start and slowing to the end (--s7-leave, an
+   ease-out), at D136's pace; the fades were "ease", which starts slow */
+.stk7[data-build] .s7-cube:not([data-in]) { transition: transform .5s var(--s7-leave), opacity .4s var(--s7-leave); }
+.stk7[data-build] .s7-ring:not([data-in]) { transition: transform .56s var(--s7-leave), opacity .4s var(--s7-leave); }
+.stk7[data-build] :is(.s7-cube, .s7-ring):not([data-in]) :is(polygon, .s7-icon) {
+  transition: fill .16s ease, stroke .16s ease, fill-opacity .3s var(--s7-leave), stroke-opacity .3s var(--s7-leave), opacity .3s var(--s7-leave); }
 
 /* the list while the pinned band comes into frame (data-s7-pre): no row lit; 01 NEAR Protocol lights green as the text settles, with the pillar's drop
    (D127; D135: on the text's settling, not the band's landing) */
@@ -229,3 +261,14 @@ html[data-stk-in] .stk[data-enter="tide"]:not([data-entering]) .is-in :is(.stk-t
 .stk7[data-gl] { opacity: 0; }
 .stk-art > .s7-gl { position: absolute; pointer-events: none; display: block; }
 .stk-art > .s7-gl[hidden] { display: none; }
+
+/* ---------------------------------------------------------------- the list's line icons (D204, b11's; StackIconsV7 draws them, ../../v3/header/icons.ts)
+   20 px between the number and the name, nearer the name (b11: 12 px to the name). Hairline in the row's own colour (so it brightens with the row), at .9 as
+   on b11; one green dot, which turns to the row's ink on the selected row's green field so it never disappears there */
+[data-stack] .stk-ic { display: inline-block; flex: none; width: 20px; height: 20px; margin-right: calc(var(--space-3) - var(--space-5)); line-height: 0;
+  font-style: normal; color: inherit; opacity: .9; --ic-green: var(--color-green); }
+[data-stack] .stk-ic .ic { display: block; width: 100%; height: 100%; overflow: visible; }
+[data-stack] .stk-ic .ic-ln * { fill: none; stroke: currentColor; stroke-width: var(--ic-sw, 1.25); stroke-linecap: round; stroke-linejoin: round; }
+[data-stack] .stk-ic :is(.ic-dots circle, .ic-f) { fill: currentColor; stroke: none; }
+[data-stack] .stk-ic .ic-g { fill: var(--ic-green); stroke: none; transform-box: fill-box; transform-origin: center; }
+[data-stack]:not([data-s7-pre]) .stk-tab[aria-selected="true"] .stk-ic { --ic-green: currentColor; }

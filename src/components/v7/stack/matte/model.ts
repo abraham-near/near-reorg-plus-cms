@@ -54,16 +54,45 @@ export const CUBE_H = (TOP - BOTTOM) / CUBES;
 /* none between the pillar's cubes: together they read as one tall piece, no joints (D150, Lawrence; D149 had a hair, .8, a fine dark line at each) */
 const JOINT = 0;
 
-export type Piece = { key: string; layer: Layer; cube?: number; seg?: Seg; boxes: Box3[] };
+/* NEAR AI's beams (v2's axes), each matched to its box in the drawing's AI list (../geometry.ts, by its faces) */
+const AI_FRAME = frame("ai");
+const AI_BOX = AI.map(([, ...b]) => {
+  const k = b.map((f) => faceKey(f.split(" ").map((q) => q.split(",").map(Number)))).join("|");
+  return AI_FRAME.findIndex((x) => keyOf(x) === k);
+});
+/* D203 (Lawrence): a hovered NEAR AI box flashes only its piece: the boxes connected to it (face to face, within its product), as one; first built as
+   the straight bar alone, then "connected segments of near.ai should be treated as one piece, not individual". By the drawing's AI list: AI_BAR[i] is
+   box i's piece */
+const AX = ["x", "y", "z"] as const;
+const lo = (b: Box3, a: (typeof AX)[number]) => b[`${a}0`], hi = (b: Box3, a: (typeof AX)[number]) => b[`${a}1`];
+const near = (p: number, q: number) => Math.abs(p - q) < 0.6;
+/* face to face: end to end along one axis, overlapping across the other two */
+const touch = (b: Box3, c: Box3) =>
+  AX.some((a) => (near(hi(b, a), lo(c, a)) || near(hi(c, a), lo(b, a))) && AX.every((k) => k === a || Math.min(hi(b, k), hi(c, k)) - Math.max(lo(b, k), lo(c, k)) > 0.6));
+export const AI_BAR: number[][] = AI.map(([seg], i) => {
+  const out = new Set([i]);
+  for (let grew = true; grew; ) {
+    grew = false;
+    AI.forEach(([s], j) => {
+      if (s !== seg || out.has(j)) return;
+      if ([...out].some((k) => touch(AI_FRAME[AI_BOX[k]], AI_FRAME[AI_BOX[j]]))) { out.add(j); grew = true; }
+    });
+  }
+  return [...out].sort((p, q) => p - q);
+});
+
+/* svg: for NEAR AI's pieces, each box's place in the drawing's AI list (to flash a bar, D203) */
+export type Piece = { key: string; layer: Layer; cube?: number; seg?: Seg; boxes: Box3[]; svg?: number[] };
 export const PIECES: Piece[] = [
   ...Array.from({ length: CUBES }, (_, i): Piece => {
     const top = TOP - i * CUBE_H - (i ? JOINT / 2 : 0), bot = TOP - (i + 1) * CUBE_H + (i < CUBES - 1 ? JOINT / 2 : 0);
     return { key: `cube${i}`, layer: "protocol", cube: i, boxes: [{ x0: -P, x1: P, y0: bot, y1: top, z0: -P, z1: P }] };
   }),
   { key: "intents", layer: "intents", boxes: frame("intents").map(toThree) },
-  ...(["ironclaw", "cloud", "market"] as const).map((seg): Piece => ({
-    key: `ai-${seg}`, layer: "ai", seg, boxes: frame("ai").filter((b) => SEG.get(keyOf(b)) === seg).map(toThree),
-  })),
+  ...(["ironclaw", "cloud", "market"] as const).map((seg): Piece => {
+    const mine = AI_FRAME.map((b, k) => [b, k] as const).filter(([b]) => SEG.get(keyOf(b)) === seg);
+    return { key: `ai-${seg}`, layer: "ai", seg, boxes: mine.map(([b]) => toThree(b)), svg: mine.map(([, k]) => AI_BOX.indexOf(k)) };
+  }),
   { key: "com", layer: "com", boxes: frame("com").map(toThree) },
 ];
 /* every box, in pieces' order (the shader's occluders) */

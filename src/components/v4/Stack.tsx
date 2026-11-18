@@ -52,7 +52,8 @@ const ExtMark = () => (
  *  art: another drawing in place of v1's (home v6: ../v6/stack/StackArtV6.tsx, D124). enter "tide" (home v6, D132): the heading rises in under the rail's tide and the
  *  columns' text comes in line by line (../v6/stack/StackEnterV6.tsx, stack-v6.css). stick (home v6, D134): the steps hold with CSS sticky, not GSAP's pin
  *  (../v1/stack/motion.ts) */
-export function StackV4({ still = false, steps = false, art, enter, stick = false }: { still?: boolean; steps?: boolean; art?: ReactNode; enter?: "tide"; stick?: boolean }) {
+/** icons (home v7, D204): each row gets its layer's line icon between the number and the name (public/nav/icons, b11's; the v7 page mounts and draws them) */
+export function StackV4({ still = false, steps = false, art, enter, stick = false, icons = false }: { still?: boolean; steps?: boolean; art?: ReactNode; enter?: "tide"; stick?: boolean; icons?: boolean }) {
   return (
     <section className="stk stk--v4" id="stack" aria-labelledby="stack-title" data-stack="" data-still={still ? "" : undefined} data-steps={steps ? "" : undefined} data-enter={enter} data-stick={stick ? "" : undefined} data-tone="dark" data-nav-tone="dark" data-active-layer="protocol">
       <div className="stk-inner">
@@ -68,7 +69,7 @@ export function StackV4({ still = false, steps = false, art, enter, stick = fals
                 <div className="stk-list" data-rise="" role="tablist" aria-orientation="vertical" aria-label="The four layers">
                   {LAYERS.map((l, i) => (
                     <button key={l.key} type="button" role="tab" id={`stack-tab-${l.key}`} aria-controls={`stack-panel-${l.key}`} aria-selected={i === 0} tabIndex={i === 0 ? 0 : -1}
-                      className="stk-tab" data-key={l.key}><span className="stk-index" aria-hidden="true">{l.n}</span><span className="stk-tabName">{l.name}</span></button>
+                      className="stk-tab" data-key={l.key}><span className="stk-index" aria-hidden="true">{l.n}</span>{icons && <i className="stk-ic" data-icon={`near-${l.key}`} aria-hidden="true" />}<span className="stk-tabName">{l.name}</span></button>
                   ))}
                 </div>
                 <div className="stk-panels" data-rise="">

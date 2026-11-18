@@ -5,6 +5,7 @@ import { VIEWBOX, PILLAR, CUBES, INTENTS, COM, AI, COVERS, FRONT, type Box } fro
 import { TIPS, PRODUCTS } from "./tips";
 import { EDGES, UNDER_FRONT, fullEdges, type BoxEdges } from "./edges";
 import { StackMatteV7 } from "./StackMatteV7";
+import { AI_BAR } from "./matte/model";
 import "./stack-v7.css";
 
 // Home v6's Stack drawing (D124), after the near.org CMS preview's "The NEAR Stack": v1's drawing (same geometry, same greens) with
@@ -125,7 +126,8 @@ const SEG = AI.map(([seg]) => seg);
    before it, a notch at every joint along a straight edge; the outlines already leave out what the piece's later boxes hide, edges.ts) */
 const Ring = ({ k, only, mark }: { k: keyof typeof BOXES; only?: number[]; mark?: boolean }) => {
   const idx = only ?? BOXES[k].map((_, i) => i);
-  const at = (i: number) => ({ className: mark ? fb(k, i) : undefined, mask: mark && UNDER_FRONT[k].includes(i) ? "url(#stk7-nofront)" : undefined });
+  /* data-box: a NEAR AI box's place in the AI list, so a hover can flash just its bar (D203) */
+  const at = (i: number) => ({ className: mark ? fb(k, i) : undefined, mask: mark && UNDER_FRONT[k].includes(i) ? "url(#stk7-nofront)" : undefined, "data-box": k === "ai" ? i : undefined });
   const fill = (i: number) => { const e = EDGES[k][i]; return <g key={i} {...at(i)}>{BOXES[k][i].map((f, j) => (e.hide[j] ? null : <polygon key={j} className={FACE[j]} points={f} />))}</g>; };
   const line = (i: number) => <g key={`e${i}`} {...at(i)}><path className="s7-e" d={EDGES[k][i].e.join("")} /></g>;
   const piece = (ix: number[]) => [...ix.map(fill), ...ix.map(line)];
@@ -156,7 +158,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
     // ---- the build
     let cubesIn = 0, ringsIn = 0, built = false;
     /* a piece coming in (D135): its outline fades up as it drops, its green a beat later and slower (data-new, stack-v7.css); the mark goes once it has */
-    const NEW_MS = 1200, newT = new Map<Element, number>();
+    const NEW_MS = 1400, newT = new Map<Element, number>();
     const arrive = (e: Element, on: boolean) => {
       if (on && !e.hasAttribute("data-in")) {
         e.setAttribute("data-new", ""); window.clearTimeout(newT.get(e));
@@ -215,7 +217,9 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
         setBuilt();
         if (!built) setLit(null);
         const t2 = target();
-        if (t2.c !== cubesIn || t2.r !== ringsIn) stepping = window.setTimeout(go, t2.c > cubesIn ? 190 : t2.c < cubesIn ? 70 : 240);   /* the pillar's canned drop: a cube every 190 ms (D129; was 140), away at 70 */
+        /* the pillar's canned drop: a cube every 88 ms, a ring 128 ms after the last piece, so each comes in well before the one before it has settled
+           (D203, Lawrence: more overlap, then 20 % quicker; it was 110 and 160, and D129's 190 and 240 with a shorter arrival); away at 70 */
+        if (t2.c !== cubesIn || t2.r !== ringsIn) stepping = window.setTimeout(go, t2.c > cubesIn ? 88 : t2.c < cubesIn ? 70 : 128);
       };
       go();
     };
@@ -250,10 +254,22 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
 
     // ---- the highlight
     let spreadAt = 0;   /* when the pillar last began to part (its cubes move for .5 s: stack-v7.css) */
+    let unghostT = 0;
     let litKey = "", over = false, lastMove: PointerEvent | null = null;   /* the pointer's last place over the drawing: what to light once built, if it's resting there */
-    function setLit(kind: string | null, sub?: string) {
-      const key = kind ? `${kind}:${sub ?? ""}` : "";
+    /* bar: a NEAR AI box hovered (its place in the AI list): only its bar runs hot (D203) */
+    function setLit(kind: string | null, sub?: string, bar?: string) {
+      const key = kind ? `${kind}:${sub ?? ""}:${bar !== undefined && kind === "ai" ? AI_BAR[+bar].join(".") : ""}` : "";
       if (key === litKey) return; litKey = key;
+      /* NEAR AI's ghosts going dark (another piece lit): marked while they change, so they go to the gray in one smooth change (stack-v7.css, D203) */
+      /* and the other way: from the dark ring (another piece lit) onto one of them, the other two go straight from the dark to their ghost (data-ghostin) */
+      const was = svg!.getAttribute("data-lit");
+      clearTimeout(unghostT); svg!.querySelectorAll("[data-unghost], [data-ghostin]").forEach((e) => { e.removeAttribute("data-unghost"); e.removeAttribute("data-ghostin"); });
+      const mark = (attr: string, sel: string) => {
+        all(sel).forEach((e) => e.setAttribute(attr, ""));
+        unghostT = window.setTimeout(() => svg!.querySelectorAll(`[${attr}]`).forEach((e) => e.removeAttribute(attr)), 700);
+      };
+      if (svg!.hasAttribute("data-seg-lit") && kind && kind !== "ai") mark("data-unghost", ".s7-seg:not([data-on])");
+      if (kind === "ai" && sub && was && was !== "ai") mark("data-ghostin", `.s7-seg:not([data-seg="${sub}"])`);
       svg!.querySelectorAll("[data-on]").forEach((e) => e.removeAttribute("data-on"));
       if (kind) svg!.setAttribute("data-lit", kind); else svg!.removeAttribute("data-lit");
       if (kind === "ai" && sub) svg!.setAttribute("data-seg-lit", sub); else svg!.removeAttribute("data-seg-lit");
@@ -264,7 +280,10 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
       /* the newly lit piece runs hot for a moment, then settles to its own green (D130; stack-v7.css s7-hot) */
       svg!.querySelectorAll("[data-hot]").forEach((e) => e.removeAttribute("data-hot"));
       if (!kind || RM) return;
-      const hot = kind === "cube" ? `.s7-cube[data-cube="${sub}"]` : kind === "col" ? ".s7-col .s7-cube" : kind === "ai" && sub ? `.s7-seg[data-seg="${sub}"]` : `.s7-ring[data-ring="${kind}"]`;
+      /* a NEAR AI box: only its bar (D203, Lawrence: hovering one bar flashed every box of its product); its product still lights whole */
+      const hot = kind === "cube" ? `.s7-cube[data-cube="${sub}"]` : kind === "col" ? ".s7-col .s7-cube"
+        : kind === "ai" && sub && bar !== undefined ? AI_BAR[+bar].map((i) => `.s7-ring[data-ring="ai"] [data-box="${i}"]`).join(",")
+        : kind === "ai" && sub ? `.s7-seg[data-seg="${sub}"]` : `.s7-ring[data-ring="${kind}"]`;
       void svg!.getBoundingClientRect();   /* the old state seen, so the same piece lit again runs hot again */
       all(hot).forEach((e) => e.setAttribute("data-hot", ""));
     }
@@ -297,9 +316,9 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
       for (let i = 0; i < CUBES; i++) { const y0 = i * H + off(i); if (y >= y0 - k && y <= y0 + H + k) return i; }
       return -1;
     };
-    const hit = (e: PointerEvent): [string, string?] | null => {
+    const hit = (e: PointerEvent): [string, string?, string?] | null => {
       if (svg.hasAttribute("data-spread")) {
-        const p = toDrawing(e), lit = litKey.startsWith("cube:") ? Number(litKey.slice(5)) : -1;
+        const p = toDrawing(e), lit = litKey.startsWith("cube:") ? Number(litKey.split(":")[1]) : -1;
         /* the lit cube holds while the pointer is anywhere it has been on its way out (unparted to parted), so the end cubes, which move furthest, don't slip
            from under it. Once parted, the pointer on any part of another cube that shows takes it at once (D141, Lawrence: the hold ran on into the next
            cube, so the switch came late); the hold is left only for the gaps */
@@ -315,7 +334,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
       if (c && built) return ["cube", c.dataset.cube];
       const s = t?.closest<SVGElement>(".s7-ring[data-fill] .s7-seg");
       /* each box lights on its own and the others fade, a product or not (Lawrence, D152; D124 lit the whole ring for a box that is no product of its own) */
-      if (s) return ["ai", s.dataset.seg];
+      if (s) return ["ai", s.dataset.seg, t?.closest<SVGElement>("[data-box]")?.dataset.box];
       const r = t?.closest<SVGElement>(".s7-ring[data-fill]");
       if (r) return [r.dataset.ring!];
       return null;
@@ -364,7 +383,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
         if (/^(intents|ai|com):/.test(litKey) && nearRing(e)) { if (tip.hasAttribute("data-show")) showTip(tip.dataset.key!, e); return; }   /* in a gap: held */
         setLit(null); showTip(null, e); return;
       }
-      setLit(h[0], h[1]);
+      setLit(h[0], h[1], h[2]);
       /* a NEAR AI box that is no product of its own (tips.ts) shows the ring's box (IronClaw is never named, D4) */
       showTip(h[0] === "cube" ? `cube${h[1]}` : h[0] === "ai" && h[1] && !PRODUCTS.has(h[1]) ? "ai" : h[1] ?? h[0], e);
     };
@@ -379,7 +398,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
     art.addEventListener("pointerleave", onLeave);
 
     return () => {
-      window.clearTimeout(stepping); cancelAnimationFrame(raf); io?.disconnect(); moLayer.disconnect(); PINNED.removeEventListener("change", onPin);
+      window.clearTimeout(stepping); window.clearTimeout(unghostT); cancelAnimationFrame(raf); io?.disconnect(); moLayer.disconnect(); PINNED.removeEventListener("change", onPin);
       near?.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll);
       art.removeEventListener("pointermove", onMove); art.removeEventListener("pointerover", onMove); art.removeEventListener("pointerleave", onLeave); svg.removeEventListener("animationend", onHotEnd);
       svg.removeAttribute("data-build"); root.removeAttribute("data-s7-pre"); art.removeAttribute("data-tip");

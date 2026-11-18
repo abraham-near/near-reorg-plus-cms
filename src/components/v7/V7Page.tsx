@@ -17,6 +17,7 @@ import { WorldV7, type HeroAlt } from "./World";
 import { WorldPrivate } from "./private/WorldPrivate";
 import { StackArtV7 } from "./stack/StackArtV7";
 import { StackEnterV7 } from "./stack/StackEnterV7";
+import { StackIconsV7 } from "./stack/StackIconsV7";
 import type { TxKey } from "./tx";
 import type { StKey } from "./intro";
 import "../v3/buttons.css";
@@ -45,7 +46,8 @@ const ORIGIN_RATIO = "4/3" as const;   /* v5's Origin photo (revenue option A's 
  *  top: "private" (home v8, Lawrence's branch NEAR-is-private-CYCLE, D200): the hero and the intro merged into one type-only section (./private), in place of both;
  *  "privacy" (home v9, branch NEAR-is-privacy-HEADLINE, D202): the same section with one still headline and two sentences under it.
  *  With `top`, the page below is those branches' too: the signed identity in the rail (D189), Origin above Go deeper (D179), the black-and-white photos
- *  (D170, D171), the voices one at a time (D190) and the mailboxes (D199); html[data-v7="priv"] scopes their styles (./v7.css). Without it: home v7 as on main */
+ *  (D170, D171), the voices one at a time (D190) and the mailboxes (D199), and the Stack list's animated icons (D204); html[data-v7="priv"] scopes their
+ *  styles (./v7.css). Without it: home v7 as on main */
 export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy" } = {}) {
   const priv = !!top;
   const photos = { ...(priv ? PHOTOS : {}), ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) };
@@ -58,7 +60,7 @@ export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKe
       <InlineScript html={`document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')${priv ? ";document.documentElement.setAttribute('data-v7','priv')" : ""}`} />
       <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} /> : <WorldV7 tx={tx} st={st} hero={hero} />}
         rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity={priv ? "sign" : undefined} />}
-        stack={<StackV4 still steps stick enter="tide" art={<><StackArtV7 look="matte" /><StackEnterV7 /></>} />}
+        stack={<StackV4 still steps stick enter="tide" icons={priv} art={<><StackArtV7 look="matte" /><StackEnterV7 />{priv && <StackIconsV7 />}</>} />}
         afterStack={<ProofDeeper content={deeper} />} footer={<V3Footer />} />
     </>
   );

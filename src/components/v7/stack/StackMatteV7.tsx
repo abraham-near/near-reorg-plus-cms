@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type * as THREE_NS from "three";
 import { VIEWBOX } from "./geometry";
+import { PIECES as MODEL } from "./matte/model";
 
 // Home v6's Stack, lit matte (D149): the drawing (StackArtV7) still runs everything (the build, the hover, the parting, the hover box, the list's rows)
 // and still takes the pointer, but it is not seen: a three.js canvas over it draws the same pieces lit (./matte/gl.ts). Each frame something moves, the
@@ -84,7 +85,7 @@ export function StackMatteV7() {
       const base = svg.querySelector(".s7-base")!, front = svg.querySelector(".s7-front")!;
       const ring = (k: string) => svg.querySelector<SVGGElement>(`:scope > .s7-ring[data-ring="${k}"]`)!;
       const rings = { intents: ring("intents"), ai: ring("ai"), com: ring("com") };
-      const states = PIECES.map(() => ({ dy: 0, alpha: 1, present: 1, top: false, lift: 0, dark: 0, line: 0, color: new THREE.Color() }));
+      const states = PIECES.map(() => ({ dy: 0, alpha: 1, present: 1, top: false, lift: 0, dark: 0, line: 0, color: new THREE.Color(), hot: [] as number[], hotColor: new THREE.Color() }));
       const sample = () => {
         /* the pillar: the copy that shows (the front one while parted or lit whole, else the one drawn in) */
         const copy = num(cs(front).opacity, 0) > 0.5 ? front : base;
@@ -102,8 +103,9 @@ export function StackMatteV7() {
           /* a ghost cube's .72; arriving, its fade is the cube's own (the green's is later, for the outline), solid by a third of it (see-through for longer, a
              falling cube read as smoked glass: the drawing has its outline then, D149 critic). The hovered cube solid at once (easing out of see-through read
              as milky glass); the ghosts, closing, solid well before the green has come back (the rings green around a glass pillar, D149 critic) */
+          /* D203 (Lawrence): arriving, the outline first (the wireframe: the line below, drawn with or without the body), then the body as the green fills in */
           const gh = Math.min(1, (1 - fo) / 0.28);
-          st.alpha = arriving ? Math.min(1, o * 3) : st.top ? o : spread ? o * fo : o * (1 - 0.28 * gh * gh * gh);
+          st.alpha = arriving ? Math.min(o, fo) : st.top ? o : spread ? o * fo : o * (1 - 0.28 * gh * gh * gh);
           paintOf(cs(l).fill, "protocol", st.color); st.lift = dark * LIFT; st.dark = floor;
           /* its outline as the drawing has it (its fade in comes first, D135; ghost .4, the hovered cube .46, the hot flash) */
           const e = g.querySelector(".s7-e"); st.line = o * (e ? num(cs(e).strokeOpacity, 0.36) : 0.36);
@@ -112,19 +114,28 @@ export function StackMatteV7() {
         (["intents", "ai", "com"] as const).forEach((k) => {
           const r = rings[k], o = num(cs(r).opacity), dy = ty(r);
           const parts = k === "ai" ? (["ironclaw", "cloud", "market"] as const).map((s) => r.querySelector(`.s7-seg[data-seg="${s}"]`)!) : [r];
+          const arriving = svg.hasAttribute("data-build") && (!r.hasAttribute("data-in") || r.hasAttribute("data-new"));   /* D203: its wireframe first, as a cube's */
           parts.forEach((p, j) => {
             const st = states[k === "intents" ? 6 : k === "ai" ? 7 + j : 10];
             st.dy = dy; st.present = o;
             /* a dark ring solid (the drawing has it a little see-through, .84, to show the pillar behind it faintly; lit, the ghost pillar through graphite
                read murky, D149 critic) */
-            st.alpha = Math.min(1, o * 2.5) * (k === "ai" ? num(cs(p).opacity) : 1);   /* arriving: see-through briefly (the pillar showed through, D149 critic) */
-            paintOf(cs(p.querySelector(".s7-l")!).fill, k, st.color); st.lift = dark * LIFT; st.dark = floor;
+            const fo = arriving ? num(cs(p.querySelector(".s7-l")!).fillOpacity) : 1;
+            st.alpha = (arriving ? Math.min(o, fo) : Math.min(1, o * 2.5)) * (k === "ai" ? num(cs(p).opacity) : 1);
+            /* its paint from a box not running hot; a hovered NEAR AI box's bar runs hot alone (D203): those boxes, painted from one of theirs */
+            const hotBoxes = k === "ai" ? [...p.querySelectorAll<SVGGElement>(":scope > [data-box][data-hot]")] : [];
+            const base = (hotBoxes.length && p.querySelector(":scope > [data-box]:not([data-hot]) > .s7-l")) || p.querySelector(".s7-l")!;
+            paintOf(cs(base).fill, k, st.color); st.lift = dark * LIFT; st.dark = floor;
+            const svgIx = MODEL[states.indexOf(st)].svg ?? [];
+            st.hot = [...new Set(hotBoxes.map((g) => svgIx.indexOf(Number(g.dataset.box))))].filter((j) => j >= 0).sort((a, b) => a - b);
+            const hp = hotBoxes.map((g) => g.querySelector("polygon")).find(Boolean);
+            if (st.hot.length && hp) paintOf(cs(hp).fill, k, st.hotColor);
             const e = p.querySelector(".s7-e"); st.line = o * (k === "ai" ? num(cs(p).opacity) : 1) * (e ? num(cs(e).strokeOpacity, 0.36) : 0.36);
           });
         });
         return { pieces: states, mark, joined: !spread };
       };
-      const keyOf = (s: ReturnType<typeof sample>) => s.mark.toFixed(3) + +s.joined + s.pieces.map((p) => `${p.dy.toFixed(2)},${p.alpha.toFixed(3)},${p.present.toFixed(3)},${+p.top},${p.lift.toFixed(4)},${p.dark.toFixed(3)},${p.line.toFixed(3)},${p.color.getHexString()}`).join("|");
+      const keyOf = (s: ReturnType<typeof sample>) => s.mark.toFixed(3) + +s.joined + s.pieces.map((p) => `${p.dy.toFixed(2)},${p.alpha.toFixed(3)},${p.present.toFixed(3)},${+p.top},${p.lift.toFixed(4)},${p.dark.toFixed(3)},${p.line.toFixed(3)},${p.color.getHexString()},${p.hot.join(".")}:${p.hot.length ? p.hotColor.getHexString() : ""}`).join("|");
 
       /* the canvas over the drawing: its viewBox where the svg shows it (meet: centred), plus room above and below for what moves past it */
       let size = "";
@@ -140,7 +151,7 @@ export function StackMatteV7() {
       };
 
       /* drawn only when something moves: a transition or animation starting in the drawing, or a state change, keeps the loop going a while (the
-         longest the drawing has is the green's .13 + .84 s, and the arrival mark's 1.2 s) */
+         longest the drawing has is a ring's .96 s settle, and the arrival mark's 1.4 s: D203) */
       let last = "", raf = 0, until = 0;
       const tick = () => {
         raf = 0;
@@ -148,7 +159,7 @@ export function StackMatteV7() {
         if (k !== last) { last = k; gl.render(s); }
         if (performance.now() < until) raf = requestAnimationFrame(tick);
       };
-      const kick = () => { until = Math.max(until, performance.now() + 1400); if (!raf) raf = requestAnimationFrame(tick); };
+      const kick = () => { until = Math.max(until, performance.now() + 1600); if (!raf) raf = requestAnimationFrame(tick); };
       const mo = new MutationObserver(kick);
       mo.observe(svg, { attributes: true, subtree: true, attributeFilter: ["data-in", "data-new", "data-fill", "data-lit", "data-spread", "data-on", "data-hot", "data-seg-lit", "data-build"] });
       const ev = ["transitionrun", "transitionstart", "animationstart"] as const;

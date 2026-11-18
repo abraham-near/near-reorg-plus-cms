@@ -29,7 +29,8 @@ const KEY = { at: new THREE.Vector3(-60, 320, 30), size: 640, I: 4.15 };
    everything (the hovered cube, D129), its paint */
 /* lift: an even glow, for a piece put back (graphite), so its faces in the shade don't go black */
 /* line: its outline, as strong as the drawing has it (D150) */
-export type PieceState = { dy: number; alpha: number; present: number; top: boolean; lift: number; dark: number; line: number; color: THREE.Color };
+/* hot: a NEAR AI bar running hot alone (D203): its boxes (by their place in the piece), painted hotColor */
+export type PieceState = { dy: number; alpha: number; present: number; top: boolean; lift: number; dark: number; line: number; color: THREE.Color; hot: number[]; hotColor: THREE.Color };
 export type MatteGL = {
   /* joined: the pillar's cubes together, outlined as one piece */
   render: (s: { pieces: PieceState[]; mark: number; joined: boolean }) => void;
@@ -162,6 +163,12 @@ const PARS_F = /* glsl */ `
 uniform vec4 uKey;           // the key: its centre, w its half width (a square, facing down)
 uniform float uFloor;        // the least light a piece takes (the hovered cube, over everything, isn't left in the shade)
 uniform float uDark;         // how far the piece is put back (graphite): its faces kept at least this light, lit or not, so none sinks into the band
+uniform float uSelf;         // the piece this is (as the vertex shader's)
+uniform float uHotPiece;     // D203: the piece with a bar running hot alone (-1 none), the bar's boxes (low and high corners, in the world), its paint
+uniform int uHotN;
+uniform vec3 uHotLo[6];
+uniform vec3 uHotHi[6];
+uniform vec3 uHotCol;
 /* the key's light on a face, exactly: the part of the key in front of the face (a rectangle still), its form factor from its four edges. three.js's area
    light estimates a light partly behind a face, and over-lights the side faces just under the key (the pillar's top cube read a third too bright beside
    the path-traced still; D149 critic) */
@@ -189,6 +196,7 @@ function paint(opts: THREE.MeshPhysicalMaterialParameters, uni: Record<string, T
       .replace("#include <project_vertex>", "#include <project_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWNor = normalize(mat3(modelMatrix) * objectNormal);\nvVis = sVis(vWPos, vWNor, vBounce);");
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", "#include <common>\nvarying vec3 vWPos;\nvarying vec3 vWNor;\nvarying vec4 vVis;\nvarying vec3 vBounce;\n" + PARS_F)
+      .replace("#include <color_fragment>", "#include <color_fragment>\nif (abs(uSelf - uHotPiece) < 0.5) { float sH = 0.0; for (int b = 0; b < 6; b++) { if (b >= uHotN) break; if (all(greaterThan(vWPos, uHotLo[b] - 0.05)) && all(lessThan(vWPos, uHotHi[b] + 0.05))) sH = 1.0; } diffuseColor.rgb = mix(diffuseColor.rgb, uHotCol, sH); }")
       .replace("#include <lights_fragment_begin>", "vec3 sN = normalize(vWNor);\n/* a top under a parted cube: shaded, but not to a hole (D149 critic) */\nfloat sUp = step(0.5, sN.y);\nvec4 sV = vVis;\nfloat sO = max(sV.w, max(uFloor, 0.55 * sUp));\nvec3 sL = max(sV.xyz, vec3(max(uFloor, 0.45 * sUp), vec2(max(uFloor, 0.55 * sUp))));\n#include <lights_fragment_begin>")
       .replace("#include <aomap_fragment>", "reflectedLight.indirectDiffuse = reflectedLight.indirectDiffuse * sO + vBounce * BRDF_Lambert(material.diffuseColor);\nreflectedLight.indirectSpecular *= sO;")
       /* graphite's floor, per face, worked back through the tone mapping to tops #3a, left faces #30, right faces #18 on the band: grey added only as far as
@@ -309,6 +317,8 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
     /* the room's sky and ground, as the shader has them (linear) */
     uHemi: { value: new THREE.Vector2(hemi.color.r, hemi.groundColor.r) },
     uRad: { value: rad }, uAlb: { value: alb },
+    uHotPiece: { value: -1 }, uHotN: { value: 0 }, uHotCol: { value: new THREE.Vector3() },
+    uHotLo: { value: Array.from({ length: 6 }, () => new THREE.Vector3()) }, uHotHi: { value: Array.from({ length: 6 }, () => new THREE.Vector3()) },
   };
   /* each piece: its mesh, and its boxes' places in the shader's list */
   let bi = 0;
@@ -427,11 +437,24 @@ export async function createMatte(canvas: HTMLCanvasElement, markUrl: string): P
         if (i === 0) { markMat.depthTest = !s.top; mark.renderOrder = s.top ? 31 : 25; }
         /* its outline: the pillar's cubes one piece while together */
         const im = idMeshes[i];
-        im.mesh.position.y = m.mesh.position.y; im.mesh.visible = m.mesh.visible; im.mesh.renderOrder = m.mesh.renderOrder;
+        /* drawn for its outline even while its body is still clear (D203: a piece arrives as a wireframe, then fills in) */
+        im.mesh.position.y = m.mesh.position.y; im.mesh.visible = m.mesh.visible || s.line > 0.002; im.mesh.renderOrder = m.mesh.renderOrder;
         im.mat.depthFunc = s.top ? THREE.AlwaysDepth : THREE.LessEqualDepth;
         im.mat.uniforms.uId.value = joined && i < 6 ? 1 : i + 2;
         im.mat.uniforms.uLine.value = Math.min(1, Math.max(0, s.line));
       });
+      /* a bar running hot alone (D203): its boxes where they are now */
+      const hi = pieces.findIndex((s) => s.hot.length);
+      uni.uHotPiece.value = hi; uni.uHotN.value = 0;
+      if (hi >= 0) {
+        const m = meshes[hi], s = pieces[hi];
+        s.hot.slice(0, 6).forEach((j, n) => {
+          const c = boxC[m.first + j], h = boxH[m.first + j];
+          uni.uHotLo.value[n].set(c.x - h.x, c.y - h.y, c.z - h.z); uni.uHotHi.value[n].set(c.x + h.x, c.y + h.y, c.z + h.z);
+          uni.uHotN.value = n + 1;
+        });
+        uni.uHotCol.value.set(s.hotColor.r, s.hotColor.g, s.hotColor.b);
+      }
       markMat.opacity = markA;
       mark.visible = markA > 0.002;
       renderer.setRenderTarget(ids); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(idScene, cam); renderer.setRenderTarget(null);

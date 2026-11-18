@@ -33,3 +33,10 @@ html[data-home="v5"] .rs__art[data-art="identity"] .v2 svg { transform: scale(1.
 
 /* the playhead's square over every tile that lands in it (D128): the stations' tiles (.rs__track, z 5) and NEAR's (z 4) grow up behind its outline, never over it */
 .layer[data-square="early"] .rs__play { z-index: 6; }
+
+/* the rail's isometric drawings 10 % smaller (D205, Lawrence: "can we make all these isometric images on the horizontal scroll 10% smaller"): the four
+   stations', the problem's and the static page's. Each is drawn smaller from its foot (bottom centre, where it stands over the line), not its box, so the
+   boxes, the spacing and everything layer.ts measures stay as they are. Home v7 only (its rail is the one with identity="sign") */
+html[data-home="v5"] .layer[data-identity="sign"] :is(.rs__art, .rs__gate, .rail__art) .v2 { scale: .9; transform-origin: 50% 100%; }
+/* ... intelligence's centring (above) shrinks with its drawing */
+html[data-home="v5"] .layer[data-square="early"][data-identity="sign"] .rs__art[data-art="intelligence"] { translate: calc(.9 * .0267 * min(var(--art-w), var(--art-h) * 1.401)) 0; }
