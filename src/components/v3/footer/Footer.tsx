@@ -2,7 +2,7 @@
 // v3's footer: b10's (near-homepage-directions /b10, js/footer.js "dark", the b8 composition), on our black. In normal flow after the page (no takeover).
 // Top to bottom: the client's line with Get started · Products and Stack as six rows (icon, name, arrow) · five link columns · the socials with their icons,
 // Back to top · ©, the legal links · the big `near`, which fills in once on arrival and has a short matte depth that leans toward the pointer (motion.ts).
-// Copy: the client's, verbatim (nav-data.ts FOOTER, SiteFooter.tsx); socials from the brief.
+// Copy: the client's, verbatim (nav-data.ts FOOTER, SiteFooter.tsx), except the line: "Privacy for agents and assets." in one face, no accent word (D208, Lawrence); socials from the brief.
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
 import { mount } from "./motion";
@@ -31,7 +31,7 @@ const COLS: [string, Link[]][] = [
 const LEGAL: Link[] = [{ name: "Terms of Use", href: "/terms" }, { name: "Privacy Policy", href: "/privacy" }, { name: "Cookie Policy", href: "/cookies" }, { name: "Official Rules", href: "/official-rules" }];
 const SOCIAL: [string, string][] = [["X", "https://x.com/nearprotocol"], ["YouTube", "https://www.youtube.com/@NEARProtocol"], ["GitHub", "https://github.com/near"],
   ["Reddit", "https://www.reddit.com/r/nearprotocol/"], ["Telegram", "https://t.me/cryptonear"], ["Discord", "https://near.chat/"]];
-const UI = { line: "Where money actually", accent: "moves.", cta: "Get started", ctaU: "https://near.com", copy: "© 2026 NEAR. All rights reserved.", top: "Back to top", ext: " (another NEAR site)" };
+const UI = { line: "Privacy for agents and assets.", cta: "Get started", ctaU: "https://near.com", copy: "© 2026 NEAR. All rights reserved.", top: "Back to top", ext: " (another NEAR site)" };
 
 const Sr = ({ h }: { h: string }) => (ext(h) ? <span className="sr-only">{UI.ext}</span> : null);
 const Ext = () => (
@@ -70,7 +70,7 @@ export function V3Footer() {
     <footer ref={ref} className="b10f" id="footer" data-footer="dark">
       <div className="b10f-in">
         <div className="b10f-head b10f-rv">
-          <p className="b10f-line">{words(UI.line, 0)} <span className="accent">{words(UI.accent, UI.line.split(" ").length)}</span></p>
+          <p className="b10f-line">{words(UI.line, 0)}</p>
           <a className="b10f-cta" href={UI.ctaU} target="_blank" rel="noopener" style={ms(420)}>
             <span className="b10f-cta-l">{UI.cta}</span>
             <svg className="b10f-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>

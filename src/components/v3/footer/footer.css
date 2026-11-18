@@ -57,7 +57,7 @@ html[data-close-cover] .b10f { margin-top: -100vh; }
 /* ---------------------------------------------------------------- head: the client's line · Get started */
 .b10f-head { align-items: center; padding: 0 var(--f-inset) var(--s120); }
 .b10f-line { grid-column: 1 / span 9; padding: 0.06em 0 0.16em; margin: -0.06em 0 -0.16em;
-  font-family: var(--sans); font-weight: 500; font-size: var(--t-h2s); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--f-fg); }
+  font-family: var(--sans); font-weight: 500; font-size: var(--t-h2s); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--f-fg); text-wrap: balance; }   /* D208: no lone "assets." when it wraps */
 .b10f-w { display: inline-block; line-height: var(--t-h2s-lh); } /* one box per word, on the baseline; no mask: the words rise and fade in, so no letter is clipped */
 .b10f-wi { display: inline-block; }
 /* Get started (b10's .btn.btn-lg): a 48 px paper pill; hover: the green dot opens before the label, the label steps right, the arrow steps on */
