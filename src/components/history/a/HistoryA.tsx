@@ -1,5 +1,5 @@
 "use client";
-// near.org/about (History), version A · "Ruled grid": the page read as an archival record, on the homepage's ruled grid (v3/proof-deeper: ruled rows that
+// near.org/history (History), version A · "Ruled grid": the page read as an archival record, on the homepage's ruled grid (v3/proof-deeper: ruled rows that
 // draw in, + crosshairs where the rules meet, the full-bleed photo that opens to the whole screen) with Blog J's ruled hero and its bar, and NEAR Foundation's
 // Council band on the Stack's dark. Mono labels, one green, the Kepler word once per heading. From the top:
 //   1 hero: Blog J's ruled head (the H1 | the subhead and the two actions), its bar (on this page · the record's range), then the index: one cell per year,

@@ -11,16 +11,21 @@ const nextConfig: NextConfig = {
   async headers() {
     const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     if (process.env.SITE_INDEXABLE !== "true") return [{ source: "/:path*", headers: noindex }];
-    return ["/admin/:path*", "/api/:path*", "/cms/:path*", "/extra", "/index", "/home-v:n", "/post-:v(a|b|c)", "/analytics-:v", "/community-:v", "/about-:v", "/economics-:v", "/foundation-:v"]
+    return ["/admin/:path*", "/api/:path*", "/cms/:path*", "/extra", "/index", "/home-v:n", "/post-:v(a|b|c)", "/analytics-:v", "/community-:v", "/history-:v", "/economics-:v", "/foundation-:v"]
       .map((source) => ({ source, headers: noindex }));
   },
-  // Old addresses of pages that moved: Foundation E is the Foundation page now (/near-foundation; versions A–D and F were removed), the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/") and the first Analytics C; Analytics B is /analytics (/analytics-c is a new version now)
+  // Old addresses of pages that moved: Foundation E is the Foundation page now (/near-foundation; versions A–D and F were removed), the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/") and the first Analytics C; Analytics C is /analytics (B is back at /analytics-b), Economics A is /economics, History C is /history (it was /about; A and B are /history-a, -b), Community B is /community
   async redirects() {
     return [
       { source: "/foundation", destination: "/near-foundation", permanent: true },
       { source: "/foundation-:v([a-f])", destination: "/near-foundation", permanent: true },
       { source: "/blog-:v([a-l])", destination: "/blog", permanent: true },
-      { source: "/analytics-b", destination: "/analytics", permanent: true },
+      { source: "/analytics-c", destination: "/analytics", permanent: true },
+      { source: "/economics-a", destination: "/economics", permanent: true },
+      { source: "/about", destination: "/history", permanent: true },
+      { source: "/about-c", destination: "/history", permanent: true },
+      { source: "/about-:v(a|b)", destination: "/history-:v", permanent: true },
+      { source: "/community-b", destination: "/community", permanent: true },
       { source: "/home-v:v([1-6])", destination: "/", permanent: true },
       { source: "/home-v:v([1-6])/:path*", destination: "/", permanent: true },
     ];

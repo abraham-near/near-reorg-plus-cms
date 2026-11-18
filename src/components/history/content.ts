@@ -1,6 +1,6 @@
-// near.org/about ("History — From 2017 to now" in the header's Fundamentals menu), the copy for the History page versions (/about-a, -b, -c:
+// near.org/history ("History — From 2017 to now" in the header's Fundamentals menu), the copy for the History page versions (/history-a, -b, -c:
 // components/history/<letter>). The October 2026 doc (near.org-airnauts (7)) has no page copy for it: the sitemap says "Redirect
-// https://www.near.org/roadmap-history to near.org/about", so the timeline is the live roadmap-history page's milestones, kept close to its
+// https://www.near.org/roadmap-history to near.org/about" (the page is /history now), so the timeline is the live roadmap-history page's milestones, kept close to its
 // wording, and the opening / today / ahead lines are adapted from the doc's "Anthem Video" narrative beats (Illia's talking points), turned
 // into page copy (not quoted). [[TBD]] marks what is still open: the exact month of each milestone, and the photos.
 

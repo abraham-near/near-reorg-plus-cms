@@ -1,4 +1,4 @@
-/* History B ("Drawn", HistoryB.tsx, /about-b): the Foundation page's hand on v3's ruled grid (proof-deeper.css: .l-page tokens, .l-row, .l-cell, the +
+/* History B ("Drawn", HistoryB.tsx, /history-b): the Foundation page's hand on v3's ruled grid (proof-deeper.css: .l-page tokens, .l-row, .l-cell, the +
    crosshairs), the drawings in Community B's iso hand. Everything scoped under .hi-b. Motion states are keyed to .l-page[data-motion] (the grid's
    motion sets it unless reduced motion) or to classes the motion adds (is-ready, is-road); without them every section is simply finished. */
 .hi-b { background: var(--paper-0); overflow-x: clip; --hb-mono: var(--font-montreal-mono), ui-monospace, monospace;

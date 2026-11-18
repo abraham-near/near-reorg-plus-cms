@@ -1,10 +1,10 @@
 "use client";
 // near.org/analytics, version C · "Ruled grid": the page built from the lower half of the homepage (v3/proof-deeper: ruled rows that draw in, + crosshairs,
 // the proof strip under its green rule, the full-bleed photo that opens to the whole screen, Get into NEAR's ink rows) with Blog J's ruled hero and its bar,
-// and NEAR Foundation's Council band on the Stack's dark. Where A is an open overview and B an instrument panel, C reads like the homepage. From the top:
+// and revenue | the network on the paper. Where A is an open overview and B an instrument panel, C reads like the homepage. From the top:
 //   1 hero: Blog J's ruled head (the H1 | the subhead); its bar holds the status line and a 24h / 30d switch for the figures' change;
 //   2 core stats: the homepage's proof strip, all five figures under the green rule, each with its line icon, counting up once; the sample note under it;
-//   3 revenue | network status, side by side on the dark band (the Council's): the hero % over sixteen weekly bars | the four services as one 60-day matrix;
+//   3 revenue | network status, side by side on the paper: the hero % over sixteen weekly bars | the four services as one 60-day matrix;
 //   4 Go deeper: the heading cell beside the eight tools as two columns of Go deeper's tiles (glyph, domain, name, line, an arrow on hover);
 //   5 Get exposure to NEAR: the head, SVRN on the full-bleed ridges (opens to the whole screen as it arrives), the ETPs & Trusts as Get into NEAR's ink rows;
 //   6 the legal line closes the grid.
@@ -39,7 +39,7 @@ const Arrow = () => (
 const Ext = () => (
   <svg className="l-ext" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" /></svg>
 );
-const Sample = ({ dark }: { dark?: boolean }) => <span className={`ac-tag${dark ? " is-dark" : ""}`}>Sample</span>;
+const Sample = () => <span className="ac-tag">Sample</span>;
 const ExtSr = () => <span className="sr-only"> (opens another site)</span>;
 
 /** a figure that counts once (motion.ts): the ghost holds the final width, the live copy counts, the screen reader reads the value */
@@ -162,11 +162,11 @@ export function AnalyticsC() {
         </div>
       </section>
 
-      {/* ───────────── 3 · revenue | network status, on the dark band */}
-      <section className="l-sec ac-dark" aria-label="Revenue and network health">
+      {/* ───────────── 3 · revenue | network status, on the paper */}
+      <section className="l-sec ac-band" aria-label="Revenue and network health">
         <div className="l-row ac-pair" data-row="">
           <article className="l-cell ac-card ac-rev" aria-labelledby="ac-rev-t">
-            <p className="ac-card__k" data-rv=""><span><i className="ac-sq" aria-hidden="true" />{REVENUE.eyebrow}</span><Sample dark /></p>
+            <p className="ac-card__k" data-rv=""><span><i className="ac-sq" aria-hidden="true" />{REVENUE.eyebrow}</span><Sample /></p>
             <h2 id="ac-rev-t" className="ac-card__h" data-rv="">{REVENUE.h}</h2>
             <p className="ac-card__b" data-rv="">{REVENUE.body}</p>
             <div className="ac-rev__fig" data-rv="">
@@ -182,7 +182,7 @@ export function AnalyticsC() {
           </article>
 
           <article className="l-cell ac-card ac-st" id="status" aria-labelledby="ac-st-t">
-            <p className="ac-card__k" data-rv=""><span><i className="ac-sq" aria-hidden="true" />{STATUS.eyebrow}</span><Sample dark /></p>
+            <p className="ac-card__k" data-rv=""><span><i className="ac-sq" aria-hidden="true" />{STATUS.eyebrow}</span><Sample /></p>
             <h2 id="ac-st-t" className={`ac-card__h ac-st__h${ok ? "" : " is-issue"}`} data-rv=""><i className="ac-pulse" aria-hidden="true" />{STATUS.h[STATUS.health]}</h2>
             <p className="ac-card__b" data-rv="">Mainnet, RPC, testnet and explorer, day by day.</p>
             <ul className="ac-mx" aria-label="60-day uptime by service">

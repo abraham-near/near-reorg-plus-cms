@@ -5,7 +5,7 @@ import { HistorySwitch } from "@/components/history/HistorySwitch";
 import { CLOSE, HERO } from "@/components/history/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
-// near.org/about (History), version B: "Drawn" (components/history/b), on v3's shell, closing with the homepage's scene. Copy: components/history/content.ts.
+// near.org/history (History), version B: "Drawn" (components/history/b), on v3's shell, closing with the homepage's scene. Copy: components/history/content.ts.
 export const metadata: Metadata = {
   title: "History",
   description: HERO.sub,

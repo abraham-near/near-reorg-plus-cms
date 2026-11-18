@@ -17,7 +17,7 @@ export function siteOrigin(): URL {
 }
 
 /** Never indexed, even at launch: the explorations and their lists, the work copy of the homepage, the CMS. Same patterns as next.config.ts headers() */
-export const NEVER_INDEXED = ["/admin", "/api", "/cms", "/extra", "/index", "/home-v", "/post-a", "/post-b", "/post-c", "/analytics-", "/community-", "/about-", "/economics-", "/foundation"];
+export const NEVER_INDEXED = ["/admin", "/api", "/cms", "/extra", "/index", "/home-v", "/post-a", "/post-b", "/post-c", "/analytics-", "/community-", "/history-", "/economics-", "/foundation"];
 
 /** a page's Open Graph: Next replaces the layout's openGraph with a page's own, so every page starts from the same base (the picture comes from
  *  app/(site)/opengraph-image.jpg unless the page has one) */

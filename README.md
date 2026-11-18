@@ -14,7 +14,10 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c` shows A or C. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
-| `/analytics` | **Analytics**: B (Instrument panel). Sample figures until the live feed lands. | `src/components/analytics/b` |
+| `/analytics` | **Analytics**: C (Ruled grid). Sample figures until the live feed lands. | `src/components/analytics/c` |
+| `/economics` | **Economics**: A (Ruled grid), from the October 2026 doc. | `src/components/economics/a` |
+| `/history` | **History** ("From 2017 to now" in the menu): C (Editorial). | `src/components/history/c` |
+| `/community` | **Community**: B (Drawn), from the October 2026 doc. Sample figures and events. | `src/components/community/b` |
 | `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
 | any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
 | `/index`, `/extra` | The two lists of pages (see below). | `src/app/(site)/index`, `src/app/(site)/extra` |
@@ -22,7 +25,8 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 Explorations that still have their own routes are listed at `/extra`:
 - the blog post layouts `/post-a`, `/post-b` and `/post-c`;
-- Analytics A at `/analytics-a`.
+- Analytics A, B, D and E at `/analytics-a`, `/analytics-b`, `/analytics-d`, `/analytics-e`;
+- Economics B and C at `/economics-b`, `/economics-c`, History A and B at `/history-a`, `/history-b`, and Community A and C at `/community-a`, `/community-c`.
 
 ### What changed (November 2026)
 
@@ -35,9 +39,9 @@ Explorations that still have their own routes are listed at `/extra`:
   - Foundation A, B, C, D and F (`/foundation`, `/foundation-b`…`-f` redirect to `/near-foundation`).
 - **Moved pages:**
   - Foundation E moved to `/near-foundation`. It now has F's pillars and F's Council, and no badges on its drawings. It still uses a few of B's and C's pieces (`foundation/b`, `foundation/c`).
-  - Analytics B is `/analytics`, and A moved to `/analytics-a`.
+  - Analytics C (the ruled grid) is `/analytics`; B is back at `/analytics-b`, A is at `/analytics-a`, and `/analytics-c` redirects to `/analytics`.
   - Old addresses redirect: see `redirects()` in `next.config.ts`.
-- **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, Contact → `/contact`.
+- **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, History → `/history`, Economics → `/economics`, Community → `/community`, Contact → `/contact`.
 - **Type:** every h1, h2 and h3 sets its words in PP Neue Montreal Book and its accent in Kepler Std Medium Condensed Italic Display, as in the hero (see "Building a page").
 - **Contact:** rebuilt as about + form + social links.
 - **Hero film:** home v7's film is served from the media bucket (see "Big media").
@@ -164,7 +168,7 @@ Dev notes:
 - `main` is protected by the ruleset `main-solo-owner`: only the repo's owner can update it.
 - Everyone else works on a branch and opens a pull request. Lawrence's branch is `Lawrence001`.
 - Backups of `main` are kept as branches named `backup-YYYY-MM-DD`.
-- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
+- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/history-*`, `/economics-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
 
 ## Working with Claude
 

@@ -1,5 +1,5 @@
 "use client";
-// near.org/about (History), version B: "Drawn". The Foundation page's hand (paper, ink hairlines, white tops, light grey sides, one green; v3's ruled
+// near.org/history (History), version B: "Drawn". The Foundation page's hand (paper, ink hairlines, white tops, light grey sides, one green; v3's ruled
 // grid) telling NEAR's story from 2017 to now in isometric line drawings that build as you scroll. From the top:
 //   1 hero: the headline rises word by word; under it the road from 2017 to 2026, ten stones climbing to the green one, now (HeroRoad.tsx);
 //   2 origin: the text | the Transformer paper with a sentence attending to itself, and the year (Scenes.tsx PaperScene);
@@ -7,7 +7,7 @@
 //     read and marks each year it reaches; the last milestone, now, is lit;
 //   4 today, on the dark: the text | the integrated stack, four layers that settle as it scrolls in (TodayStack.tsx);
 //   5 ahead: calm: the line, the three things you own (a small drawing each), the closing sentence.
-// The close is the homepage's scene (shared/CloseScene.tsx), set after this in the route (app/(site)/about-b).
+// The close is the homepage's scene (shared/CloseScene.tsx), set after this in the route (app/(site)/history-b).
 // Copy: ../content.ts, verbatim. Local: the timeline's heading ("From 2017 to now", the header's own words for this page) and the section labels.
 import { useRef, type ReactNode } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";

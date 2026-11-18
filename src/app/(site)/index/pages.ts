@@ -38,8 +38,23 @@ export const FINALS: Final[] = [
   },
   {
     id: "analytics", href: "/analytics", name: "Analytics",
-    note: "Instrument panel (Analytics B): the five core stats in a ticker beside the headline, revenue, network health and the tools, mono and tabular. Sample figures until the live feed lands.",
-    tags: ["Ticker", "Ruled grid", "Sample figures"], img: "/index/analytics.webp",
+    note: "Ruled grid (Analytics C): the homepage's ruled grid and Blog J's ruled hero, the five core stats, revenue and network health side by side, the tools, SVRN and the ETPs. Sample figures until the live feed lands.",
+    tags: ["Ruled grid", "Homepage hand", "Sample figures"], img: "/index/analytics.webp",
+  },
+  {
+    id: "economics", href: "/economics", name: "Economics",
+    note: "Ruled grid (Economics A): the four structural facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, the two revenue sources, one asset on the dark band, the homepage's close.",
+    tags: ["Ruled grid", "Scroll diagram", "Homepage close"], img: "/index/economics.webp",
+  },
+  {
+    id: "history", href: "/history", name: "History",
+    note: "Editorial (History C): huge years, the black-and-white whiteboard opening the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band, the homepage's close.",
+    tags: ["Editorial", "Sticky year", "Homepage close"], img: "/index/history.webp",
+  },
+  {
+    id: "community", href: "/community", name: "Community",
+    note: "Drawn (Community B): NEAR Foundation's isometric hand, the community as line drawings (people, places, events) that build as you scroll, then the homepage's close with the newsletter. Sample figures and events until the Luma feed is in.",
+    tags: ["Iso drawings", "Foundation hand", "Homepage close"], img: "/index/community.webp",
   },
   {
     id: "contact", href: "/contact", name: "Contact",

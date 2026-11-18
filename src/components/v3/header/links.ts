@@ -47,7 +47,7 @@ export const GROUPS: Group[] = [
     id: "about", name: "About", kind: "cols",
     secs: [
       { name: "Fundamentals", items: [
-        { name: "History", desc: "From 2017 to now", href: "/about", icon: "history" },
+        { name: "History", desc: "From 2017 to now", href: "/history", icon: "history" },
         { name: "Roadmap", desc: "What ships next", href: "https://roadmap.near.org/", icon: "roadmap" },
         { name: "Economics", desc: "Revenue, buybacks, supply", href: "/economics", icon: "economics" },
       ] },

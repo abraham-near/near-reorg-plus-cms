@@ -2,7 +2,7 @@
 import "../v4/revenue/switch.css";
 
 export const ECONOMICS_VERSIONS = [
-  { k: "a", href: "/economics-a", name: "Ruled grid" },
+  { k: "a", href: "/economics", name: "Ruled grid" },
   { k: "b", href: "/economics-b", name: "Drawn" },
   { k: "c", href: "/economics-c", name: "Editorial" },
 ] as const;

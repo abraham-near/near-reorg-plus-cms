@@ -1,4 +1,4 @@
-/* History C · Editorial (HistoryC.tsx, /about-c). One calm feature on paper: big statements in Montreal Book with one Kepler word, huge years, generous
+/* History C · Editorial (HistoryC.tsx, /history). One calm feature on paper: big statements in Montreal Book with one Kepler word, huge years, generous
    space, a black-and-white photo that opens to the whole screen, one dark band (Today). The tokens are b10's (as the homepage's sections and Community
    C), set here so nothing depends on another page's stylesheet. Everything is scoped under .hs-c; motion only under .hs-c[data-motion] (motion.ts). */
 .hs-c {

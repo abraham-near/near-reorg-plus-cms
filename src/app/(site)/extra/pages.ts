@@ -18,11 +18,11 @@ export const GROUPS: Group[] = [
   {
     id: "analytics",
     title: "Analytics",
-    note: "near.org/analytics in the official pages' hand (the homepage, Blog J), two versions of the doc's lean overview; B is /analytics, in the menu. Sample figures: no live feed yet.",
+    note: "near.org/analytics in the official pages' hand (the homepage, Blog J), five versions of the doc's lean overview; C is /analytics, in the menu. Sample figures: no live feed yet.",
     pages: [
       { href: "/analytics-a", n: "A", name: "Analytics · Overview", note: "The doc read literally on the ruled grid: three core stats, the revenue and status cards side by side, the tools, SVRN and the ETPs. Quiet motion: rows draw in, numbers count up once.", tags: ["Ruled grid", "Top 3 stats", "Quiet"], img: "/extra/analytics-a.webp" },
-      { href: "/analytics", n: "B", name: "Analytics · Instrument panel", note: "Mono and tabular: all five stats in a ticker beside the headline, a revenue chart with a crosshair readout, status.near.org-style uptime bars with tooltips, the tools as a dense table.", tags: ["Ticker", "Chart readouts", "Uptime bars"], img: "/extra/analytics-b.webp", featured: true },
-      { href: "/analytics-c", n: "C", name: "Analytics · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: the doc's page as rows of cells with crosshairs, mono labels and the Kepler accent.", tags: ["Ruled grid", "Homepage hand"], img: "/extra/analytics-c.webp" },
+      { href: "/analytics-b", n: "B", name: "Analytics · Instrument panel", note: "Mono and tabular: all five stats in a ticker beside the headline, a revenue chart with a crosshair readout, status.near.org-style uptime bars with tooltips, the tools as a dense table.", tags: ["Ticker", "Chart readouts", "Uptime bars"], img: "/extra/analytics-b.webp" },
+      { href: "/analytics", n: "C", name: "Analytics · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: the doc's page as rows of cells with crosshairs, mono labels and the Kepler accent; revenue and network health side by side on the paper.", tags: ["Ruled grid", "Homepage hand"], img: "/extra/analytics-c.webp", featured: true },
       { href: "/analytics-d", n: "D", name: "Analytics · Drawn", note: "NEAR Foundation's isometric hand: the numbers and the products told with line drawings that build as you scroll.", tags: ["Iso drawings", "Foundation hand"], img: "/extra/analytics-d.webp" },
       { href: "/analytics-e", n: "E", name: "Analytics · Editorial", note: "The homepage's big type and dark bands (the Stack, the Council): a calm editorial read with one dark band for the network.", tags: ["Editorial", "Dark band"], img: "/extra/analytics-e.webp" },
     ],
@@ -30,29 +30,29 @@ export const GROUPS: Group[] = [
   {
     id: "community",
     title: "Community",
-    note: "near.org/community from the October 2026 doc (Revamp: Layout & Copy), three versions in the official pages' hand. Sample figures and events until the real ones and the Luma feed are in.",
+    note: "near.org/community from the October 2026 doc (Revamp: Layout & Copy), three versions in the official pages' hand. Sample figures and events until the real ones and the Luma feed are in. B is /community, in the menu.",
     pages: [
       { href: "/community-a", n: "A", name: "Community · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: stats, events, the Legion, socials and the ways in as rows of cells with crosshairs.", tags: ["Ruled grid", "Homepage hand"], img: "/extra/community-a.webp" },
-      { href: "/community-b", n: "B", name: "Community · Drawn", note: "NEAR Foundation's isometric hand: the community as line drawings (people, places, events) that build as you scroll.", tags: ["Iso drawings", "Foundation hand"], img: "/extra/community-b.webp" },
+      { href: "/community", n: "B", name: "Community · Drawn", note: "NEAR Foundation's isometric hand: the community as line drawings (people, places, events) that build as you scroll.", tags: ["Iso drawings", "Foundation hand"], img: "/extra/community-b.webp", featured: true },
       { href: "/community-c", n: "C", name: "Community · Editorial", note: "The homepage's big type, photos that bleed and a dark band for the Legion: a warm editorial page.", tags: ["Editorial", "Dark band"], img: "/extra/community-c.webp" },
     ],
   },
   {
     id: "history",
     title: "History",
-    note: "near.org/about (History, \"From 2017 to now\" in the menu), three versions in the official pages' hand. The October 2026 doc has no copy for it: the timeline is near.org/roadmap-history's milestones, the rest adapted from the doc's Anthem Video beats (components/history/content.ts).",
+    note: "near.org/history (History, \"From 2017 to now\" in the menu), three versions in the official pages' hand. The October 2026 doc has no copy for it: the timeline is near.org/roadmap-history's milestones, the rest adapted from the doc's Anthem Video beats (components/history/content.ts). C is /about, in the menu.",
     pages: [
-      { href: "/about-a", n: "A", name: "History · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: an index of years, then the timeline as a ledger of entries in four chapters, with a green marker that runs down it as you read.", tags: ["Ruled grid", "Ledger", "Homepage hand"], img: "/extra/about-a.webp" },
-      { href: "/about-b", n: "B", name: "History · Drawn", note: "NEAR Foundation's isometric hand: ten years as line drawings that build as you scroll, a road of years climbing to now, and today's stack on the dark.", tags: ["Iso drawings", "Foundation hand", "Timeline"], img: "/extra/about-b.webp" },
-      { href: "/about-c", n: "C", name: "History · Editorial", note: "The homepage's big type: the bw whiteboard bleeding into the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band.", tags: ["Editorial", "Sticky year", "Dark band"], img: "/extra/about-c.webp" },
+      { href: "/history-a", n: "A", name: "History · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: an index of years, then the timeline as a ledger of entries in four chapters, with a green marker that runs down it as you read.", tags: ["Ruled grid", "Ledger", "Homepage hand"], img: "/extra/history-a.webp" },
+      { href: "/history-b", n: "B", name: "History · Drawn", note: "NEAR Foundation's isometric hand: ten years as line drawings that build as you scroll, a road of years climbing to now, and today's stack on the dark.", tags: ["Iso drawings", "Foundation hand", "Timeline"], img: "/extra/history-b.webp" },
+      { href: "/history", n: "C", name: "History · Editorial", note: "The homepage's big type: the bw whiteboard bleeding into the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band.", tags: ["Editorial", "Sticky year", "Dark band"], img: "/extra/history.webp", featured: true },
     ],
   },
   {
     id: "economics",
     title: "Economics",
-    note: "near.org/economics from the October 2026 doc, three versions in the official pages' hand. Copy verbatim (components/economics/content.ts); no moving figures, by the doc's design: live numbers stay at revenue.near.org.",
+    note: "near.org/economics from the October 2026 doc, three versions in the official pages' hand. Copy verbatim (components/economics/content.ts); no moving figures, by the doc's design: live numbers stay at revenue.near.org. A is /economics, in the menu.",
     pages: [
-      { href: "/economics-a", n: "A", name: "Economics · Ruled grid", note: "The homepage's ruled grid: the four facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, one asset on the dark band.", tags: ["Ruled grid", "Scroll diagram", "Proof strip"], img: "/extra/economics-a.webp" },
+      { href: "/economics", n: "A", name: "Economics · Ruled grid", note: "The homepage's ruled grid: the four facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, one asset on the dark band.", tags: ["Ruled grid", "Scroll diagram", "Proof strip"], img: "/extra/economics-a.webp", featured: true },
       { href: "/economics-b", n: "B", name: "Economics · Drawn", note: "NEAR Foundation's isometric hand: the economy as a machine, a flywheel that builds station by station as the four steps scroll past, the facts on plinths, two engines feeding the loop.", tags: ["Iso drawings", "Foundation hand", "Flywheel"], img: "/extra/economics-b.webp" },
       { href: "/economics-c", n: "C", name: "Economics · Editorial", note: "The homepage's big type: the four facts as large figures, the loop as a held dark band where a dot travels a ring as each step comes up.", tags: ["Editorial", "Pinned loop", "Dark band"], img: "/extra/economics-c.webp" },
     ],

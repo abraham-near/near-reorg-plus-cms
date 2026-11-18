@@ -25,7 +25,7 @@ const COLS: [string, Link[]][] = [
   ["Build", [{ name: "Docs", href: "https://docs.near.org/" }, { name: "Solutions", href: "/solutions" }]],
   ["Learn", [{ name: "Research", href: "/research" }, { name: "Blog", href: "/blog" }, { name: "Analytics", href: "/analytics" }]],
   ["Connect", [{ name: "Brand", href: "/brand" }, { name: "Contact", href: "/contact" }, { name: "Careers", href: "https://job-boards.eu.greenhouse.io/nearfoundation" }]],
-  ["Fundamentals", [{ name: "History", href: "/about" }, { name: "Roadmap", href: "https://roadmap.near.org/" }, { name: "Economics", href: "/economics" }]],
+  ["Fundamentals", [{ name: "History", href: "/history" }, { name: "Roadmap", href: "https://roadmap.near.org/" }, { name: "Economics", href: "/economics" }]],
   ["Ecosystem", [{ name: "NEAR Foundation", href: "/near-foundation" }, { name: "Ecosystem", href: "/ecosystem" }, { name: "Community", href: "/community" }, { name: "Governance", href: "https://houseofstake.org/" }]],
 ];
 const LEGAL: Link[] = [{ name: "Terms of Use", href: "/terms" }, { name: "Privacy Policy", href: "/privacy" }, { name: "Cookie Policy", href: "/cookies" }, { name: "Official Rules", href: "/official-rules" }];

@@ -3,7 +3,7 @@ import "../v4/revenue/switch.css";
 
 export const COMMUNITY_VERSIONS = [
   { k: "a", href: "/community-a", name: "Ruled grid" },
-  { k: "b", href: "/community-b", name: "Drawn" },
+  { k: "b", href: "/community", name: "Drawn" },
   { k: "c", href: "/community-c", name: "Editorial" },
 ] as const;
 

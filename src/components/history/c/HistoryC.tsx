@@ -1,5 +1,5 @@
 "use client";
-// near.org/about, version C · Editorial. The homepage v9's big type, a black-and-white photo that bleeds and one dark band, read as a calm magazine feature
+// near.org/history, version C · Editorial. The homepage v9's big type, a black-and-white photo that bleeds and one dark band, read as a calm magazine feature
 // about ten years:
 //   1 the hero: the H1 set big in Montreal Book with its Kepler word, the subhead and the two actions; under it the span of the story, "2017" and "2026"
 //     set huge at either end of a ruled line with a tick for every year (the right-hand year rolls up from 2017 on load);
@@ -9,7 +9,7 @@
 //     a ruled track 2017–2026; the milestones scroll beside it as text (title, body, tags). Phones: no sticky column, each milestone carries its year;
 //   4 Today: the dark band. The heading, the statement wiped from faint to paper as it is read, the four layers of the stack set large, the link;
 //   5 Ahead: the heading and its body, then the three "You own…" lines in large type, one per rule, and the closing line in Kepler.
-// The close is the homepage's scene (shared/CloseScene.tsx), set after this in the route (app/(site)/about-c).
+// The close is the homepage's scene (shared/CloseScene.tsx), set after this in the route (app/(site)/history).
 // Copy and links: ../content.ts (verbatim). The small labels (Origin, The milestones, Today, Ahead, Chapter, Now) are this version's own.
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";

@@ -2,9 +2,9 @@
 import "../v4/revenue/switch.css";
 
 export const HISTORY_VERSIONS = [
-  { k: "a", href: "/about-a", name: "Ruled grid" },
-  { k: "b", href: "/about-b", name: "Drawn" },
-  { k: "c", href: "/about-c", name: "Editorial" },
+  { k: "a", href: "/history-a", name: "Ruled grid" },
+  { k: "b", href: "/history-b", name: "Drawn" },
+  { k: "c", href: "/history", name: "Editorial" },
 ] as const;
 
 export function HistorySwitch({ on }: { on: (typeof HISTORY_VERSIONS)[number]["k"] }) {
