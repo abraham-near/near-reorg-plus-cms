@@ -33,7 +33,9 @@ type Crop = { x?: number; y?: number };
    from the top on phones and portrait tablets (sm), as v5's (v7.css) */
 /* still: where the film never plays (below 1280 px, or reduced motion), a sharper still in place of the film's first frame (D162). timing: the film's place at
    even steps of its scroll range (HeroVideo), so its time-lapse can play out before the hand-over and still keep moving until it is gone (D162) */
-export type HeroAlt = { poster: string; video?: string; still?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[] } & Crop;
+/* h1: another headline, in the same .ln / .ln--key spans (the hero studies, D172: "Finance and AI, private by default"). smTop: on phones and portrait tablets,
+   the picture starts this far down (svh), under the copy, its top faded into the paper (D178), where a busy picture can't sit behind the words */
+export type HeroAlt = { poster: string; video?: string; still?: string; timing?: number[]; layer?: ReactNode; sm?: Crop; wash?: ("lg" | "sm" | "smx")[]; h1?: ReactNode; smTop?: number } & Crop;
 
 // `tx`: one of the hero-to-intro transition studies (D109, ./tx): a longer pin (--tx-pin), the film stretched across it, no fade at the foot,
 // and the study's own pieces in the stage. Without it: /home-v6 as built (D108), with the paper rising at the foot (HeroRise).
@@ -47,6 +49,7 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
   const crop = hero ? (Object.fromEntries(Object.entries({
     "--alt-x": pc(hero.x), "--alt-y": pc(hero.y), "--alt-x-sm": pc(hero.sm?.x), "--alt-y-sm": pc(hero.sm?.y),
     "--alt-fx": fr(hero.x), "--alt-fy": fr(hero.y), "--alt-fx-sm": fr(hero.sm?.x), "--alt-fy-sm": fr(hero.sm?.y),
+    "--alt-top-sm": hero.smTop === undefined ? undefined : `${hero.smTop}svh`,
   }).filter(([, v]) => v)) as CSSProperties) : undefined;
   const pinStyle = T ? ({ ...crop, "--tx-pin": `${T.pin}svh`, "--tx-pin-vh": `${T.pin}vh` } as CSSProperties) : crop;
   return (
@@ -58,7 +61,7 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="globe__poster" src="/v1/world/poster-globe-a.svg" alt="" width={1000} height={1000} decoding="async" loading="lazy" />
       </div>
-      <section className="hero hero--v5 hero--v7" aria-labelledby="hero-h" data-ch="root" data-tx={tx} data-alt={hero ? "" : undefined} data-wash={hero?.wash?.join(" ") || undefined} style={pinStyle}>
+      <section className="hero hero--v5 hero--v7" aria-labelledby="hero-h" data-ch="root" data-tx={tx} data-alt={hero ? "" : undefined} data-low={hero?.smTop === undefined ? undefined : ""} data-wash={hero?.wash?.join(" ") || undefined} style={pinStyle}>
         <div className="hero__bg" aria-hidden="true" data-ch="stage">
           <div className="hero6__media" data-ch="media">
             {hero?.still ? (
@@ -78,7 +81,7 @@ export function WorldV7({ tx, st, hero }: { tx?: TxKey; st?: StKey; hero?: HeroA
         </div>
         <div className="wrap hero__main">
           <div className="hero__copy" data-ch="copy">
-            <h1 className="h1" id="hero-h"><span className="ln">Own your</span> <span className="ln ln--key"><em>world</em><span className="sq" aria-hidden="true" /><span className="sr-only">.</span></span></h1>
+            <h1 className="h1" id="hero-h" data-alt={hero?.h1 ? "" : undefined}>{hero?.h1 ?? <><span className="ln">Own your</span> <span className="ln ln--key"><em>world</em><span className="sq" aria-hidden="true" /><span className="sr-only">.</span></span></>}</h1>
             <p className="hero__sub in" style={i(1)}><span className="bl">AI is starting to act for you. NEAR keeps your assets,</span> <span className="bl">your data, and your intelligence in your hands.</span></p>
             <div className="hero__cta in" style={i(2)}><a className="cta" href="https://near.com">Get started <span className="arr" aria-hidden="true" /><span className="sr-only"> (another NEAR site)</span></a></div>
           </div>

@@ -1,5 +1,5 @@
 /* r17 v1 · the rail's illustrations from the Figma isometrics (TJ38G7245lEghviUBaCTFJ: problem 459:527, data 501:4977, assets 508:5715, intelligence 521:6082,
- * identity 521:6785). r17 v1's js/vig2.js.
+ * identity 521:6785; home v7's identity, ./sign.ts, 918:299). r17 v1's js/vig2.js.
  *   createVignette(key, host) -> { el, set(a), idle(t, w), dispose() }
  *   set(a): a pure function of the playhead, a in [0, 2]: 0 = not arrived (nothing shows), 0 -> 1 = arriving, 1 = at rest, 1 -> 2 = leaving, 2 = gone. Cheap,
  *           allocation free. Calls made before the art has loaded are remembered: the last one is applied when it lands.
@@ -13,14 +13,16 @@ import { create as data } from "./data";
 import { create as assets } from "./assets";
 import { create as intelligence } from "./intelligence";
 import { create as identity } from "./identity";
+import { create as sign } from "./sign";
 
-export type VigKey = "problem" | "data" | "assets" | "intelligence" | "identity";
+/** sign: home v7's identity (D189), in identity's place where the rail carries data-identity="sign" (rail/layer.ts ownKey) */
+export type VigKey = "problem" | "data" | "assets" | "intelligence" | "identity" | "sign";
 /** own(o): optional, the problem's only (home v5, .layer[data-beats="split"]): 0 someone else's stack, 1 the user's; drawn in place at rest */
 export type Vignette = { el: HTMLElement; set: (a: number) => void; idle: (t: number, w: number) => void; own?: (o: number) => void; dispose?: () => void };
 
 /** the four stations, in rail order (the problem is the gate's) */
 export const KEYS: VigKey[] = ["data", "assets", "intelligence", "identity"];
-const MOD: Record<VigKey, (host: HTMLElement) => Vignette> = { problem, data, assets, intelligence, identity };
+const MOD: Record<VigKey, (host: HTMLElement) => Vignette> = { problem, data, assets, intelligence, identity, sign };
 
 export function createVignette(key: VigKey, host: HTMLElement): Vignette {
   const m = MOD[key];

@@ -86,12 +86,16 @@ export type DeeperContent = {
   voicesMode?: "short" | "marquee" | "pins" | "deck" | "timer";
   /** Origin's photo at a set shape (v4): "4/3" half and half, "16/9" the photo on 7 of 12 columns; the row is as tall as the photo (none = v3's tall row) */
   originRatio?: "4/3" | "16/9";
+  /** Origin before Go deeper instead of after it (v7, D179: Lawrence moved Origin, "Built by the people who invented modern AI", above the blog) */
+  originFirst?: boolean;
   /** the page this runs on, as data-scope on the wrapper (v6: its own tweaks in v6/v6.css). A plain attribute, not html:has(...): a :has() on the root
    *  restyles the whole page on every DOM change, every frame while a figure counts up (D134) */
   scope?: string;
   /** other photos in place of v3's: deeper, the folder Go deeper's come from (none = /v3/deeper); origin, ridges (the voices' bleed) and meadow (the
    *  close's bleed), single files. v7 uses the blog's black-and-white-with-green photos and its own in that style (D170, D171) */
   photos?: { deeper?: string; origin?: string; ridges?: string; meadow?: string };
+  /** another voices section in place of this one, on the same grid (v7, D190: VoicesOne, one voice at a time after Figma 939:402); voicesMode then has no effect */
+  voicesSlot?: ReactNode;
 };
 const Who = ({ q }: { q: Voice }) => (
   <figcaption className="l-who"><i className="l-who__dot" aria-hidden="true" /><span className="l-who__n">{q.name}</span>{q.role && <span className="l-who__r">{q.role}</span>}</figcaption>
@@ -191,6 +195,21 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
     // [[TBD: newsletter provider]]: send `v` here. Nothing is sent.
     setDone(true);
   };
+  const origin = (
+    <section className="l-sec l-origin" id="origin" aria-labelledby="l-origin-t" data-ratio={c.originRatio}>
+      <div className="l-row l-origin__row" data-row="">
+        <div className="l-cell l-origin__ph"><Photo src={c.photos?.origin ?? "/v3/origin-attention.webp"} cls="l-ph--fill" /></div>
+        <div className="l-cell l-origin__body">
+          <h2 id="l-origin-t" className="l-h2 l-h2--m" data-rv="">{c.origin.title}</h2>
+          <div className="l-origin__text" data-rv="">
+            <p className="l-lede">{c.origin.text}</p>
+            <p className="l-cta"><a className="l-btn" href="https://www.near.org/about"><span>Our story</span></a></p>
+          </div>
+          <p id="l-origin-src" className="l-src" data-rv=""><span className="l-src__n">1</span><span>Source: <a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></span></p>
+        </div>
+      </div>
+    </section>
+  );
   useScrollMotion(ref, mount);
   return (
     <div ref={ref} className="l-page" data-scope={c.scope}>
@@ -208,6 +227,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           ))}
         </ul>
       </section>
+      {c.originFirst && origin}
       <section className="l-sec l-deeper" id="deeper" aria-labelledby="l-deeper-t">
         <div className="l-row l-head l-deeper__head" data-row="">
           <div className="l-cell l-head__cell">
@@ -228,19 +248,8 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           <div className="l-cell"><a className="l-link" href={BLOG}><span>View everything</span><Arrow /></a></div>
         </div>
       </section>
-      <section className="l-sec l-origin" id="origin" aria-labelledby="l-origin-t" data-ratio={c.originRatio}>
-        <div className="l-row l-origin__row" data-row="">
-          <div className="l-cell l-origin__ph"><Photo src={c.photos?.origin ?? "/v3/origin-attention.webp"} cls="l-ph--fill" /></div>
-          <div className="l-cell l-origin__body">
-            <h2 id="l-origin-t" className="l-h2 l-h2--m" data-rv="">{c.origin.title}</h2>
-            <div className="l-origin__text" data-rv="">
-              <p className="l-lede">{c.origin.text}</p>
-              <p className="l-cta"><a className="l-btn" href="https://www.near.org/about"><span>Our story</span></a></p>
-            </div>
-            <p id="l-origin-src" className="l-src" data-rv=""><span className="l-src__n">1</span><span>Source: <a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></span></p>
-          </div>
-        </div>
-      </section>
+      {!c.originFirst && origin}
+      {c.voicesSlot ?? (
       <section className="l-sec l-voices" id="voices" aria-labelledby="l-voices-t">
         {/* an empty cell of the grid between Origin's photo and the bleed: the frame lines run on, so the bleed sits inside the grid */}
         <div className="l-row l-spacer" data-row="" aria-hidden="true"><div className="l-cell" /></div>
@@ -306,6 +315,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           </div>
         </div>
       </section>
+      )}
       <section className="l-sec l-paths" id="paths" aria-labelledby="l-paths-t">
         <div className="l-row l-head" data-row="">
           <div className="l-cell l-head__cell"><h2 id="l-paths-t" className="l-h2" data-rv="">Get into <span className="accent">NEAR</span></h2></div>
