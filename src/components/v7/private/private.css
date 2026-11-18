@@ -1,0 +1,55 @@
+/* Home v7, branch NEAR-is-private-CYCLE (D200): the merged hero (WorldPrivate.tsx, Cycle.tsx). One screen of the page's paper: "NEAR is private" on the
+   hero's scale (world.css' --h1) with the cycling word after it on the same line, in the Kepler accent (as the old key line, x --kep) (D201), the intro's
+   paragraph at the sub's size with its marked phrase on the green, and the button. No picture. */
+.hero--priv { height: auto; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; background: var(--paper); }
+.ph { --ph: min(var(--h1), calc((100vw - 2 * var(--m, 40px)) / 10.8)); padding-top: calc(var(--nav-h, 88px) + 4svh); padding-bottom: 8svh; }
+.ph__h { white-space: nowrap; margin: 0; font-family: var(--font-text); font-weight: 400; font-size: var(--ph); line-height: 1.02; letter-spacing: -.0202em; color: var(--ink); text-wrap: nowrap; }
+/* the line's longest form, "NEAR is private cross-chain" and the square, is 10.7 x the type size: the size follows the width so it always fits (D201) */
+.ph__l { display: inline-block; }
+
+/* the word: every word in one grid cell, on the headline's line (an inline grid on its baseline), the one on shows; letters as boxes so they can move one
+   by one. The cell is as wide as the longest word, and nothing follows it on the line, so nothing moves as the width changes */
+.ph__cy { display: inline-grid; justify-items: start; vertical-align: baseline; font-family: var(--font-acc); font-style: italic; font-weight: 500;
+  font-size: calc(var(--ph) * var(--kep)); line-height: .92; letter-spacing: calc(var(--ph) * -.043); }
+.ph__w { grid-area: 1 / 1; white-space: nowrap; }
+.ph__w:not([data-on]) { visibility: hidden; }
+.ph__c { display: inline-block; }
+.ph__sq { display: inline-block; width: calc(var(--ph) * .2125); height: calc(var(--ph) * .2125); margin-left: calc(var(--ph) * .07); background: var(--green); }
+
+/* the change (Cycle sets data-run once it can play): the last word's letters lift away left to right (gone by about 0.35 s), the next one's rise in from 0.3 s, each a
+   beat behind the one before; the square lands on "by design" once its letters are in */
+[data-run] .ph__w:not([data-on]):not([data-out]) { visibility: hidden; }
+[data-run] .ph__w[data-out] { visibility: visible; }
+[data-run] .ph__c { opacity: 0; transform: translateY(.42em); transition: opacity .2s ease-in, transform .24s cubic-bezier(.55, 0, .8, .2); transition-delay: calc(var(--j) * 12ms); }
+[data-run] .ph__w[data-out] .ph__c { transform: translateY(-.3em); }
+[data-run] .ph__w[data-on] .ph__c { opacity: 1; transform: none;
+  transition: opacity .4s ease calc(.3s + var(--j) * 30ms), transform .75s cubic-bezier(.16, .84, .24, 1) calc(.3s + var(--j) * 30ms); }
+[data-run] .ph__sq { transform: scale(0); transition: transform .2s ease-in; }
+[data-run] .ph__w[data-on] .ph__sq { transform: none; transition: transform .55s cubic-bezier(.3, 1.4, .5, 1) .85s; }
+
+/* the paragraph (the intro's statement, moved up) and the button */
+.ph__p { margin: clamp(28px, 2.6vw, 52px) 0 0; max-width: 29em; font-size: var(--p); line-height: 1.26; letter-spacing: -.0134em; color: var(--ink); text-wrap: pretty; }
+.ph__mk { background: linear-gradient(var(--green), var(--green)) 0 .15em / 100% calc(100% - .17em) no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  padding: 0 .08em; margin: 0 -.08em; }
+.ph__cta { margin-top: clamp(28px, 2.6vw, 48px); display: flex; }
+
+/* on load: the headline, then the paragraph, then the button, each rising a little */
+@media (prefers-reduced-motion: no-preference) {
+  .ph__l, .ph__cy, .ph__p, .ph__cta { animation: ph-up .9s cubic-bezier(.16, .84, .24, 1) both; }
+  .ph__cy { animation-delay: .08s; }
+  .ph__p { animation-delay: .3s; }
+  .ph__cta { animation-delay: .42s; }
+}
+@keyframes ph-up { from { opacity: 0; transform: translateY(18px); } }
+
+/* reduced motion: the last word only, still */
+@media (prefers-reduced-motion: reduce) {
+  .ph__w { visibility: hidden; }
+  .ph__w[data-last] { visibility: visible; }
+}
+
+/* phones */
+@media (max-width: 760px) {
+  .ph { padding-top: calc(var(--nav-h, 64px) + 6svh); }
+  .ph__p { max-width: none; }
+}
