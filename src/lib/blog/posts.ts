@@ -57,13 +57,13 @@ const toCard = (p: CardRow, media: Record<string, MediaInfo>): PostCard => ({
   publishedAt: (p.publishedAt ?? p.createdAt).toISOString(), author: p.author?.name ?? null, category: p.categories[0]?.category ?? null,
 });
 
-/** live PUBLIC posts, newest first (the index and every post's "more posts") */
+/** every live PUBLIC post, newest first (the index and every post's "more posts"); all of them, since the index searches, filters and pages them in the browser */
 export async function getLivePosts(): Promise<PostCard[]> {
   "use cache";
   cacheTag(TAG.posts, TAG.categories);
   const now = new Date();
   const [rows, next] = await Promise.all([
-    db.post.findMany({ where: { ...liveWhere(now), visibility: "PUBLIC" }, orderBy: [{ publishedAt: "desc" }, { id: "asc" }], take: 200, select: cardSelect }),
+    db.post.findMany({ where: { ...liveWhere(now), visibility: "PUBLIC" }, orderBy: [{ publishedAt: "desc" }, { id: "asc" }], select: cardSelect }),
     db.post.findFirst({ where: { status: "PUBLISHED", visibility: "PUBLIC", publishedAt: { gt: now } }, orderBy: { publishedAt: "asc" }, select: { publishedAt: true } }),
   ]);
   lifeUntil(next?.publishedAt);

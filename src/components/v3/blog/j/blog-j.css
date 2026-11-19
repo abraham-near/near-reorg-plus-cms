@@ -178,7 +178,8 @@
 .bj-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px 32px; margin-top: clamp(64px, 9vh, 96px); }
 .bj-foot__n { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
 .bj-pager { display: flex; align-items: center; gap: 18px; }
-.bj-pgs { display: flex; gap: 6px; }
+.bj-pgs { display: flex; flex-wrap: wrap; gap: 6px; }
+.bj-gap { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 40px; color: var(--muted); font: var(--t-ui-w) var(--t-ui)/1 var(--sans); }
 .bj-pg, .bj-step { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 32px; height: 40px; padding: 0 4px; border: 0; background: none; cursor: pointer;
   font: var(--t-ui-w) var(--t-ui)/1 var(--sans); letter-spacing: var(--t-ui-tr); color: var(--muted); font-variant-numeric: tabular-nums; transition: color 0.2s var(--ease-tick); }
 .bj-pg::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--emerald); scale: 0; transition: scale 0.35s var(--ease-settle); }
