@@ -1,0 +1,221 @@
+/* Post D · Poster (PostD.tsx) on post.css's body, in the October 2026 Figma's values (blog frames 980:723 / 756:41, cover art 725:18 / 739:51):
+   ground #f4f4f4, ink #1C1917, warm grey #6C675F, green #00DC8D, white boxes with a 12 % hairline, labels in Montreal Mono 11 px uppercase after a 7 px
+   green square, thin ink rules between the parts, outlined pills. 1288 px of content at 1440; the text in a 720 px column. */
+.pst-d {
+  --ink: #1c1917; --muted: #6c675f; --graphite: #3f3b36; --emerald: #00dc8d; --green-text: #00774f;
+  --ground: #f4f4f4; --box: #fff; --plate: #e9e8e5;
+  --paper-0: var(--box); --paper-1: #f7f7f6; --paper-2: var(--plate);
+  --edge: rgb(28 25 23 / 0.12); --edge-strong: rgb(28 25 23 / 0.3);
+  --l-line: var(--edge-strong); --l-soft: var(--edge);
+  --margin: clamp(16px, 5.28vw, 76px);
+  --mono: var(--font-mono);
+  --book: var(--font-text);
+  --wrap: min(1288px, 100vw - 2 * var(--margin));
+  --col: 720px;
+  --t-read: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem); --t-read-lh: 1.62;
+  padding: clamp(112px, 11vw, 160px) var(--margin) clamp(80px, 10vw, 144px);
+  background: var(--ground);
+}
+.pst-d > article, .pd-more { max-width: 1288px; margin-left: auto; margin-right: auto; }
+
+/* ── the Figma's mono label and its green square ── */
+.pd-label, .pd-chip, .pd-kicker, .pd-facts dt, .pst-d .pb-h2__n, .pd-keys__n, .pst-d .pb-fns__h, .pst-d .pb-tag, .pst-d .pb-code::before {
+  font-family: var(--mono); font-weight: 400; font-size: 11px; line-height: 14px; letter-spacing: 0.02em; text-transform: uppercase;
+}
+.pd-label { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+.pd-label i, .pd-chip i, .pd-kicker i, .pst-d .pb-h2__n::before { display: block; flex: none; width: 7px; height: 7px; background: var(--emerald); }
+
+/* ── boxes: white, a hairline ── */
+.pd-box { position: relative; background: var(--box); border: 1px solid var(--edge); }
+
+/* ── pills: outlined in ink (the Figma's Read / Play episode) ── */
+.pd-pill, .pd-btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; border: 1px solid var(--ink); border-radius: 100px;
+  font-family: var(--book); font-size: 14px; line-height: 14px; letter-spacing: -0.005em; color: var(--ink); background: transparent; white-space: nowrap;
+  cursor: pointer; transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick);
+}
+.pd-pill svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.pd-pill:hover, .pd-pill--ink { color: #fff; background: var(--ink); }
+.pd-pill--ink:hover { color: var(--ink); background: transparent; }
+.pd-pill:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ── the opening: the cover art, boxed as the index's lead card ── */
+.pd-lead { padding: 23px; }
+.pd-poster { position: relative; container-type: inline-size; aspect-ratio: 16 / 9; display: flex; flex-direction: column; color: #fff; background: var(--ink); }
+.pd-poster__ph { position: absolute; inset: 0; overflow: hidden; background: var(--ink); }
+.pd-poster__ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; animation: pd-settle 2.2s var(--ease-settle) both; }
+/* the dark cover's treatment (725:18): the copy at the upper left, on a veil that keeps any photo legible under white words */
+.pd-poster__veil { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgb(14 12 11 / 0.74) 0%, rgb(14 12 11 / 0.5) 38%, rgb(14 12 11 / 0) 72%), linear-gradient(180deg, rgb(14 12 11 / 0.35), rgb(14 12 11 / 0) 45%); }
+.pd-chip, .pd-poster__logo, .pd-poster__copy { position: relative; z-index: 1; }
+/* the chip (a square box, 0.5 px white edge) and the logo: 4.4 % in from the corners, as at 1280 */
+.pd-chip {
+  position: absolute; left: 4.4cqi; top: 4.4cqi; display: inline-flex; align-items: center; gap: 0.76em; padding: 0.81em 1.1em;
+  font-size: max(10px, 1.05cqi); line-height: 1; letter-spacing: 0.1em; border: 0.5px solid rgb(255 255 255 / 0.9);
+  animation: pd-rise 1s var(--ease-settle) 0.15s both;
+}
+.pd-chip i { width: 0.52em; height: 0.52em; }
+.pd-poster__logo { position: absolute; right: 4.4cqi; top: 4.4cqi; width: max(64px, 8.4cqi); height: auto; translate: 0 -12%; animation: pd-rise 1s var(--ease-settle) 0.15s both; }
+.pd-poster__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 1.6cqi; width: min(100%, 50cqi); padding: 12.96cqi 0 4.4cqi 4.4cqi; }
+.pd-kicker { display: flex; align-items: center; gap: 0.76em; font-size: max(10px, 1.05cqi); line-height: 1; letter-spacing: 0.1em; color: var(--emerald); animation: pd-rise 1s var(--ease-settle) 0.25s both; }
+.pd-kicker i { display: none; width: 0.52em; height: 0.52em; }
+.pd-kicker a { color: inherit; text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.3s var(--ease-settle); }
+.pd-kicker a:hover, .pd-kicker a:focus-visible { background-size: 100% 1px; }
+.pd-kicker a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.pd-h1 {
+  font-family: var(--sans-display); font-weight: 400; font-size: 4.22cqi; line-height: 1.016; letter-spacing: -0.035em; text-wrap: balance;
+  --accent-scale: 1.148em; --tracking-accent: -0.02em;
+  animation: pd-rise 1.1s var(--ease-settle) 0.3s both;
+}
+.pd-h1 .accent { line-height: inherit; }
+/* no photo: an ink plate with a low green glow */
+.pd-poster--plain .pd-poster__ph { background: radial-gradient(60% 70% at 85% 100%, rgb(0 220 141 / 0.22), transparent 70%), var(--ink); }
+.pd-poster--plain .pd-poster__veil { display: none; }
+@keyframes pd-settle { from { scale: 1.08; } }
+@keyframes pd-rise { from { opacity: 0; translate: 0 14px; } }
+
+/* under the cover, in the same box: the dek at the left, the facts at the right */
+.pd-lead__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 24px 56px; padding: 29px 6px 6px; }
+.pd-dek { max-width: 40em; font-family: var(--book); font-size: clamp(17px, 1.3vw, 18.7px); line-height: 1.45; letter-spacing: -0.005em; color: var(--muted); text-wrap: pretty; }
+.pd-facts { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 32px; margin: 0; }
+.pd-facts > div { display: grid; gap: 6px; }
+.pd-facts dt { color: var(--muted); }
+.pd-facts dd { margin: 0; font-family: var(--book); font-size: 15px; line-height: 1.3; color: var(--ink); white-space: nowrap; }
+.pd-facts__by { display: flex !important; align-items: center; gap: 12px; }
+.pd-facts__by > div { display: grid; gap: 2px; }
+.pd-facts .pd-facts__sub { font-size: 13px; color: var(--muted); }
+.pst-d .pb-av { width: 36px; height: 36px; font-size: 12px; background: var(--ink); color: #fff; }
+.pst-d .pb-av::after { box-shadow: 0 0 0 2px var(--box); }
+.pd-cap { max-width: 1288px; margin: 12px auto 0; font-family: var(--book); font-size: 13px; line-height: 1.4; color: var(--muted); }
+
+/* ── the column ── */
+.pd-col { width: min(100%, var(--col)); margin: clamp(56px, 7vw, 96px) auto 0; }
+.pst-d .pb-body { font-family: var(--book); }
+
+/* the takeaways: a white box, numbered in mono */
+.pd-keys { padding: 23px 26px 26px; margin-bottom: clamp(40px, 5vw, 56px); }
+.pd-keys ol { display: grid; gap: 14px; margin-top: 18px; }
+.pd-keys li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; padding-top: 14px; border-top: 1px solid var(--edge); font-family: var(--book); font-size: 16px; line-height: 1.45; color: var(--ink); }
+.pd-keys__n { color: var(--muted); line-height: 23px; }
+
+/* sections: an ink rule, the number as a mono label, the heading in Montreal (the index's scale) */
+.pst-d .pb-body > .pb-h2 { display: grid; gap: 18px; margin-top: 2.6em; padding-top: 16px; border-top: 1px solid var(--ink); }
+.pst-d .pb-h2__n { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+.pst-d .pb-h2__n::before { content: ""; }
+.pst-d .pb-h2__t { font-family: var(--sans-display); font-weight: 400; font-size: clamp(28px, 2.5vw, 36px); line-height: 1.05; letter-spacing: -0.03em; }
+.pst-d .pb-body > .pb-h3 { margin-top: 1.9em; font-family: var(--sans-display); font-weight: 400; font-size: clamp(21px, 1.7vw, 24px); line-height: 1.2; letter-spacing: -0.02em; }
+
+/* lists: green squares, mono numbers */
+.pst-d .pb-list > li::before { top: 0.62em; width: 7px; height: 7px; background: var(--emerald); }
+.pst-d .pb-list--ol > li::before { top: 0.42em; width: auto; height: auto; background: none; font: 400 11px/1.6 var(--mono); letter-spacing: 0.02em; color: var(--muted); }
+
+/* figures: boxed like the cards; wide ones step out of the column, bleeds take the page's width */
+.pst-d .pb-body > :is(.pb-fig, .pb-pair) { padding: 17px; background: var(--box); border: 1px solid var(--edge); }
+.pst-d .pb-cap { margin-top: 14px; font-family: var(--book); font-size: 14px; line-height: 20px; letter-spacing: -0.005em; color: var(--muted); }
+.pst-d .pb-fig[data-size="wide"] { --w: min(1040px, 100vw - 2 * var(--margin)); width: var(--w); margin-left: calc((100% - var(--w)) / 2); }
+.pst-d .pb-fig[data-size="bleed"] { --w: var(--wrap); width: var(--w); margin-left: calc((100% - var(--w)) / 2); }
+.pst-d .pb-fig[data-size="bleed"] .pb-fig__ph { aspect-ratio: 21 / 9; }
+.pst-d .pb-pair__row { gap: 17px; }
+
+/* the quote: between ink rules, in Montreal with a mono attribution */
+.pst-d .pb-quote { padding: 28px 0 24px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--edge); }
+.pst-d .pb-quote p { font-family: var(--sans-display); font-style: normal; font-weight: 400; font-size: clamp(26px, 2.4vw, 34px); line-height: 1.12; letter-spacing: -0.03em; }
+.pst-d .pb-quote__by { display: flex; align-items: center; gap: 8px; margin-top: 18px; font: 400 11px/14px var(--mono); letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted); }
+.pst-d .pb-quote__by::before { content: ""; width: 7px; height: 7px; background: var(--emerald); }
+
+/* the callout: a white box, its title as a mono label */
+.pst-d .pb-callout { padding: 22px 24px 24px; background: var(--box); border: 1px solid var(--edge); }
+.pst-d .pb-callout::before { display: none; }
+.pst-d .pb-callout__t { display: flex; align-items: center; gap: 8px; font: 400 11px/14px var(--mono); letter-spacing: 0.02em; color: var(--ink); }
+.pst-d .pb-callout__t::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--emerald); }
+.pst-d .pb-callout__b { margin-top: 12px; font-family: var(--sans-display); font-weight: 400; font-size: clamp(20px, 1.6vw, 23px); line-height: 1.3; letter-spacing: -0.015em; }
+
+/* the figures: three white boxes */
+.pst-d .pb-stats__list { gap: 12px; border-top: 0; }
+.pst-d .pb-stat, .pst-d .pb-stat + .pb-stat { padding: 20px; border: 1px solid var(--edge); background: var(--box); }
+.pst-d .pb-stat__n { font-family: var(--sans-display); font-weight: 400; letter-spacing: -0.04em; }
+.pst-d .pb-stat__l { color: var(--muted); }
+.pst-d .pb-stats__note { font: 400 11px/14px var(--mono); letter-spacing: 0.02em; text-transform: uppercase; }
+
+.pst-d .pb-code::before { font-size: 11px; color: var(--emerald); }
+.pst-d .pb-body--html :not(pre) > code { background: var(--box); }
+
+/* footnotes */
+.pst-d .pb-fns { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--ink); }
+.pst-d .pb-fns__h { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+.pst-d .pb-fns__h::before { content: ""; width: 7px; height: 7px; background: var(--emerald); }
+.pst-d .pb-fns ol { font-family: var(--book); color: var(--muted); }
+
+/* ── the post's foot: tags and share as pills, the author in a box ── */
+.pd-foot { display: grid; gap: 0; margin-top: 64px; border-top: 1px solid var(--ink); }
+.pd-foot__row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 18px 0; border-bottom: 1px solid var(--edge); }
+.pd-foot__l { min-width: 72px; color: var(--muted); }
+.pd-foot__l i { background: var(--emerald); }
+.pd-share, .pst-d .pd-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.pst-d .pb-tag { height: 36px; padding: 0 16px; color: var(--muted); background: var(--box); box-shadow: none; border: 1px solid var(--edge); }
+.pst-d .pb-tag:hover { color: #fff; background: var(--ink); border-color: var(--ink); box-shadow: none; }
+.pst-d .pb-tag--plain:hover { color: var(--muted); background: var(--box); border-color: var(--edge); }
+.pd-author { display: flex; gap: 16px; align-items: flex-start; margin-top: 32px; padding: 23px; }
+.pst-d .pd-author__av { width: 48px; height: 48px; font-size: 14px; }
+.pd-author__n { margin-top: 10px; font-family: var(--sans-display); font-size: 20px; line-height: 1.2; letter-spacing: -0.02em; }
+.pd-author__b { margin-top: 6px; font-family: var(--book); font-size: 14px; line-height: 20px; color: var(--muted); }
+
+/* ── Keep reading: the Figma's boxed cards, three to a row ── */
+.pd-more { margin-top: clamp(80px, 10vw, 136px); }
+.pd-more__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; padding-bottom: 34px; }
+.pd-more__t { margin-top: 20px; font-family: var(--sans-display); font-weight: 400; font-size: clamp(40px, 4.4vw, 64px); line-height: 0.96; letter-spacing: -0.045em; --accent-scale: 1.16em; --tracking-accent: -0.03em; }
+.pd-more__t .accent { line-height: inherit; }
+.pd-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 23px; padding-top: 30px; border-top: 1px solid var(--ink); }
+.pd-card { display: flex; flex-direction: column; padding: 17px; transition: border-color 0.25s var(--ease-tick); }
+.pd-card:hover { border-color: var(--edge-strong); }
+.pd-card:has(.pd-stretch:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+.pd-card__ph { position: relative; display: block; overflow: hidden; aspect-ratio: 16 / 9; background: var(--plate); }
+.pd-card__ph > * { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: scale 0.7s var(--ease-settle); }
+.pd-card:hover .pd-card__ph img { scale: 1.03; }
+.pd-card__body { display: flex; flex-direction: column; align-items: flex-start; flex: 1 1 auto; padding-top: 23px; }
+.pd-card__t { margin-top: 14px; font-family: var(--sans-display); font-weight: 400; font-size: 18px; line-height: 22px; letter-spacing: -0.025em; color: var(--ink); text-wrap: pretty; }
+.pd-card__x { margin-top: 10px; font-family: var(--book); font-size: 14px; line-height: 20px; letter-spacing: -0.005em; color: var(--muted); }
+.pd-card__note { margin-top: 8px; font-family: var(--book); font-size: 12px; line-height: 16px; color: var(--muted); }
+.pd-card__body > .pd-btn { margin-top: auto; height: 33px; cursor: default; }
+.pd-card__body > :nth-last-child(2) { margin-bottom: 36px; }
+.pd-card:hover .pd-btn, .pd-card:has(.pd-stretch:focus-visible) .pd-btn { color: #fff; background: var(--ink); }
+.pd-stretch { color: inherit; text-decoration: none; }
+.pd-stretch::after { content: ""; position: absolute; z-index: 1; inset: 0; }
+.pd-stretch:focus-visible { outline: none; }
+/* the cards arrive one after the other (useReveal) */
+:where(.pst-d[data-reveals]) .pd-card[data-reveal] { transition-delay: var(--d, 0s); }
+
+/* ── narrower screens ── */
+@media (max-width: 1024px) {
+  .pd-lead__body { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .pd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* below 720: the title leaves the photo and sits under it, in ink, as on the light covers (739:51) */
+@media (max-width: 719px) {
+  .pst-d { padding-top: 104px; }
+  .pd-lead { padding: 12px; }
+  .pd-poster { aspect-ratio: auto; color: var(--ink); background: none; }
+  .pd-poster__ph { position: relative; aspect-ratio: 16 / 9; }
+  .pd-poster__veil { inset: 0 0 auto; aspect-ratio: 16 / 9; height: auto; background: linear-gradient(180deg, rgb(14 12 11 / 0.35), rgb(14 12 11 / 0) 50%); }
+  .pd-chip { left: 12px; top: 12px; color: #fff; }
+  .pd-poster__logo { right: 12px; top: 14px; width: 64px; }
+  .pd-poster__copy { width: 100%; gap: 14px; padding: 22px 4px 0; }
+  .pd-kicker { font-size: 11px; color: var(--ink); }
+  .pd-kicker i { display: block; background: var(--emerald); }
+  .pd-h1 { font-size: clamp(32px, 9vw, 40px); line-height: 1.02; }
+  .pd-lead__body { padding: 18px 4px 6px; gap: 22px; }
+  .pd-facts { display: grid; grid-template-columns: auto 1fr; justify-content: start; gap: 16px 32px; }
+  .pd-facts__by { grid-column: 1 / -1; }
+  .pd-keys { padding: 18px 18px 20px; }
+  .pst-d .pb-body > :is(.pb-fig, .pb-pair) { padding: 10px; }
+  .pst-d .pb-fig[data-size="bleed"] .pb-fig__ph { aspect-ratio: 16 / 9; }
+  .pst-d .pb-pair__row { gap: 10px; }
+  .pd-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .pd-more__head { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-poster__ph img, .pd-chip, .pd-poster__logo, .pd-kicker, .pd-h1 { animation: none; }
+  .pst-d *, .pst-d *::before, .pst-d *::after { transition: none !important; }
+  .pd-card:hover .pd-card__ph img { scale: none; }
+}

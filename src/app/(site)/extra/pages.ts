@@ -6,13 +6,25 @@ export type Group = { id: string; title: string; note: string; pages: Extra[] };
 
 export const GROUPS: Group[] = [
   {
+    id: "blog",
+    title: "Blog",
+    note: "The blog index (near.org/blog), four versions: A is the live /blog; B and D are the October 2026 Figma's two blog frames (2026_10_Near_Web, nodes 980:723 and 756:41); C is B on the homepage's soft ruled grid. All list the CMS's live posts, then the Go deeper reads, stories and talks.",
+    pages: [
+      { href: "/blog", n: "A", name: "Blog · Reading rail", note: "The live blog (direction J): the ruled head, a sticky rail with search, type, sort and view, the posts as open cards or rows, the state in the URL.", tags: ["Live", "Sticky rail", "Grid or list"], img: "/extra/blog-a.webp", featured: true },
+      { href: "/blog-index-b", n: "B", name: "Blog · Figma, featured", note: "Figma node 980:723: the heading with search, type chips, a large featured post beside three numbered rows with thumbnails, then boxed cards three to a row and numbered pages.", tags: ["Figma", "Featured + list", "Boxed cards"], img: "/extra/blog-b.webp" },
+      { href: "/blog-index-c", n: "C", name: "Blog · Figma on the grid", note: "B's layout on the homepage's ruled grid, kept light: hairline columns and crosshairs at the joins instead of boxes, open cards in the cells.", tags: ["Figma", "Soft ruled grid", "Homepage hand"], img: "/extra/blog-c.webp" },
+      { href: "/blog-index-d", n: "D", name: "Blog · Figma, lead card", note: "Figma node 756:41: a type menu and search over one wide lead card (photo | text), then the type chips, boxed cards three to a row and numbered pages.", tags: ["Figma", "Lead card", "Type menu"], img: "/extra/blog-d.webp" },
+    ],
+  },
+  {
     id: "post",
     title: "Blog post",
-    note: "Three layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",
+    note: "Four layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",
     pages: [
       { href: "/post-a", n: "A", name: "Ruled", note: "The index's ruled grid carried into the article: a row of facts, the photo in its cell, contents | text | margin notes.", tags: ["Ruled grid", "Sticky contents", "Margin notes"], img: "/extra/post-a.webp" },
       { href: "/post-b", n: "B", name: "Cover", note: "A magazine feature: the photo fills the first screen, a drop cap, pictures that leave the column, figures on an ink band, Up next.", tags: ["Full-screen cover", "Reading line", "Footnotes"], img: "/extra/post-b.webp", featured: true },
       { href: "/post-c", n: "C", name: "Notebook", note: "A reference read: split opening, a sticky rail with contents that fill as you read, time left and the takeaways; boxed notes.", tags: ["Split hero", "Progress rail", "Docs feel"], img: "/extra/post-c.webp" },
+      { href: "/post-d", n: "D", name: "Poster", note: "The October 2026 Figma's blog in a post: the cover as a poster (title, kicker and logo set on the photo, boxed in white), mono labels with the green square, takeaways and figures in white boxes, Keep reading as the index's boxed cards.", tags: ["Figma", "Poster cover", "Boxed cards"], img: "/extra/post-d.webp" },
     ],
   },
   {
