@@ -12,7 +12,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 |---|---|---|
 | `/` (and `/home-v9`) | **Homepage**: home v9. One type-only section, "NEAR is privacy for onchain capital and the agent economy.", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) and v8 (`/home-v8`, the cycling word) stay at their own addresses, also on `/index`. | `src/components/v7` (on pieces of v1–v5) |
 | `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
-| `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c` shows A or C. `/post-b` is the sample article. | `src/components/v3/post` |
+| `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c\|d` shows A, C or D. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
 | `/analytics` | **Analytics**: C (Ruled grid). Sample figures until the live feed lands. | `src/components/analytics/c` |
 | `/economics` | **Economics**: A (Ruled grid), from the October 2026 doc. | `src/components/economics/a` |
@@ -24,7 +24,8 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | `/admin` | The CMS. | `src/cms`, `src/app/(cms)` |
 
 Explorations that still have their own routes are listed at `/extra`:
-- the blog post layouts `/post-a`, `/post-b` and `/post-c`;
+- the blog post layouts `/post-a`, `/post-b`, `/post-c` and `/post-d` (D: the October 2026 Figma's blog look; the CMS picker still offers A–C only);
+- the blog index versions B–D at `/blog-index-b…d` (A is the live `/blog`): B and D from the October 2026 Figma's two blog frames (nodes 980:723, 756:41), C is B on the homepage's soft ruled grid (`src/components/blog/<letter>`). Not `/blog-b…d`: those still redirect to `/blog` (the old directions A–L);
 - Analytics A, B, D and E at `/analytics-a`, `/analytics-b`, `/analytics-d`, `/analytics-e`;
 - Economics B and C at `/economics-b`, `/economics-c`, History A and B at `/history-a`, `/history-b`, and Community A and C at `/community-a`, `/community-c`;
 - Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (no final version chosen yet: the menu's `/solutions`, `/research` and `/brand` don't exist yet). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.

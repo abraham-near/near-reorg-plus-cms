@@ -1,4 +1,4 @@
-// The switch between the blog post layouts (top left), same pill as the Foundation pages: plain links to /post-a, /post-b, /post-c, or, given a
+// The switch between the blog post layouts (top left), same pill as the Foundation pages: plain links to /post-a…/post-d, or, given a
 // post's own address (`base`, e.g. /blog/some-post), to that post in each layout (?layout=…, except the layout it opens in by default: `fallback`).
 import "../../v4/revenue/switch.css";
 
@@ -6,6 +6,7 @@ export const POST_VERSIONS = [
   { k: "a", href: "/post-a", name: "Ruled" },
   { k: "b", href: "/post-b", name: "Cover" },
   { k: "c", href: "/post-c", name: "Notebook" },
+  { k: "d", href: "/post-d", name: "Poster" },
 ] as const;
 export type PostLayout = (typeof POST_VERSIONS)[number]["k"];
 

@@ -3,7 +3,7 @@ import type { Article, MorePost } from "@/components/v3/post/article";
 import type { LivePost, PostCard } from "./posts";
 
 export const BLOG_HREF = "/blog";
-/** the layout a post opens in without ?layout= (B, Cover); the others are ?layout=a / ?layout=c */
+/** the layout a post opens in without ?layout= (B, Cover); the others are ?layout=a / ?layout=c / ?layout=d */
 export const DEFAULT_LAYOUT = "b";
 export const postHref = (slug: string, layout = DEFAULT_LAYOUT) => `${BLOG_HREF}/${slug}${layout === DEFAULT_LAYOUT ? "" : `?layout=${layout}`}`;
 

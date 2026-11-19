@@ -4,19 +4,20 @@ import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { PostA } from "@/components/v3/post/a/PostA";
 import { PostB } from "@/components/v3/post/b/PostB";
 import { PostC } from "@/components/v3/post/c/PostC";
+import { PostD } from "@/components/v3/post/d/PostD";
 import { PostSwitch, type PostLayout } from "@/components/v3/post/PostSwitch";
 import { postHref, shareOf, toArticle } from "@/lib/blog/article";
 import { getLivePost, getMorePosts } from "@/lib/blog/posts";
 import { siteOrigin } from "@/lib/site";
 
-// A post published in the CMS, in one of the post layouts: the one chosen in the CMS (B, Cover, when none), or ?layout=a / b / c, with the same pill as
-// /post-a…c to switch. Rendered on request (the slug and the layout are only known then; the database is not reachable at build), its reads cached by
+// A post published in the CMS, in one of the post layouts: the one chosen in the CMS (B, Cover, when none), or ?layout=a / b / c / d, with the same pill as
+// /post-a…d to switch. Rendered on request (the slug and the layout are only known then; the database is not reachable at build), its reads cached by
 // the CMS's tags (lib/blog/posts.ts). A slug that is not live gets the not-found page: a 404 in dev; in production Next has already sent the route's
 // (empty) prerendered shell, so it is a 200 with noindex, as on the CMS's own [id] pages.
 export const instant = false;
 
-const LAYOUTS = { a: PostA, b: PostB, c: PostC } as const;
-const layoutOf = (v: string | string[] | undefined): PostLayout => (v === "a" || v === "c" ? v : "b");   // B (Cover) unless asked
+const LAYOUTS = { a: PostA, b: PostB, c: PostC, d: PostD } as const;
+const layoutOf = (v: string | string[] | undefined): PostLayout => (v === "a" || v === "c" || v === "d" ? v : "b");   // B (Cover) unless asked
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
