@@ -229,9 +229,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   /* ───────────────────────────── the stage (DOM) ───────────────────────────── */
   function buildStage(copy: Copy): Stage {
     const stage = document.createElement("div"); stage.className = "rs"; stage.setAttribute("aria-hidden", "true");
-    /* v5: the answer runs on three lines ("On NEAR, that stack" / "is user-owned," / "from inference to settlement."): the break goes before the mid's last word,
-       so the marked phrase stays whole on the second line. The second line is its own span (the spans are inline-blocks: a <br> inside .rest2 would indent it under "NEAR") */
-    const mm = SPLIT ? copy.mid.match(/^(.*?)(\s*)(\S+)(\s*)$/) : null;
+    /* The answer runs on two lines ("On NEAR, that stack is yours," / "from inference to settlement.", D238). v5 used to break it into three, before the mid's last word
+       ("On NEAR, that stack" / "is user-owned," / …); with the short mark "yours" that left "is yours," alone, so the split is off (ANS3). Kept for a longer mark:
+       the second line is its own span (the spans are inline-blocks: a <br> inside .rest2 would indent it under "NEAR") */
+    const ANS3 = false;
+    const mm = SPLIT && ANS3 ? copy.mid.match(/^(.*?)(\s*)(\S+)(\s*)$/) : null;
     const ansTail = `<span class="rs__mk">${TX(copy.owned)}</span>${TX(copy.tail)}`;
     const ansNear = NEAROUT ? `<span class="nw">${TX("NEAR")}</span>` : "";   /* v6: the answer's NEAR is a word of its own (the spacer stays, 0 wide) */
     const ansRest = mm
