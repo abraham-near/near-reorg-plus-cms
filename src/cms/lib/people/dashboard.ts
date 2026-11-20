@@ -42,7 +42,7 @@ export async function getDashboard(user: SessionUser, now = new Date()) {
   const latest = drafts[0]
     ? await db.post.findUnique({
       where: { id: drafts[0].id },
-      select: { body: true, excerpt: true, _count: { select: { categories: true } } },
+      select: { body: true, excerpt: true, video: true, _count: { select: { categories: true } } },
     })
     : null
   const text = htmlToText(latest?.body)
@@ -54,7 +54,7 @@ export async function getDashboard(user: SessionUser, now = new Date()) {
     updatedAt: drafts[0].updatedAt.toISOString(),
     snippet: text ? textTail(text, 120) : null,
     words,
-    readiness: postReadiness({ title: drafts[0].title, excerpt: latest.excerpt, categoryCount: latest._count.categories, featuredImage: drafts[0].featuredImage, wordCount: words }),
+    readiness: postReadiness({ title: drafts[0].title, excerpt: latest.excerpt, categoryCount: latest._count.categories, featuredImage: drafts[0].featuredImage, wordCount: words, hasVideo: !!latest.video }),
   } : null
 
   let activity: ActivityItem[] | null = null

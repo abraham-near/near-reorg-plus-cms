@@ -56,8 +56,10 @@ export function UploadTray({ rows, onRetry, onRemove, onClear, className }: Prop
         </span>
         <span className="flex-none text-xs tabular-nums text-muted-foreground">
           {row.status === 'done' && <span className="text-primary"><CheckMark /><span className="sr-only">Uploaded</span></span>}
-          {row.status === 'uploading' && (row.progress === null ? '…' : row.progress >= 1 ? 'Saving' : `${Math.round(row.progress * 100)}%`)}
-          {row.status === 'queued' && 'Waiting'}
+          {(row.status === 'uploading' || row.status === 'queued') && <span className="flex items-center gap-1">
+            {row.status === 'queued' ? 'Waiting' : row.progress === null ? '…' : row.progress >= 1 ? 'Saving' : `${Math.round(row.progress * 100)}%`}
+            {!(row.status === 'uploading' && row.progress !== null && row.progress >= 1) && <button type="button" onClick={() => onRemove(row.id)} aria-label={`Cancel ${row.file.name}`} title="Cancel" className="grid size-[26px] place-items-center rounded-md hover:bg-muted hover:text-foreground"><X className="size-3.5" /></button>}
+          </span>}
           {row.status === 'error' && <span className="flex items-center gap-1">
             {row.retryable !== false && <button type="button" onClick={() => onRetry(row.id)} className="cms-press h-[26px] rounded-md border border-input bg-background px-2 text-xs font-medium text-foreground hover:bg-muted">Retry</button>}
             <button type="button" onClick={() => onRemove(row.id)} aria-label={`Dismiss ${row.file.name}`} className="grid size-[26px] place-items-center rounded-md hover:bg-muted hover:text-foreground"><X className="size-3.5" /></button>

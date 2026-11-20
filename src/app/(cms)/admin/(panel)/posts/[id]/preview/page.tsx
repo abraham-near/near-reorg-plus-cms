@@ -6,7 +6,8 @@ import { requirePagePermission } from '@/cms/lib/auth'
 import { db } from '@/cms/lib/db'
 import { postSelect } from '@/cms/lib/posts/select'
 import { isLive, isScheduled } from '@/cms/lib/posts/visibility'
-import { safeUrl, sanitizeRichHtml, stripTags } from '@/cms/lib/sanitize'
+import { isAllowedEmbed, safeUrl, sanitizeRichHtml, stripTags } from '@/cms/lib/sanitize'
+import { isCmsVideoUrl } from '@/cms/lib/posts/video'
 import LocalTime from '@/cms/components/posts/LocalTime'
 
 // Reads the session (cookie + database) before rendering: this page blocks by design (src/app/(cms)/layout.tsx).
@@ -39,6 +40,9 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
   if (!post) notFound()
   const card = shareCard(post)
   const featured = safeUrl(post.featuredImage)
+  // A video post: the video replaces the cover at the top (the cover becomes its poster).
+  const videoFile = post.video && isCmsVideoUrl(post.video) ? post.video : null
+  const videoEmbed = post.video && !videoFile && isAllowedEmbed(post.video) ? post.video : null
   const state = isScheduled(post) ? <>Scheduled for <LocalTime value={post.publishedAt} /></> : isLive(post) ? <>Published <LocalTime value={post.publishedAt} /></> : post.status === 'ARCHIVED' ? 'Archived' : 'Draft'
   const categories = post.categories.map((join) => join.category.name)
   const notes = notesOf(post.body)
@@ -63,7 +67,10 @@ export default async function PostPreviewPage({ params }: { params: Promise<{ id
       </section>
 
       <article className="space-y-6 border-t border-[var(--border-soft)] pt-10">
-        {featured && <img src={featured} alt="" className="max-h-[360px] w-full rounded-xl object-cover" />}
+        {videoFile ? <video src={videoFile} poster={featured ?? undefined} controls preload="metadata" playsInline className="aspect-video w-full rounded-xl bg-black" />
+          : videoEmbed ? <iframe src={videoEmbed} title={post.title} className="aspect-video w-full rounded-xl bg-black" loading="lazy" allowFullScreen
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" referrerPolicy="strict-origin-when-cross-origin" allow="fullscreen; picture-in-picture; encrypted-media" />
+          : featured && <img src={featured} alt="" className="max-h-[360px] w-full rounded-xl object-cover" />}
         {categories.length > 0 && <p className="text-xs font-semibold tracking-[.05em] text-primary">{categories.join(' · ').toUpperCase()}</p>}
         <h1 className="text-[40px] font-bold leading-[1.12] tracking-[-0.02em]">{post.title}</h1>
         {post.excerpt && <p className="text-lg leading-relaxed text-muted-foreground">{post.excerpt}</p>}

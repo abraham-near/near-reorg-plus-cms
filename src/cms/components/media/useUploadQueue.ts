@@ -28,12 +28,14 @@ const AUTO_HIDE_MS = 4000
  * failures stay listed with a reason and Retry, and the list clears itself a few seconds after
  * everything succeeded. `onUploaded` runs for each stored file.
  */
-export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?: boolean; onUploaded?: (media: MediaItem) => void } = {}) {
+export function useUploadQueue({ imagesOnly = false, videosOnly = false, onUploaded }: { imagesOnly?: boolean; videosOnly?: boolean; onUploaded?: (media: MediaItem) => void } = {}) {
   const [rows, setRows] = useState<UploadRow[]>([])
   const pending = useRef<string[]>([])
   const files = useRef(new Map<string, File>())
   const running = useRef(false)
-  const abort = useRef<AbortController | null>(null)
+  /** The upload in flight and its row: cancelling that row aborts it. */
+  const abort = useRef<{ id: string; controller: AbortController } | null>(null)
+  const unmounted = useRef(false)
   const uploadedRef = useRef(onUploaded)
   useEffect(() => { uploadedRef.current = onUploaded }, [onUploaded])
 
@@ -50,13 +52,15 @@ export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?
         const file = files.current.get(id)
         if (!file) continue
         update(id, { status: 'uploading', progress: 0, error: undefined })
-        abort.current = new AbortController()
+        const controller = new AbortController()
+        abort.current = { id, controller }
         try {
-          const media = await uploadMedia(file, { imagesOnly, signal: abort.current.signal, onProgress: (progress) => update(id, { progress }) })
+          const media = await uploadMedia(file, { imagesOnly, videosOnly, signal: controller.signal, onProgress: (progress) => update(id, { progress }) })
           update(id, { status: 'done', progress: 1, media })
           uploadedRef.current?.(media)
         } catch (error) {
-          if (abort.current?.signal.aborted) return
+          // Cancelled: the row is gone already; the next file goes on (unless the page is closing).
+          if (controller.signal.aborted) { if (unmounted.current) return; continue }
           const message = error instanceof AdminApiError ? uploadErrorMessage(error.status, error.message, file) : 'Upload failed. Please retry.'
           const retryable = !(error instanceof AdminApiError && [400, 413, 415].includes(error.status))
           update(id, { status: 'error', progress: null, error: message, retryable })
@@ -66,7 +70,7 @@ export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?
       running.current = false
       abort.current = null
     }
-  }, [imagesOnly, update])
+  }, [imagesOnly, videosOnly, update])
 
   const add = useCallback((list: File[] | FileList) => {
     const all = Array.from(list)
@@ -74,7 +78,7 @@ export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?
     if (all.length > MAX_FILES_PER_BATCH) toast.warning(`Only the first ${MAX_FILES_PER_BATCH} files were added. Drop the rest after these finish.`)
     const added: UploadRow[] = all.slice(0, MAX_FILES_PER_BATCH).map((file) => {
       const id = crypto.randomUUID()
-      const problem = checkUpload(file, { imagesOnly })
+      const problem = checkUpload(file, { imagesOnly, videosOnly })
       files.current.set(id, file)
       if (!problem) pending.current.push(id)
       const preview = file.type.startsWith('image/') && !problem ? URL.createObjectURL(file) : null
@@ -82,21 +86,22 @@ export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?
     })
     setRows((current) => [...current, ...added])
     void pump()
-  }, [imagesOnly, pump])
+  }, [imagesOnly, videosOnly, pump])
 
   const retry = useCallback((id: string) => {
     const file = files.current.get(id)
     if (!file) return
-    const problem = checkUpload(file, { imagesOnly })
+    const problem = checkUpload(file, { imagesOnly, videosOnly })
     if (problem) { update(id, { error: problem }); return }
     update(id, { status: 'queued', progress: 0, error: undefined, retryable: true })
     pending.current.push(id)
     void pump()
-  }, [imagesOnly, pump, update])
+  }, [imagesOnly, videosOnly, pump, update])
 
   const forget = useCallback((ids: string[]) => {
     const drop = new Set(ids)
     pending.current = pending.current.filter((id) => !drop.has(id))
+    if (abort.current && drop.has(abort.current.id)) abort.current.controller.abort()
     for (const id of ids) files.current.delete(id)
     setRows((current) => {
       for (const row of current) if (drop.has(row.id) && row.preview) URL.revokeObjectURL(row.preview)
@@ -105,7 +110,7 @@ export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?
   }, [])
 
   const remove = useCallback((id: string) => forget([id]), [forget])
-  /** Clears finished rows (done or failed); uploads in progress keep going. */
+  /** Clears finished rows (done or failed); uploads in progress keep going (cancel one with remove). */
   const clear = useCallback(() => forget(rows.filter((row) => row.status === 'done' || row.status === 'error').map((row) => row.id)), [forget, rows])
 
   // Hide the tray a few seconds after every file went up without problems.
@@ -119,10 +124,14 @@ export function useUploadQueue({ imagesOnly = false, onUploaded }: { imagesOnly?
   // Leaving the page cancels the upload in flight and frees the thumbnails.
   const rowsRef = useRef(rows)
   useEffect(() => { rowsRef.current = rows }, [rows])
-  useEffect(() => () => {
-    pending.current = []
-    abort.current?.abort()
-    for (const row of rowsRef.current) if (row.preview) URL.revokeObjectURL(row.preview)
+  useEffect(() => {
+    unmounted.current = false
+    return () => {
+      unmounted.current = true
+      pending.current = []
+      abort.current?.controller.abort()
+      for (const row of rowsRef.current) if (row.preview) URL.revokeObjectURL(row.preview)
+    }
   }, [])
 
   return { rows, add, retry, remove, clear, busy: rows.some((row) => row.status === 'queued' || row.status === 'uploading') }

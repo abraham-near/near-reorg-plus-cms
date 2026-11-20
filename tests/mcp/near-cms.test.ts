@@ -188,6 +188,14 @@ describe('create_draft', () => {
     expect(r.text).toContain('"layout": "c"')
     expect(r.text).toMatch(/"takeaways": \[\s*"One",\s*"Two"\s*\]/)
   })
+  it('passes a video post\'s video and returns it', async () => {
+    respond = () => ({ status: 201, json: post({ video: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' }) })
+    const { call } = await connect()
+    const r = await call('create_draft', { title: 'Hello World', html: '<p>About the talk.</p>', video: 'https://youtu.be/dQw4w9WgXcQ' })
+    expect(r.isError).toBe(false)
+    expect(JSON.parse(calls[0].init.body as string)).toMatchObject({ video: 'https://youtu.be/dQw4w9WgXcQ' })
+    expect(r.text).toContain('"video": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"')
+  })
   it('refuses a fourth takeaway and an unknown layout', async () => {
     const { call } = await connect()
     expect((await call('create_draft', { title: 'T', html: '<p>x</p>', takeaways: ['1', '2', '3', '4'] })).isError).toBe(true)
@@ -221,6 +229,12 @@ describe('update_post', () => {
     const { call } = await connect()
     expect((await call('update_post', { id: 'p1', layout: null, takeaways: [] })).isError).toBe(false)
     expect(JSON.parse(calls[2].init.body as string)).toMatchObject({ layout: null, takeaways: [] })
+  })
+  it('clears a video with null', async () => {
+    respond = route
+    const { call } = await connect()
+    expect((await call('update_post', { id: 'p1', video: null })).isError).toBe(false)
+    expect(JSON.parse(calls[2].init.body as string)).toMatchObject({ video: null })
   })
   it('unlocks even when PATCH fails', async () => {
     respond = (m, u, b) => (m === 'PATCH' ? { status: 409, json: { error: 'stale' } } : route(m, u, b))

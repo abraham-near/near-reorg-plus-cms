@@ -29,11 +29,12 @@ export const GROUPS: Group[] = [
   {
     id: "post",
     title: "Blog post",
-    note: "Four layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",
+    note: "Four layouts for a single post, on v4's header and footer, plus V for video posts. The same example article on AI agents, with the same photos, in each.",
     pages: [
       { href: "/post-a", n: "A", name: "Ruled", note: "The index's ruled grid carried into the article: a row of facts, the photo in its cell, contents | text | margin notes.", tags: ["Ruled grid", "Sticky contents", "Margin notes"], img: "/extra/post-a.webp" },
       { href: "/post-b", n: "B", name: "Cover", note: "A magazine feature: the photo fills the first screen, a drop cap, pictures that leave the column, figures on an ink band, Up next.", tags: ["Full-screen cover", "Reading line", "Footnotes"], img: "/extra/post-b.webp", featured: true },
       { href: "/post-c", n: "C", name: "Notebook", note: "A reference read: split opening, a sticky rail with contents that fill as you read, time left and the takeaways; boxed notes.", tags: ["Split hero", "Progress rail", "Docs feel"], img: "/extra/post-c.webp" },
+      { href: "/post-v", n: "V", name: "Video", note: "A video post (the CMS's Format: Video): A's ruled grid kept simple, the video edge to edge where the photo goes (an uploaded MP4 or a YouTube/Vimeo player), a short text, Keep watching and reading. Shown as Watch in the blog index.", tags: ["Video", "Ruled grid", "CMS Format: Video"], img: "/extra/post-v.webp" },
       { href: "/post-d", n: "D", name: "Poster", note: "The October 2026 Figma's blog in a post: the cover as a poster (title, kicker and logo set on the photo, boxed in white), mono labels with the green square, takeaways and figures in white boxes, Keep reading as the index's boxed cards.", tags: ["Figma", "Poster cover", "Boxed cards"], img: "/extra/post-d.webp" },
     ],
   },

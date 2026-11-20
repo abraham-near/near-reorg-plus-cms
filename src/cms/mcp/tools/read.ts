@@ -8,7 +8,7 @@ export type RawPost = {
   metaDescription?: string | null; metaImage?: string | null
   categories?: { category: { id: string; name: string; slug: string } }[]; tags?: { id: string; name: string; slug: string }[]
   author?: { name: string | null } | null
-  takeaways?: string[]; layout?: string | null
+  takeaways?: string[]; layout?: string | null; video?: string | null
 }
 
 export function shapePost(origin: string, p: RawPost, withBody = false) {
@@ -18,7 +18,7 @@ export function shapePost(origin: string, p: RawPost, withBody = false) {
     excerpt: p.excerpt ?? null, featuredImage: p.featuredImage ?? null,
     metaTitle: p.metaTitle ?? null, metaDescription: p.metaDescription ?? null, metaImage: p.metaImage ?? null,
     categories: p.categories?.map((c) => c.category), tags: p.tags, author: p.author?.name ?? null,
-    takeaways: p.takeaways ?? [], layout: p.layout ?? null,
+    takeaways: p.takeaways ?? [], layout: p.layout ?? null, video: p.video ?? null,
     ...(withBody ? { bodyHtml: p.body ?? '' } : {}),
     ...postUrls(origin, p.id),
   }
@@ -63,9 +63,9 @@ export const readTools: Def[] = [
   },
   {
     name: 'list_media', title: 'List media', annotations: RO, requires: ['content:read'],
-    description: 'List uploaded images in the media library.',
-    shape: { q: z.string().max(200).optional(), page },
-    run: async (a: { q?: string; page?: number }, { api }: Ctx) =>
-      ok(await api.request('GET', '/api/admin/media', { query: { q: a.q, page: a.page, type: 'image' } })),
+    description: 'List uploaded images in the media library, or with type "video" the uploaded videos (for a video post\'s video).',
+    shape: { q: z.string().max(200).optional(), page, type: z.enum(['image', 'video']).optional().describe('Default "image"') },
+    run: async (a: { q?: string; page?: number; type?: 'image' | 'video' }, { api }: Ctx) =>
+      ok(await api.request('GET', '/api/admin/media', { query: { q: a.q, page: a.page, type: a.type ?? 'image' } })),
   },
 ]

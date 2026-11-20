@@ -4,6 +4,8 @@
 
 const KB = 1024
 const MB = 1024 * 1024
+/** Mirrors media.ts VIDEO_MAX: videos go up in parts (upload-client.ts uploadVideoInParts). */
+const VIDEO_MAX = 100 * MB
 
 export type UploadGroup = 'image' | 'video' | 'audio' | 'document' | 'font'
 export type UploadKind = { ext: string; aliases?: string[]; mimes: string[]; label: string; max: number; group: UploadGroup }
@@ -15,9 +17,9 @@ export const UPLOAD_KINDS: UploadKind[] = [
   { ext: 'gif', mimes: ['image/gif'], label: 'GIF', max: 15 * MB, group: 'image' },
   { ext: 'avif', mimes: ['image/avif'], label: 'AVIF', max: 15 * MB, group: 'image' },
   { ext: 'svg', mimes: ['image/svg+xml'], label: 'SVG', max: 2 * MB, group: 'image' },
-  { ext: 'mp4', mimes: ['video/mp4'], label: 'MP4', max: 200 * MB, group: 'video' },
-  { ext: 'webm', mimes: ['video/webm'], label: 'WebM', max: 200 * MB, group: 'video' },
-  { ext: 'mov', mimes: ['video/quicktime'], label: 'MOV', max: 200 * MB, group: 'video' },
+  { ext: 'mp4', mimes: ['video/mp4'], label: 'MP4', max: VIDEO_MAX, group: 'video' },
+  { ext: 'webm', mimes: ['video/webm'], label: 'WebM', max: VIDEO_MAX, group: 'video' },
+  { ext: 'mov', mimes: ['video/quicktime'], label: 'MOV', max: VIDEO_MAX, group: 'video' },
   { ext: 'mp3', mimes: ['audio/mpeg', 'audio/mp3'], label: 'MP3', max: 50 * MB, group: 'audio' },
   { ext: 'm4a', mimes: ['audio/mp4', 'audio/x-m4a'], label: 'M4A', max: 50 * MB, group: 'audio' },
   { ext: 'wav', mimes: ['audio/wav', 'audio/x-wav', 'audio/wave'], label: 'WAV', max: 50 * MB, group: 'audio' },
@@ -61,19 +63,23 @@ export function formatBytes(bytes: number) {
 export const tooLargeMessage = (size: number, max: number) => `Too large (${formatBytes(size)}). Max ${formatBytes(max)}.`
 
 /** Why this file would be refused, or null when it looks fine (the server still has the last word). */
-export function checkUpload(file: { name: string; type?: string; size: number }, opts: { imagesOnly?: boolean } = {}): string | null {
+/** Video formats a video post can play in every browser (MOV does not; server: media.ts POST_VIDEO_MIMES). */
+export const POST_VIDEO_EXTS = ['mp4', 'webm']
+
+export function checkUpload(file: { name: string; type?: string; size: number }, opts: { imagesOnly?: boolean; videosOnly?: boolean } = {}): string | null {
   if (file.size === 0) return 'This file is empty.'
   const kind = findUploadKind(file)
   const ext = extensionOf(file.name)
   if (!kind) return `This file type${ext ? ` (.${ext})` : ''} can't be uploaded.`
   if (opts.imagesOnly && kind.group !== 'image') return 'Only images can be added here.'
+  if (opts.videosOnly && !POST_VIDEO_EXTS.includes(kind.ext)) return kind.ext === 'mov' ? 'MOV does not play in every browser. Export it as MP4 (H.264).' : 'Only MP4 or WebM videos can be added here.'
   if (file.size > kind.max) return tooLargeMessage(file.size, kind.max)
   return null
 }
 
-/** Value for <input type="file" accept>. */
-export function acceptAttribute(imagesOnly = false) {
-  return UPLOAD_KINDS.filter((kind) => !imagesOnly || kind.group === 'image')
+/** Value for <input type="file" accept>; `'video'` = the formats a video post plays. */
+export function acceptAttribute(imagesOnly: boolean | 'video' = false) {
+  return UPLOAD_KINDS.filter((kind) => imagesOnly === 'video' ? POST_VIDEO_EXTS.includes(kind.ext) : !imagesOnly || kind.group === 'image')
     .flatMap((kind) => [`.${kind.ext}`, ...(kind.aliases ?? []).map((alias) => `.${alias}`), ...kind.mimes])
     .join(',')
 }
@@ -82,7 +88,11 @@ const listOf = (labels: string[]) => labels.length < 2 ? labels.join('') : `${la
 const maxOf = (kinds: UploadKind[]) => Math.max(...kinds.map((kind) => kind.max))
 
 /** One or two short lines describing what can be dropped, built from the table above. */
-export function uploadLimitLines(imagesOnly = false): string[] {
+export function uploadLimitLines(imagesOnly: boolean | 'video' = false): string[] {
+  if (imagesOnly === 'video') {
+    const videos = UPLOAD_KINDS.filter((kind) => POST_VIDEO_EXTS.includes(kind.ext))
+    return [`${listOf(videos.map((kind) => kind.label))} · up to ${formatBytes(maxOf(videos))}`, 'For longer videos, paste a YouTube or Vimeo link instead']
+  }
   const images = UPLOAD_KINDS.filter((kind) => kind.group === 'image')
   const svg = images.find((kind) => kind.ext === 'svg')
   const raster = images.filter((kind) => kind !== svg)
