@@ -1,7 +1,8 @@
 "use client";
 // near.org/history, version X · "MVP" (design review, Nov 19 2026): built from A (the homepage's ruled grid) and made to sit beside the homepage: mostly
 // copy, the grid where it earns its place, no eyebrows or decorative numbers. From the top:
-//   1 the hero, on bare paper like the homepage's (no grid, no crosshair near the header): the H1 with its Kepler word, the subhead, the two actions;
+//   1 the hero, on bare paper like the homepage's (no grid, no crosshair near the header): the H1 with its Kepler word, the subhead, the two actions |
+//     beside them (under them on phones), a small isometric drawing, decorative: a flight of steps from 2017 to 2026, the top one green (HeroIso.tsx);
 //   2 Origin, plain text: the heading | the two paragraphs (no stat block, no photo);
 //   3 the milestones as a short story, after the homepage's rail (simpler): the heading row, then one ruled cell the years travel through sideways while
 //     the section is pinned, three at a time: the year on show at the centre with its title and text (its marker green), the others faint (their text
@@ -14,6 +15,7 @@ import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
 import { HERO, MILESTONES, ORIGIN, TODAY } from "../content";
 import { Acc, Arrow } from "./parts";
+import { HeroIso } from "./HeroIso";
 import { mount } from "./motion";
 import "../../v3/proof-deeper/proof-deeper.css";
 import "./history-x.css";
@@ -28,14 +30,17 @@ export function HistoryX() {
 
   return (
     <div ref={ref} className="l-page hs-x">
-      {/* ───────────── 1 · hero: type only, no grid */}
+      {/* ───────────── 1 · hero: the type | the drawing (decorative), no grid */}
       <section className="hx-hero" aria-labelledby="hx-h1">
-        <h1 id="hx-h1" className="hx-h1" data-h1=""><Acc h={HERO.h1} a={HERO.accent} /></h1>
-        <p className="hx-hero__sub" data-in="">{HERO.sub}</p>
-        <p className="hx-acts" data-in="">
-          <a className="l-btn hx-btn" href={HERO.primary.href} {...ext(HERO.primary.href)}><span>{HERO.primary.label}</span><ExtSr h={HERO.primary.href} /></a>
-          <a className="l-link" href={HERO.secondary.href} {...ext(HERO.secondary.href)}><span>{HERO.secondary.label}</span><Arrow /></a>
-        </p>
+        <div className="hx-hero__text">
+          <h1 id="hx-h1" className="hx-h1" data-h1=""><Acc h={HERO.h1} a={HERO.accent} /></h1>
+          <p className="hx-hero__sub" data-in="">{HERO.sub}</p>
+          <p className="hx-acts" data-in="">
+            <a className="l-btn hx-btn" href={HERO.primary.href} {...ext(HERO.primary.href)}><span>{HERO.primary.label}</span><ExtSr h={HERO.primary.href} /></a>
+            <a className="l-link" href={HERO.secondary.href} {...ext(HERO.secondary.href)}><span>{HERO.secondary.label}</span><Arrow /></a>
+          </p>
+        </div>
+        <div className="hx-hero__art"><HeroIso /></div>
       </section>
 
       {/* ───────────── 2 · Origin: plain text */}

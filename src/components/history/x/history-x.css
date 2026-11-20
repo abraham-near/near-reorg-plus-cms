@@ -19,14 +19,33 @@
 :where(.hs-x[data-motion]) [data-up].is-in { transition: opacity 0.8s var(--ease-glide) calc(var(--j, 0) * 0.07s), translate 1s var(--ease-settle) calc(var(--j, 0) * 0.07s); }
 :where(.hs-x[data-motion]) [data-up].is-now { transition: none; }
 
-/* ---------------------------------------------------------------- 1 · hero: type only, on bare paper (the homepage's first screen) */
-.hs-x .hx-hero { display: flex; flex-direction: column; align-items: flex-start; margin: 0 var(--margin); padding: var(--top) var(--l-pad) 0; }
+/* ---------------------------------------------------------------- 1 · hero: the type | the drawing, on bare paper (the homepage's first screen) */
+/* the text | the drawing (HeroIso.tsx): two columns (7 | 5, after Community X's hero), the drawing at the foot of the row, at the right; it stays smaller
+   than the h1 (440 px at most) */
+.hs-x .hx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(40px, 5vw, 96px); align-items: end;
+  margin: 0 var(--margin); padding: var(--top) var(--l-pad) 0; }
+.hs-x .hx-hero__text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
 .hs-x .hx-h1 { max-width: 13em; font-family: var(--font-text); font-weight: 400; font-size: clamp(2.75rem, 1rem + 4.3vw, 5.25rem); line-height: 1.02;
   letter-spacing: -0.03em; text-wrap: balance; }
 .hs-x .hx-h1 .accent .hx-w { line-height: 0.92; }
 .hs-x .hx-hero__sub { max-width: 32em; margin-top: clamp(28px, 4vh, 44px); font-size: var(--t-body-l); line-height: 1.4; letter-spacing: -0.008em; color: var(--graphite);
   text-wrap: pretty; }
 .hs-x .hx-hero .hx-acts { margin-top: clamp(28px, 4vh, 40px); }
+/* the drawing, in the site's isometric hand: white tops, light grey sides, 1 px ink hairlines, the one green on 2026's top; the dotted floor fades out */
+.hs-x .hx-hero__art { justify-self: end; width: min(100%, 440px); margin: 0; pointer-events: none; }
+.hs-x .hx-iso { display: block; width: 100%; height: auto; overflow: visible; }
+.hs-x .hx-iso * { vector-effect: non-scaling-stroke; }
+.hs-x .hx-iso .sl polygon { stroke: #111; stroke-width: 1; stroke-linejoin: round; }
+.hs-x .hx-iso .sl__t { fill: #fff; } .hs-x .hx-iso .sl__l { fill: #f2f2f0; } .hs-x .hx-iso .sl__r { fill: #e8e8e6; }
+/* the edges draw in by their dash offset (pathLength 1): plain strokes, Chrome measures dashes in screen space under non-scaling-stroke (the faces'
+   own 1 px outlines hold the hairline once they are in) */
+.hs-x .hx-iso .sl__e { fill: none; stroke: #111; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; vector-effect: none; }
+.hs-x .hx-iso__now { fill: var(--emerald); stroke: #111; stroke-width: 1; stroke-linejoin: round; }
+.hs-x .hx-iso__ripple { fill: none; stroke: var(--emerald); stroke-width: 1.5; stroke-linejoin: round; opacity: 0; }
+.hs-x .hx-iso__floor { fill: none; stroke: #111; stroke-opacity: 0.3; stroke-width: 2.2; stroke-linecap: round; }
+.hs-x .hx-iso__yr { font-family: var(--font-text); font-size: 13px; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; fill: #111; fill-opacity: 0.55; }
+.hs-x .hx-iso .pw__b { fill: #e8e8e6; stroke: #111; stroke-width: 1; stroke-linejoin: round; }
+.hs-x .hx-iso :is(.pw__t, .pw__h) { fill: #fff; stroke: #111; stroke-width: 1; }
 
 /* ---------------------------------------------------------------- 2 · Origin: the heading | the two paragraphs */
 .hs-x .hx-origin__body { display: flex; flex-direction: column; gap: 18px; max-width: 34em; padding-top: 10px; }
@@ -73,7 +92,8 @@
 /* ---------------------------------------------------------------- below 860 */
 @media (max-width: 859px) {
   .hs-x .hx-sec { grid-template-columns: minmax(0, 1fr); padding: 0; }
-  .hs-x .hx-hero { padding-left: 0; padding-right: 0; }
+  .hs-x .hx-hero { grid-template-columns: minmax(0, 1fr); padding-left: 0; padding-right: 0; }
+  .hs-x .hx-hero__art { justify-self: start; width: min(80%, 340px); }
   .hs-x .hx-rail { padding: 32px 0 32px 16px; }
   .hs-x .hx-st { width: min(80vw, 340px); scroll-margin-left: 16px; }
   .hs-x .hx-st__y { padding-bottom: 16px; }
