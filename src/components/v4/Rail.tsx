@@ -3,7 +3,7 @@
 import "../v1/rail/rail.css";
 import "./v4.css";
 
-/** exit: how the rail closes into the Stack (rail/layer.ts drawExit): no dots in v4 */
+/** exit: how the rail closes into the Stack (rail/layer.ts drawExit): no dots in v4; "none" (home v10, D239): no tide, the Stack is above it */
 /** steps: "line" drops the N tiles (the centre and the stations) and marks the steps in green over the ink line */
 /** beats: "split" (home v5) runs the thesis and the problem as two separate beats (the thesis leaves whole, nothing docks; the problem's drawing becomes the user's in place) */
 /** back: "ridges" (home v5) puts Lawrence's ridges panorama behind the rail instead of the dot globe */
@@ -13,7 +13,7 @@ import "./v4.css";
 /** words: "lines" (home v6, with beats="split") moves the type line by line, not word by word, and brings line 3 in after a beat (rail/layer.ts LINES) */
 /** identity: "sign" (home v7, D189) draws "Own your identity." as the signed account (rail/vig2/sign.ts) in place of the key (rail/layer.ts ownKey) */
 /** type: "even" (home v6) sets the thesis, the problem and the answer (all the type above the line) in one size (v6/rail-v6.css) */
-export function RailV4({ exit, steps, beats, back, near, square, type, words, identity }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop" | "wipe"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges"; near?: "out"; square?: "early"; type?: "even"; words?: "lines"; identity?: "sign" }) {
+export function RailV4({ exit, steps, beats, back, near, square, type, words, identity }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop" | "wipe" | "none"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges"; near?: "out"; square?: "early"; type?: "even"; words?: "lines"; identity?: "sign" }) {
   return (
     <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps} data-beats={beats} data-back={back} data-near={near} data-square={square} data-type={type} data-words={words} data-identity={identity}>
       <div className="rail__static">

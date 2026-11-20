@@ -10,6 +10,7 @@ export const GROUPS: Group[] = [
     title: "Homepage",
     note: "Homepage versions that were not chosen. The homepage (/) is home v8, the cycling word; home v7, the film hero, is at /home-v7 on /index.",
     pages: [
+      { href: "/home-v10", n: "v10", name: "Home · Stack second", note: "Home v8 with the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\"), then the same lower page.", tags: ["Type-only hero", "Stack second", "Branch Stack-Second"], img: "/extra/home-v10.webp" },
       { href: "/home-v9", n: "v9", name: "Home · still headline", note: "Home v8 with one still headline, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it, on the same lower page. The homepage until v8 was chosen.", tags: ["Type-only hero", "Still headline", "Archived"], img: "/extra/home-v9.webp" },
     ],
   },

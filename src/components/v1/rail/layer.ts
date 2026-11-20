@@ -87,6 +87,9 @@ const ST: Stair = { dw: 0.18, dl: 0.42, dur: 1.5, span: 3.6 };           /* the 
 const STT: Stair = { dw: 0.3, dl: 0, dur: 1.5, span: 2.4 };              /* the station title's ("Own your data.") */
 const STP: Stair = { dw: 0.16, dl: 0.55, dur: 1.6, span: 5.1 };          /* the problem paragraph's (bottom -> top, word by word) */
 const SCREENS = () => TOTAL * (innerWidth <= 760 ? RATE.m : RATE.d);
+/* exit "none" (home v10, D239: the Stack comes before the rail, so nothing follows it to turn dark into): no tide; the timeline ends a beat after identity
+   has left (95.2) and the pin lets go, the line and its tile scrolling away with the section */
+const OPEN_END = 97;
 const NB = 16;
 const FDS = 0.2;
 const RU = { step: 12, y0: 4, s: 6, a: 0.2 };                            /* the ruler: one tick every RU.step px of the world, RU.y0 under the line, RU.s long, alpha RU.a */
@@ -165,6 +168,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const sec = document.querySelector<HTMLElement>(".layer"); if (!sec) return null;
   /* how the tide closes the world into the Stack: "dots" (v1 / v3: the lattice's dots grow and merge) or, without dots (v4's options), "floor" | "frame" | "seam" | "ruler" */
   const EXIT = sec.dataset.exit || "dots";
+  const OPEN = EXIT === "none", END = OPEN ? OPEN_END : TOTAL;   /* D239 */
   /* v4 (.layer[data-line="ink"]): the line and its sweep's dots in ink, not green (no green on the line yet), and the ruler's ticks draw in from both ends
      (the frontend's, the backend's) and meet under the node as the section arrives */
   const INKLINE = sec.dataset.line === "ink", LINE_C = INKLINE ? INK : GREEN;
@@ -969,13 +973,15 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     to(I.fin, { a: 0, duration: 2.0, ease: "none" }, ID_OUT);
     /* 95.8 - 106.3 THE WORLD BECOMES THE STACK: S.tk the cells under the line darken and merge from just under the centre outwards; S.tg the tide: the dark rises from the line as a straight edge,
        carrying the line and the node, until the line has left the top. The Stack slides in under the last TR.ov units (the band's overlap), on the same ground */
-    to(S, { tk: 1, duration: TR.k1 - TR.t0, ease: "power1.out" }, TR.t0);
-    if (EXIT === "wipe") to(S, { tg: 1, duration: TR.g1 - TR.t0, ease: "sine.inOut" }, TR.t0);   /* the line rises with the wipe from the start (D133) */
-    else to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
+    if (!OPEN) {   /* D239: exit "none" has no tide */
+      to(S, { tk: 1, duration: TR.k1 - TR.t0, ease: "power1.out" }, TR.t0);
+      if (EXIT === "wipe") to(S, { tg: 1, duration: TR.g1 - TR.t0, ease: "sine.inOut" }, TR.t0);   /* the line rises with the wipe from the start (D133) */
+      else to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
+    }
     /* the background world (rail/railglobe.ts): ONE turn from the thesis (0) to identity's exit (95.2), linear; it leaves with identity (92.3 - 95.2) */
     to(S, { gy: 1, duration: ID_OUT + 2.9, ease: "none" }, 0);
     to(S, { gq: 1, duration: 2.9, ease: "none" }, ID_OUT);
-    tl.set({}, {}, TOTAL);
+    tl.set({}, {}, END);
     tl.eventCallback("onUpdate", apply);
   }
 
@@ -1024,7 +1030,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   /* ───────────────────────────── mount ───────────────────────────── */
   const trigs: Trig[] = [];
   let main: Tl | null = null, enterTl: Tl | null = null, inkTw: ReturnType<V1Ctx["gsap"]["to"]> | null = null, rsTm = 0, disposed = false;
-  const band = document.querySelector<HTMLElement>(".stk");
+  const band = OPEN ? null : document.querySelector<HTMLElement>(".stk");   /* D239: with no tide, the Stack (above the rail on v10) is not the rail's to pull up */
   const TIDE = !!band?.hasAttribute("data-enter");
   const dispose: Dispose = () => {
     if (disposed) return; disposed = true;
@@ -1063,7 +1069,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     return staticPage(sec);
   }
   /* the Stack band is pulled up over the last TR.ov units of the pin (stack.css: html[data-rail] .stk; the overlap is see-through, the world's dark shows under it) */
-  const pinPx = () => SCREENS() * innerHeight;
+  const pinPx = () => SCREENS() * (END / TOTAL) * innerHeight;
   const PLACE = html.getAttribute("data-stk-enter") === "place";
   const setOv = () => { if (band) band.style.setProperty("--ov", (PLACE ? innerHeight : (TR.ov / TOTAL) * pinPx()).toFixed(1) + "px"); };
   setOv();
