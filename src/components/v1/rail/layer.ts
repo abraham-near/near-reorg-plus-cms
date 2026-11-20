@@ -191,7 +191,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
 
   /* the animated state (everything the timeline moves that is not an item). gy / gq: the background world's turn and exit (rail/railglobe.ts) */
   /* own: the problem's drawing becomes the user's (v5); ik: how far the ink line reaches (world vw; v5 keeps it across the screen while the world slides to the problem) */
-  const S = { enter: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gp: 0, rk: 1, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
+  const S = { enter: 0, ink: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gp: 0, rk: 1, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
   const M = {} as Metrics;
   let R: Stage | null = null, field: Field | null = null, toneImg: Tone | null = null, P: Lattice | null = null, RGl: RailGlobe | null = null;
   const items: Item[] = [];
@@ -577,11 +577,13 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const h = M.playHW - 1;
     return [S.pf >= 0.81 ? h : 0, S.pf >= 0.31 ? h : 0];
   };
-  const inkReach = () => (INKLINE ? (M.W / 2 + 8) * inOut3(clamp(S.enter / 0.92, 0, 1)) : 0);
+  /* D223: the two runs close on their own clock once the line comes on the screen (S.ink, its own tween at mount), not on the scroll: they used to wait,
+     half-met, until the reader scrolled on */
+  const inkReach = () => (INKLINE ? (M.W / 2 + 8) * S.ink : 0);
   function drawRuler(c: CanvasRenderingContext2D, it: Item, ed: Edges) {
     const fade = 1 - s01(S.tk * 4); if (fade < 0.01) return;
     const { cx, Xc, Y0 } = M, k0 = Math.ceil((Xc - cx - 2) / RU.step), k1 = Math.floor((Xc + cx + 2) / RU.step), y = Math.round(Y0) + RU.y0;
-    /* ink line: the ticks come in from both ends with the arrival (S.enter), the two fronts meeting under the node; a few ticks at each front stand taller and darker */
+    /* ink line: the ticks come in from both ends (S.ink), the two fronts meeting under the node; a few ticks at each front stand taller and darker */
     const reach = inkReach(), FR = 54;
     const front: number[] = [];
     for (let k = k0; k <= k1; k++) {
@@ -589,7 +591,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       let q: number;
       if (INKLINE) {
         const fromEnd = Math.min(x, M.W - x), ahead = reach - fromEnd; if (ahead <= 0) continue;
-        q = 15; if (S.enter < 0.999 && ahead < FR) front.push(x, 1 - ahead / FR);
+        q = 15; if (S.ink < 0.999 && ahead < FR) front.push(x, 1 - ahead / FR);
       } else { q = Math.round(cov(it, ed, x)[0] * 15); if (q < 1) continue; }
       TBs[q].push(x);
     }
@@ -1021,7 +1023,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
 
   /* ───────────────────────────── mount ───────────────────────────── */
   const trigs: Trig[] = [];
-  let main: Tl | null = null, enterTl: Tl | null = null, rsTm = 0, disposed = false;
+  let main: Tl | null = null, enterTl: Tl | null = null, inkTw: ReturnType<V1Ctx["gsap"]["to"]> | null = null, rsTm = 0, disposed = false;
   const band = document.querySelector<HTMLElement>(".stk");
   const TIDE = !!band?.hasAttribute("data-enter");
   const dispose: Dispose = () => {
@@ -1030,7 +1032,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     clearTimeout(rsTm);
     if (idleRaf) cancelAnimationFrame(idleRaf); idleRaf = 0; idleIO?.disconnect(); idleIO = null;
     trigs.forEach((t) => t.kill()); trigs.length = 0;
-    main?.kill(); enterTl?.kill(); main = enterTl = null;
+    main?.kill(); enterTl?.kill(); inkTw?.kill(); main = enterTl = null; inkTw = null;
     try { RGl?.dispose(); } catch (e) { console.warn("[rail] globe dispose", e); }
     RGl = null;
     if (R) { for (const v of [...R.vig, R.gvig]) { try { v?.dispose?.(); } catch (e) { console.warn("[rail] vignette dispose", e); } } R.stage.remove(); R = null; }
@@ -1074,6 +1076,13 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
      on screen until the scroll came back into the rail (D134) */
   const redraw = () => { if (!disposed) apply(); };
   trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true, onRefresh: redraw }));
+  /* D223: the ink line's two runs meet on a clock once the line is 85 % down the screen (they finish while the reader stops), and part again above it */
+  if (INKLINE) {
+    inkTw = gsap.to(S, { ink: 1, duration: 1.4, ease: "power2.inOut", paused: true, onUpdate: apply });
+    trigs.push(ScrollTrigger.create({ trigger: sec, start: () => `top+=${Math.round(M.railY || 0)} 85%`, end: "max", invalidateOnRefresh: true,
+      onEnter: () => inkTw?.play(), onLeaveBack: () => inkTw?.reverse(),
+      onRefresh: (st) => { if (inkTw && st.progress > 0 && !inkTw.isActive()) inkTw.progress(1); } }));
+  }
   trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1, onRefresh: redraw }));
   apply(); html.setAttribute("data-ly-ready", "");
   requestRefresh();

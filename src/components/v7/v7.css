@@ -164,15 +164,19 @@ html[data-v7="priv"] .l-page[data-scope="v7"] .l-origin::after { content: ""; po
    a set gap under the form, and on short screens it shrinks with the height, so it never falls off the foot.
    Size: the stack 200–360 px wide and at most 19vh tall; its centre, top and size in the photo: x .495, top .37, w .29, h .35 (the close studies' mail.ts).
    The photo fades into the paper through two added masks: a tight one, solid over the stack and its shadow, and a wide one to the photo's edge holding the
-   floor round it at half strength at most, both eased, so the floor (a little greyer than the paper) feathers out with no ring (D214).
+   floor round it at a third strength at most, both eased (smootherstep), so the floor (a little greyer than the paper) feathers out with no ring (D214).
+   D223: the tight one's fade runs out to 38% x 45.7% of the photo (it was 29% x 35%, which left an edge above and below the stack); its solid core is
+   unchanged, so the stack and the light's own edges stay sharp: only the mask is feathered, nothing is blurred.
    Scoped to this photo, so the close studies' other pictures keep the full bleed. */
 html[data-v7="priv"] .l-page[data-scope="v7"] .l-close__bleed:has(.l-img[src$="/close-mail-light.webp"]) {
   --mw: min(calc(clamp(200px, 21vw, 360px) / 0.29), calc(clamp(100px, 19vh, 230px) / 0.196875));   /* the photo's width */
   --mh: calc(var(--mw) * 0.5625);
-  --mask: radial-gradient(ellipse 29% 35% at 49.5% 54.5%, rgb(0 0 0 / 1) 70.7%, rgb(0 0 0 / 0.962) 74.4%, rgb(0 0 0 / 0.854) 78%, rgb(0 0 0 / 0.691) 81.7%,
-      rgb(0 0 0 / 0.5) 85.4%, rgb(0 0 0 / 0.309) 89%, rgb(0 0 0 / 0.146) 92.7%, rgb(0 0 0 / 0.038) 96.3%, rgb(0 0 0 / 0) 100%),
-    radial-gradient(ellipse 49.3% 45.5% at 49.5% 54.5%, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0.481) 12.5%, rgb(0 0 0 / 0.427) 25%, rgb(0 0 0 / 0.346) 37.5%,
-      rgb(0 0 0 / 0.25) 50%, rgb(0 0 0 / 0.154) 62.5%, rgb(0 0 0 / 0.073) 75%, rgb(0 0 0 / 0.019) 87.5%, rgb(0 0 0 / 0) 100%);
+  --mask: radial-gradient(ellipse 38% 45.7% at 49.5% 54.5%, rgb(0 0 0 / 1) 54.0%, rgb(0 0 0 / 0.995) 57.8%, rgb(0 0 0 / 0.965) 61.7%, rgb(0 0 0 / 0.896) 65.5%, rgb(0 0 0 / 0.790) 69.3%,
+      rgb(0 0 0 / 0.653) 73.2%, rgb(0 0 0 / 0.500) 77.0%, rgb(0 0 0 / 0.347) 80.8%, rgb(0 0 0 / 0.210) 84.7%, rgb(0 0 0 / 0.104) 88.5%,
+      rgb(0 0 0 / 0.035) 92.3%, rgb(0 0 0 / 0.005) 96.2%, rgb(0 0 0 / 0.000) 100.0%),
+    radial-gradient(ellipse 49.3% 45.5% at 49.5% 54.5%, rgb(0 0 0 / 0.320) 0%, rgb(0 0 0 / 0.317) 10%, rgb(0 0 0 / 0.301) 20%, rgb(0 0 0 / 0.268) 30%, rgb(0 0 0 / 0.218) 40%,
+      rgb(0 0 0 / 0.160) 50%, rgb(0 0 0 / 0.102) 60%, rgb(0 0 0 / 0.052) 70%, rgb(0 0 0 / 0.019) 80%, rgb(0 0 0 / 0.003) 90%,
+      rgb(0 0 0 / 0.000) 100%);
 }
 html[data-v7="priv"] .l-page[data-scope="v7"] .l-close__bleed:has(.l-img[src$="/close-mail-light.webp"]) .l-plate { background: var(--paper); }
 html[data-v7="priv"] .l-page[data-scope="v7"] .l-close__bleed .l-plate > .l-img[src$="/close-mail-light.webp"] { visibility: hidden; }
