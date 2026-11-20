@@ -62,6 +62,11 @@ export const FINALS: Final[] = [
     tags: ["MVP", "Catalogue", "Topic filter"], img: "/index/research.webp",
   },
   {
+    id: "protocol", href: "/protocol", name: "Protocol",
+    note: "Version B, \"The network lives\": the network at work on canvas in the hero (shard lanes, a block every 600 ms, the 1.2 s finality line, the private shard), a pinned dark chapter for Nightshade, resharding, the private shard and the key rotation, then the doc's sections on the ruled grid.",
+    tags: ["Canvas hero", "Pinned chapter", "Ruled grid"], img: "/index/protocol.webp",
+  },
+  {
     id: "contact", href: "/contact", name: "Contact",
     note: "A short about, the form (name, email, topic, message; checked in place, nothing is sent yet) and NEAR's social links.",
     tags: ["About", "Form", "Social links"], img: "/index/contact.webp",

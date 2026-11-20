@@ -84,6 +84,17 @@ export const GROUPS: Group[] = [
     ],
   },
   {
+    id: "protocol",
+    title: "Protocol",
+    note: "near.org/protocol (Stack → Protocol in the menu), four versions. B is /protocol, in the menu (since Nov 20, 2026) built like a homepage: a narrative that explains the protocol, with a more elaborate hero than the About and Resources pages. Copy verbatim from the October 2026 doc (components/protocol/content.ts), regrouped for the story. The motion is illustrative, not live data.",
+    pages: [
+      { href: "/protocol-a", n: "A", name: "Protocol · The stack builds", note: "A large isometric of the protocol builds in the hero, then holds while you scroll: a shard fills and splits, the private shard appears, the account key rotates to ML-DSA. Nightshade on the dark band, a drawing for each part, the contract types in.", tags: ["Iso hero", "Pinned story", "Ruled grid"], img: "/extra/protocol-a.webp" },
+      { href: "/protocol", n: "B", name: "Protocol · The network lives", note: "The hero is the network at work on canvas: shard lanes closing a block every 600 ms, the 1.2 s finality line, the private shard, a lane splitting. A pinned dark chapter carries Nightshade, resharding, the private shard and the key rotation on the same lanes.", tags: ["Canvas hero", "Pinned chapter", "Ruled grid"], img: "/extra/protocol-b.webp", featured: true },
+      { href: "/protocol-c", n: "C", name: "Protocol · Read sideways", note: "B's layout with drawings that need no words. The hero is the network as a sphere of dots cut into ten shards and a dark private one, green running through as blocks go final. The dark chapter scrolls sideways through Nightshade, resharding, the private shard and the key swap; Speed is a clock, Chain Signatures a seal flying to its chain.", tags: ["Dot hero", "Sideways chapter", "No labels"], img: "/extra/protocol-c.webp" },
+      { href: "/protocol-d", n: "D", name: "Protocol · The graphic transforms", note: "B's layout with drawings that need no words. The hero is convergence: agents, apps and chains send threads into one point that writes a final ledger. In the dark chapter one isometric of the network transforms as you scroll, like the homepage's Stack; Speed deploys once to every shard, Chain Signatures lands native blocks on three chains.", tags: ["Convergence hero", "Morphing iso", "No labels"], img: "/extra/protocol-d.webp" },
+    ],
+  },
+  {
     id: "solutions",
     title: "Solutions",
     note: "near.org/solutions (Solutions, \"Explore use cases\" in the menu) from the October 2026 doc's Solutions Hub copy, three versions in the official pages' hand. Copy verbatim (components/solutions/content.ts); the logo wall uses the partner files in the repo, the rest set as names until their logos are in. X is /solutions, in the menu (since Nov 19, 2026). It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",

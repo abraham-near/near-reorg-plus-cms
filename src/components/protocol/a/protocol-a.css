@@ -1,0 +1,276 @@
+/* Protocol A · "The stack builds" (ProtocolA.tsx). The stage on bare paper (no rules near the header): the H1 beside the hero drawing, then Built for AI
+   scale over the same drawing (pinned on desktop). From the proof strip down, the homepage's ruled grid (proof-deeper.css: .l-row / .l-cell, the +
+   crosshairs from its motion) as one continuous frame into the close; one dark band (Nightshade 3.0) joined to it by empty ruled rows. The drawings in
+   the site's iso hand: white tops, grey sides, ink hairlines, one green. Motion only under .pr-a[data-motion]. Scoped under .pr-a. */
+.pr-a { --top: clamp(132px, 16vh, 176px); --pa-ink: #111; --pa-gap: clamp(72px, 10vh, 128px); --l-pad: clamp(24px, 2.6vw, 40px);
+  --mono: var(--font-montreal-mono), ui-monospace, monospace; --pa-lit: #d4f8e7;
+  background: var(--paper-0); overflow-x: clip; }
+.pr-a .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
+.pr-a :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.pr-a [id] { scroll-margin-top: 96px; }
+.pr-a .pa-w { will-change: transform, opacity; }
+.pr-a :is(.pa-h1, .pa-h2, .pa-scale__h) .accent .pa-w { line-height: 0.92; }
+.pr-a strong { font-weight: 500; color: var(--ink); }
+
+/* ---------------------------------------------------------------- shared bits */
+.pr-a .pa-btn { gap: 10px; background: var(--ink); color: var(--paper-0); }
+.pr-a .pa-btn--line { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.pr-a .l-ext { width: 10px; height: 10px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ease-tick); }
+@media (hover: hover) { .pr-a .l-btn:hover .l-ext, .pr-a .l-link:hover .l-ext { translate: 2px -2px; } .pr-a .l-btn:hover .l-arr { translate: 3px 0; } }
+.pr-a .pa-go { display: inline; padding: 0; line-height: 1.45; }
+.pr-a .pa-go :is(.l-ext, .l-arr) { display: inline-block; margin-left: 10px; vertical-align: 0; }
+:where(.pr-a[data-motion]) [data-in]:not(.is-in) { opacity: 0; translate: 0 18px; }
+:where(.pr-a[data-motion]) [data-in].is-in { transition: opacity 0.9s var(--ease-glide) var(--d, 0s), translate 1.1s var(--ease-settle) var(--d, 0s); }
+.pr-a .l-spacer .l-cell { height: var(--pa-gap); padding: 0; }
+.pr-a .pa-head .l-head__cell { flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 16px; padding: clamp(48px, 7vh, 64px) var(--l-pad) clamp(32px, 4.4vh, 44px); }
+.pr-a .pa-h2 { max-width: 13em; text-wrap: balance; }
+.pr-a .pa-h3 { max-width: 13em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(1.875rem, 1.2rem + 1.6vw, 2.75rem); line-height: 1.04;
+  letter-spacing: -0.025em; text-wrap: balance; }
+.pr-a .pa-sub { max-width: 28em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); font-weight: 500; color: var(--ink); text-wrap: balance; }
+.pr-a .pa-body { max-width: 34em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.pr-a .pa-more { margin-top: 6px; color: var(--ink); }
+.pr-a .pa-fig-art { width: 100%; margin: 0; }
+.pr-a .pa-ic { display: block; flex: none; width: 28px; height: 28px; color: var(--ink); }
+.pr-a .pa-ic svg { display: block; width: 100%; height: 100%; }
+.pr-a .pa-pts { display: flex; flex-direction: column; }
+.pr-a .pa-pts li { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 20px; align-items: start; padding: 22px 0; }
+.pr-a .pa-pts li + li { border-top: var(--hair) solid var(--l-soft); }
+.pr-a .pa-pts p { max-width: 30em; padding-top: 3px; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+
+/* ---------------------------------------------------------------- 1 · the stage */
+.pr-a .pa-stage { position: relative; padding: var(--top) calc(var(--margin) + var(--l-pad)) clamp(64px, 10vh, 120px); }
+.pr-a .pa-stage__in { display: grid; grid-template-columns: minmax(0, 4.6fr) minmax(0, 7.4fr); grid-template-areas: "copy art" "scale art";
+  column-gap: clamp(24px, 4vw, 72px); row-gap: clamp(48px, 7vh, 80px); align-items: center; }
+.pr-a .pa-hero__copy { grid-area: copy; display: flex; flex-direction: column; gap: clamp(24px, 3.4vh, 36px); }
+.pr-a .pa-h1 { max-width: 9.5em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.75rem, 0.9rem + 3.5vw, 5.5rem); line-height: 0.97;
+  letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.pr-a .pa-hero__sub { max-width: 26em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
+.pr-a .pa-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.pr-a .pa-hero__art { grid-area: art; margin: 0 calc(var(--margin) * -0.6) 0 0; }
+.pr-a .pa-iso { display: block; width: 100%; height: auto; max-height: min(72vh, 680px); overflow: visible; }
+.pr-a .pa-scale { grid-area: scale; display: flex; flex-direction: column; gap: 20px; }
+.pr-a .pa-scale__h { max-width: 11em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2rem, 1.2rem + 2vw, 3.5rem); line-height: 1.02;
+  letter-spacing: -0.028em; text-wrap: balance; }
+.pr-a .pa-scale__b { max-width: 28em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); color: var(--graphite); text-wrap: pretty; }
+.pr-a .pa-steps { margin-top: 12px; }
+.pr-a .pa-step { position: relative; padding: 18px 0 20px; border-top: var(--hair) solid var(--line-strong); }
+.pr-a .pa-step:last-child { border-bottom: var(--hair) solid var(--line-strong); }
+.pr-a .pa-step p { max-width: 30em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); }
+.pr-a .pa-step__bar { display: none; position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--emerald); }
+/* the hero drawing waits, hidden, until its motion has set every starting state (motion.ts adds .is-ready), so the finished frame never flashes before
+   the build (a page reached through a page transition shows it first otherwise); if the script never runs, it shows after 3 s */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .pr-a .pa-hero__art:not(.is-ready) { opacity: 0; animation: pa-art-safe 0.4s 3s forwards; }
+}
+@keyframes pa-art-safe { to { opacity: 1; } }
+/* desktop with motion: the stage is one screen, pinned (motion.ts, the same query): Built for AI scale takes the hero copy's place over the drawing */
+@media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
+  :root[data-js] .pr-a .pa-stage { box-sizing: border-box; height: 100vh; min-height: 640px; display: flex; padding-bottom: clamp(32px, 5vh, 56px); }
+  :root[data-js] .pr-a .pa-stage__in { flex: 1; grid-template-areas: "copy art"; }
+  :root[data-js] .pr-a .pa-scale { grid-area: copy; opacity: 0; }
+  :root[data-js] .pr-a .pa-step__bar { display: block; transform: scaleX(0); }
+  :root[data-js] .pr-a .pa-iso { max-height: calc(100vh - var(--top) - 56px); margin: 0 auto; }
+}
+
+/* ---------------------------------------------------------------- 2 · proof: the homepage's strip, two ruled rows of four (the last cell empty) */
+.pr-a .pa-proof__row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pr-a .pa-fig .l-fig__c { max-width: 15em; }
+
+/* ---------------------------------------------------------------- 3 · Nightshade: the dark band, off the grid */
+.pr-a .pa-ns { background: var(--ink); color: var(--paper-0); padding: clamp(80px, 12vh, 144px) 0;
+  --l-soft: rgb(245 244 241 / 0.1); --muted: rgb(245 244 241 / 0.6); --graphite: rgb(245 244 241 / 0.78); --pa-ink: #f5f4f1; }
+.pr-a .pa-ns :focus-visible { outline-color: var(--paper-0); }
+.pr-a .pa-ns .l-row::before, .pr-a .pa-ns .l-row::after, .pr-a .pa-ns .l-cell + .l-cell::before, .pr-a .pa-ns .l-x { display: none; }
+.pr-a .pa-ns__row { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.pr-a .pa-ns__txt { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 24px; padding: 0 var(--l-pad); }
+.pr-a .pa-ns .pa-sub { color: var(--paper-0); }
+.pr-a .pa-ns .l-lede { max-width: 28em; }
+.pr-a .pa-ns__art { display: flex; align-items: center; justify-content: center; padding: 0 clamp(24px, 3vw, 56px); }
+.pr-a .pa-ns .pa-art { max-width: 640px; max-height: 60vh; }
+
+/* ---------------------------------------------------------------- 4 · the features: copy | drawing (or drawing | copy), one ruled row each */
+.pr-a .pa-ft { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.pr-a .pa-ft--flip { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.pr-a .pa-ft .l-cell { padding-top: clamp(48px, 7vh, 72px); padding-bottom: clamp(48px, 7vh, 72px); }
+.pr-a .pa-ft__txt { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 18px; padding-right: clamp(24px, 3vw, 56px); }
+.pr-a .pa-ft__art { display: flex; align-items: center; justify-content: center; padding-left: clamp(24px, 3vw, 56px); padding-right: clamp(24px, 3vw, 56px); }
+.pr-a .pa-ft__art .pa-art { max-width: 560px; max-height: 380px; margin: 0 auto; }
+
+/* ---------------------------------------------------------------- 5 · developers: the points | the contract */
+.pr-a .pa-dev__row { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.pr-a .pa-dev__row .l-cell { padding-top: clamp(32px, 5vh, 48px); padding-bottom: clamp(40px, 6vh, 56px); }
+.pr-a .pa-dev__pts { display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
+.pr-a .pa-dev__pts .pa-pts { align-self: stretch; }
+.pr-a .pa-dev__code { display: flex; align-items: center; padding-left: clamp(24px, 3vw, 56px); padding-right: clamp(24px, 3vw, 56px); }
+.pr-a .pa-code { width: 100%; margin: 0; border: var(--hair) solid var(--l-line); background: #fbfaf8; }
+.pr-a .pa-code__cap { display: flex; justify-content: space-between; gap: 16px; padding: 12px 18px; border-bottom: var(--hair) solid var(--l-soft);
+  font: 500 12px/1.2 var(--mono); letter-spacing: 0.02em; color: var(--muted); }
+.pr-a .pa-code__cap span:first-child::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 10px; border-radius: 50%; background: var(--emerald); vertical-align: 1px; }
+.pr-a .pa-code pre { margin: 0; padding: 20px 18px 24px; overflow-x: auto; counter-reset: ln; font: 400 clamp(13px, 0.78rem + 0.15vw, 15px)/1.75 var(--mono); color: var(--ink); tab-size: 2; }
+.pr-a .pa-code__ln { display: inline; }
+.pr-a .pa-code__ln::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 2.4em; margin-right: 1em; text-align: right; color: rgb(38 38 38 / 0.3); }
+.pr-a .pa-tk--s { color: var(--green-text); }
+.pr-a .pa-tk--d { color: var(--muted); }
+.pr-a .pa-tk--k { color: var(--green-text); font-weight: 500; }
+:where(.pr-a[data-motion]) .pa-dev__row .pa-code__ln { opacity: 0; }
+:where(.pr-a[data-motion]) .pa-dev__row.is-in .pa-code__ln { opacity: 1; transition: opacity 0.35s var(--ease-glide) calc(0.5s + var(--i) * 0.09s); }
+:where(.pr-a[data-motion]) .pa-dev__row.is-in .pa-code__ln:last-child::after { content: ""; display: inline-block; width: 0.55em; height: 1.1em; margin-left: 2px; vertical-align: -0.2em;
+  background: var(--emerald); animation: pa-caret 1.1s steps(1) calc(0.5s + var(--i) * 0.09s) infinite; opacity: 0; }
+@keyframes pa-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ---------------------------------------------------------------- 7 · NEAR One | Secure */
+.pr-a .pa-one__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pr-a .pa-one__c { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding-top: clamp(48px, 7vh, 64px); padding-bottom: clamp(48px, 7vh, 64px); padding-right: clamp(24px, 4vw, 72px); }
+.pr-a .pa-one__c .pa-pts { align-self: stretch; margin-top: 4px; }
+
+/* ---------------------------------------------------------------- 8 · Go deeper: five reads as cells */
+.pr-a .pa-reads { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.pr-a .pa-read { padding: 0; }
+.pr-a .pa-read__a { position: relative; isolation: isolate; display: flex; flex-direction: column; gap: 12px; height: 100%; padding: 28px var(--l-pad) 32px; }
+.pr-a .pa-read__a::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); opacity: 0; transition: opacity 0.3s var(--ease-tick); }
+.pr-a .pa-read__ic { display: block; width: 20px; height: 20px; margin-bottom: 12px; color: var(--ink); }
+.pr-a .pa-read__ic svg { display: block; width: 100%; height: 100%; }
+.pr-a .pa-read__t { font-weight: 500; font-size: var(--t-body); line-height: 1.3; letter-spacing: -0.005em; text-wrap: balance; }
+.pr-a .pa-read__b { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); text-wrap: pretty; }
+.pr-a .pa-read__go { margin-top: auto; padding-top: 16px; display: flex; color: var(--ink); }
+@media (hover: hover) {
+  .pr-a .pa-read__a:hover::before { opacity: 1; }
+  .pr-a .pa-read__a:hover .l-arr { translate: 4px 0; }
+  .pr-a .pa-read__a:hover .l-ext { translate: 2px -2px; }
+}
+:where(.pr-a[data-motion]) .pa-reads .pa-read__a { opacity: 0; translate: 0 14px; }
+:where(.pr-a[data-motion]) .pa-reads.is-in .pa-read__a { opacity: 1; translate: none;
+  transition: opacity 0.9s var(--ease-glide) calc(0.2s + var(--j) * 0.07s), translate 1.1s var(--ease-settle) calc(0.2s + var(--j) * 0.07s); }
+
+/* ---------------------------------------------------------------- the drawings: the site's iso hand */
+.pr-a :is(.pa-iso, .pa-art) { display: block; width: 100%; height: auto; overflow: visible; }
+.pr-a :is(.pa-iso, .pa-art) polygon { stroke: var(--pa-ink); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pr-a .pa-t { fill: #fff; } .pr-a .pa-l { fill: #f2f2f0; } .pr-a .pa-r { fill: #e8e8e6; }
+.pr-a .pa-plate__b .pa-t { fill: #fbfbf9; }
+.pr-a .pa-g .pa-t { fill: #5fe0ae; } .pr-a .pa-g .pa-l { fill: #3cc994; } .pr-a .pa-g .pa-r { fill: #22a374; }
+.pr-a .pa-dk .pa-t { fill: #3a3936; } .pr-a .pa-dk .pa-l { fill: #302f2c; } .pr-a .pa-dk .pa-r { fill: #2a2926; }
+.pr-a .pa-blk .pa-t { transition: fill 1.4s var(--ease-glide); }
+.pr-a .pa-blk .pa-t.is-lit { fill: var(--emerald); transition: fill 0.12s linear; }
+.pr-a :is(.pa-floor, .pa-dots) { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.28; stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.pr-a .pa-teth { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.6; stroke-width: 1.1; stroke-dasharray: 1 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.pr-a .pa-halo { fill: none; stroke: var(--emerald-deep); stroke-width: 1.2; stroke-dasharray: 2 3; opacity: 0.45; vector-effect: non-scaling-stroke; }
+.pr-a .pa-key__bow { fill: #fff; stroke: var(--pa-ink); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.pr-a .pa-key--q .pa-key__bow { fill: var(--emerald); }
+.pr-a .pa-key__hole { fill: none; stroke: var(--pa-ink); stroke-width: 1.1; vector-effect: non-scaling-stroke; }
+.pr-a .pa-key__lat circle { fill: var(--pa-ink); }
+.pr-a .pa-key__sh { fill: none; stroke: var(--pa-ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pr-a .pa-priv__bar { fill: rgb(245 244 241 / 0.26); }
+.pr-a .pa-priv__win { fill: var(--emerald); }
+.pr-a .pa-thr polygon, .pr-a .pa-thr path { fill: none; stroke: var(--pa-ink); stroke-width: 1.1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+/* the finished frame (no motion yet, or reduced motion): what belongs to the start only is not drawn */
+.pr-a .pa-iso[data-state="final"] .pa-start { display: none; }
+/* labels */
+.pr-a .pa-lab text { font-family: var(--mono); font-weight: 500; letter-spacing: 0.02em; fill: var(--pa-ink); }
+.pr-a .pa-lab__ln { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.55; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.pr-a .pa-lab__dot { fill: var(--emerald); stroke: var(--pa-ink); stroke-width: 0.9; vector-effect: non-scaling-stroke; }
+/* glass */
+.pr-a .pa-gl polygon { stroke-opacity: 0.85; }
+.pr-a .pa-gl__t { fill: rgb(255 255 255 / 0.34); } .pr-a .pa-gl__l { fill: rgb(242 242 240 / 0.45); } .pr-a .pa-gl__r { fill: rgb(232 232 230 / 0.52); }
+.pr-a .pa-gl__h { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 2 3; vector-effect: non-scaling-stroke; }
+/* pawns, plinths */
+.pr-a .pa-pw__s, .pr-a .pa-pl__s { fill: #e8e8e6; stroke: var(--pa-ink); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pr-a .pa-pw__t, .pr-a .pa-pw__h, .pr-a .pa-pl__t { fill: #fff; stroke: var(--pa-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.pr-a .pa-pw__a { fill: none; stroke: var(--pa-ink); stroke-width: 1.1; vector-effect: non-scaling-stroke; }
+.pr-a .pa-pw__dot { fill: var(--emerald); stroke: var(--pa-ink); stroke-width: 0.9; vector-effect: non-scaling-stroke; }
+/* ns · on the dark band: dark faces, paper hairlines */
+.pr-a .pa-ns .pa-t { fill: #3a3936; } .pr-a .pa-ns .pa-l { fill: #302f2c; } .pr-a .pa-ns .pa-r { fill: #2a2926; }
+.pr-a .pa-ns .pa-dk .pa-t { fill: #1a1a19; } .pr-a .pa-ns .pa-dk .pa-l { fill: #151514; } .pr-a .pa-ns .pa-dk .pa-r { fill: #111110; }
+.pr-a .pa-ns .pa-dk polygon { stroke: var(--emerald); stroke-opacity: 0.9; }
+.pr-a .pa-ns .pa-gl__t { fill: rgb(245 244 241 / 0.07); } .pr-a .pa-ns .pa-gl__l { fill: rgb(245 244 241 / 0.05); } .pr-a .pa-ns .pa-gl__r { fill: rgb(245 244 241 / 0.04); }
+.pr-a .pa-ns :is(.pa-iso, .pa-art) polygon { stroke-opacity: 0.7; }
+.pr-a .ns-wit { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.5; stroke-width: 1.1; stroke-dasharray: 1 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.pr-a .ns-wd { fill: var(--emerald); }
+.pr-a .ns-atom { fill: none; stroke: var(--emerald); stroke-width: 1.4; stroke-dasharray: 3 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+:where(.pr-a[data-motion]) .ns-atom { animation: pa-march 1.6s linear infinite; }
+@keyframes pa-march { to { stroke-dashoffset: -14; } }
+/* rs */
+.pr-a .rs-fill .pa-t { fill: #e9e8e5; } .pr-a .rs-fill .pa-l { fill: #dcdbd7; } .pr-a .rs-fill .pa-r { fill: #cfcecb; }
+.pr-a .rs-thr { fill: none; stroke: var(--pa-ink); stroke-width: 1.1; stroke-dasharray: 3 3; transition: stroke 0.3s; }
+.pr-a .rs-thr.is-hot { stroke: var(--emerald-deep); stroke-width: 1.8; stroke-dasharray: none; }
+.pr-a .rs-ok circle { fill: var(--emerald); stroke: var(--pa-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.pr-a .rs-ok path { fill: none; stroke: var(--pa-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+/* sp · the track (2D) */
+.pr-a .pa-art--2d { max-width: 600px; overflow: hidden; }
+.pr-a .sp-h { font: 500 22px/1 var(--mono); fill: var(--ink); letter-spacing: -0.01em; }
+.pr-a .sp-h__k { fill: var(--muted); font-size: 14px; letter-spacing: 0.04em; }
+.pr-a .sp-rail { stroke: var(--l-line); stroke-width: 1; }
+.pr-a .sp-b rect { fill: #fff; stroke: var(--ink); stroke-width: 1; }
+.pr-a .sp-b text { font: 500 11px/1 var(--mono); fill: var(--ink); text-anchor: middle; letter-spacing: 0.02em; }
+.pr-a .sp-b.is-new rect { stroke-dasharray: 3 3; }
+.pr-a .sp-b.is-pend rect { fill: var(--paper-1); }
+.pr-a .sp-b.is-fin rect { fill: var(--ink); }
+.pr-a .sp-b.is-fin text { fill: var(--paper-0); }
+.pr-a .sp-b.is-just rect { fill: var(--emerald); }
+.pr-a .sp-b.is-just text { fill: var(--ink); }
+.pr-a .sp-br path { fill: none; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1; }
+.pr-a .sp-br text { font: 500 12px/1 var(--mono); fill: var(--ink); text-anchor: middle; letter-spacing: 0.02em; }
+/* pv */
+.pr-a .pv-bar { fill: rgb(245 244 241 / 0.3); }
+.pr-a .pv-open__f { fill: rgb(0 220 141 / 0.14); stroke: var(--emerald); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.pr-a .pv-open__l { fill: none; stroke: var(--paper-0); stroke-width: 2.4; stroke-linecap: round; }
+.pr-a .pv-look { fill: none; stroke: var(--emerald-deep); stroke-width: 1.4; stroke-dasharray: 1 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+/* qt */
+.pr-a .qt-slot { fill: var(--pa-ink); }
+.pr-a .qt-old { opacity: 0; }
+/* cs, ag */
+.pr-a :is(.cs-arc, .ag-arc) { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.55; stroke-width: 1.2; stroke-dasharray: 1 5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.pr-a :is(.cs-sig, .ag-sig) { fill: var(--emerald); stroke: var(--pa-ink); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+.pr-a .cs-flash { fill: var(--emerald); opacity: 0; }
+.pr-a .cs-mpc__ring { fill: none; stroke: var(--pa-ink); stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 1 3; vector-effect: non-scaling-stroke; }
+.pr-a .cs-mpc__n { fill: #fff; stroke: var(--pa-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.pr-a .cs-mpc__n:first-of-type { fill: var(--emerald); }
+:where(.pr-a[data-motion]) .pa-pw__dot { animation: pa-blink 2.4s ease-in-out infinite; }
+@keyframes pa-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-a *, .pr-a *::before, .pr-a *::after { transition: none !important; animation: none !important; }
+}
+
+/* ---------------------------------------------------------------- below 1100 / 860 / 600 */
+@media (max-width: 1099px) {
+  .pr-a .pa-ft, .pr-a .pa-ft--flip, .pr-a .pa-ns__row, .pr-a .pa-dev__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pr-a .pa-reads { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pr-a .pa-read:nth-child(n + 3) { border-top: var(--hair) solid var(--l-line); }
+  .pr-a .pa-read:nth-child(2n + 1)::before { display: none; }
+  .pr-a .pa-proof__row .l-fig__v { font-size: clamp(1.5rem, 0.6rem + 2.2vw, 2.5rem); }
+}
+@media (max-width: 859px) {
+  .pr-a { --pa-gap: 52px; --l-pad: 20px; }
+  .pr-a .pa-stage { padding-top: 124px; padding-bottom: 56px; }
+  .pr-a .pa-stage__in { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "art" "scale"; row-gap: 40px; }
+  .pr-a .pa-hero__art { margin: 0; }
+  .pr-a .pa-iso { max-height: 52vh; margin: 0 auto; }
+  .pr-a .pa-head .l-head__cell { padding: 40px var(--l-pad) 28px; }
+  .pr-a .pa-ft, .pr-a .pa-ft--flip, .pr-a .pa-ns__row, .pr-a .pa-dev__row, .pr-a .pa-one__row, .pr-a .pa-reads { grid-template-columns: minmax(0, 1fr); }
+  /* one column: the copy first, its drawing under it (a flipped row's drawing comes first in the markup) */
+  .pr-a .pa-ft--flip .pa-ft__txt { order: -1; }
+  .pr-a .pa-ft .l-cell { padding-top: 36px; padding-bottom: 36px; }
+  .pr-a .pa-ft__art { padding: 0 var(--l-pad) 40px; }
+  .pr-a .pa-ft .pa-ft__txt { padding-bottom: 24px; padding-right: var(--l-pad); }
+  .pr-a :is(.pa-ft, .pa-dev__row, .pa-one__row, .pa-reads) > .l-cell + .l-cell::before { display: none; }
+  .pr-a .pa-one__row > .l-cell + .l-cell, .pr-a .pa-reads > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .pr-a .pa-read:nth-child(n + 3) { border-top: var(--hair) solid var(--l-line); }
+  .pr-a .pa-dev__code { padding: 0 var(--l-pad) 40px; }
+  .pr-a .pa-art--2d { height: 210px; }
+  .pr-a .pa-ns { padding: 64px 0; }
+  .pr-a .pa-ns__art { padding: 40px var(--l-pad) 0; }
+  /* the proof strip, one figure per row: the figure | its label */
+  .pr-a .pa-proof__row { grid-template-columns: minmax(0, 1fr); }
+  .pr-a .pa-proof__row .pa-fig { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: baseline; column-gap: 16px; padding: 24px var(--l-pad); }
+  .pr-a .pa-proof__row .pa-fig + .pa-fig { border-top: var(--hair) solid var(--l-line); }
+  .pr-a .pa-proof__row .pa-fig::before { display: none; }
+  .pr-a .pa-proof__row .pa-fig--x { display: none; }
+  .pr-a .pa-proof__row .l-fig__v { font-size: 1.75rem; }
+  .pr-a .pa-proof__row .l-fig__c { margin-top: 0; }
+}
+@media (max-width: 599px) {
+  /* the drawings' labels would read under 8 px here: the copy beside each says it */
+  .pr-a .pa-lab { display: none; }
+  .pr-a .pa-proof__row .l-fig__v { font-size: 1.5rem; }
+  .pr-a .pa-code pre { font-size: 12px; }
+}
