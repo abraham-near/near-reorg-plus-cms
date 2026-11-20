@@ -33,6 +33,8 @@ const tagsOf = (p: BlogItem) => p.tags ?? DEEPER_TAGS[p.id] ?? [];
 const fold = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 /** what a search reads of a post */
 const textOf = (p: BlogItem) => fold([p.title, p.excerpt ?? "", p.source, ...tagsOf(p)].join(" "));
+/** the line under the title: a Go deeper item's source (a publication); none for the CMS's posts, whose author (NEAR) is not shown */
+const srcOf = (p: BlogItem) => (p.id.startsWith("cms-") ? null : p.source);
 
 function Pic({ p, className = "", lazy }: { p: BlogItem; className?: string; lazy?: boolean }) {
   const src = picOf(p);
@@ -126,7 +128,7 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
             <Meta p={lead} />
             <h2 className="be-lead__title">{lead.title}</h2>
             {lead.excerpt && <span className="be-lead__x">{lead.excerpt}</span>}
-            <span className="be-src">{lead.source}</span>
+            {srcOf(lead) && <span className="be-src">{srcOf(lead)}</span>}
             <Tags p={lead} on={on} names={names} />
           </span>
         </a>
@@ -173,7 +175,7 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
                 <Pic p={p} lazy />
                 <Meta p={p} />
                 <h3 className="be-card__title">{p.title}</h3>
-                <span className="be-src">{p.source}</span>
+                {srcOf(p) && <span className="be-src">{srcOf(p)}</span>}
                 <Tags p={p} on={on} names={names} />
               </a>
             </li>

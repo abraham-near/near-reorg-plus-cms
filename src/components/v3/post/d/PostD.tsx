@@ -11,7 +11,7 @@
 import { useRef } from "react";
 import { Arrow } from "../../blog/parts";
 import type { Article } from "../article";
-import { Avatar, Body, Footnotes, Tags } from "../Body";
+import { Body, Footnotes, Tags } from "../Body";
 import { useReveal } from "../hooks";
 import { Card, Label, SharePills, accented } from "./parts";
 import "../post.css";
@@ -40,10 +40,6 @@ export function PostD({ article: A }: { article: Article }) {
           <div className="pd-lead__body">
             {A.dek && <p className="pd-dek">{A.dek}</p>}
             <dl className="pd-facts">
-              <div className="pd-facts__by">
-                <Avatar article={A} />
-                <div><dt className="sr-only">Author</dt><dd>{A.author.name}</dd>{A.author.role && <dd className="pd-facts__sub">{A.author.role}</dd>}</div>
-              </div>
               <div><dt>Published</dt><dd><time dateTime={A.dateIso}>{A.date}</time></dd></div>
               <div><dt>Read</dt><dd>{A.readMin} min</dd></div>
             </dl>
@@ -65,14 +61,6 @@ export function PostD({ article: A }: { article: Article }) {
           <footer className="pd-foot">
             {A.tags.length > 0 && <div className="pd-foot__row"><Label cls="pd-foot__l">Tags</Label><Tags article={A} cls="pd-tags" /></div>}
             <div className="pd-foot__row"><Label cls="pd-foot__l">Share</Label><SharePills title={A.title} /></div>
-            <div className="pd-author pd-box" data-reveal="">
-              <Avatar article={A} cls="pd-author__av" />
-              <div>
-                <Label>Written by</Label>
-                <p className="pd-author__n">{A.author.name}</p>
-                {A.author.bio && <p className="pd-author__b">{A.author.bio}</p>}
-              </div>
-            </div>
           </footer>
         </div>
       </article>

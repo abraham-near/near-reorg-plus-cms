@@ -1,5 +1,7 @@
 /* Post V · Video (PostV.tsx) on Post A's classes (post-a.css): only what differs. The player fills its row at 16:9 (post.css .pb-embed);
-   the text that goes with the video reads in one centred column, with no contents or margin cells. */
+   the text that goes with the video reads in one centred column, with no contents or margin cells.
+   The hero (crumb, title, summary) sits on bare paper: no rules and no crosshairs (data-no-x); the grid opens at the facts row under it. */
+.pv-head::before, .pv-head::after, .pv-head > .bl-cell + .bl-cell::before { display: none; }
 .pv-player { margin: 0; }
 .pst-v .pv-player :is(iframe, video) { background: #000; }
 /* a vertical or square video keeps its shape inside the 16:9 frame */
