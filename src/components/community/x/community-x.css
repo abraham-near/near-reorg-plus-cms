@@ -1,5 +1,5 @@
 /* Community X · MVP (CommunityX.tsx, /community-x): C's editorial page made more typographic. Big statements in Montreal Book with one Kepler word, generous
-   space, one dark band (the Legion), one drawing in the hero (a supporting size), the site's dot icons on the channels. No eyebrows, no decorative numerals. The homepage's
+   space, one dark band (the Legion), one drawing filling the hero's right half, the site's dot icons on the channels. No eyebrows, no decorative numerals. The homepage's
    ruled grid (.cmx-grid: the frame, the cell rules, the + where they meet) holds the figures, the channels and the ways; none near the header. Tokens are C's (b10's), set here so nothing depends on another page's stylesheet. Everything is scoped
    under .cmx; motion only under .cmx[data-motion] (motion.ts). */
 .cmx {
@@ -73,15 +73,16 @@
 .cmx-link:focus-visible { background-size: 100% var(--hair); }
 
 /* ================================================================ 1 · the hero: the text on the left, one drawing on the right; no rules up here */
-.cmx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(40px, 5vw, 96px); align-items: end;
+.cmx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(24px, 3vw, 56px); align-items: center;
   padding: clamp(148px, 22vh, 220px) var(--gut) 0; }
 .cmx-hero__text { display: flex; flex-direction: column; align-items: flex-start; gap: clamp(28px, 4vh, 44px); }
-.cmx-h1 { font-size: var(--t-h1); line-height: 0.98; letter-spacing: -0.034em; max-width: 10.5em; }
+/* a step under --t-h1 so the line holds two rows beside the drawing ("The people building / the open web.") from 1280 px up */
+.cmx-h1 { font-size: clamp(2.75rem, 0.8rem + 4.2vw, 6rem); line-height: 0.98; letter-spacing: -0.034em; max-width: 10.5em; }
 .cmx-h1 .accent { font-size: 1.3em; letter-spacing: -0.035em; }
 .cmx-hero__sub { max-width: 31em; font-size: var(--t-lede); line-height: 1.45; letter-spacing: -0.006em; color: var(--graphite); text-wrap: pretty; }
-/* [[TBD: graphic by Ali]] the crews drawing (./HeroWeb.tsx) in B's hand (white tops, light grey sides, ink hairlines, one green): big enough to read,
-   kept under the headline's weight (a supporting size, never wider than the column) */
-.cmx-hero__art { justify-self: end; width: min(100%, 440px); margin: 0; padding-bottom: 4px; }
+/* [[TBD: graphic by Ali]] the crews drawing (./HeroWeb.tsx) in B's hand (white tops, light grey sides, ink hairlines, one green): big enough to fill the
+   hero's right half (centred in it, beside the text), still under the headline's weight */
+.cmx-hero__art { justify-self: center; width: min(100%, 640px); margin: 0; }
 .cmx-hero__art svg { display: block; width: 100%; height: auto; overflow: visible; }
 .cmx-hero__art svg * { vector-effect: non-scaling-stroke; }
 .cmx-hero__art .sl polygon { stroke: #111; stroke-width: 1; stroke-linejoin: round; }
@@ -93,6 +94,8 @@
 .cmx-hero__art .cmx-web__floor { fill: none; stroke: #111; stroke-opacity: 0.32; stroke-width: 2.2; stroke-linecap: round; }
 .cmx-hero__art .cmx-web__links path { fill: none; stroke: #111; stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 2 4; stroke-linecap: round; }
 .cmx-hero__art .cmx-web__links .is-hub { stroke-opacity: 0.7; stroke-dasharray: none; }
+.cmx-hero__art .cmx-web__sig circle { fill: #111; stroke: none; }
+.cmx-hero__art .cmx-web__ring { fill: none; stroke: var(--emerald); stroke-width: 1.25; transform-box: fill-box; transform-origin: 50% 50%; }
 
 /* ================================================================ the homepage's grid (proof-deeper.css .l-row / .l-cell / .l-x), drawn in CSS:
    a frame on the side gutters, a rule over every cell and between cells, a 9 px ink + at each cell's top corners (the shared ones overlap) */

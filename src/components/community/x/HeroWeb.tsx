@@ -1,7 +1,9 @@
 // [[TBD: graphic by Ali]] Community X's hero drawing, a placeholder in the site's isometric hand (Community B's kit: ../b/kit.ts, ../b/parts.tsx).
 // "The open web": crews on their own tiles, spread over a dotted floor at different heights, joined to each other by threads through the air.
-// The middle crew holds the one green figure. Decorative (aria-hidden): the headline carries the meaning. Static: it rises in with the hero ([data-rv]).
-import { P, f, box, corners, vbox, arc, dots, type V } from "../b/kit";
+// The middle crew holds the one green figure. Decorative (aria-hidden): the headline carries the meaning.
+// Motion (./motion.ts, hero()): it builds in as the page opens (the floor, the tiles back to front, the threads, the people), then, while on screen,
+// small signals run out along the threads from the middle crew and a ring breathes off the green figure. Reduced motion: the finished frame, no signals.
+import { P, f, box, corners, vbox, arc, dots, PAWN, type V } from "../b/kit";
 import { Slab, Pawn } from "../b/parts";
 
 type W3 = [number, number, number];
@@ -32,6 +34,8 @@ function people(i: number): W3[] {
 const FLOOR = { a: -150, b: 150, step: 20 };
 const ALL: V[] = [...CREWS.flatMap((_, i) => corners(box(...tile(i)))), ...CREWS.map((_, i): V => { const t = P(...topOf(i)); return [t[0], t[1] - 44]; })];
 const VB = vbox(ALL, 14);
+/** the green figure's head, on screen: the ring breathes off it */
+const HUB = people(3), RING: V = (() => { const g = HUB[HUB.length - 1], at = P(...g); return [at[0], at[1] + PAWN.hy]; })();
 const order = CREWS.map((_, i) => i).sort((a, b) => CREWS[a].c[0] + CREWS[a].c[1] - (CREWS[b].c[0] + CREWS[b].c[1]));
 
 export function HeroWeb() {
@@ -42,14 +46,17 @@ export function HeroWeb() {
         <mask id="cmx-web-m"><rect x={f(VB.x)} y={f(VB.y)} width={f(VB.w)} height={f(VB.h)} fill="url(#cmx-web-fade)" /></mask>
       </defs>
       <path className="cmx-web__floor" d={dots(FLOOR.a, FLOOR.a, FLOOR.b, FLOOR.b, FLOOR.step)} mask="url(#cmx-web-m)" />
-      {order.map((i) => <Slab key={i} b={tile(i)} />)}
+      {order.map((i) => <Slab key={i} b={tile(i)} cls="cmx-web__t" />)}
       <g className="cmx-web__links">
         {LINKS.map(([a, b, h], k) => {
           const A = topOf(a), B = topOf(b), lift = 14;
           return <path key={k} className={a === 3 ? "is-hub" : ""} d={arc([A[0], A[1], A[2] + lift], [B[0], B[1], B[2] + lift], h).d} />;
         })}
       </g>
-      {order.flatMap((i) => people(i).map((p, k) => <Pawn key={`${i}-${k}`} at={P(...p)} g={!!CREWS[i].g && k === people(i).length - 1} />))}
+      {/* the signals that run out along the middle crew's threads (motion.ts places them; hidden until it does) */}
+      <g className="cmx-web__sig">{LINKS.filter(([a]) => a === 3).map((_, k) => <circle key={k} r="2.6" cx="0" cy="0" opacity="0" />)}</g>
+      {order.flatMap((i) => people(i).map((p, k) => <Pawn key={`${i}-${k}`} cls="cmx-web__p" at={P(...p)} g={!!CREWS[i].g && k === people(i).length - 1} />))}
+      <circle className="cmx-web__ring" cx={f(RING[0])} cy={f(RING[1])} r={f(PAWN.hr)} opacity="0" />
     </svg>
   );
 }

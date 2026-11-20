@@ -1,8 +1,8 @@
 "use client";
-// near.org/community, version X · MVP (the design review of Nov 19, 2026): C ("Editorial") made more typographic. Mostly copy, one drawing at a supporting size, no
+// near.org/community, version X · MVP (the design review of Nov 19, 2026): C ("Editorial") made more typographic. Mostly copy, one drawing in the hero's right half, no
 // eyebrows, no decorative numerals, no ruled grid near the header (the homepage's grid frames the figures, the channels and the ways), no photos. The sections, in the doc's order:
 //   1 the hero: the H1 (Montreal Book, its Kepler word, the green square) with the subhead and the two actions on the left; one isometric drawing
-//     on the right, a supporting size (./HeroWeb.tsx: crews joined by threads, a placeholder until Ali draws it);
+//     on the right, filling its half of the hero (./HeroWeb.tsx: crews joined by threads, a placeholder until Ali draws it);
 //   2 the community in four figures, set large on the paper (sample values, tagged);
 //   3 events: the heading and its links held on the left, the gatherings as a list of dates on the right (date, title, city, kind);
 //   4 the Legion: the dark band. Its heading, its statement set large and wiped from faint to paper as it is read, the members line and the action;

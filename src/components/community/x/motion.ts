@@ -6,12 +6,51 @@
 //   - [data-rv] blocks rise and fade in as they come into view (CSS, keyed on .is-in; --rv staggers a group);
 //   - [data-count] figures count up from zero once, keeping their prefix, separators and suffix ("2,000+");
 //   - [data-wipe] the Legion's statement is wiped from faint to paper in reading order as it passes through the view (each word's --k, scrubbed).
+//   - the hero's drawing (HeroWeb.tsx) builds in (floor, tiles, threads, people), then runs its signals and the green ring while on screen (hero());
 // Reduced motion: only the icons mount (drawn); every other piece is its final state.
 import { SplitText } from "gsap/SplitText";
 import type { MotionCtx } from "@/lib/motion/scroll";
 import { mountIcons } from "../../v3/header/icons";
 
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
+
+/** the hero's drawing (HeroWeb.tsx): built in once, then signals along the middle crew's threads and a ring off the green figure while it is on screen */
+function hero(root: HTMLElement, gsap: MotionCtx["gsap"]) {
+  const svg = root.querySelector<SVGSVGElement>(".cmx-web");
+  if (!svg) return () => {};
+  const floor = svg.querySelector(".cmx-web__floor"), tiles = svg.querySelectorAll(".cmx-web__t"), links = svg.querySelectorAll(".cmx-web__links path");
+  const pawns = svg.querySelectorAll(".cmx-web__p"), ring = svg.querySelector<SVGCircleElement>(".cmx-web__ring");
+  const hubs = [...svg.querySelectorAll<SVGPathElement>(".cmx-web__links .is-hub")], sigs = [...svg.querySelectorAll<SVGCircleElement>(".cmx-web__sig circle")];
+  const lens = hubs.map((p) => p.getTotalLength());
+  let on = false, live = false, t0 = 0;
+  const tick = (time: number) => {
+    if (!t0) t0 = time;
+    const t = time - t0;
+    // each signal runs out from the middle crew along its thread (about 2.6 s), the six staggered, fading in and out at the ends
+    sigs.forEach((c, i) => {
+      const u = ((t / 2.6 + i / sigs.length) % 1 + 1) % 1, pt = hubs[i].getPointAtLength(u * lens[i]);
+      c.setAttribute("cx", pt.x.toFixed(2)); c.setAttribute("cy", pt.y.toFixed(2));
+      c.setAttribute("opacity", Math.sin(Math.PI * u).toFixed(3));
+    });
+    // the ring: every 3.2 s it grows off the green head and fades
+    if (ring) { const k = (t % 3.2) / 1.6; ring.setAttribute("opacity", k < 1 ? (0.7 * (1 - k)).toFixed(3) : "0"); ring.style.transform = `scale(${(1 + 2.2 * Math.min(k, 1)).toFixed(3)})`; }
+  };
+  const run = () => { if (on && live) gsap.ticker.add(tick); else gsap.ticker.remove(tick); };
+  const io = new IntersectionObserver(([e]) => { on = e.isIntersecting; run(); });
+  io.observe(svg);
+  const gctx = gsap.context(() => {
+    const tl = gsap.timeline({ delay: 0.3, onComplete: () => { live = true; run(); } });
+    if (floor) tl.from(floor, { opacity: 0, duration: 0.9, ease: "none" }, 0);
+    tl.from(tiles, { y: 18, opacity: 0, duration: 0.8, ease: "power3.out", stagger: 0.09 }, 0.15)
+      .from(links, { opacity: 0, duration: 0.7, ease: "none", stagger: 0.05 }, 0.75)
+      .from(pawns, { y: -12, opacity: 0, duration: 0.55, ease: "back.out(2)", stagger: 0.035 }, 0.95);
+  }, svg);
+  return () => {
+    io.disconnect(); gsap.ticker.remove(tick); gctx.revert();
+    sigs.forEach((c) => c.setAttribute("opacity", "0"));
+    if (ring) { ring.setAttribute("opacity", "0"); ring.style.removeProperty("transform"); }
+  };
+}
 
 export function mount(root: HTMLElement, ctx: MotionCtx) {
   const { gsap, ScrollTrigger, reduced } = ctx;
@@ -20,6 +59,7 @@ export function mount(root: HTMLElement, ctx: MotionCtx) {
   gsap.registerPlugin(SplitText);
   root.setAttribute("data-motion", "");
   let dead = false;
+  const unhero = hero(root, gsap);
   const splits: SplitText[] = [], rafs = new Set<number>();
 
   /* ── headings: split now, hidden, and played once ── */
@@ -96,7 +136,7 @@ export function mount(root: HTMLElement, ctx: MotionCtx) {
   });
 
   return () => {
-    dead = true; io.disconnect(); root.removeEventListener("focusin", onFocus); icons.dispose();
+    dead = true; io.disconnect(); root.removeEventListener("focusin", onFocus); icons.dispose(); unhero();
     rafs.forEach(cancelAnimationFrame);
     splits.forEach((s) => s.revert());
     root.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => { el.textContent = el.dataset.count || ""; });

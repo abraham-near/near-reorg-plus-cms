@@ -20,9 +20,9 @@
 :where(.hs-x[data-motion]) [data-up].is-now { transition: none; }
 
 /* ---------------------------------------------------------------- 1 · hero: the type | the drawing, on bare paper (the homepage's first screen) */
-/* the text | the drawing (HeroIso.tsx): two columns (7 | 5, after Community X's hero), the drawing at the foot of the row, at the right; it stays smaller
-   than the h1 (440 px at most) */
-.hs-x .hx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(40px, 5vw, 96px); align-items: end;
+/* the text | the drawing (HeroIso.tsx): 7 | 5 (after Community X's hero), the drawing centred in its column (600 px at most), filling it rather than
+   leaving a gap beside the text */
+.hs-x .hx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(24px, 3vw, 56px); align-items: center;
   margin: 0 var(--margin); padding: var(--top) var(--l-pad) 0; }
 .hs-x .hx-hero__text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
 .hs-x .hx-h1 { max-width: 13em; font-family: var(--font-text); font-weight: 400; font-size: clamp(2.75rem, 1rem + 4.3vw, 5.25rem); line-height: 1.02;
@@ -32,7 +32,7 @@
   text-wrap: pretty; }
 .hs-x .hx-hero .hx-acts { margin-top: clamp(28px, 4vh, 40px); }
 /* the drawing, in the site's isometric hand: white tops, light grey sides, 1 px ink hairlines, the one green on 2026's top; the dotted floor fades out */
-.hs-x .hx-hero__art { justify-self: end; width: min(100%, 440px); margin: 0; pointer-events: none; }
+.hs-x .hx-hero__art { justify-self: center; width: min(100%, 600px); margin: 0; pointer-events: none; }
 .hs-x .hx-iso { display: block; width: 100%; height: auto; overflow: visible; }
 .hs-x .hx-iso * { vector-effect: non-scaling-stroke; }
 .hs-x .hx-iso .sl polygon { stroke: #111; stroke-width: 1; stroke-linejoin: round; }
