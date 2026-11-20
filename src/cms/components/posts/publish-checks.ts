@@ -37,14 +37,31 @@ export function snippet(html: string, max = 160): string {
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text
 }
 
-export type CheckKey = 'title' | 'summary' | 'category' | 'cover' | 'alt' | 'length'
+export type CheckKey = 'title' | 'summary' | 'category' | 'cover' | 'alt' | 'length' | 'video'
 export type PublishCheck = { key: CheckKey; ok: boolean; title: string; detail: string; action?: string }
 
-export function publishChecks(input: { title: string; excerpt: string; categoryNames: string[]; featuredImage: string; body: string }): PublishCheck[] {
+/**
+ * A video post's video, as the editor has it: `missing` = Format is Video but nothing is chosen;
+ * `invalid` = the link typed is not one the CMS recognises; `broken` = the uploaded file does not
+ * load (deleted from the media library); `ok` = a file or a player link.
+ */
+export type VideoState = 'ok' | 'missing' | 'invalid' | 'broken'
+
+export function publishChecks(input: { title: string; excerpt: string; categoryNames: string[]; featuredImage: string; body: string; video?: VideoState }): PublishCheck[] {
   const title = input.title.trim()
   const words = countWords(input.body)
   const images = imagesMissingAlt(input.body)
+  const video: PublishCheck[] = input.video === undefined ? [] : [
+    input.video === 'ok'
+      ? { key: 'video', ok: true, title: 'Video', detail: 'Shown at the top of the post' }
+      : input.video === 'missing'
+        ? { key: 'video', ok: false, title: 'Video format but no video', detail: 'Upload a video or paste a YouTube or Vimeo link, or switch the format to Article.', action: 'Add video' }
+        : input.video === 'broken'
+        ? { key: 'video', ok: false, title: 'Video file missing', detail: 'The file no longer loads. It may have been deleted from the media library.', action: 'Choose video' }
+        : { key: 'video', ok: false, title: 'Video link not recognised', detail: 'Paste a YouTube or Vimeo link, or choose an uploaded MP4/WebM.', action: 'Fix' },
+  ]
   return [
+    ...video,
     title
       ? { key: 'title', ok: true, title: 'Title', detail: `${title.length} characters · ${title.length <= SEARCH_TITLE_MAX ? 'fits in search results' : 'may be cut off in search results'}` }
       : { key: 'title', ok: false, title: 'No title', detail: 'Readers and search engines need one.', action: 'Add title' },
@@ -60,7 +77,9 @@ export function publishChecks(input: { title: string; excerpt: string; categoryN
     images.missing
       ? { key: 'alt', ok: false, title: `${images.missing} image${images.missing === 1 ? '' : 's'} without alt text`, detail: 'Screen readers and search need it.', action: 'Fix' }
       : { key: 'alt', ok: true, title: 'Images have alt text', detail: images.total ? `${images.total} image${images.total === 1 ? '' : 's'} described` : 'No images in the body' },
-    words >= MIN_BODY_WORDS
+    input.video !== undefined
+      ? { key: 'length', ok: true, title: 'Text', detail: words ? `${words} words with the video` : 'Only the video (optional text)' }
+      : words >= MIN_BODY_WORDS
       ? { key: 'length', ok: true, title: 'Body length', detail: `${words} words · ${readingMinutes(words)} min read` }
       : { key: 'length', ok: false, title: `Short post · ${words} word${words === 1 ? '' : 's'}`, detail: `Posts under ${MIN_BODY_WORDS} words can look thin in search.`, action: 'Keep writing' },
   ]

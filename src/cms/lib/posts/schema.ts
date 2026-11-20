@@ -1,10 +1,20 @@
 import { z } from 'zod'
 import { cleanText, safeUrl } from '@/cms/lib/sanitize'
+import { normalizeVideo, VIDEO_INPUT_ERROR } from './video'
 
 // Stored as typed (see cleanText): never HTML, rendered as text everywhere.
 const line = (max: number) => z.string().max(max).transform((v) => cleanText(v, { singleLine: true }))
 const nullableText = (max: number, singleLine = false) => z.string().max(max).transform((v) => cleanText(v, { singleLine })).nullable().optional()
 const url = z.string().max(2048).refine((v) => v === '' || (safeUrl(v) !== null && !/[\s"'<>`]/.test(v)), 'Unsafe URL').transform((v) => v ? safeUrl(v)! : null).nullable().optional()
+// '' and null clear it (an article); anything else must be an uploaded MP4/WebM or a YouTube/Vimeo
+// link, stored normalized (video.ts). Whether a /cms file exists is checked in service.ts.
+const video = z.string().max(2048).transform((v, ctx) => {
+  if (!v.trim()) return null
+  const value = normalizeVideo(v)
+  if (value) return value
+  ctx.addIssue({ code: 'custom', message: VIDEO_INPUT_ERROR })
+  return z.NEVER
+}).nullable().optional()
 const date = z.iso.datetime({ offset: true }).nullable().optional()
 const ids = z.array(z.string().min(1).max(100)).max(100).refine((v) => new Set(v).size === v.length, 'Duplicate IDs').optional()
 
@@ -21,6 +31,7 @@ export const postFields = {
   metaImage: url,
   takeaways: z.array(line(300).pipe(z.string().trim())).max(3).transform((v) => v.filter(Boolean)).optional(),
   layout: z.enum(['a', 'b', 'c']).nullable().optional(),
+  video,
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   visibility: z.enum(['PUBLIC', 'UNLISTED']).optional(),
   publishedAt: date,

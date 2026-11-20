@@ -2,6 +2,7 @@
 // /post-c share) or sanitized HTML from the CMS (/blog/[slug], built in lib/blog). The example is a generic piece on AI agents, written as placeholder
 // copy so the layouts can be compared on the same words and photos. Not NEAR's copy: no claims of ours, and the figures are marked as illustrative.
 // Inline marks in block text: **bold** and *italic* (Body.tsx renders them).
+import type { Video } from "@/lib/blog/video";
 import { POSTS, TYPE_LABEL, href, img, type Type } from "../blog/data";
 
 export type Img = { src: string; alt: string; cap?: string; w?: number; h?: number };
@@ -42,6 +43,8 @@ export type Article = {
   more: MorePost[];
   /** where Blog / All posts go */
   blogHref: string;
+  /** a video post's video (PostV plays it at the top); absent or null for an article */
+  video?: Video | null;
 };
 
 const EXAMPLE = {

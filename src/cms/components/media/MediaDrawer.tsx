@@ -14,7 +14,8 @@ import { isCmsMediaUrl } from './reference-values'
 import { FileTypeIcon } from './MediaTile'
 import { CheckMark } from './UploadTray'
 import type { MediaDetail, MediaItem, MediaReference } from './types'
-import { acceptAttribute, checkUpload, formatBytes, isImage, typeLabel } from './upload-limits'
+import { uploadVideoInParts } from './upload-client'
+import { acceptAttribute, checkUpload, findUploadKind, formatBytes, isImage, typeLabel } from './upload-limits'
 
 type Props = {
   item: MediaItem
@@ -84,7 +85,13 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [references, setReferences] = useState<MediaReference[] | null>(null)
   const replaceInput = useRef<HTMLInputElement>(null)
+  /** A video replacement goes up in parts and takes a while: its progress, and closing the panel cancels it. */
+  const [replaced, setReplaced] = useState<number | null>(null)
+  const replacing = useRef<AbortController | null>(null)
+  useEffect(() => () => replacing.current?.abort(), [])
   const image = isImage(current)
+  // An MP4/WebM may be a video post's video: it can only be replaced by another MP4/WebM (replace route).
+  const postVideo = current.mimeType === 'video/mp4' || current.mimeType === 'video/webm'
   const altId = `media-alt-${item.id}`
 
   useEffect(() => { confirmingRef.current = confirmOpen }, [confirmOpen, confirmingRef])
@@ -134,21 +141,29 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
   }
 
   async function replace(file: File) {
-    const problem = checkUpload(file, { imagesOnly: image })
+    const problem = checkUpload(file, { imagesOnly: image, videosOnly: postVideo })
     if (problem) { toast.error(problem); return }
     setBusy('replace')
     try {
-      const body = new FormData()
-      body.set('file', file)
-      body.set('replaceEverywhere', '1')
-      const result = await adminFetch<{ media: MediaItem; updated: number; occurrences: number }>(`/api/admin/media/${current.id}/replace`, { method: 'POST', body })
+      type Replaced = { media: MediaItem; updated: number; occurrences: number }
+      let result: Replaced
+      if (!image && findUploadKind(file)?.group === 'video') {
+        replacing.current = new AbortController()
+        setReplaced(0)
+        result = await uploadVideoInParts<Replaced>(file, { replaceId: current.id, videosOnly: postVideo, signal: replacing.current.signal, onProgress: setReplaced })
+      } else {
+        const body = new FormData()
+        body.set('file', file)
+        body.set('replaceEverywhere', '1')
+        result = await adminFetch<Replaced>(`/api/admin/media/${current.id}/replace`, { method: 'POST', body })
+      }
       if (result.media.id === current.id) toast.info('That is the same file. Nothing changed.')
       else {
         toast.success(result.updated ? `File replaced in ${result.updated} ${result.updated === 1 ? 'post' : 'posts'}. The original stays in the library.` : 'New file uploaded. No posts used the original.')
         onReplaced(current.id, result.media)
       }
-    } catch (error) { toast.error(errorMessage(error)) }
-    finally { setBusy(null) }
+    } catch (error) { if (!replacing.current?.signal.aborted) toast.error(errorMessage(error)) }
+    finally { setBusy(null); setReplaced(null); replacing.current = null }
   }
 
   async function remove(force: boolean) {
@@ -276,9 +291,9 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
       <Button type="button" variant="outline" size="sm" onClick={copyUrl}><Copy />Copy URL</Button>
       {canEdit && canUpload && <>
         <Button type="button" variant="outline" size="sm" disabled={busy !== null} onClick={() => replaceInput.current?.click()}>
-          {busy === 'replace' ? <Loader2 className="cms-spin" /> : <RefreshCw />}{busy === 'replace' ? 'Replacing…' : 'Replace file'}
+          {busy === 'replace' ? <Loader2 className="cms-spin" /> : <RefreshCw />}{busy === 'replace' ? (replaced !== null && replaced < 1 ? `Replacing… ${Math.round(replaced * 100)}%` : 'Replacing…') : 'Replace file'}
         </Button>
-        <input ref={replaceInput} type="file" hidden accept={acceptAttribute(image)} onChange={(event) => { const file = event.target.files?.[0]; if (file) void replace(file); event.target.value = '' }} />
+        <input ref={replaceInput} type="file" hidden accept={acceptAttribute(postVideo ? 'video' : image)} onChange={(event) => { const file = event.target.files?.[0]; if (file) void replace(file); event.target.value = '' }} />
       </>}
       {isCmsMediaUrl(current.url) && <Button type="button" variant="outline" size="sm" asChild><a href={current.url} download={current.filename}><Download />Download</a></Button>}
       <span className="flex-1" />

@@ -20,7 +20,7 @@ type Store = Prisma.TransactionClient
 
 
 // Posts are the only content that holds media URLs.
-const REFERENCE_FIELDS = ['body', 'featuredImage', 'metaImage', 'excerpt'] as const satisfies readonly (keyof typeof postSelect)[]
+const REFERENCE_FIELDS = ['body', 'featuredImage', 'metaImage', 'excerpt', 'video'] as const satisfies readonly (keyof typeof postSelect)[]
 
 async function scanReferences(store: Store, oldUrl: string, newUrl = oldUrl): Promise<ReferenceRecord[]> {
   const found: ReferenceRecord[] = []
@@ -56,7 +56,7 @@ export async function findMediaReferences(url: string): Promise<MediaReference[]
 export async function mediaUsageByUrl(): Promise<Map<string, number>> {
   const usage = new Map<string, number>()
   for (let skip = 0; ; skip += 200) {
-    const rows = await db.post.findMany({ select: { id: true, body: true, featuredImage: true, metaImage: true, excerpt: true }, orderBy: { id: 'asc' }, skip, take: 200 })
+    const rows = await db.post.findMany({ select: { id: true, body: true, featuredImage: true, metaImage: true, excerpt: true, video: true }, orderBy: { id: 'asc' }, skip, take: 200 })
     for (const row of rows) {
       const urls = extractCmsUrls(REFERENCE_FIELDS.map((field) => row[field] ?? null))
       for (const url of urls) usage.set(url, (usage.get(url) ?? 0) + 1)
@@ -107,6 +107,20 @@ export async function replaceMediaReferences(oldUrl: string, newUrl: string, use
     revalidatePost(String(ref.snapshot.slug))
   }
   return { updated: records.length, occurrences: records.reduce((sum, r) => sum + r.occurrences, 0) }
+}
+
+type MediaRow = Prisma.MediaGetPayload<{ select: typeof mediaSelect }>
+
+/**
+ * The second half of replacing a file, once the new one is stored (its UPLOAD is audited by the caller): every post that
+ * used the original now uses the replacement, the alt text carries over, and the REPLACE is audited. The original stays
+ * in the library. Used by the replace route and by a video replaced in parts (lib/chunked-upload.ts).
+ */
+export async function finishReplace(old: MediaRow, fresh: MediaRow, user: Pick<SessionUser, 'id' | 'email' | 'apiTokenId'>, req: Request, replaceEverywhere: boolean) {
+  const result = await replaceMediaReferences(old.url, fresh.url, user, req, { replaceEverywhere, original: old, replacement: fresh })
+  await audit(user, { action: 'REPLACE', entityType: 'MEDIA', entityId: old.id, entityTitle: old.filename, diff: { oldUrl: old.url, newUrl: fresh.url, replacementId: fresh.id, ...result } }, req)
+  const saved = await db.media.findUniqueOrThrow({ where: { id: fresh.id }, select: mediaSelect })
+  return { media: saved, ...result, originalRetained: true }
 }
 
 export async function removeMedia(id: string, force: boolean, user: Actor, req?: Request) {

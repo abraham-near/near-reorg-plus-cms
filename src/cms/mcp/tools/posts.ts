@@ -15,6 +15,7 @@ const meta = {
   tagIds: ids.optional(),
   takeaways: z.array(z.string().max(300)).max(3).optional().describe('Up to three key points, one short line each, shown after the dek (story mode). [] clears them'),
   layout: z.enum(['a', 'b', 'c']).nullable().optional().describe('The public layout: "a" Ruled, "b" Cover, "c" Notebook; null = the site default (Cover)'),
+  video: z.string().max(2048).nullable().optional().describe('Makes it a video post: an uploaded MP4/WebM\'s /cms/… URL (list_media with type "video") or a YouTube/Vimeo link. The video plays at the top and the post shows as Watch in the blog index. null clears it'),
 }
 const META_KEYS = Object.keys(meta) as (keyof typeof meta)[]
 const pick = (a: Record<string, unknown>, keys: readonly string[]) => Object.fromEntries(keys.filter((k) => a[k] !== undefined).map((k) => [k, a[k]]))

@@ -15,6 +15,14 @@ import { HttpError } from './http'
 // file as uploaded is kept next to it (originalKey) so it can be downloaded or converted again later.
 
 const MB = 1024 * 1024
+/** Videos (MP4, WebM, MOV): up to 100 MB, sent by the browser in parts (lib/chunked-upload.ts). */
+export const VIDEO_MAX = 100 * MB
+/**
+ * A video sent in one request (POST /api/admin/media, the replace route): those pass src/proxy.ts, and Next hands a
+ * route at most 10 MB of a request body when a proxy runs (proxyClientMaxBodySize); 9 MB leaves room for the multipart
+ * wrapping. The CMS sends videos in parts; this only keeps the one-request routes honest.
+ */
+export const SINGLE_REQUEST_VIDEO_MAX = 9 * MB
 
 type Kind = { ext: string; mime: string; max: number; image?: boolean; inline: boolean }
 
@@ -25,9 +33,11 @@ const KINDS: Record<string, Kind> = {
   webp: { ext: 'webp', mime: 'image/webp', max: 15 * MB, image: true, inline: true },
   avif: { ext: 'avif', mime: 'image/avif', max: 15 * MB, image: true, inline: true },
   svg: { ext: 'svg', mime: 'image/svg+xml', max: 2 * MB, image: true, inline: true },
-  mp4: { ext: 'mp4', mime: 'video/mp4', max: 200 * MB, inline: true },
-  webm: { ext: 'webm', mime: 'video/webm', max: 200 * MB, inline: true },
-  mov: { ext: 'mov', mime: 'video/quicktime', max: 200 * MB, inline: true },
+  // Video: 100 MB in parts (chunked-upload.ts); 9 MB in one request (SINGLE_REQUEST_VIDEO_MAX).
+  // Longer videos: a YouTube/Vimeo link (posts/video.ts).
+  mp4: { ext: 'mp4', mime: 'video/mp4', max: VIDEO_MAX, inline: true },
+  webm: { ext: 'webm', mime: 'video/webm', max: VIDEO_MAX, inline: true },
+  mov: { ext: 'mov', mime: 'video/quicktime', max: VIDEO_MAX, inline: true },
   mp3: { ext: 'mp3', mime: 'audio/mpeg', max: 50 * MB, inline: true },
   m4a: { ext: 'm4a', mime: 'audio/mp4', max: 50 * MB, inline: true },
   wav: { ext: 'wav', mime: 'audio/wav', max: 50 * MB, inline: true },
@@ -43,6 +53,12 @@ const KINDS: Record<string, Kind> = {
 }
 
 export const MAX_UPLOAD_BYTES = 200 * MB
+
+/** The stored type of a video sent in parts, by the extension the browser picked (upload-limits.ts findUploadKind). */
+export function videoKind(ext: string): { ext: string; mime: string; max: number } | null {
+  const kind = KINDS[ext]
+  return kind && kind.mime.startsWith('video/') ? { ext: kind.ext, mime: kind.mime, max: kind.max } : null
+}
 
 const startsWith = (b: Buffer, sig: number[], offset = 0) => sig.every((v, i) => b[offset + i] === v)
 const ascii = (b: Buffer, start: number, end: number) => b.subarray(start, end).toString('latin1')
@@ -66,6 +82,8 @@ export function sniff(buf: Buffer, filename: string): Kind | null {
     if (brand === 'avif' || brand === 'avis') return KINDS.avif
     if (brand === 'qt  ') return KINDS.mov
     if (brand.startsWith('M4A')) return KINDS.m4a
+    // HEIF/HEIC photos (iPhone) share the container: they are not videos.
+    if (['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand)) return null
     return KINDS.mp4
   }
   // Office documents are zip containers; trust the extension only among zip-based kinds.
@@ -174,7 +192,10 @@ async function storeStrictImage(buf: Buffer, ext: string, filename: string, uplo
  * optimized WebP (`cms/<hash>.webp`) plus the original (`cms/<hash>.<ext>`, originalKey). Without bucket
  * credentials (local dev) files are written to public/cms, which app/cms serves in development.
  */
-export async function storeUpload(file: File, uploadedById: string | null, opts: { imagesOnly?: boolean; strict?: boolean } = {}) {
+/** Types a video post can play everywhere (posts/video.ts); MOV is not one of them. */
+export const POST_VIDEO_MIMES = new Set(['video/mp4', 'video/webm'])
+
+export async function storeUpload(file: File, uploadedById: string | null, opts: { imagesOnly?: boolean; videosOnly?: boolean; strict?: boolean } = {}) {
   if (file.size === 0) throw new HttpError(400, 'Empty file')
   if (file.size > MAX_UPLOAD_BYTES) throw new HttpError(413, 'File too large')
   const filename = cleanFilename(file.name)
@@ -182,7 +203,10 @@ export async function storeUpload(file: File, uploadedById: string | null, opts:
   const kind = sniff(buf, filename)
   if (!kind) throw new HttpError(415, 'Unsupported or unrecognized file type')
   if (opts.imagesOnly && !kind.image) throw new HttpError(415, 'Only images are allowed here')
+  // Checked before anything is written, so a refused file is never stored.
+  if (opts.videosOnly && !POST_VIDEO_MIMES.has(kind.mime)) throw new HttpError(415, 'Only MP4 or WebM videos are allowed here')
   if (buf.length > kind.max) throw new HttpError(413, `File too large (max ${Math.round(kind.max / MB)} MB for ${kind.ext})`)
+  if (kind.mime.startsWith('video/') && buf.length > SINGLE_REQUEST_VIDEO_MAX) throw new HttpError(413, `File too large (max ${Math.round(SINGLE_REQUEST_VIDEO_MAX / MB)} MB for ${kind.ext} in one request)`)
   if (opts.strict) return storeStrictImage(buf, kind.ext, filename, uploadedById)
   if (kind.ext === 'svg') buf = Buffer.from(sanitizeSvg(buf.toString('utf8')))
 

@@ -28,7 +28,7 @@ export const FINALS: Final[] = [
   },
   {
     id: "post", href: "/post-b", path: "/blog/<slug>", name: "Blog post",
-    note: "Cover (layout B): the photo fills the first screen, then the article with a drop cap and pictures that leave the column. Every CMS post at /blog/<slug> uses it; this card opens the sample article.",
+    note: "Cover (layout B): the photo fills the first screen, then the article with a drop cap and pictures that leave the column. Every CMS post at /blog/<slug> uses it (a video post opens in the video layout, /post-v); this card opens the sample article.",
     tags: ["Cover", "CMS article", "Layout B"], img: "/index/post.webp",
   },
   {

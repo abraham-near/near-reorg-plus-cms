@@ -18,11 +18,12 @@ import { AdminApiError, adminFetch } from '@/cms/lib/client'
 import { cn, fallbackSlug, slugify } from '@/cms/lib/utils'
 import { useNow } from '@/cms/lib/useStoredState'
 import { safeUrl } from '@/cms/lib/sanitize'
+import { normalizeVideo } from '@/cms/lib/posts/video'
 import PostProperties, { AutoTextarea, PostStatusChip, type DisplayStatus, type PostLayout } from './PostProperties'
 import PublishDialog, { SITE_HOST, type PublishKind } from './PublishDialog'
 import RevisionsPanel from './RevisionsPanel'
 import SaveState, { type SaveStatus } from './SaveState'
-import { countWords, publishChecks, readingMinutes, snippet, type CheckKey } from './publish-checks'
+import { countWords, publishChecks, readingMinutes, snippet, type CheckKey, type VideoState } from './publish-checks'
 import { formatLocalDateTime } from './schedule-time'
 import type { PostPermissions, PostRecord, TaxonomyOption } from './types'
 
@@ -32,7 +33,10 @@ type Form = {
   title: string; slug: string; excerpt: string; featuredImage: string; metaTitle: string; metaDescription: string
   metaImage: string; visibility: Visibility; categoryIds: string[]; tagIds: string[]; body: string
   takeaways: string[]; layout: PostLayout | null
+  /** The video field as typed or chosen (a /cms file or a YouTube/Vimeo link); sent normalized (videoToSend). */
+  video: string
 }
+export type PostFormat = 'article' | 'video'
 /** status/publishedAt change only through explicit actions (publish, schedule, archive…); `blocking` disables the form meanwhile. */
 type SaveOptions = { status?: Status; publishedAt?: string | null; auto?: boolean; blocking?: boolean }
 
@@ -47,7 +51,17 @@ function formFromPost(post: PostRecord | null): Form {
     categoryIds: post?.categories.map((join) => join.categoryId) ?? [], tagIds: post?.tags.map((tag) => tag.id) ?? [],
     body: post?.body ?? '',
     takeaways: post?.takeaways ?? [], layout: (post?.layout as PostLayout | null | undefined) ?? null,
+    video: post?.video ?? '',
   }
+}
+
+/**
+ * What a save sends as `video`: null for an article or an empty field, the normalized value for a
+ * file or a recognised link, or `invalid` for a link the CMS does not recognise (not sent at all).
+ */
+function videoToSend(format: PostFormat, input: string): string | null | 'invalid' {
+  if (format !== 'video' || !input.trim()) return null
+  return normalizeVideo(input) ?? 'invalid'
 }
 /** True when the post's URL still follows its title: a draft never published whose slug is the title's (maybe with a -2 suffix or a post-xxxxxx fallback). */
 function slugFollowsTitle(post: PostRecord | null): boolean {
@@ -93,7 +107,11 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   const [error, setError] = useState('')
   const [conflict, setConflict] = useState(false)
   const [gone, setGone] = useState(false)
-  const [mediaField, setMediaField] = useState<'featuredImage' | 'metaImage' | null>(null)
+  const [mediaField, setMediaField] = useState<'featuredImage' | 'metaImage' | 'video' | null>(null)
+  // Article or Video: the editor's own state, so choosing Video before adding the video does not flip back on save.
+  const [format, setFormat] = useState<PostFormat>(() => initialPost?.video ? 'video' : 'article')
+  const [videoBroken, setVideoBroken] = useState(false)
+  const videoRef = useRef<HTMLInputElement>(null)
   const [lock, setLock] = useState<'checking' | 'ready' | 'blocked'>(initialPost && permissions.write ? 'checking' : 'ready')
   const [lockMessage, setLockMessage] = useState('')
   const [publish, setPublish] = useState<{ open: boolean; kind: PublishKind; mode: 'checklist' | 'schedule'; session: number }>({ open: false, kind: 'publish', mode: 'checklist', session: 0 })
@@ -110,6 +128,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   // Saves read the latest values through refs: an autosave timer or a queued save must never send a stale form or updatedAt.
   const postRef = useRef(post)
   const formRef = useRef(form)
+  const formatRef = useRef(format)
   const dirtyRef = useRef(dirty)
   const lockRef = useRef(lock)
   const revRef = useRef(0)
@@ -124,6 +143,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   useEffect(() => {
     postRef.current = post
     formRef.current = form
+    formatRef.current = format
     dirtyRef.current = dirty
     lockRef.current = lock
     slugAutoRef.current = slugAuto
@@ -231,6 +251,9 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
     postRef.current = saved
     setPost(saved)
     setForm(formFromPost(saved))
+    // A restored or reloaded version with a video opens as a video post (never hides or drops its video).
+    if (saved.video) { formatRef.current = 'video'
+      setFormat('video') }
     setSlugAuto(slugFollowsTitle(saved))
     setConflict(false)
     setDirty(false)
@@ -269,9 +292,18 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       if (!options.auto) setError('Add a URL for this post (under the title, in URL).')
       return null
     }
+    // A video link still being typed: an autosave saves the rest and stays unsaved; any other save stops.
+    const video = videoToSend(formatRef.current, values.video)
+    if (video === 'invalid' && !options.auto) {
+      setError('Fix the video link first: paste a YouTube or Vimeo link, or choose an uploaded video.')
+      videoRef.current?.focus()
+      return null
+    }
+    const { video: _typed, ...fields } = values
+    void _typed
     const rev = revRef.current
     const status = options.status ?? current?.status ?? 'DRAFT'
-    const json = { ...values, ...(slugAutoRef.current ? { autoSlug: true } : {}), status, ...(current ? { expectedUpdatedAt: current.updatedAt } : {}), ...(options.publishedAt !== undefined ? { publishedAt: options.publishedAt } : {}) }
+    const json = { ...fields, ...(video !== 'invalid' ? { video } : {}), ...(slugAutoRef.current ? { autoSlug: true } : {}), status, ...(current ? { expectedUpdatedAt: current.updatedAt } : {}), ...(options.publishedAt !== undefined ? { publishedAt: options.publishedAt } : {}) }
     let done = () => {}
     inflight.current = new Promise<void>((resolve) => { done = resolve })
     setSaving(true)
@@ -283,7 +315,7 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       setSaveFailed(false)
       setError('')
       // Edits made while the request was in flight stay in the form and stay dirty (the next autosave sends them).
-      if (revRef.current === rev) {
+      if (revRef.current === rev && video !== 'invalid') {
         dirtyRef.current = false
         setDirty(false)
         // Status changes take the server's view of the post; plain saves keep the form as typed (no cursor jumps).
@@ -413,6 +445,11 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       else if (key === 'category') { titleRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
         setCategoryOpen(true) }
       else if (key === 'cover') setMediaField('featuredImage')
+      else if (key === 'video') {
+        if (formRef.current.video.trim() && !videoBroken) { videoRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          videoRef.current?.focus() }
+        else setMediaField('video')
+      }
       else if (key === 'alt') {
         const image = [...(bodyRef.current?.querySelectorAll<HTMLImageElement>('.ProseMirror img') ?? [])].find((img) => !img.getAttribute('alt')?.trim())
         if (image) { image.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -447,10 +484,14 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
   // The editor reports its own count; until it does (or if it never mounts), count the saved HTML.
   const htmlWords = useMemo(() => countWords(form.body), [form.body])
   const words = editorWords ?? htmlWords
+  const videoValue = videoToSend(format, form.video)
+  const videoState: VideoState | undefined = format !== 'video' ? undefined
+    : videoValue === 'invalid' ? 'invalid' : !videoValue ? 'missing' : videoBroken ? 'broken' : 'ok'
   const checks = useMemo(() => publishChecks({
     title: form.title, excerpt: form.excerpt, featuredImage: form.featuredImage, body: form.body,
     categoryNames: form.categoryIds.map((id) => categories.find((item) => item.id === id)?.name ?? 'Unknown category'),
-  }), [form.title, form.excerpt, form.featuredImage, form.body, form.categoryIds, categories])
+    video: videoState,
+  }), [form.title, form.excerpt, form.featuredImage, form.body, form.categoryIds, categories, videoState])
   const saveStatus: SaveStatus = saving ? 'saving' : saveFailed ? 'error' : dirty ? 'dirty' : post ? 'saved' : 'new'
   const cover = safeUrl(form.featuredImage)
   const socialImage = safeUrl(form.metaImage)
@@ -548,7 +589,13 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
             update('slug', slug) }} wasLive={wasLive} savedSlug={post?.slug ?? null}
           visibility={form.visibility} onVisibility={(value) => update('visibility', value)}
           excerpt={form.excerpt} onExcerpt={(value) => update('excerpt', value)} excerptRef={excerptRef} onNavigate={guardNavigation}
-          layout={form.layout} onLayout={(value) => update('layout', value)} takeaways={form.takeaways} onTakeaways={(value) => update('takeaways', value)} />
+          layout={form.layout} onLayout={(value) => update('layout', value)} takeaways={form.takeaways} onTakeaways={(value) => update('takeaways', value)}
+          format={format} onFormat={(value) => { formatRef.current = value
+            setFormat(value)
+            markChanged() }}
+          video={form.video} videoValue={videoValue === 'invalid' ? null : videoValue} videoInvalid={videoValue === 'invalid'} videoRef={videoRef}
+          onVideo={(value) => { setVideoBroken(false)
+            update('video', value) }} onChooseVideo={() => setMediaField('video')} onVideoBroken={setVideoBroken} poster={cover} />
 
         <div ref={bodyRef} className="pt-5">
           <BlockEditor label="Post body" value={form.body} onChange={(value) => update('body', value)} editable={editable} onWordCount={setEditorWords} />
@@ -593,8 +640,10 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           afterPublishClose.current = null
           requestAnimationFrame(run) } }} />}
     {post && <RevisionsPanel open={revisionsOpen} onOpenChange={setRevisionsOpen} postId={post.id} expectedUpdatedAt={post.updatedAt} canRestore={editable} onRestore={acceptPost} onRestoreBusyChange={setBusy} />}
-    <MediaPickerModal open={!!mediaField} onClose={() => setMediaField(null)} onSelect={(selected) => { const url = safeUrl(Array.isArray(selected) ? selected[0] : selected)
-      if (mediaField && url) update(mediaField, url)
+    <MediaPickerModal open={!!mediaField} kind={mediaField === 'video' ? 'video' : 'image'} onClose={() => setMediaField(null)} onSelect={(selected) => { const url = safeUrl(Array.isArray(selected) ? selected[0] : selected)
+      if (mediaField === 'video' && url) { setVideoBroken(false)
+        update('video', url) }
+      else if (mediaField && url) update(mediaField, url)
       setMediaField(null) }} />
   </div>
 }

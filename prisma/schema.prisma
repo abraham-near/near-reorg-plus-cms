@@ -284,6 +284,10 @@ model Post {
   takeaways       String[]       @default([])
   /// The public layout: "a" Ruled, "b" Cover, "c" Notebook; null = the site default (Cover).
   layout          String?
+  /// Set on a video post (shown with the video layout and as "Watch" in the blog index): an
+  /// uploaded file's "/cms/<file>.mp4|webm", or a YouTube/Vimeo player URL
+  /// (src/cms/lib/posts/video.ts). null = an article.
+  video           String?
   status          Status         @default(DRAFT)
   visibility      Visibility     @default(PUBLIC)
   publishedAt     DateTime?

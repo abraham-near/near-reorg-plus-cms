@@ -7,13 +7,15 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "./db";
 import { imageUrls, prepareBody, type MediaInfo, type Section } from "./html";
+import { safeVideo, type Video } from "./video";
 
 // the CMS's tag strings (the site does not import its file)
 const TAG = { posts: "cms:posts", post: (slug: string) => `cms:post:${slug}`, categories: "cms:categories" };
 
 export type Pic = { src: string; w: number | null; h: number | null; alt: string };
 export type Term = { name: string; slug: string };
-export type PostCard = { slug: string; title: string; excerpt: string | null; image: Pic | null; publishedAt: string; author: string | null; category: Term | null };
+/** `video`: a video post's video (lib/blog/video.ts), null for an article */
+export type PostCard = { slug: string; title: string; excerpt: string | null; image: Pic | null; publishedAt: string; author: string | null; category: Term | null; video: Video | null };
 export type LivePost = PostCard & {
   visibility: "PUBLIC" | "UNLISTED";
   updatedAt: string;
@@ -46,15 +48,22 @@ const pic = (src: string | null, media: Record<string, MediaInfo>): Pic | null =
 };
 
 const cardSelect = {
-  slug: true, title: true, excerpt: true, featuredImage: true, publishedAt: true, createdAt: true,
+  slug: true, title: true, excerpt: true, featuredImage: true, publishedAt: true, createdAt: true, video: true,
   author: { select: { name: true } },
   categories: { orderBy: { position: "asc" }, select: { category: { select: { name: true, slug: true } } } },
 } satisfies Prisma.PostSelect;
 
 type CardRow = Prisma.PostGetPayload<{ select: typeof cardSelect }>;
+/** an uploaded video counts only while its file is in the media library (a deleted one would play nothing) */
+const videoOf = (value: string | null, media: Record<string, MediaInfo>): Video | null => {
+  const v = safeVideo(value);
+  return v && (v.kind === "embed" || media[v.src]) ? v : null;
+};
+
 const toCard = (p: CardRow, media: Record<string, MediaInfo>): PostCard => ({
   slug: p.slug, title: p.title, excerpt: p.excerpt, image: pic(p.featuredImage, media),
   publishedAt: (p.publishedAt ?? p.createdAt).toISOString(), author: p.author?.name ?? null, category: p.categories[0]?.category ?? null,
+  video: videoOf(p.video, media),
 });
 
 /** live PUBLIC posts, newest first (the index and every post's "more posts") */
@@ -67,7 +76,7 @@ export async function getLivePosts(): Promise<PostCard[]> {
     db.post.findFirst({ where: { status: "PUBLISHED", visibility: "PUBLIC", publishedAt: { gt: now } }, orderBy: { publishedAt: "asc" }, select: { publishedAt: true } }),
   ]);
   lifeUntil(next?.publishedAt);
-  const media = await mediaFor(rows.flatMap((r) => (r.featuredImage ? [r.featuredImage] : [])));
+  const media = await mediaFor(rows.flatMap((r) => [r.featuredImage, r.video].filter((u): u is string => !!u)));
   return rows.map((r) => toCard(r, media));
 }
 
@@ -86,7 +95,7 @@ export async function getLivePost(slug: string): Promise<LivePost | null> {
   // scheduled: not there yet, and the entry lasts only until it is
   if (!p || (p.publishedAt && p.publishedAt > now)) { lifeUntil(p?.publishedAt); return null; }
   lifeUntil(null);
-  const media = await mediaFor([...imageUrls(p.body), ...(p.featuredImage ? [p.featuredImage] : [])]);
+  const media = await mediaFor([...imageUrls(p.body), ...[p.featuredImage, p.video].filter((u): u is string => !!u)]);
   const body = prepareBody(p.body, media, { dek: p.excerpt ?? "" });
   return {
     ...toCard(p, media),

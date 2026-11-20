@@ -33,13 +33,13 @@ export const GET = route(async (req) => {
   return json({ items, total, page, pageSize: PAGE_SIZE })
 }, { token: true })
 
-/** POST /api/admin/media (multipart, field "file"; optional "alt", "imagesOnly=1") */
+/** POST /api/admin/media (multipart, field "file"; optional "alt", "imagesOnly=1" or "videosOnly=1") */
 export const POST = route(async (req) => {
   const { user } = await requireActor(req, 'media:upload')
   if (!(await rateLimit(`upload:${user.id}`, 60, 60)).ok) throw new HttpError(429, 'Too many uploads. Try again in a minute.')
-  const { file, alt, imagesOnly } = await readMediaUpload(req)
+  const { file, alt, imagesOnly, videosOnly } = await readMediaUpload(req)
   // Uploads are public at once; through a token only images, so a leaked token cannot host documents.
-  const media = await storeUpload(file, user.id, { imagesOnly: imagesOnly === '1' || user.via === 'token' })
+  const media = await storeUpload(file, user.id, { imagesOnly: imagesOnly === '1' || user.via === 'token', videosOnly: videosOnly === '1' })
   const saved = await db.media.update({
     where: { id: media.id },
     data: alt && !media.alt ? { alt } : {},
