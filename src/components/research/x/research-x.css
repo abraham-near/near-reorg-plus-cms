@@ -24,6 +24,12 @@
 .rs-x .rx-btn--fill { color: var(--paper-0); background: var(--ink); }
 @media (hover: hover) { .rs-x .rx-btn--fill:hover { background: #000; } }
 .rs-x .rx-hero__art { pointer-events: none; }
+/* the hero drawing waits, hidden, until its motion has set every starting state (motion.ts adds .is-ready), so the finished frame never flashes before
+   the build (a page reached through a page transition shows it first otherwise); if the script never runs, it shows after 3 s */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .rs-x .rx-hero__art:not(.is-ready) { opacity: 0; animation: rx-art-safe 0.4s 3s forwards; }
+}
+@keyframes rx-art-safe { to { opacity: 1; } }
 
 /* [[TBD: graphic by Ali]] the stack (Stack.tsx), in Research B's hand: white tops, light grey sides, ink hairlines, one green */
 .rs-x .rx-stack { display: block; width: 100%; height: auto; max-height: min(64vh, 600px); margin: 0 auto; overflow: visible; }

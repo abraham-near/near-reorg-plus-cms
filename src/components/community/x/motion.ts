@@ -45,8 +45,11 @@ function hero(root: HTMLElement, gsap: MotionCtx["gsap"]) {
       .from(links, { opacity: 0, duration: 0.7, ease: "none", stagger: 0.05 }, 0.75)
       .from(pawns, { y: -12, opacity: 0, duration: 0.55, ease: "back.out(2)", stagger: 0.035 }, 0.95);
   }, svg);
+  // every starting state is set (the .from()s render at once): the CSS gate (community-x.css, .cmx-hero__art until .is-ready) lets it show
+  const art = svg.closest(".cmx-hero__art");
+  art?.classList.add("is-ready");
   return () => {
-    io.disconnect(); gsap.ticker.remove(tick); gctx.revert();
+    io.disconnect(); gsap.ticker.remove(tick); gctx.revert(); art?.classList.remove("is-ready");
     sigs.forEach((c) => c.setAttribute("opacity", "0"));
     if (ring) { ring.setAttribute("opacity", "0"); ring.style.removeProperty("transform"); }
   };

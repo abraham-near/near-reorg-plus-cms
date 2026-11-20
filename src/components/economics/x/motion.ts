@@ -2,8 +2,8 @@
 // land where the lines meet, [data-rv] rises, the dot icons draw from dots as they come in); on top of it:
 //   - the h1 rises word by word on load, each h2 ([data-split]) as it comes in (SplitText, no masks: the Kepler word's overhang is never clipped);
 //     the hero's [data-in] lines follow the h1;
-//   - the hero's plinth (HeroIso.tsx) builds once as the page opens (the floor, the edges draw, the faces fill, the green stack rises coin by coin, the lanes
-//     last); then, only while it is near the screen, fees run the lanes into the stack;
+//   - the hero's plinth (HeroIso.tsx) builds once as the page opens (the floor, the plinth, the blocks rising onto it, the green stack coin by coin, the lanes
+//     last; whole pieces, nothing half drawn); then, only while it is near the screen, fees run the lanes into the stack;
 //   - the loop (LoopIso.tsx): one station on show at a time (data-step on the row: its station green, its name at full ink, the side out of it solid, the
 //     step itself at full ink beside it). Wide screens: the step crossing 60 % of the view is the one on show, and a dot runs the side out of it with the
 //     step's scroll. Phones (the drawing sits above the steps): the stations take turns slowly, only while the drawing is near the screen.
@@ -36,21 +36,24 @@ function mountHero(root: HTMLElement, { gsap, reduced }: MotionCtx) {
   const art = root.querySelector<HTMLElement>(".ex-hx-art"), svg = art?.querySelector<SVGSVGElement>("svg");
   if (!art || !svg) return;
   if (reduced) { art.classList.add("is-ready"); return () => art.classList.remove("is-ready"); }
-  const floor = $$(svg, ".d-floor"), edges = $$(svg, ".d-e"), fills = $$(svg, ".d-f"), accents = $$(svg, ".d-o"), coins = $$(svg, ".ex-hx-stack .ex-cn");
+  // built from nothing on a firm base, whole pieces only (no half-drawn edges: a dash draw breaks under the 1 px non-scaling strokes): the floor, then the
+  // plinth's two slabs and the pad, then the blocks rising onto it, then the stack coin by coin, the lanes and fees last
+  const floor = $$(svg, ".d-floor"), accents = $$(svg, ".d-o"), coins = $$(svg, ".ex-hx-stack .ex-cn");
+  const slabs = $$(svg, ".ex-sl"), base = slabs.filter((g) => !g.classList.contains("ex-hx-blk")), blocks = slabs.filter((g) => g.classList.contains("ex-hx-blk"));
   const fees = $$<SVGGElement>(svg, "[data-fee]");
   gsap.set(floor, { opacity: 0 });
-  gsap.set(edges, { strokeDasharray: "1 1", strokeDashoffset: 1 });
-  gsap.set(fills, { opacity: 0 });
+  gsap.set(base, { opacity: 0, y: 10 });
+  gsap.set(blocks, { opacity: 0, y: 22 });
   gsap.set(coins, { opacity: 0, y: -14 });
   gsap.set(accents, { opacity: 0 });
   fees.forEach((g) => { g.style.opacity = "0"; });
   art.classList.add("is-ready");
   const tl = gsap.timeline({ delay: 0.35 });
-  tl.to(floor, { opacity: 1, duration: 0.9, ease: "power2.out" }, 0)
-    .to(edges, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut", stagger: 0.05 }, 0.1)
-    .to(fills, { opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.04 }, 0.5)
-    .to(coins, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.07 }, 0.9)
-    .to(accents, { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.5);
+  tl.to(floor, { opacity: 1, duration: 0.8, ease: "power2.out" }, 0)
+    .to(base, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.12 }, 0.15)
+    .to(blocks, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.08 }, 0.6)
+    .to(coins, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.06 }, 1.15)
+    .to(accents, { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.75);
   let t0 = -1;
   const off = whileNear(gsap, art, (t) => {
     if (tl.isActive()) return;

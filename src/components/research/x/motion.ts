@@ -46,6 +46,8 @@ export function mount(root: HTMLElement, ctx: MotionCtx) {
     step($$(svg, ".d-f"), { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.05 }, 0.55);
     step(pops, { y: -26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.6)", stagger: Math.min(0.06, 1.1 / (pops.length || 1)) }, 0.85);
     step($$(svg, ".d-o"), { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.06 }, 1.3);
+    // every starting state is set: the CSS gate (research-x.css, .rx-hero__art until .is-ready) lets the drawing show
+    root.querySelector(".rx-hero__art")?.classList.add("is-ready");
 
     const sheet = svg.querySelector<SVGGElement>(".rx-sheet"), shadow = svg.querySelector<SVGElement>(".rx-shadow");
     let near = false, time = 0, lift = 0, built = false;

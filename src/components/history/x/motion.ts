@@ -62,6 +62,8 @@ function hero(root: HTMLElement, gsap: G) {
       .to(edges, { strokeDashoffset: 0, duration: 0.75, ease: "power2.inOut" }, at)
       .to(fills, { opacity: 1, duration: 0.5, ease: "power2.out" }, at + 0.3);
   });
+  // every starting state is set: the CSS gate (history-x.css, .hx-hero__art until .is-ready) lets the drawing show
+  art.classList.add("is-ready");
   tl.to(accents, { opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.12 }, 0.2 + last * 0.17 + 0.55);
 
   const place = (v: [number, number], dy: number, o: number) => {
