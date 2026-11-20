@@ -7,9 +7,9 @@ export type Final = { id: string; href: string; path?: string; name: string; not
 
 export const FINALS: Final[] = [
   {
-    id: "home", href: "/", name: "Homepage · v9",
-    note: "Home v9: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail with the signed identity, the Stack in lit matte, Origin, Go deeper, Get into NEAR (Trade's photo with the glowing NEAR mark), the voices one at a time, and \"NEAR belongs to you\" as one centred group over a stack of mail. Also at /home-v9.",
-    tags: ["Type-only hero", "Still headline", "Black-and-white photos"], img: "/index/home.webp",
+    id: "home", href: "/", name: "Homepage · v10",
+    note: "Home v10, \"Stack second\" (Lawrence's branch Stack-Second): \"NEAR is private\" and a word that cycles until it rests on \"by design\", then the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\") and the same lower page as v8 and v9.",
+    tags: ["Cycling hero", "Stack second", "Lit matte Stack"], img: "/index/home.webp",
   },
   {
     id: "home-v7", href: "/home-v7", name: "Home v7",

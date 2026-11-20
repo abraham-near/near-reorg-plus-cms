@@ -8,9 +8,9 @@ export const GROUPS: Group[] = [
   {
     id: "home",
     title: "Homepage",
-    note: "Homepage versions that were not chosen. The homepage (/) is home v9, the still headline; home v7, the film hero, is at /home-v7 on /index.",
+    note: "Homepage versions that were not chosen. The homepage (/) is home v10, Stack second (since Nov 20, 2026; v9 before it); home v7, the film hero, is at /home-v7 on /index.",
     pages: [
-      { href: "/home-v10", n: "v10", name: "Home · Stack second", note: "Home v8 with the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\"), then the same lower page.", tags: ["Type-only hero", "Stack second", "Branch Stack-Second"], img: "/extra/home-v10.webp" },
+      { href: "/home-v9", n: "v9", name: "Home · still headline", note: "The homepage until Nov 20, 2026: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail, the Stack in lit matte and the same lower page.", tags: ["Type-only hero", "Still headline", "Branch NEAR-is-privacy-HEADLINE"], img: "/extra/home-v9.webp" },
       { href: "/home-v8", n: "v8", name: "Home · cycling word", note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it, on the same lower page. The homepage Nov 19–20, until v9 was chosen again.", tags: ["Type-only hero", "Cycling word", "Not chosen"], img: "/extra/home-v8.webp" },
     ],
   },
