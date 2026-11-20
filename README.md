@@ -11,7 +11,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | Address | Page | Code |
 |---|---|---|
 | `/` (and `/home-v8`) | **Homepage**: home v8. One type-only section, "NEAR is private" with a word that cycles until it rests on "by design", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) stays at its own address, also on `/index`; v9 (`/home-v9`, the still headline) is archived on `/extra`. | `src/components/v7` (on pieces of v1–v5) |
-| `/blog` | **Blog**: version E, tabs over a grid (Lawrence's choice). The CMS's posts, one lead post, tabs for All, Blog, Press and Watch, and cards nine at a time. | `src/components/blog/e` |
+| `/blog` | **Blog**: version E (Lawrence's choice). The CMS's posts, the lead post always on screen, All / Blog / Press / Watch as large words, tag pills you can combine (the CMS's tags, with NEAR AI, NEAR Intents, near.com and NEAR Protocol first), and the homepage's ruled cards with date and tags, nine at a time. | `src/components/blog/e` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c\|d` shows A, C or D. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
 | `/analytics` | **Analytics**: C (Ruled grid). Sample figures until the live feed lands. | `src/components/analytics/c` |

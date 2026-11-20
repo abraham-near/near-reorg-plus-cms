@@ -1,19 +1,26 @@
-/* Blog index E, "Tabs over a grid" (BlogE.tsx, D221). Tokens from blog.css's .bl (ink, muted, lines, type scale, margin, header clearance). */
+/* Blog index E (BlogE.tsx; D221, rebuilt as A2: D240–D244). Tokens from blog.css's .bl (ink, muted, lines, type scale, margin, header clearance).
+   The cards are the homepage's Go deeper cells (proof-deeper.css): hairlines, a + where lines meet, the photo inset 24 px, a paper fill on hover. */
 .be { padding: var(--top) var(--margin) clamp(88px, 13vh, 150px); background: var(--paper-0); color: var(--ink); font-family: var(--sans); }
 :where(.be) :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .be button:focus-visible, .be a:focus-visible { outline: 2px solid var(--emerald-deep); outline-offset: 3px; border-radius: 4px; }
-.be sup { margin-left: 3px; font-size: 0.66em; vertical-align: 0.6em; line-height: 0; font-variant-numeric: tabular-nums; color: var(--muted); }
 
-/* the photo in a 6 px frame, a touch larger on hover */
-.be-pic { display: block; overflow: hidden; border-radius: 6px; background: var(--paper-2); aspect-ratio: 16 / 9; }
-.be-pic img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease-settle); }
-@media (hover: hover) { .be a:hover .be-pic img { transform: scale(1.03); } }
-@media (prefers-reduced-motion: reduce) { .be-pic img { transition: none; } }
+/* the + : 9 px, ink, 1 px arms (proof-deeper.css's .l-x) */
+.be { --be-x: linear-gradient(var(--ink), var(--ink)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 100% var(--hair) no-repeat; }
 
-.be-chip { display: inline-flex; align-self: flex-start; padding: 4px 8px 3px; border-radius: 4px; background: var(--paper-2);
-  font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--graphite); line-height: 1.2; }
-.be-src { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
-.be-n { font-size: var(--t-small); color: var(--muted); font-variant-numeric: tabular-nums; }
+/* the photo: muted as on the homepage, a touch larger and full colour on hover */
+.be-pic { position: relative; display: block; overflow: hidden; aspect-ratio: 16 / 10; background: var(--paper-2); }
+.be-pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.8) contrast(0.97) brightness(1.01); transition: scale 1s var(--ease-settle), filter 0.2s var(--ease-tick); }
+
+/* the type at the left and the date at the right, under the photo; on hover the green dot opens before the type */
+.be-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.be-type { display: inline-flex; align-items: center; font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.01em; color: var(--ink); }
+.be-type::before { content: ""; width: 0; height: 6px; margin-right: 0; border-radius: 50%; background: var(--emerald); transform: scale(0);
+  transition: transform 0.3s var(--ease-settle), width 0.3s var(--ease-settle), margin 0.3s var(--ease-settle); }
+.be-date { font-size: 0.8125rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.be-src { display: block; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+/* a post's tags: small words at the card's foot; the ones you chose in ink */
+.be-ctags { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.8125rem; color: var(--muted); }
+.be-ctags [data-on] { color: var(--ink); }
 
 /* the head: the heading, its line at the right, a hairline under both */
 .be-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 48px; flex-wrap: wrap;
@@ -21,38 +28,95 @@
 .be-h1 { font-weight: 500; font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
 .be-aside { max-width: 24em; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--graphite); padding-bottom: 0.6em; }
 
-/* the lead post: photo left, text right */
-.be-lead { display: grid; grid-template-columns: 7fr 5fr; gap: clamp(24px, 4vw, 72px); align-items: center; padding: clamp(32px, 5vh, 56px) 0; }
-.be-lead__text { display: flex; flex-direction: column; gap: 16px; }
+/* the lead post: one wide cell, photo left, text right; always on screen (D242) */
+.be-lead { position: relative; isolation: isolate; display: grid; grid-template-columns: 7fr 5fr; gap: clamp(24px, 4vw, 56px); align-items: center;
+  margin: clamp(32px, 5vh, 56px) 0; padding: 24px; border: var(--hair) solid var(--line-strong); }
+.be-lead::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); opacity: 0; transition: opacity 0.25s var(--ease-tick); }
+/* a + at all four corners (as Go deeper puts one wherever lines meet): one layer 4 px outside the frame, a 9 px mark drawn in each corner */
+.be-lead::after { content: ""; position: absolute; z-index: 2; inset: -5px; pointer-events: none;
+  --v: linear-gradient(var(--ink), var(--ink)); background:
+    var(--v) 4px 0 / var(--hair) 9px no-repeat, var(--v) 0 4px / 9px var(--hair) no-repeat,
+    var(--v) calc(100% - 4px) 0 / var(--hair) 9px no-repeat, var(--v) 100% 4px / 9px var(--hair) no-repeat,
+    var(--v) 4px 100% / var(--hair) 9px no-repeat, var(--v) 0 calc(100% - 4px) / 9px var(--hair) no-repeat,
+    var(--v) calc(100% - 4px) 100% / var(--hair) 9px no-repeat, var(--v) 100% calc(100% - 4px) / 9px var(--hair) no-repeat; }
+/* the photo stops at 46% of the screen's height, so the types and pills show on the first screen at desktop */
+.be-lead .be-lead__pic { max-height: min(46vh, 560px); }
+.be-lead__text { display: flex; flex-direction: column; gap: 16px; padding-right: 24px; }
+.be-lead .be-meta { justify-content: flex-start; gap: 16px; }
+.be-lead__title, .be-card__title { margin: 0; }
 .be-lead__title { font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); font-weight: 500; max-width: 16em; text-wrap: balance; }
 .be-lead__x { max-width: 30em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); }
-@media (hover: hover) { .be-lead:hover .be-lead__title, .be-card:hover .be-card__title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; } }
 
-/* the tabs: text, the chosen one in ink with a green rule under it */
-.be-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding: 4px 0 0;
-  border-top: var(--hair) solid var(--line); margin-bottom: clamp(24px, 3vh, 36px); }
-.be-tabs { display: flex; gap: clamp(16px, 2.2vw, 32px); overflow-x: auto; scrollbar-width: none; }
-.be-tabs::-webkit-scrollbar { display: none; }
-.be-tab { position: relative; flex: none; padding: 14px 0 12px; font-size: var(--t-ui); font-weight: 500; color: var(--muted); transition: color 0.2s var(--ease-tick); }
-.be-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--emerald); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.35s var(--ease-settle); }
-.be-tab[aria-pressed="true"] { color: var(--ink); }
-.be-tab[aria-pressed="true"]::after { transform: none; }
-@media (hover: hover) { .be-tab:hover { color: var(--ink); } }
-@media (prefers-reduced-motion: reduce) { .be-tab::after { transition: none; } }
+/* the filters: the types as large words (the chosen one in ink, the green dot hanging in the margin before it), then the tag pills */
+.be-filters { margin-bottom: clamp(28px, 3.5vh, 40px); }
+.be-types { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 24px; padding-top: 8px; }
+.be-types__row { position: relative; display: flex; gap: clamp(34px, 2.8vw, 44px); }   /* room for the dot (10 px, 12 px before the word) */
+.be-tb { font-size: clamp(2rem, 1.3rem + 1.9vw, 3rem); line-height: 1; letter-spacing: -0.03em; font-weight: 500; color: rgb(38 38 38 / 0.5); padding: 4px 0 6px;   /* about 3.2:1 on paper, large text */
+  transition: color 0.2s var(--ease-tick); }
+.be-tb[aria-pressed="true"] { color: var(--ink); }
+.be-types__dot { position: absolute; left: 0; top: 50%; width: 10px; height: 10px; margin-top: -4px; border-radius: 50%; background: var(--emerald);
+  transform: translateX(calc(var(--dot-x, 0px) - 22px)); opacity: 0; transition: transform 0.55s var(--ease-settle), opacity 0.2s var(--ease-tick); }
+.be-types__dot[data-ready] { opacity: 1; }
+.be-n { padding-bottom: 10px; font-size: var(--t-small); color: var(--muted); font-variant-numeric: tabular-nums; }
 
-/* the grid: three to a row, nine at a time */
-.be-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(36px, 5vh, 56px) clamp(16px, 2vw, 32px); }
-.be-card { display: flex; flex-direction: column; gap: 12px; }
-.be-card .be-pic { margin-bottom: 6px; }
-.be-card__title { font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); font-weight: 500; text-wrap: pretty; }
+.be-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: clamp(20px, 2.6vh, 28px); }
+.be-pill { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong);
+  font-size: var(--t-small); font-weight: 500; color: var(--graphite); white-space: nowrap;
+  transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick), box-shadow 0.2s var(--ease-tick); }
+.be-pill[aria-pressed="true"] { background: var(--ink); color: var(--paper-0); box-shadow: inset 0 0 0 1px var(--ink); }
+.be-pill__x { font-size: 1.05em; line-height: 1; margin-right: -3px; opacity: 0.7; }
+.be-clear { padding: 6px 4px; font-size: var(--t-small); font-weight: 500; text-decoration: underline; text-decoration-thickness: var(--hair); text-underline-offset: 3px; white-space: nowrap; }
+.be-empty { padding: 24px 0 40px; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--muted); }
+.be-empty .be-clear { color: var(--ink); }
+
+/* the grid: cells three to a row, ruled; a + at each cell's top left, and at the row's top right */
+.be-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: var(--hair) solid var(--line-strong); border-left: var(--hair) solid var(--line-strong); }
+.be-cell { position: relative; border-right: var(--hair) solid var(--line-strong); border-bottom: var(--hair) solid var(--line-strong); }
+.be-cell::before, .be-cell::after { content: ""; position: absolute; z-index: 2; top: -5px; width: 9px; height: 9px; pointer-events: none; background: var(--be-x); }
+.be-cell::before { left: -5px; }
+.be-cell::after { right: -5px; display: none; }
+.be-cell:nth-child(3n)::after, .be-cell:last-child::after { display: block; }
+.be-card { position: relative; isolation: isolate; display: flex; flex-direction: column; height: 100%; padding: 24px 24px 28px; }
+.be-card::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--paper-1); opacity: 0; transition: opacity 0.25s var(--ease-tick); }
+.be-card .be-meta { margin-top: 18px; }
+.be-card__title { margin-top: 12px; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); font-weight: 500; text-wrap: pretty; }
+.be-card .be-src { margin-top: 10px; }
+.be-card .be-ctags { margin-top: auto; padding-top: 18px; }
+
 .be-more { display: flex; justify-content: center; padding-top: clamp(40px, 6vh, 64px); }
 .be-more__b { padding: 12px 20px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--t-ui); font-weight: 500; }
-@media (hover: hover) { .be-more__b:hover { box-shadow: inset 0 0 0 1px var(--ink); } }
 
-@media (max-width: 1023px) { .be-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .be-lead { grid-template-columns: 1fr 1fr; } }
+@media (hover: hover) {
+  .be-lead:hover::before, .be-card:hover::before { opacity: 1; }
+  .be-lead:hover .be-pic img, .be-card:hover .be-pic img { scale: 1.035; filter: saturate(1) contrast(1); }
+  .be-lead:hover .be-type::before, .be-card:hover .be-type::before { width: 6px; margin-right: 8px; transform: none; }
+  .be-tb:not([aria-pressed="true"]):hover { color: rgb(38 38 38 / 0.75); }
+  .be-pill:not([aria-pressed="true"]):hover { box-shadow: inset 0 0 0 1px var(--ink); color: var(--ink); }
+  .be-more__b:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .be-pic img, .be-type::before, .be-lead::before, .be-card::before, .be-tb, .be-types__dot, .be-pill { transition: none; }
+}
+
+/* tablet: two to a row */
+@media (max-width: 1023px) {
+  .be-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .be-cell:nth-child(3n)::after { display: none; }
+  .be-cell:nth-child(2n)::after, .be-cell:last-child::after { display: block; }
+  .be-lead { grid-template-columns: 1fr 1fr; }
+}
+/* phone: one to a row; the lead stacks; the dot sits inside the type row, which scrolls, as do the pills */
 @media (max-width: 640px) {
   .be-grid { grid-template-columns: 1fr; }
-  .be-lead { grid-template-columns: 1fr; gap: 20px; }
-  .be-bar { margin-left: calc(-1 * var(--margin)); margin-right: calc(-1 * var(--margin)); padding-left: var(--margin); padding-right: var(--margin); }
-  .be-bar .be-n { display: none; }
+  .be-cell::after, .be-cell:nth-child(2n)::after { display: block; }
+  .be-lead { grid-template-columns: 1fr; gap: 20px; padding: 16px 16px 24px; }
+  .be-lead__text { padding-right: 0; }
+  .be-card { padding: 16px 16px 24px; }
+  .be-types { margin: 0 calc(-1 * var(--margin)); padding-left: var(--margin); padding-right: var(--margin); }
+  .be-types__row { overflow-x: auto; scrollbar-width: none; padding-left: 22px; gap: 30px; }
+  .be-tb { font-size: 1.5rem; }   /* all four fit a 390 screen; still well above the pills */
+  .be-types__row::-webkit-scrollbar, .be-tags::-webkit-scrollbar { display: none; }
+  .be-types .be-n { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; padding: 0; }
+  .be-tags { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--margin)); padding-left: var(--margin); padding-right: var(--margin); }
+  .be-tags > * { flex: none; }
 }

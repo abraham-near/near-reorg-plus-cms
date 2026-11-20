@@ -18,8 +18,8 @@ export const FINALS: Final[] = [
   },
   {
     id: "blog", href: "/blog", name: "Blog",
-    note: "Tabs over a grid (E): the heading, one lead post (photo left, text right), then tabs for All, Blog, Press and Watch with their counts over cards three to a row, nine at a time. The CMS's posts first. The previous blog (direction J) is at /blog-index-a on /extra.",
-    tags: ["CMS posts", "Blog / Press / Watch", "Tabs + grid"], img: "/index/blog.webp",
+    note: "Version E: the heading, the lead post (always on screen), then All, Blog, Press and Watch as large words over tag pills you can combine (NEAR AI, NEAR Intents, near.com and NEAR Protocol first). Posts sit on the homepage's ruled cards with their date and tags, nine at a time. The CMS's posts first. The previous blog (direction J) is at /blog-index-a on /extra.",
+    tags: ["CMS posts", "Blog / Press / Watch", "Tags", "Ruled cards"], img: "/index/blog.webp",
   },
   {
     id: "post", href: "/post-b", path: "/blog/<slug>", name: "Blog post",
