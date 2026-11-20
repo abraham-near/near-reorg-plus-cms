@@ -4,8 +4,8 @@ import "../v4/revenue/switch.css";
 export const HISTORY_VERSIONS = [
   { k: "a", href: "/history-a", name: "Ruled grid" },
   { k: "b", href: "/history-b", name: "Drawn" },
-  { k: "c", href: "/history", name: "Editorial" },
-  { k: "x", href: "/history-x", name: "MVP" },
+  { k: "c", href: "/history-c", name: "Editorial" },
+  { k: "x", href: "/history", name: "MVP" },
 ] as const;
 
 export function HistorySwitch({ on }: { on: (typeof HISTORY_VERSIONS)[number]["k"] }) {

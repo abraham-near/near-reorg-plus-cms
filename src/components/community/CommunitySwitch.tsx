@@ -3,9 +3,9 @@ import "../v4/revenue/switch.css";
 
 export const COMMUNITY_VERSIONS = [
   { k: "a", href: "/community-a", name: "Ruled grid" },
-  { k: "b", href: "/community", name: "Drawn" },
+  { k: "b", href: "/community-b", name: "Drawn" },
   { k: "c", href: "/community-c", name: "Editorial" },
-  { k: "x", href: "/community-x", name: "MVP" },
+  { k: "x", href: "/community", name: "MVP" },
 ] as const;
 
 export function CommunitySwitch({ on }: { on: (typeof COMMUNITY_VERSIONS)[number]["k"] }) {

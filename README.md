@@ -14,10 +14,12 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c\|d` shows A, C or D. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
-| `/analytics` | **Analytics**: C (Ruled grid). Sample figures until the live feed lands. | `src/components/analytics/c` |
-| `/economics` | **Economics**: A (Ruled grid), from the October 2026 doc. | `src/components/economics/a` |
-| `/history` | **History** ("From 2017 to now" in the menu): C (Editorial). | `src/components/history/c` |
-| `/community` | **Community**: B (Drawn), from the October 2026 doc. Sample figures and events. | `src/components/community/b` |
+| `/analytics` | **Analytics**: X (MVP, the Nov 19 review). Sample figures until the live feed lands. | `src/components/analytics/x` |
+| `/economics` | **Economics**: X (MVP), from the October 2026 doc. | `src/components/economics/x` |
+| `/history` | **History** ("From 2017 to now" in the menu): X (MVP). | `src/components/history/x` |
+| `/community` | **Community**: X (MVP), from the October 2026 doc. Sample figures and events. | `src/components/community/x` |
+| `/solutions` | **Solutions**: X (MVP), from the October 2026 doc's Solutions Hub. | `src/components/solutions/x` |
+| `/research` | **Research**: X (MVP), the technical papers. | `src/components/research/x` |
 | `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
 | any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
 | `/index`, `/extra` | The two lists of pages (see below). | `src/app/(site)/index`, `src/app/(site)/extra` |
@@ -26,10 +28,10 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 Explorations that still have their own routes are listed at `/extra`:
 - the blog post layouts `/post-a`, `/post-b`, `/post-c` and `/post-d` (D: the October 2026 Figma's blog look; the CMS picker still offers A–C only);
 - the blog index versions B–D at `/blog-index-b…d` (A is the live `/blog`): B and D from the October 2026 Figma's two blog frames (nodes 980:723, 756:41), C is B on the homepage's soft ruled grid (`src/components/blog/<letter>`). Not `/blog-b…d`: those still redirect to `/blog` (the old directions A–L);
-- the MVP versions X from the Nov 19 review at `/analytics-x`, `/community-x`, `/history-x`, `/economics-x`, `/solutions-x`, `/research-x` (`src/components/<page>/x`): one version per page, mostly copy, no eyebrows or decorative numerals, no ruled grid by the header, the site's dot icons where they help, graphics as placeholders (`[[TBD: graphic by Ali]]`);
-- Analytics A, B, D and E at `/analytics-a`, `/analytics-b`, `/analytics-d`, `/analytics-e`;
-- Economics B and C at `/economics-b`, `/economics-c`, History A and B at `/history-a`, `/history-b`, and Community A and C at `/community-a`, `/community-c`;
-- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (no final version chosen yet: the menu's `/solutions`, `/research` and `/brand` don't exist yet). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
+- the MVP versions X from the Nov 19 review (`src/components/<page>/x`) are the menu's Analytics, Community, History, Economics, Solutions and Research, at the plain addresses (`/analytics`…); `/analytics-x`, `/community-x`, `/history-x`, `/economics-x`, `/solutions-x` and `/research-x` still lead there (a temporary redirect). One version per page: mostly copy, no eyebrows or decorative numerals, no ruled grid by the header, the site's dot icons where they help, graphics as placeholders (`[[TBD: graphic by Ali]]`);
+- Analytics A–E at `/analytics-a`…`/analytics-e` (C was `/analytics` until Nov 19, 2026);
+- Economics A–C at `/economics-a…c`, History A–C at `/history-a…c` and Community A–C at `/community-a…c` (the menu's versions until Nov 19, 2026: Economics A, History C, Community B);
+- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (the menu's `/brand` doesn't exist yet). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
 
 ### What changed (November 2026)
 
@@ -42,7 +44,8 @@ Explorations that still have their own routes are listed at `/extra`:
   - Foundation A, B, C, D and F (`/foundation`, `/foundation-b`…`-f` redirect to `/near-foundation`).
 - **Moved pages:**
   - Foundation E moved to `/near-foundation`. It now has F's pillars and F's Council, and no badges on its drawings. It still uses a few of B's and C's pieces (`foundation/b`, `foundation/c`).
-  - Analytics C (the ruled grid) is `/analytics`; B is back at `/analytics-b`, A is at `/analytics-a`, and `/analytics-c` redirects to `/analytics`.
+  - Analytics C (the ruled grid) was `/analytics` until Nov 19, 2026; it is at `/analytics-c` again (with A, B, D and E at their letters).
+  - Nov 19, 2026: the X versions became the menu's Analytics, Economics, History, Community, Solutions and Research at the plain addresses; Economics A, History C and Community B moved to `/economics-a`, `/history-c`, `/community-b`, and `/<page>-x` redirects to `/<page>`.
   - Old addresses redirect: see `redirects()` in `next.config.ts`.
 - **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, History → `/history`, Economics → `/economics`, Community → `/community`, Contact → `/contact`.
 - **Type:** every h1, h2 and h3 sets its words in PP Neue Montreal Book and its accent in Kepler Std Medium Condensed Italic Display, as in the hero (see "Building a page").

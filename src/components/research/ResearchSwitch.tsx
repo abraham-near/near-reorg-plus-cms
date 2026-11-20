@@ -5,7 +5,7 @@ export const RESEARCH_VERSIONS = [
   { k: "a", href: "/research-a", name: "Ruled grid" },
   { k: "b", href: "/research-b", name: "Drawn" },
   { k: "c", href: "/research-c", name: "Editorial" },
-  { k: "x", href: "/research-x", name: "MVP" },
+  { k: "x", href: "/research", name: "MVP" },
 ] as const;
 
 export function ResearchSwitch({ on }: { on: (typeof RESEARCH_VERSIONS)[number]["k"] }) {
