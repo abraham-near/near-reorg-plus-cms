@@ -5,6 +5,7 @@ export const COMMUNITY_VERSIONS = [
   { k: "a", href: "/community-a", name: "Ruled grid" },
   { k: "b", href: "/community", name: "Drawn" },
   { k: "c", href: "/community-c", name: "Editorial" },
+  { k: "x", href: "/community-x", name: "MVP" },
 ] as const;
 
 export function CommunitySwitch({ on }: { on: (typeof COMMUNITY_VERSIONS)[number]["k"] }) {

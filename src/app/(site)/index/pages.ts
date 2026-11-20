@@ -42,9 +42,19 @@ export const FINALS: Final[] = [
     tags: ["Ruled grid", "Homepage hand", "Sample figures"], img: "/index/analytics.webp",
   },
   {
+    id: "analytics-x", href: "/analytics-x", name: "Analytics · MVP (X)",
+    note: "The Nov 19 review's MVP: D simplified, mostly copy, the plinth beside the hero, then one continuous ruled grid with spacer rows: the five stats, revenue as sixteen weekly bars beside network health, Go deeper with its hub, SVRN and the ETPs.",
+    tags: ["MVP", "Continuous grid", "Weekly bars"], img: "/index/analytics-x.webp",
+  },
+  {
     id: "economics", href: "/economics", name: "Economics",
     note: "Ruled grid (Economics A): the four structural facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, the two revenue sources, one asset on the dark band, the homepage's close.",
     tags: ["Ruled grid", "Scroll diagram", "Homepage close"], img: "/index/economics.webp",
+  },
+  {
+    id: "economics-x", href: "/economics-x", name: "Economics · MVP (X)",
+    note: "The MVP: an isometric beside the hero (fees running into the token), the foundation, the loop and the one asset on the ruled grid, the loop drawn as four isometric stations that light as you scroll, the two products on a dark band.",
+    tags: ["MVP", "Isometric", "Ruled grid"], img: "/index/economics-x.webp",
   },
   {
     id: "history", href: "/history", name: "History",
@@ -52,9 +62,29 @@ export const FINALS: Final[] = [
     tags: ["Editorial", "Sticky year", "Homepage close"], img: "/index/history.webp",
   },
   {
+    id: "history-x", href: "/history-x", name: "History · MVP (X)",
+    note: "The MVP: a type-only hero, a plain Origin, the years as a short sideways story after the homepage's rail (pinned, three at a time: the year on show at the centre with its text, its neighbours faint), Today on the ruled grid.",
+    tags: ["MVP", "Sideways rail", "Ruled grid"], img: "/index/history-x.webp",
+  },
+  {
     id: "community", href: "/community", name: "Community",
     note: "Drawn (Community B): NEAR Foundation's isometric hand, the community as line drawings (people, places, events) that build as you scroll, then the homepage's close with the newsletter. Sample figures and events until the Luma feed is in.",
     tags: ["Iso drawings", "Foundation hand", "Homepage close"], img: "/index/community.webp",
+  },
+  {
+    id: "community-x", href: "/community-x", name: "Community · MVP (X)",
+    note: "The MVP: C made more typographic, an isometric drawing of crews joined by threads in the hero, the figures, channels and ways framed by the homepage's grid, the Legion on the dark band, the channels with the site's dot icons.",
+    tags: ["MVP", "Typographic", "Dot icons"], img: "/index/community-x.webp",
+  },
+  {
+    id: "solutions-x", href: "/solutions-x", name: "Solutions · MVP (X)",
+    note: "The MVP: a calm hero beside B's hub, then one continuous ruled grid with spacer rows: the proof strip, the solutions, Confidential Intents as a dark band off the grid, the builders, the grid running down into the close.",
+    tags: ["MVP", "Continuous grid", "Dark band"], img: "/index/solutions-x.webp",
+  },
+  {
+    id: "research-x", href: "/research-x", name: "Research · MVP (X)",
+    note: "The MVP: A without the grid by the header, B's paper stack as the hero's placeholder drawing, the catalogue in two columns with a topic filter, keep reading on the same grid, the grid running into the homepage's close.",
+    tags: ["MVP", "Catalogue", "Topic filter"], img: "/index/research-x.webp",
   },
   {
     id: "contact", href: "/contact", name: "Contact",

@@ -5,6 +5,7 @@ export const HISTORY_VERSIONS = [
   { k: "a", href: "/history-a", name: "Ruled grid" },
   { k: "b", href: "/history-b", name: "Drawn" },
   { k: "c", href: "/history", name: "Editorial" },
+  { k: "x", href: "/history-x", name: "MVP" },
 ] as const;
 
 export function HistorySwitch({ on }: { on: (typeof HISTORY_VERSIONS)[number]["k"] }) {

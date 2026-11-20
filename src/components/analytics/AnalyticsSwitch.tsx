@@ -1,4 +1,4 @@
-// The switch between the Analytics page's versions (top left): plain links to /analytics-a, /analytics-b, /analytics (C, the one in the menu), D and E. Same pill as the Foundation switch.
+// The switch between the Analytics page's versions (top left): plain links to /analytics-a, /analytics-b, /analytics (C, the one in the menu), D, E and X (MVP). Same pill as the Foundation switch.
 import "../v4/revenue/switch.css";
 
 export const ANALYTICS_VERSIONS = [
@@ -7,6 +7,7 @@ export const ANALYTICS_VERSIONS = [
   { k: "c", href: "/analytics", name: "Ruled grid" },
   { k: "d", href: "/analytics-d", name: "Drawn" },
   { k: "e", href: "/analytics-e", name: "Editorial" },
+  { k: "x", href: "/analytics-x", name: "MVP" },
 ] as const;
 
 export function AnalyticsSwitch({ on }: { on: (typeof ANALYTICS_VERSIONS)[number]["k"] }) {

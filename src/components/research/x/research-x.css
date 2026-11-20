@@ -1,0 +1,122 @@
+/* Research X · MVP (ResearchX.tsx). A calm Research A: a hero with no grid (copy | one header graphic), then the catalogue on a light ruled grid
+   (proof-deeper.css: .l-row / .l-cell, + crosshairs, arrivals), then "Keep reading" with no grid. No kickers, no mono section labels, no row numbers.
+   Motion only under .rs-x[data-motion] (set by the grid's motion unless reduced motion). Scoped under .rs-x. */
+.rs-x { --rx-ink: #111; --rx-g1: #5fe0ae; --rx-g2: #3cc994; --rx-g3: #22a374; --mono: var(--font-montreal-mono), ui-monospace, monospace;
+  background: var(--paper-0); overflow-x: clip; }
+.rs-x .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
+.rs-x :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.rs-x .rx-ln:focus-visible { outline-offset: 4px; }
+.rs-x [id] { scroll-margin-top: 96px; }
+.rs-x .rx-p[hidden] { display: none; }
+.rs-x .rx-w { will-change: transform, opacity; }
+:where(.rs-x[data-motion]) [data-in]:not(.is-in) { opacity: 0; translate: 0 18px; }
+:where(.rs-x[data-motion]) [data-in].is-in { transition: opacity 0.8s var(--ease-glide) var(--d, 0s), translate 1s var(--ease-settle) var(--d, 0s); }
+
+/* ---------------------------------------------------------------- 1 · hero: copy | the header graphic, no grid */
+.rs-x .rx-hero { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: center; column-gap: clamp(24px, 4vw, 72px);
+  min-height: min(86svh, 860px); padding: clamp(136px, 17vh, 184px) var(--margin) clamp(56px, 9vh, 104px); }
+.rs-x .rx-h1 { max-width: 10em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.75rem, 1.2rem + 4.2vw, 5.75rem); line-height: 0.98;
+  letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.rs-x .rx-h1 .accent .rx-w, .rs-x .rx-h1 .accent { line-height: 0.92; }
+.rs-x .rx-hero__sub { margin-top: clamp(24px, 3.6vh, 40px); max-width: 32em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr);
+  color: var(--graphite); text-wrap: pretty; }
+.rs-x .rx-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(28px, 4.4vh, 48px); }
+.rs-x .rx-btn--fill { color: var(--paper-0); background: var(--ink); }
+@media (hover: hover) { .rs-x .rx-btn--fill:hover { background: #000; } }
+.rs-x .rx-hero__art { pointer-events: none; }
+
+/* [[TBD: graphic by Ali]] the stack (Stack.tsx), in Research B's hand: white tops, light grey sides, ink hairlines, one green */
+.rs-x .rx-stack { display: block; width: 100%; height: auto; max-height: min(64vh, 600px); margin: 0 auto; overflow: visible; }
+.rs-x .rx-stack * { vector-effect: non-scaling-stroke; }
+.rs-x .rx-sl polygon { stroke: var(--rx-ink); stroke-width: 1; stroke-linejoin: round; }
+.rs-x .rx-sl__t { fill: #fff; } .rs-x .rx-sl__l { fill: #f2f2f0; } .rs-x .rx-sl__r { fill: #e8e8e6; }
+.rs-x .rx-sl--g .rx-sl__t { fill: var(--rx-g1); } .rs-x .rx-sl--g .rx-sl__l { fill: var(--rx-g2); } .rs-x .rx-sl--g .rx-sl__r { fill: var(--rx-g3); }
+.rs-x .rx-sl__e { fill: none; stroke: var(--rx-ink); stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; vector-effect: none; }
+.rs-x .rx-dots { fill: none; stroke: var(--rx-ink); stroke-opacity: 0.32; stroke-width: 1.6; stroke-linecap: round; }
+.rs-x .rx-tx path { fill: none; stroke: var(--rx-ink); stroke-linecap: round; }
+.rs-x .rx-tx__l { stroke-opacity: 0.42; stroke-width: 1; }
+.rs-x .rx-tx__h { stroke-width: 2.2; stroke-opacity: 0.85; }
+.rs-x .rx-mark { fill: var(--emerald); stroke: var(--rx-ink); stroke-width: 1; }
+.rs-x .rx-shadow { fill: var(--rx-ink); fill-opacity: 0.07; stroke: none; }
+.rs-x .rx-lab path { fill: none; stroke: var(--rx-ink); stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 1 3; stroke-linecap: round; }
+.rs-x .rx-lab circle { fill: none; stroke: var(--rx-ink); stroke-opacity: 0.55; stroke-width: 1; }
+.rs-x .rx-lab text { font: 400 11px/1 var(--sans); letter-spacing: 0.01em; fill: var(--graphite); }
+.rs-x .rx-lab.is-on circle { fill: var(--emerald); stroke-opacity: 1; }
+.rs-x .rx-lab.is-on text { fill: var(--ink); }
+
+/* ---------------------------------------------------------------- 2 · the catalogue, on a light grid */
+.rs-x :is(.rx-cat, .rx-more) { --l-line: var(--line); --l-x: rgb(38 38 38 / 0.4); }
+/* the catalogue's grid runs on into keep reading and the close (no closing rule here) */
+/* the bar: the topics as chips | how many are showing */
+.rs-x .rx-bar__cell { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 32px; padding-top: 16px; padding-bottom: 16px; }
+.rs-x .rx-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rs-x .rx-chip { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 0; border-radius: 999px; cursor: pointer;
+  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr); color: var(--graphite); background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: color 0.2s var(--ease-tick), background-color 0.2s var(--ease-tick), box-shadow 0.2s var(--ease-tick), padding 0.3s var(--ease-settle); }
+.rs-x .rx-chip::before { content: ""; position: absolute; left: 14px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
+  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+.rs-x .rx-chip__n { font-size: var(--t-caption); color: var(--muted); font-variant-numeric: tabular-nums; transition: color 0.2s var(--ease-tick); }
+.rs-x .rx-chip[aria-pressed="true"] { padding-left: 28px; color: var(--paper-0); background: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.rs-x .rx-chip[aria-pressed="true"]::before { transform: scale(1); }
+.rs-x .rx-chip[aria-pressed="true"] .rx-chip__n { color: rgb(245 244 241 / 0.6); }
+@media (hover: hover) { .rs-x .rx-chip:hover:not([aria-pressed="true"]) { color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); } }
+.rs-x .rx-count { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* a paper: title and summary | metadata, then the link */
+.rs-x .rx-p { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); transition: background-color 0.35s var(--ease-tick); }
+@media (hover: hover) { .rs-x .rx-p:hover { background: var(--paper-1); } }
+.rs-x .rx-p > .l-cell { padding-top: 36px; padding-bottom: 40px; }
+.rs-x .rx-p__main { padding-right: calc(var(--l-pad) * 2); }
+.rs-x .rx-p__t { max-width: 18em; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; }
+.rs-x .rx-p__b { max-width: 38em; margin-top: 14px; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.rs-x .rx-m { display: flex; flex-direction: column; gap: 10px; margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink); }
+.rs-x .rx-m dd { margin: 0; }
+.rs-x .rx-m__topic { display: flex; align-items: center; gap: 12px; font-weight: var(--t-ui-w); }
+.rs-x .rx-m__ic { position: static; flex: none; width: 20px; height: 20px; }
+.rs-x .rx-m__y { font-variant-numeric: tabular-nums; }
+.rs-x .rx-m__s { color: var(--graphite); overflow-wrap: anywhere; }
+.rs-x .rx-p__meta { display: flex; flex-direction: column; gap: 24px; }
+.rs-x .rx-go { white-space: nowrap; }
+@media (hover: hover) { .rs-x .rx-go:hover .l-ext { translate: 2px -2px; } }
+@keyframes rx-rise { from { opacity: 0; translate: 0 10px; } }
+:where(.rs-x[data-motion]) .rx-list.is-filtered .rx-p.is-in > .l-cell > * { animation: rx-rise 0.7s var(--ease-settle) both; }
+
+/* ---------------------------------------------------------------- 3 · keep reading, on the catalogue's grid */
+.rs-x .rx-more { padding-top: 0; }
+.rs-x .rx-more .l-spacer .l-cell { height: clamp(72px, 10vh, 128px); padding: 0; }
+.rs-x .rx-more__head > .l-cell { padding: clamp(40px, 6vh, 56px) var(--l-pad) clamp(28px, 4vh, 40px); }
+.rs-x .rx-h2 { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-section); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); }
+.rs-x .rx-links { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0; margin-bottom: 0; list-style: none; }
+.rs-x .rx-links__cell { padding: 0; }
+.rs-x .rx-ln { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; column-gap: 14px; row-gap: 6px;
+  height: 100%; padding: 28px var(--l-pad) 32px; transition: background-color 0.35s var(--ease-tick); }
+.rs-x .rx-ln__ic { position: static; grid-row: 1 / span 2; align-self: start; width: 24px; height: 24px; margin-top: 4px; }
+.rs-x .rx-ln__t { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); }
+.rs-x .rx-ln__d { grid-column: 2; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--graphite); }
+.rs-x .rx-ln__go { grid-column: 3; grid-row: 1; display: inline-flex; align-self: center; }
+.rs-x .rx-ln__go .l-ext { width: 12px; height: 12px; }
+@media (hover: hover) {
+  .rs-x .rx-ln:hover { background: var(--paper-1); }
+  .rs-x .rx-ln:hover .l-arr { translate: 4px 0; }
+  .rs-x .rx-ln:hover .l-ext { translate: 2px -2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-x .rx-p, .rs-x .rx-chip, .rs-x .rx-chip::before, .rs-x .rx-ln { transition: none; }
+}
+
+/* ---------------------------------------------------------------- below 860: one column */
+@media (max-width: 859px) {
+  .rs-x .rx-hero { grid-template-columns: minmax(0, 1fr); row-gap: 40px; min-height: 0; padding-top: 156px; }
+  .rs-x .rx-hero__art { max-width: 520px; }
+  .rs-x .rx-bar__cell { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .rs-x .rx-p { grid-template-columns: minmax(0, 1fr); }
+  .rs-x .rx-p > .rx-p__main { padding: 28px var(--l-pad) 16px; }
+  .rs-x .rx-p > .rx-p__meta { padding-top: 0; padding-bottom: 28px; gap: 16px; }
+  .rs-x .rx-p > .l-cell + .l-cell::before { display: none; }
+  .rs-x .rx-p__t { font-size: 1.5rem; }
+  .rs-x .rx-links { grid-template-columns: minmax(0, 1fr); }
+  .rs-x .rx-links > .l-cell + .l-cell::before { display: none; }
+  .rs-x .rx-links > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .rs-x .rx-more .l-spacer .l-cell { height: 52px; }
+}

@@ -1,0 +1,84 @@
+/* History X · MVP (HistoryX.tsx). A's page (the homepage's ruled grid, proof-deeper.css: .l-page tokens, .l-row / .l-cell, + crosshairs, arrivals) made calm:
+   the hero and Origin sit on bare paper like the homepage's first screen; the milestones (a quiet sideways rail, after the homepage's) and Today are on
+   the grid. No eyebrows, no numbering; one green. Motion only under .hs-x[data-motion] (motion.ts). Everything scoped under .hs-x. */
+.hs-x { --top: clamp(152px, 20vh, 208px); --sec: clamp(64px, 9vh, 112px);
+  padding-bottom: 0;   /* the grid runs on into the close (CloseScene ruled, set in the route) */ background: var(--paper-0); overflow-x: clip; }
+.hs-x .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
+.hs-x :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.hs-x [id] { scroll-margin-top: 96px; }
+.hs-x .hx-btn { background: var(--ink); color: var(--paper-0); }
+.hs-x .hx-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 28px; }
+.hs-x .hx-h2 { max-width: 11em; text-wrap: balance; }
+/* the off-grid sections: on the page's margins, two columns */
+.hs-x .hx-sec { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 32px clamp(40px, 7vw, 128px); margin: var(--sec) var(--margin) 0;
+  padding: 0 var(--l-pad); }
+
+/* arrivals: the hero's lines once, the off-grid blocks as they come into view */
+:where(.hs-x[data-motion]) [data-in]:not(.is-in), :where(.hs-x[data-motion]) [data-up]:not(.is-in) { opacity: 0; translate: 0 18px; }
+:where(.hs-x[data-motion]) [data-in].is-in { transition: opacity 0.8s var(--ease-glide) var(--d, 0s), translate 1s var(--ease-settle) var(--d, 0s); }
+:where(.hs-x[data-motion]) [data-up].is-in { transition: opacity 0.8s var(--ease-glide) calc(var(--j, 0) * 0.07s), translate 1s var(--ease-settle) calc(var(--j, 0) * 0.07s); }
+:where(.hs-x[data-motion]) [data-up].is-now { transition: none; }
+
+/* ---------------------------------------------------------------- 1 · hero: type only, on bare paper (the homepage's first screen) */
+.hs-x .hx-hero { display: flex; flex-direction: column; align-items: flex-start; margin: 0 var(--margin); padding: var(--top) var(--l-pad) 0; }
+.hs-x .hx-h1 { max-width: 13em; font-family: var(--font-text); font-weight: 400; font-size: clamp(2.75rem, 1rem + 4.3vw, 5.25rem); line-height: 1.02;
+  letter-spacing: -0.03em; text-wrap: balance; }
+.hs-x .hx-h1 .accent .hx-w { line-height: 0.92; }
+.hs-x .hx-hero__sub { max-width: 32em; margin-top: clamp(28px, 4vh, 44px); font-size: var(--t-body-l); line-height: 1.4; letter-spacing: -0.008em; color: var(--graphite);
+  text-wrap: pretty; }
+.hs-x .hx-hero .hx-acts { margin-top: clamp(28px, 4vh, 40px); }
+
+/* ---------------------------------------------------------------- 2 · Origin: the heading | the two paragraphs */
+.hs-x .hx-origin__body { display: flex; flex-direction: column; gap: 18px; max-width: 34em; padding-top: 10px; }
+.hs-x .hx-origin__body p { font-size: var(--t-body-l); line-height: 1.5; letter-spacing: -0.006em; color: var(--graphite); text-wrap: pretty; }
+
+/* ---------------------------------------------------------------- 3 · the milestones: a quiet rail, sideways, in one ruled cell */
+.hs-x .hx-ms { margin-top: var(--sec); }
+.hs-x .hx-ms__h { padding: clamp(40px, 6vh, 56px) var(--l-pad) clamp(28px, 4vh, 40px); }
+/* no closing rule here: Today follows straight on, and its first row's top rule closes the rail */
+/* the cell clips the travelling years at the grid's frame; unpinned, it scrolls sideways by hand and snaps to each year */
+.hs-x .hx-rail { overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; padding: clamp(40px, 6vh, 64px) 0 clamp(40px, 6vh, 64px) var(--l-pad); }
+.hs-x .hx-rail:focus-visible { outline-offset: -4px; }
+.hs-x .hx-rail__track { position: relative; display: flex; width: max-content; margin: 0; padding: 0 var(--l-pad) 0 0; list-style: none; }
+.hs-x .hx-st { flex: none; width: clamp(300px, 30vw, 460px); scroll-snap-align: start; scroll-margin-left: var(--l-pad); }
+.hs-x .hx-st__y { font-family: var(--font-text); font-size: clamp(3.5rem, 1.6rem + 4.2vw, 6.25rem); line-height: 1; letter-spacing: -0.035em; font-variant-numeric: tabular-nums;
+  color: var(--ink); padding-bottom: 24px; }
+/* the one line: each year's stretch of it, end to end; the marker where its year starts */
+.hs-x .hx-st__body { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 32px clamp(32px, 4vw, 64px) 0 0; border-top: var(--hair) solid var(--ink); }
+.hs-x .hx-st__dot { position: absolute; left: 0; top: -5px; width: 9px; height: 9px; background: var(--paper-0); box-shadow: inset 0 0 0 1px var(--ink); }
+.hs-x .hx-st:last-child .hx-st__body { border-top-color: transparent; }
+.hs-x .hx-st:last-child .hx-st__body::before { content: ""; position: absolute; left: 0; top: -1px; width: 40%; height: var(--hair);
+  background: linear-gradient(90deg, var(--ink), transparent); }
+.hs-x .hx-st__t { max-width: 16em; font-family: var(--sans-display); font-weight: 400; font-size: var(--t-h3); line-height: 1.1; letter-spacing: -0.018em; text-wrap: balance; }
+.hs-x .hx-st__b { max-width: 26em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+/* pinned (motion.ts, 860 px and up): the section holds still in the middle of the view while the years travel; three stations fit the cell (a third
+   each), the year on show at the centre with its title and text, the others faint (year, title and text all there, at low opacity).
+   The line and its markers stay at full weight the whole way: the thread the years hang on. */
+.hs-x[data-pin] .hx-rail { container-type: inline-size; overflow: hidden; scroll-snap-type: none; padding-left: 0; padding-right: 0; }
+.hs-x[data-pin] .hx-rail__track { padding-right: 0; will-change: transform; }
+.hs-x[data-pin] .hx-st { width: 33.333cqi; }
+.hs-x[data-pin] :is(.hx-st__y, .hx-st__t, .hx-st__b) { opacity: 0.22; transition: opacity 0.5s var(--ease-glide); }
+.hs-x[data-pin] .hx-st.is-on :is(.hx-st__y, .hx-st__t, .hx-st__b) { opacity: 1; }
+.hs-x[data-pin] .hx-st__dot { transition: background-color 0.3s var(--ease-tick), box-shadow 0.3s var(--ease-tick), scale 0.4s var(--ease-settle); }
+.hs-x[data-pin] .hx-st.is-on .hx-st__dot { background: var(--emerald); box-shadow: inset 0 0 0 1px var(--ink); scale: 1.35; }
+
+/* ---------------------------------------------------------------- 4 · Today, on the grid: the heading | the copy; the grid runs on into the close */
+/* straight after the milestones, on the same grid (no gap, no spacer): the rail's cell closes on Today's top rule */
+.hs-x .hx-today { margin-top: 0; padding-top: 0; }
+.hs-x .hx-td__head { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+.hs-x .hx-td__head > .l-cell { padding: 56px var(--l-pad) 40px; }
+.hs-x .hx-td__copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 20px; }
+.hs-x .hx-today .l-lede { max-width: 32em; }
+
+/* ---------------------------------------------------------------- below 860 */
+@media (max-width: 859px) {
+  .hs-x .hx-sec { grid-template-columns: minmax(0, 1fr); padding: 0; }
+  .hs-x .hx-hero { padding-left: 0; padding-right: 0; }
+  .hs-x .hx-rail { padding: 32px 0 32px 16px; }
+  .hs-x .hx-st { width: min(80vw, 340px); scroll-margin-left: 16px; }
+  .hs-x .hx-st__y { padding-bottom: 16px; }
+  .hs-x .hx-st__body { padding: 24px 24px 0 0; }
+  .hs-x .hx-td__head { grid-template-columns: minmax(0, 1fr); }
+  .hs-x .hx-td__head > .l-cell { padding: 40px var(--l-pad) 8px; }
+  .hs-x .hx-td__head > .l-cell + .l-cell { padding: 12px var(--l-pad) 32px; }
+}

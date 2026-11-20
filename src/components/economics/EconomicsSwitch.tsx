@@ -5,6 +5,7 @@ export const ECONOMICS_VERSIONS = [
   { k: "a", href: "/economics", name: "Ruled grid" },
   { k: "b", href: "/economics-b", name: "Drawn" },
   { k: "c", href: "/economics-c", name: "Editorial" },
+  { k: "x", href: "/economics-x", name: "MVP" },
 ] as const;
 
 export function EconomicsSwitch({ on }: { on: (typeof ECONOMICS_VERSIONS)[number]["k"] }) {
