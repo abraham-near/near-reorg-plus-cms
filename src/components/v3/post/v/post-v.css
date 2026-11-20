@@ -1,0 +1,11 @@
+/* Post V · Video (PostV.tsx) on Post A's classes (post-a.css): only what differs. The player fills its row at 16:9 (post.css .pb-embed);
+   the text that goes with the video reads in one centred column, with no contents or margin cells. */
+.pv-player { margin: 0; }
+.pst-v .pv-player :is(iframe, video) { background: #000; }
+/* a vertical or square video keeps its shape inside the 16:9 frame */
+.pst-v .pv-player video { object-fit: contain; }
+
+.pv-read { grid-template-columns: minmax(0, 1fr); }
+.pv-main { display: flex; flex-direction: column; align-items: center; }
+.pv-main > * { width: 100%; max-width: var(--col); }
+.pst-v .pb-body > * { margin-left: auto; margin-right: auto; }

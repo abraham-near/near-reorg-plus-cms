@@ -11,10 +11,13 @@ import {
   AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/cms/components/ui/alert-dialog'
 import { isCmsMediaUrl } from './reference-values'
+import MediaPickerModal from './MediaPickerModal'
 import { FileTypeIcon } from './MediaTile'
 import { CheckMark } from './UploadTray'
 import type { MediaDetail, MediaItem, MediaReference } from './types'
-import { acceptAttribute, checkUpload, formatBytes, isImage, typeLabel } from './upload-limits'
+import { uploadVideoInParts } from './upload-client'
+import { formatDuration } from './video-poster'
+import { acceptAttribute, checkUpload, findUploadKind, formatBytes, isImage, typeLabel } from './upload-limits'
 
 type Props = {
   item: MediaItem
@@ -84,7 +87,15 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [references, setReferences] = useState<MediaReference[] | null>(null)
   const replaceInput = useRef<HTMLInputElement>(null)
+  /** A video replacement goes up in parts and takes a while: its progress, and closing the panel cancels it. */
+  const [replaced, setReplaced] = useState<number | null>(null)
+  const replacing = useRef<AbortController | null>(null)
+  const [posterPicker, setPosterPicker] = useState(false)
+  const video = current.mimeType.startsWith('video/')
+  useEffect(() => () => replacing.current?.abort(), [])
   const image = isImage(current)
+  // An MP4/WebM may be a video post's video: it can only be replaced by another MP4/WebM (replace route).
+  const postVideo = current.mimeType === 'video/mp4' || current.mimeType === 'video/webm'
   const altId = `media-alt-${item.id}`
 
   useEffect(() => { confirmingRef.current = confirmOpen }, [confirmOpen, confirmingRef])
@@ -134,21 +145,39 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
   }
 
   async function replace(file: File) {
-    const problem = checkUpload(file, { imagesOnly: image })
+    const problem = checkUpload(file, { imagesOnly: image, videosOnly: postVideo })
     if (problem) { toast.error(problem); return }
     setBusy('replace')
     try {
-      const body = new FormData()
-      body.set('file', file)
-      body.set('replaceEverywhere', '1')
-      const result = await adminFetch<{ media: MediaItem; updated: number; occurrences: number }>(`/api/admin/media/${current.id}/replace`, { method: 'POST', body })
+      type Replaced = { media: MediaItem; updated: number; occurrences: number }
+      let result: Replaced
+      if (!image && findUploadKind(file)?.group === 'video') {
+        replacing.current = new AbortController()
+        setReplaced(0)
+        result = await uploadVideoInParts<Replaced>(file, { replaceId: current.id, videosOnly: postVideo, signal: replacing.current.signal, onProgress: setReplaced })
+      } else {
+        const body = new FormData()
+        body.set('file', file)
+        body.set('replaceEverywhere', '1')
+        result = await adminFetch<Replaced>(`/api/admin/media/${current.id}/replace`, { method: 'POST', body })
+      }
       if (result.media.id === current.id) toast.info('That is the same file. Nothing changed.')
       else {
         toast.success(result.updated ? `File replaced in ${result.updated} ${result.updated === 1 ? 'post' : 'posts'}. The original stays in the library.` : 'New file uploaded. No posts used the original.')
         onReplaced(current.id, result.media)
       }
-    } catch (error) { toast.error(errorMessage(error)) }
-    finally { setBusy(null) }
+    } catch (error) { if (!replacing.current?.signal.aborted) toast.error(errorMessage(error)) }
+    finally { setBusy(null); setReplaced(null); replacing.current = null }
+  }
+
+  /** A video's poster: an image of the library (null takes it away; the tile then shows a frame of the video). */
+  async function setPoster(posterUrl: string | null) {
+    try {
+      const saved = await adminFetch<MediaItem>(`/api/admin/media/${current.id}`, { method: 'PATCH', json: { posterUrl } })
+      setCurrent(saved)
+      onChange(saved)
+      toast.success(posterUrl ? 'Poster updated' : 'Poster removed')
+    } catch (error) { toast.error(`Couldn't save: ${errorMessage(error)}`) }
   }
 
   async function remove(force: boolean) {
@@ -209,10 +238,10 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
         // eslint-disable-next-line @next/next/no-img-element -- CMS files are already sized; no optimizer for /cms
         ? <img src={current.url} alt={current.alt ?? ''} className="max-h-full max-w-full object-contain" onLoad={(event) => { const img = event.currentTarget; if (img.naturalWidth) setSize({ w: img.naturalWidth, h: img.naturalHeight }) }} />
         : current.mimeType.startsWith('video/') && isCmsMediaUrl(current.url)
-          ? <video src={current.url} controls preload="metadata" className="max-h-full max-w-full" onLoadedMetadata={(event) => { const v = event.currentTarget; if (v.videoWidth) setSize({ w: v.videoWidth, h: v.videoHeight }) }} />
+          ? <video src={current.url} poster={current.posterUrl && isCmsMediaUrl(current.posterUrl) ? current.posterUrl : undefined} controls preload="metadata" className="max-h-full max-w-full" onLoadedMetadata={(event) => { const v = event.currentTarget; if (v.videoWidth) setSize({ w: v.videoWidth, h: v.videoHeight }) }} />
           : <FileTypeIcon item={current} />}
       <span className="pointer-events-none absolute right-2.5 bottom-2.5 rounded-md bg-black/65 px-2 py-[3px] text-[11.5px] text-white tabular-nums">
-        {size ? `${size.w} × ${size.h} · ` : ''}{formatBytes(current.size)}
+        {size ? `${size.w} × ${size.h} · ` : ''}{current.duration ? `${formatDuration(current.duration)} · ` : ''}{formatBytes(current.size)}
       </span>
     </div>
 
@@ -261,6 +290,24 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
     <dl className="grid grid-cols-2 gap-3">
       <div><dt className="text-xs text-muted-foreground">Uploaded</dt><dd className="mt-0.5 text-[13px]" title={uploadedAt.toLocaleString()}>{uploadedAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}{uploader && ` · ${uploader}`}</dd></div>
       <div><dt className="text-xs text-muted-foreground">Type</dt><dd className="mt-0.5 text-[13px]">{typeLabel(current)}</dd></div>
+      {video && <div className="col-span-2">
+        <dt className="text-xs text-muted-foreground">Poster</dt>
+        <dd className="mt-1 flex items-center gap-3">
+          <span className="grid aspect-video w-24 flex-none place-items-center overflow-hidden rounded-md bg-muted text-[11px] text-muted-foreground">
+            {current.posterUrl && isCmsMediaUrl(current.posterUrl)
+              // eslint-disable-next-line @next/next/no-img-element -- /cms files are served as-is
+              ? <img src={current.posterUrl} alt="" className="size-full object-cover" />
+              : 'None'}
+          </span>
+          <span className="flex min-w-0 flex-col gap-1.5">
+            <span className="text-[12px] text-muted-foreground">{current.posterUrl ? 'Shown on its tile, and offered as the cover of a post that plays it.' : 'The tile shows a frame of the video. Pick an image to use instead.'}</span>
+            {canEdit && <span className="flex gap-2">
+              <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => setPosterPicker(true)}>{current.posterUrl ? 'Change poster' : 'Choose poster'}</Button>
+              {current.posterUrl && <Button type="button" variant="ghost" size="sm" className="h-7 text-xs" onClick={() => void setPoster(null)}>Remove</Button>}
+            </span>}
+          </span>
+        </dd>
+      </div>}
       {original && <div className="col-span-2 rounded-lg bg-muted/60 px-3 py-2.5">
         <dt className="text-xs text-muted-foreground">Optimized for the web</dt>
         <dd className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
@@ -276,14 +323,16 @@ function DrawerBody({ item, canEdit, canUpload, canDelete, onClose, onChange, on
       <Button type="button" variant="outline" size="sm" onClick={copyUrl}><Copy />Copy URL</Button>
       {canEdit && canUpload && <>
         <Button type="button" variant="outline" size="sm" disabled={busy !== null} onClick={() => replaceInput.current?.click()}>
-          {busy === 'replace' ? <Loader2 className="cms-spin" /> : <RefreshCw />}{busy === 'replace' ? 'Replacing…' : 'Replace file'}
+          {busy === 'replace' ? <Loader2 className="cms-spin" /> : <RefreshCw />}{busy === 'replace' ? (replaced !== null && replaced < 1 ? `Replacing… ${Math.round(replaced * 100)}%` : 'Replacing…') : 'Replace file'}
         </Button>
-        <input ref={replaceInput} type="file" hidden accept={acceptAttribute(image)} onChange={(event) => { const file = event.target.files?.[0]; if (file) void replace(file); event.target.value = '' }} />
+        <input ref={replaceInput} type="file" hidden accept={acceptAttribute(postVideo ? 'video' : image)} onChange={(event) => { const file = event.target.files?.[0]; if (file) void replace(file); event.target.value = '' }} />
       </>}
       {isCmsMediaUrl(current.url) && <Button type="button" variant="outline" size="sm" asChild><a href={current.url} download={current.filename}><Download />Download</a></Button>}
       <span className="flex-1" />
       {canDelete && <Button type="button" variant="ghost" size="sm" disabled={busy !== null} className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setConfirmOpen(true)}><Trash2 />Delete</Button>}
     </div>
+
+    {video && <MediaPickerModal open={posterPicker} onClose={() => setPosterPicker(false)} onSelect={(url) => { const picked = Array.isArray(url) ? url[0] : url; if (picked) void setPoster(picked) }} />}
 
     <AlertDialog open={confirmOpen} onOpenChange={(open) => { if (busy !== 'delete') setConfirmOpen(open) }}>
       <AlertDialogContent>

@@ -2,7 +2,7 @@
 
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { AlignLeft, ArrowDown, ArrowUp, CalendarDays, Check, CircleDot, Eye, Hash, LayoutTemplate, Link2, ListOrdered, Plus, Tag, TriangleAlert, X } from 'lucide-react'
+import { AlignLeft, ArrowDown, ArrowUp, CalendarDays, Check, CircleDot, Clapperboard, Eye, FileVideo, Hash, LayoutTemplate, Link2, ListOrdered, Plus, Tag, TriangleAlert, Upload, X } from 'lucide-react'
 import { Popover } from 'radix-ui'
 import { cn } from '@/cms/lib/utils'
 import { SITE_HOST } from './PublishDialog'
@@ -80,6 +80,20 @@ export type PostPropertiesProps = {
   takeaways: string[]
   onTakeaways: (value: string[]) => void
   onNavigate: (event: { preventDefault: () => void }) => void
+  /** Article, or Video: a video post (the video at the top, the video layout, "Watch" in the blog index) */
+  format: 'article' | 'video'
+  onFormat: (value: 'article' | 'video') => void
+  /** the video field as typed or chosen; `videoValue` = what will be saved (null when empty or unrecognised) */
+  video: string
+  videoValue: string | null
+  videoInvalid: boolean
+  videoRef: React.Ref<HTMLInputElement>
+  onVideo: (value: string) => void
+  onChooseVideo: () => void
+  /** an uploaded file that does not load (deleted from the media library) */
+  onVideoBroken: (broken: boolean) => void
+  /** the cover, used as the uploaded video's poster */
+  poster: string | null
 }
 
 /** Notion-style properties: label with icon on the left, value on the right, click to edit in place. */
@@ -181,14 +195,60 @@ export default function PostProperties(props: PostPropertiesProps) {
         placeholder="Add a one-line summary for listings and search…" className="-mx-1.5 rounded-md px-1.5 py-[5px] text-sm leading-normal placeholder:text-muted-foreground hover:bg-muted/60 focus-visible:bg-muted/60" />
     </div>
 
-    <div className={rowClass}><Key icon={LayoutTemplate} htmlFor="post-layout">Layout</Key>
-      <span><select id="post-layout" disabled={!editable} value={props.layout ?? 'b'} onChange={(event) => props.onLayout(event.target.value === 'b' ? null : event.target.value as PostLayout)} className="-mx-1.5 h-[30px] rounded-md border-0 bg-transparent px-1.5 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20 disabled:hover:bg-transparent">
-        <option value="b">Cover · photo first, magazine feature</option><option value="a">Ruled · the blog&apos;s grid</option><option value="c">Notebook · margin notes</option>
+    <div className={rowClass}><Key icon={Clapperboard} htmlFor="post-format">Format</Key>
+      <span><select id="post-format" disabled={!editable} value={props.format} onChange={(event) => props.onFormat(event.target.value as 'article' | 'video')} className="-mx-1.5 h-[30px] rounded-md border-0 bg-transparent px-1.5 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20 disabled:hover:bg-transparent">
+        <option value="article">Article · text and images</option><option value="video">Video · a video first, shown as Watch</option>
       </select></span>
     </div>
 
+    {props.format === 'video' && <VideoField {...props} />}
+
+    {props.format === 'article' && <div className={rowClass}><Key icon={LayoutTemplate} htmlFor="post-layout">Layout</Key>
+      <span><select id="post-layout" disabled={!editable} value={props.layout ?? 'b'} onChange={(event) => props.onLayout(event.target.value === 'b' ? null : event.target.value as PostLayout)} className="-mx-1.5 h-[30px] rounded-md border-0 bg-transparent px-1.5 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20 disabled:hover:bg-transparent">
+        <option value="b">Cover · photo first, magazine feature</option><option value="a">Ruled · the blog&apos;s grid</option><option value="c">Notebook · margin notes</option>
+      </select></span>
+    </div>}
+
     <Takeaways values={props.takeaways} onChange={props.onTakeaways} editable={editable} />
   </section>
+}
+
+/**
+ * A video post's video: upload or choose a file (MP4/WebM, from the media library), or paste a YouTube
+ * or Vimeo link. Shows what will play; a file that does not load is reported (publish checklist).
+ */
+function VideoField({ editable, video, videoValue, videoInvalid, videoRef, onVideo, onChooseVideo, onVideoBroken, poster }: PostPropertiesProps) {
+  const file = !!videoValue && videoValue.startsWith('/cms/')
+  const link = !!videoValue && !file
+  return <div className={cn(rowClass, 'items-start')}><span className="pt-[5px]"><Key icon={FileVideo} htmlFor="post-video">Video</Key></span>
+    <div className="min-w-0 space-y-2 py-1">
+      {videoValue && <div className="overflow-hidden rounded-lg bg-black">
+        {file
+          ? <video key={videoValue} src={videoValue} poster={poster ?? undefined} controls preload="metadata" playsInline className="aspect-video w-full"
+            onError={() => onVideoBroken(true)} onLoadedMetadata={() => onVideoBroken(false)} />
+          : <iframe key={videoValue} src={videoValue} title="Video preview" className="aspect-video w-full" loading="lazy" allowFullScreen
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" referrerPolicy="strict-origin-when-cross-origin"
+            allow="fullscreen; picture-in-picture; encrypted-media" />}
+      </div>}
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" disabled={!editable} onClick={onChooseVideo} className="cms-press inline-flex h-7 items-center gap-1.5 rounded-md border border-input px-2 text-[13px] hover:bg-muted disabled:opacity-50">
+          <Upload className="size-3.5" aria-hidden />{file ? 'Change video' : 'Upload or choose video'}
+        </button>
+        {videoValue && editable && <button type="button" onClick={() => onVideo('')} className="cms-press inline-flex h-7 items-center gap-1 rounded-md px-2 text-[13px] text-muted-foreground hover:bg-muted hover:text-foreground"><X className="size-3.5" aria-hidden />Remove</button>}
+        <span className="text-xs text-muted-foreground">MP4 up to 100 MB</span>
+      </div>
+      <input id="post-video" ref={videoRef} type="url" inputMode="url" disabled={!editable} value={file ? '' : video} maxLength={2048}
+        onChange={(event) => onVideo(event.target.value)} aria-invalid={videoInvalid || undefined} aria-describedby="post-video-help"
+        placeholder={file ? 'Or replace it with a YouTube or Vimeo link' : 'Or paste a YouTube or Vimeo link'}
+        className={cn('-mx-1.5 h-[30px] w-full rounded-md bg-transparent px-1.5 text-sm placeholder:text-muted-foreground hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none', videoInvalid && 'ring-1 ring-destructive')} />
+      <p id="post-video-help" className={cn('text-xs', videoInvalid ? 'text-destructive' : 'text-muted-foreground')}>
+        {videoInvalid ? 'Not a YouTube or Vimeo link we recognise (for example youtube.com/watch?v=…, youtu.be/…, vimeo.com/…).'
+          : link ? 'Plays from ' + (videoValue!.includes('vimeo') ? 'Vimeo' : 'YouTube') + '. The cover is the picture in the blog index.'
+            : file ? 'The cover is the picture before it plays and in the blog index.'
+              : 'Longer videos: upload them to YouTube or Vimeo and paste the link.'}
+      </p>
+    </div>
+  </div>
 }
 
 /** Up to three key points: one line each, an empty slot to add the next. Every layout shows them (Cover in three columns after the summary, Ruled and Notebook in their key-points box). */

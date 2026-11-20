@@ -10,7 +10,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 | Address | Page | Code |
 |---|---|---|
-| `/` (and `/home-v9`) | **Homepage**: home v9. One type-only section, "NEAR is privacy for onchain capital and the agent economy.", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) stays at its own address, also on `/index`; v8 (`/home-v8`, the cycling word) is on `/extra`. | `src/components/v7` (on pieces of v1–v5) |
+| `/` (and `/home-v10`) | **Homepage**: home v10, "Stack second" (since Nov 20, 2026). "NEAR is private" and the cycling word, then the Stack and Real Usage, then the rail, proof and Go deeper. Home v7 (`/home-v7`, the film hero) stays at its own address, also on `/index`; v9 (`/home-v9`, the still headline, the homepage before) and v8 (`/home-v8`, the cycling word) are on `/extra`. | `src/components/v7` (on pieces of v1–v5) |
 | `/blog` | **Blog**: version E (Lawrence's choice). The CMS's posts, the lead post always on screen, All / Blog / Press / Watch as large words, tag pills you can combine (the CMS's tags, with NEAR AI, NEAR Intents, near.com and NEAR Protocol first), and the homepage's ruled cards with date and tags, nine at a time. | `src/components/blog/e` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c\|d` shows A, C or D. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
@@ -20,18 +20,20 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | `/community` | **Community**: X (MVP), from the October 2026 doc. Sample figures and events. | `src/components/community/x` |
 | `/solutions` | **Solutions**: X (MVP), from the October 2026 doc's Solutions Hub. | `src/components/solutions/x` |
 | `/research` | **Research**: X (MVP), the technical papers. | `src/components/research/x` |
+| `/protocol` | **Protocol** (Stack in the menu): version B, "The network lives", from the October 2026 doc. Illustrative motion, not live data. | `src/components/protocol/b` |
 | `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
 | any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
 | `/index`, `/extra` | The two lists of pages (see below). | `src/app/(site)/index`, `src/app/(site)/extra` |
 | `/admin` | The CMS. | `src/cms`, `src/app/(cms)` |
 
 Explorations that still have their own routes are listed at `/extra`:
-- the blog post layouts `/post-a`, `/post-b`, `/post-c` and `/post-d` (D: the October 2026 Figma's blog look; the CMS picker still offers A–C only);
+- the blog post layouts `/post-a`, `/post-b`, `/post-c` and `/post-d` (D: the October 2026 Figma's blog look; the CMS picker still offers A–C only), and `/post-v`, the video post layout (a CMS post with Format: Video always opens in it);
 - the blog index versions A–D at `/blog-index-a…d` (E is the live `/blog`; A is direction J, the previous `/blog`, `src/components/v3/blog/j`): B and D from the October 2026 Figma's two blog frames (nodes 980:723, 756:41), C is B on the homepage's soft ruled grid (`src/components/blog/<letter>`). Not `/blog-b…d`: those still redirect to `/blog` (the old directions A–L);
 - the MVP versions X from the Nov 19 review (`src/components/<page>/x`) are the menu's Analytics, Community, History, Economics, Solutions and Research, at the plain addresses (`/analytics`…); `/analytics-x`, `/community-x`, `/history-x`, `/economics-x`, `/solutions-x` and `/research-x` still lead there (a temporary redirect). One version per page: mostly copy, no eyebrows or decorative numerals, no ruled grid by the header, the site's dot icons where they help, graphics as placeholders (`[[TBD: graphic by Ali]]`);
 - Analytics A–E at `/analytics-a`…`/analytics-e` (C was `/analytics` until Nov 19, 2026);
 - Economics A–C at `/economics-a…c`, History A–C at `/history-a…c` and Community A–C at `/community-a…c` (the menu's versions until Nov 19, 2026: Economics A, History C, Community B);
-- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (the menu's `/brand` doesn't exist yet). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
+- Protocol A, C and D at `/protocol-a`, `/protocol-c`, `/protocol-d` (B is the menu's `/protocol`). Copy verbatim from the October 2026 doc in `src/components/protocol/content.ts`.
+- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (the menu's `/brand` isn't built yet: it redirects to `/brand-a` for now). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
 
 ### What changed (November 2026)
 
@@ -119,7 +121,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 
 ## The homepage (home v7, v8 and v9)
 
-- **Route and owner:** the homepage is home v9: `/` re-exports `/home-v9/page.tsx` (`src/app/(site)/page.tsx`), so changes to v9 show on both. `/home-v7` (earlier) and `/home-v8` (on `/extra`) are the other versions, on the same code. Lawrence owns `src/components/v7`.
+- **Route and owner:** the homepage is home v10: `/` re-exports `/home-v10/page.tsx` (`src/app/(site)/page.tsx`), so changes to v10 show on both. `/home-v7` (earlier), `/home-v8` and `/home-v9` (on `/extra`) are the other versions, on the same code. Lawrence owns `src/components/v7`.
 - **Home v8 and v9** (`/home-v8`, `/home-v9`; v9 is `/`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/home-v7` stays as it was.
 - **Code:** `src/components/v7` builds the page from pieces of v1–v5:
   - `V1Page` and its boot (world, rail, Stack);
@@ -175,7 +177,7 @@ Dev notes:
 - `main` is protected by the ruleset `main-solo-owner`: only the repo's owner can update it.
 - Everyone else works on a branch and opens a pull request. Lawrence's branch is `Lawrence001`.
 - Backups of `main` are kept as branches named `backup-YYYY-MM-DD`.
-- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…c`, `/analytics-*`, `/community-*`, `/history-*`, `/economics-*`, `/solutions-*`, `/research-*`, `/brand-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
+- **Search engines (launch switch).** Until launch nothing is indexed, on any host: meta robots `noindex` (site layout), the `X-Robots-Tag` header (`next.config.ts`) and `robots.txt` `Disallow: /`. Set `SITE_INDEXABLE=true` and `SITE_ORIGIN=https://near.org` on the launch service (Railway redeploys on a variable change) and the final pages become indexable: meta robots `index`, canonical URLs and Open Graph on `SITE_ORIGIN`, `robots.txt` with the sitemap, and `/sitemap.xml` with the final pages (`index/pages.ts`) and every live public post. The explorations (`/extra`, `/index`, `/post-a…d`, `/post-v`, `/analytics-*`, `/community-*`, `/history-*`, `/economics-*`, `/solutions-*`, `/research-*`, `/brand-*`, `/home-v7…v9`), the CMS and the API stay out. Both live in `src/lib/site.ts`. The default share picture is `src/app/(site)/opengraph-image.jpg`.
 
 ## Working with Claude
 

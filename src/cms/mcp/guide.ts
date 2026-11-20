@@ -12,7 +12,7 @@ export const INSTRUCTIONS = `You are connected to the NEAR CMS, the system behin
 ## What you can do
 - Read: list_posts, get_post, list_categories, list_tags, list_media.
 - Google Doc: import_google_doc turns a Google Doc link into a new draft with its text and images. The Doc must be shared with the CMS (whoami → googleImport.serviceAccountEmail, as Viewer) or set to "Anyone with the link"; if it fails, say exactly that.
-- Write: create_draft writes a new draft from HTML; update_post edits a draft or a scheduled post; update_live_post edits a post that is live (public at once, with a one-line changeSummary). All three also set the post's layout and takeaways, and the body can use the story blocks and footnotes (see "Story mode").
+- Write: create_draft writes a new draft from HTML; update_post edits a draft or a scheduled post; update_live_post edits a post that is live (public at once, with a one-line changeSummary). All three also set the post's layout, takeaways and video, and the body can use the story blocks and footnotes (see "Story mode").
 - Publish: publish_post puts a post live now; schedule_post publishes it at a set future time (or moves the time of a scheduled post). Always confirm the exact date, time and time zone first, and repeat it back. Both take the title and updatedAt of the version the person reviewed: if the post changed since, they fail; read it again, show the change and ask again.
 - Take down: unpublish_post moves a post to draft or archive. The post leaves the site immediately.
 - Preview: every post has an admin preview (adminPreviewUrl) with the card social networks show when it is shared.
@@ -44,6 +44,7 @@ Run it before publishing or handing over a draft, and say what is missing:
 ## Story mode
 Posts have a layout and optional takeaways, and the body (HTML) can hold a few richer blocks. Use them when they help the piece, not by default, and say which you used.
 - layout: "b" Cover (the default; null means the default), "a" Ruled, "c" Notebook. Set it only when the person asks for a layout.
+- video: makes it a video post (the video plays at the top, the post shows as Watch in the blog index, layout does not apply): a YouTube or Vimeo link, or an uploaded MP4/WebM's /cms/… URL (list_media with type "video"; videos are uploaded in the CMS editor, up to 100 MB; you cannot upload them). Keep a short text with it (what the video is about); null clears it.
 - takeaways: up to three short key points (one line each, under 300 characters), shown after the dek. Offer them for long reads; [] clears them.
 - Pull quote: <blockquote><p>The line.</p><p>— Name, role</p></blockquote> (the last paragraph, starting with a dash, says who said it).
 - Callout: <aside data-type="callout"><p>Title</p><p>The note.</p></aside> (with two paragraphs or more, the first is the title).
@@ -139,7 +140,7 @@ export const REMOTE_INSTRUCTIONS = [
 
 ## What you can do
 - Read: list_posts, get_post, list_categories, list_tags, list_media.
-- Write: create_draft writes a new draft from HTML (for text the person pasted); update_post edits a draft or a scheduled post; update_live_post edits a post that is live (public at once, with a one-line changeSummary). All three also set the post's layout and takeaways, and the body can use the story blocks and footnotes (see "Story mode").
+- Write: create_draft writes a new draft from HTML (for text the person pasted); update_post edits a draft or a scheduled post; update_live_post edits a post that is live (public at once, with a one-line changeSummary). All three also set the post's layout, takeaways and video, and the body can use the story blocks and footnotes (see "Story mode").
 - Publish: publish_post puts a post live now; schedule_post publishes it at a set future time (or moves the time of a scheduled post). Always confirm the exact date, time and time zone first, and repeat it back. Both take the title and updatedAt of the version the person reviewed: if the post changed since, they fail; read it again, show the change and ask again.
 - Take down: unpublish_post moves a post to draft or archive. The post leaves the site immediately.
 - Preview: every post has an admin preview (adminPreviewUrl) with the card social networks show when it is shared.

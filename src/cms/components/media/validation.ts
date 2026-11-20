@@ -5,12 +5,15 @@ import { HttpError, parseJson } from '@/cms/lib/http'
 export const mediaPatchSchema = z.object({
   filename: z.string().trim().min(1).max(200).transform(cleanFilename).optional(),
   alt: z.string().trim().max(500).nullable().optional(),
+  /** A video's poster: an image of the library, or null to clear it. */
+  posterUrl: z.string().max(300).nullable().optional(),
 }).strict().refine((value) => Object.keys(value).length > 0, 'No changes provided')
 export const deleteSchema = z.object({ force: z.boolean().default(false) }).strict()
 export const bulkDeleteSchema = deleteSchema.extend({ ids: z.array(z.string().min(1).max(100)).min(1).max(100).transform((ids) => [...new Set(ids)]) })
 const uploadFieldsSchema = z.object({
   alt: z.string().trim().max(500).optional(),
   imagesOnly: z.enum(['0', '1']).default('0'),
+  videosOnly: z.enum(['0', '1']).default('0'),
   replaceEverywhere: z.enum(['0', '1']).default('0'),
 }).strict()
 
@@ -32,8 +35,8 @@ export async function readMediaUpload(req: Request) {
   try {
     form = await new Response(Buffer.concat(chunks), { headers: { 'content-type': req.headers.get('content-type') || '' } }).formData()
   } catch { throw new HttpError(400, 'Invalid form data') }
-  if (Array.from(form.keys()).some((key) => !['file', 'alt', 'imagesOnly', 'replaceEverywhere'].includes(key))) throw new HttpError(400, 'Unexpected upload field')
-  if (['alt', 'imagesOnly', 'replaceEverywhere'].some((key) => form.getAll(key).length > 1)) throw new HttpError(400, 'Duplicate upload field')
+  if (Array.from(form.keys()).some((key) => !['file', 'alt', 'imagesOnly', 'videosOnly', 'replaceEverywhere'].includes(key))) throw new HttpError(400, 'Unexpected upload field')
+  if (['alt', 'imagesOnly', 'videosOnly', 'replaceEverywhere'].some((key) => form.getAll(key).length > 1)) throw new HttpError(400, 'Duplicate upload field')
   if (form.getAll('file').length !== 1) throw new HttpError(400, 'Provide one file')
   const file = form.get('file')
   if (!(file instanceof File)) throw new HttpError(400, 'No file provided')

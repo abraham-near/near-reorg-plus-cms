@@ -67,8 +67,8 @@ export function useFileDrag(onDrop: (files: File[]) => void, { target, enabled =
 }
 
 /** Full-area "Drop to upload" overlay; fades in while files are dragged over. */
-export function DropOverlay({ state, imagesOnly = false, className }: { state: DragState; imagesOnly?: boolean; className?: string }) {
-  const noun = state.images || imagesOnly ? 'image' : 'file'
+export function DropOverlay({ state, imagesOnly = false, className }: { state: DragState; imagesOnly?: boolean | 'video'; className?: string }) {
+  const noun = imagesOnly === 'video' ? 'video' : state.images || imagesOnly ? 'image' : 'file'
   const what = state.count > 0 ? `${state.count} ${noun}${state.count === 1 ? '' : 's'}` : `${noun}s`
   const [first, second] = uploadLimitLines(imagesOnly)
   const style = state.box ? { top: state.box.top + 12, left: state.box.left + 12, width: state.box.width - 24, height: state.box.height - 24 } : undefined

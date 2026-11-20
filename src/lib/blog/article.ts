@@ -1,4 +1,5 @@
 // A live CMS post as the post layouts' Article (components/v3/post/article.ts), and the helpers the blog's pages share (dates, sharing fallbacks).
+import type { Post } from "@/components/v3/blog/data";
 import type { Article, MorePost } from "@/components/v3/post/article";
 import type { LivePost, PostCard } from "./posts";
 
@@ -19,10 +20,17 @@ export const shareOf = (p: LivePost) => ({
   image: p.metaImage || p.image?.src || null,
 });
 
+// the CMS category picks the index's type: Press is the stories, Watch the talks, anything else Blog; a video post is always Watch
+const TYPE: Record<string, Post["type"]> = { press: "story", watch: "watch" };
+
+/** a CMS post's type in the blog indexes (the label, the filter, the play mark on its photo) */
+export const cardType = (p: Pick<PostCard, "video" | "category">): Post["type"] => (p.video ? "watch" : TYPE[p.category?.slug ?? ""] ?? "read");
+
 /** a post card as the layouts' "more posts"; `layout` keeps the reader in the layout they are comparing */
 export const toMore = (p: PostCard, layout = DEFAULT_LAYOUT): MorePost => ({
   key: p.slug, title: p.title, href: postHref(p.slug, layout), img: p.image?.src ?? null,
-  label: p.category?.name ?? "Blog", source: longDate(p.publishedAt),
+  label: p.category?.name ?? (p.video ? "Watch" : "Blog"), source: longDate(p.publishedAt),
+  ...(p.video ? { type: "watch" as const } : {}),
 });
 
 export function toArticle(p: LivePost, more: PostCard[], layout = DEFAULT_LAYOUT): Article {
@@ -44,5 +52,6 @@ export function toArticle(p: LivePost, more: PostCard[], layout = DEFAULT_LAYOUT
     readMin: p.readMin,
     more: more.map((m) => toMore(m, layout)),
     blogHref: BLOG_HREF,
+    video: p.video,
   };
 }

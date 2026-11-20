@@ -13,9 +13,12 @@ import { prepareBody } from './body'
 import { postSelect, type AdminPost } from './select'
 import { createPostSchema, updatePostSchema, type PostInput } from './schema'
 import { assertTokenPostWrite } from './token-rules'
+import { isCmsVideoUrl } from './video'
+
+const VIDEO_MIMES = new Set(['video/mp4', 'video/webm'])
 import { notifyTokenPublish } from './token-notify'
 
-const RESTORED_FIELDS = ['title', 'body', 'excerpt', 'featuredImage', 'metaTitle', 'metaDescription', 'metaImage', 'takeaways', 'layout'] as const
+const RESTORED_FIELDS = ['title', 'body', 'excerpt', 'featuredImage', 'metaTitle', 'metaDescription', 'metaImage', 'takeaways', 'layout', 'video'] as const
 
 export const LOCK_TTL_MS = 90_000
 export const activeLock = (post: Pick<AdminPost, 'lockedAt' | 'lockedById'>) => !!post.lockedById && !!post.lockedAt && post.lockedAt.getTime() > Date.now() - LOCK_TTL_MS
@@ -54,6 +57,16 @@ async function lockRow(tx: Prisma.TransactionClient, id: string) {
 async function validateTaxonomy(tx: Prisma.TransactionClient, input: PostInput) {
   if (input.categoryIds && await tx.category.count({ where: { id: { in: input.categoryIds } } }) !== input.categoryIds.length) throw new HttpError(400, 'Unknown category')
   if (input.tagIds && await tx.tag.count({ where: { id: { in: input.tagIds } } }) !== input.tagIds.length) throw new HttpError(400, 'Unknown tag')
+}
+
+/**
+ * An uploaded video must be an MP4 or WebM of the media library. Checked only when it changes, so a
+ * post whose file was force-deleted from the library can still be saved and restored.
+ */
+async function validateVideo(tx: Prisma.TransactionClient, input: PostInput, previous?: AdminPost) {
+  if (!input.video || input.video === previous?.video || !isCmsVideoUrl(input.video)) return
+  const media = await tx.media.findUnique({ where: { url: input.video }, select: { mimeType: true } })
+  if (!media || !VIDEO_MIMES.has(media.mimeType)) throw new HttpError(400, 'The video must be an MP4 or WebM file from the media library')
 }
 
 function dates(input: PostInput, previous?: AdminPost) {
@@ -105,6 +118,7 @@ async function prepare(tx: Prisma.TransactionClient, input: PostInput, user: Ses
   const followsTitle = !!input.autoSlug && (!previous || (previous.status === 'DRAFT' && !previous.publishedAt))
   if (input.slug && input.slug !== previous?.slug) input = { ...input, slug: await claimSlug(tx, input.slug, followsTitle, previous?.id) }
   await validateTaxonomy(tx, input)
+  await validateVideo(tx, input, previous)
   const { categoryIds, tagIds, body, expectedUpdatedAt: _expected, autoSlug: _auto, ...fields } = input
   void _expected
   void _auto

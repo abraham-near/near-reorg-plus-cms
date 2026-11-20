@@ -9,6 +9,8 @@ export type ReadinessInput = {
   categoryCount: number
   featuredImage: string | null | undefined
   wordCount: number
+  /** A video post: its video is the content, so it does not need the word count. */
+  hasVideo?: boolean
 }
 
 export type ReadinessCheck = { key: 'title' | 'summary' | 'category' | 'cover' | 'length'; label: string; ok: boolean }
@@ -23,7 +25,9 @@ export function postReadiness(input: ReadinessInput): Readiness {
     { key: 'summary', label: 'Summary', ok: filled(input.excerpt) },
     { key: 'category', label: 'Category', ok: input.categoryCount > 0 },
     { key: 'cover', label: 'Cover image', ok: filled(input.featuredImage) },
-    { key: 'length', label: `At least ${MIN_READY_WORDS} words`, ok: input.wordCount >= MIN_READY_WORDS },
+    input.hasVideo
+      ? { key: 'length', label: 'Video', ok: true }
+      : { key: 'length', label: `At least ${MIN_READY_WORDS} words`, ok: input.wordCount >= MIN_READY_WORDS },
   ]
   return { checks, ready: checks.filter((check) => check.ok).length, total: checks.length }
 }

@@ -9,7 +9,7 @@ import { isLive } from './visibility'
 // revision a person can restore, and deleting or restoring stays in the editor (service.ts). What
 // stays out: changing the public URL or visibility of a published post, emptying a body,
 // and editing an archived post's content.
-type Previous = { status: Status; slug: string; publishedAt: Date | null; body?: string }
+type Previous = { status: Status; slug: string; publishedAt: Date | null; body?: string; video?: string | null }
 
 const changed = (input: PostInput) => Object.keys(input).filter((key) => key !== 'expectedUpdatedAt' && input[key as keyof PostInput] !== undefined)
 
@@ -37,6 +37,10 @@ export function assertTokenPostWrite(input: PostInput, previous: Previous | unde
   }
   if (input.body !== undefined && hasBody(previous.body) && !hasBody(prepareBody(input.body))) {
     throw new HttpError(403, 'Saving would leave the post with an empty body. API tokens cannot remove a post\'s content.')
+  }
+  // A video post's video is its content: a token cannot take it away from a post with no text.
+  if (input.video === null && previous.video && !hasBody(input.body !== undefined ? prepareBody(input.body) : previous.body)) {
+    throw new HttpError(403, 'Removing the video would leave the post empty. API tokens cannot remove a post\'s content.')
   }
 }
 

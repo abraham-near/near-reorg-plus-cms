@@ -74,7 +74,7 @@ describe('browser upload limits', () => {
     expect(checkUpload({ name: 'deck.pdf', type: 'application/pdf', size: 10 }, { imagesOnly: true })).toBe('Only images can be added here.')
     expect(checkUpload({ name: 'empty.png', type: 'image/png', size: 0 })).toBe('This file is empty.')
     expect(checkUpload({ name: 'photo.JPEG', type: '', size: MB })).toBeNull()
-    expect(checkUpload({ name: 'clip', type: 'video/mp4', size: 150 * MB })).toBeNull()
+    expect(checkUpload({ name: 'clip', type: 'video/mp4', size: 8 * MB })).toBeNull()
     expect(findUploadKind({ name: 'IMG_1.jpeg' })?.ext).toBe('jpg')
   })
   it('turns server errors into clear sentences', () => {
@@ -85,7 +85,7 @@ describe('browser upload limits', () => {
   })
   it('describes what can be dropped from the same table', () => {
     expect(uploadLimitLines(true)).toEqual(['JPG, PNG, WebP, GIF, AVIF or SVG · up to 15 MB each (SVG 2 MB)'])
-    expect(uploadLimitLines()[1]).toBe('Video up to 200 MB · audio, PDF and Office files up to 50 MB (PPTX, ZIP 100 MB)')
+    expect(uploadLimitLines()[1]).toBe('Video up to 100 MB · audio, PDF and Office files up to 50 MB (PPTX, ZIP 100 MB)')
     expect(acceptAttribute(true)).toContain('.jpeg')
     expect(acceptAttribute(true)).not.toContain('.pdf')
   })

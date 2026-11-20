@@ -1,7 +1,7 @@
 export const mediaSelect = {
   id: true, key: true, url: true, filename: true, mimeType: true, size: true,
   width: true, height: true, alt: true, createdAt: true, updatedAt: true,
-  originalKey: true, originalMimeType: true, originalSize: true,
+  originalKey: true, originalMimeType: true, originalSize: true, posterUrl: true, duration: true,
 } as const
 
 export type MediaItem = {
@@ -19,6 +19,9 @@ export type MediaItem = {
   originalKey?: string | null
   originalMimeType?: string | null
   originalSize?: number | null
+  /** A video's poster image ("/cms/<hash>.webp") and length in seconds, when known. */
+  posterUrl?: string | null
+  duration?: number | null
 }
 
 /** GET /api/admin/media/:id: the file, where it is used and (when known) who uploaded it. */

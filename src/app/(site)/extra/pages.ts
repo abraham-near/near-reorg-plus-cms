@@ -8,9 +8,9 @@ export const GROUPS: Group[] = [
   {
     id: "home",
     title: "Homepage",
-    note: "Homepage versions that were not chosen. The homepage (/) is home v9, the still headline; home v7, the film hero, is at /home-v7 on /index.",
+    note: "Homepage versions that were not chosen. The homepage (/) is home v10, Stack second (since Nov 20, 2026; v9 before it); home v7, the film hero, is at /home-v7 on /index.",
     pages: [
-      { href: "/home-v10", n: "v10", name: "Home · Stack second", note: "Home v8 with the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\"), then the same lower page.", tags: ["Type-only hero", "Stack second", "Branch Stack-Second"], img: "/extra/home-v10.webp" },
+      { href: "/home-v9", n: "v9", name: "Home · still headline", note: "The homepage until Nov 20, 2026: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail, the Stack in lit matte and the same lower page.", tags: ["Type-only hero", "Still headline", "Branch NEAR-is-privacy-HEADLINE"], img: "/extra/home-v9.webp" },
       { href: "/home-v8", n: "v8", name: "Home · cycling word", note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it, on the same lower page. The homepage Nov 19–20, until v9 was chosen again.", tags: ["Type-only hero", "Cycling word", "Not chosen"], img: "/extra/home-v8.webp" },
     ],
   },
@@ -29,11 +29,12 @@ export const GROUPS: Group[] = [
   {
     id: "post",
     title: "Blog post",
-    note: "Four layouts for a single post, on v4's header and footer. The same example article on AI agents, with the same photos, in each.",
+    note: "Four layouts for a single post, on v4's header and footer, plus V for video posts. The same example article on AI agents, with the same photos, in each.",
     pages: [
       { href: "/post-a", n: "A", name: "Ruled", note: "The index's ruled grid carried into the article: a row of facts, the photo in its cell, contents | text | margin notes.", tags: ["Ruled grid", "Sticky contents", "Margin notes"], img: "/extra/post-a.webp" },
       { href: "/post-b", n: "B", name: "Cover", note: "A magazine feature: the photo fills the first screen, a drop cap, pictures that leave the column, figures on an ink band, Up next.", tags: ["Full-screen cover", "Reading line", "Footnotes"], img: "/extra/post-b.webp", featured: true },
       { href: "/post-c", n: "C", name: "Notebook", note: "A reference read: split opening, a sticky rail with contents that fill as you read, time left and the takeaways; boxed notes.", tags: ["Split hero", "Progress rail", "Docs feel"], img: "/extra/post-c.webp" },
+      { href: "/post-v", n: "V", name: "Video", note: "A video post (the CMS's Format: Video): A's ruled grid kept simple, the video edge to edge where the photo goes (an uploaded MP4 or a YouTube/Vimeo player), a short text, Keep watching and reading. Shown as Watch in the blog index.", tags: ["Video", "Ruled grid", "CMS Format: Video"], img: "/extra/post-v.webp" },
       { href: "/post-d", n: "D", name: "Poster", note: "The October 2026 Figma's blog in a post: the cover as a poster (title, kicker and logo set on the photo, boxed in white), mono labels with the green square, takeaways and figures in white boxes, Keep reading as the index's boxed cards.", tags: ["Figma", "Poster cover", "Boxed cards"], img: "/extra/post-d.webp" },
     ],
   },
@@ -81,6 +82,17 @@ export const GROUPS: Group[] = [
       { href: "/economics-b", n: "B", name: "Economics · Drawn", note: "NEAR Foundation's isometric hand: the economy as a machine, a flywheel that builds station by station as the four steps scroll past, the facts on plinths, two engines feeding the loop.", tags: ["Iso drawings", "Foundation hand", "Flywheel"], img: "/extra/economics-b.webp" },
       { href: "/economics-c", n: "C", name: "Economics · Editorial", note: "The homepage's big type: the four facts as large figures, the loop as a held dark band where a dot travels a ring as each step comes up.", tags: ["Editorial", "Pinned loop", "Dark band"], img: "/extra/economics-c.webp" },
       { href: "/economics", n: "X", name: "Economics · MVP", note: "A made calm for the MVP: an isometric beside the hero (fees running into the token), the foundation, the loop and the one asset on the homepage's ruled grid, the loop drawn as four isometric stations, the products on a dark band, no eyebrows or numbering.", tags: ["MVP", "Isometric", "Grid"], img: "/extra/economics-x.webp", featured: true },
+    ],
+  },
+  {
+    id: "protocol",
+    title: "Protocol",
+    note: "near.org/protocol (Stack → Protocol in the menu), four versions. B is /protocol, in the menu (since Nov 20, 2026) built like a homepage: a narrative that explains the protocol, with a more elaborate hero than the About and Resources pages. Copy verbatim from the October 2026 doc (components/protocol/content.ts), regrouped for the story. The motion is illustrative, not live data.",
+    pages: [
+      { href: "/protocol-a", n: "A", name: "Protocol · The stack builds", note: "A large isometric of the protocol builds in the hero, then holds while you scroll: a shard fills and splits, the private shard appears, the account key rotates to ML-DSA. Nightshade on the dark band, a drawing for each part, the contract types in.", tags: ["Iso hero", "Pinned story", "Ruled grid"], img: "/extra/protocol-a.webp" },
+      { href: "/protocol", n: "B", name: "Protocol · The network lives", note: "The hero is the network at work on canvas: shard lanes closing a block every 600 ms, the 1.2 s finality line, the private shard, a lane splitting. A pinned dark chapter carries Nightshade, resharding, the private shard and the key rotation on the same lanes.", tags: ["Canvas hero", "Pinned chapter", "Ruled grid"], img: "/extra/protocol-b.webp", featured: true },
+      { href: "/protocol-c", n: "C", name: "Protocol · Read sideways", note: "B's layout with drawings that need no words. The hero is the network as a sphere of dots cut into ten shards and a dark private one, green running through as blocks go final. The dark chapter scrolls sideways through Nightshade, resharding, the private shard and the key swap; Speed is a clock, Chain Signatures a seal flying to its chain.", tags: ["Dot hero", "Sideways chapter", "No labels"], img: "/extra/protocol-c.webp" },
+      { href: "/protocol-d", n: "D", name: "Protocol · The graphic transforms", note: "B's layout with drawings that need no words. The hero is convergence: agents, apps and chains send threads into one point that writes a final ledger. In the dark chapter one isometric of the network transforms as you scroll, like the homepage's Stack; Speed deploys once to every shard, Chain Signatures lands native blocks on three chains.", tags: ["Convergence hero", "Morphing iso", "No labels"], img: "/extra/protocol-d.webp" },
     ],
   },
   {
