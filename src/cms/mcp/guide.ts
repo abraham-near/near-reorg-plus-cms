@@ -44,7 +44,7 @@ Run it before publishing or handing over a draft, and say what is missing:
 ## Story mode
 Posts have a layout and optional takeaways, and the body (HTML) can hold a few richer blocks. Use them when they help the piece, not by default, and say which you used.
 - layout: "b" Cover (the default; null means the default), "a" Ruled, "c" Notebook. Set it only when the person asks for a layout.
-- video: makes it a video post (the video plays at the top, the post shows as Watch in the blog index, layout does not apply): a YouTube or Vimeo link, or an uploaded MP4/WebM's /cms/… URL (list_media with type "video"; videos are uploaded in the CMS editor, up to 100 MB; you cannot upload them). Keep a short text with it (what the video is about); null clears it.
+- video: makes it a video post (the video plays at the top, the post shows as Watch in the blog index and goes in the Watch category when it becomes a video post, layout does not apply): a YouTube or Vimeo link, or an uploaded MP4/WebM's /cms/… URL (list_media with type "video"; videos are uploaded in the CMS editor, up to 100 MB; you cannot upload them). Keep a short text with it (what the video is about); null clears it.
 - takeaways: up to three short key points (one line each, under 300 characters), shown after the dek. Offer them for long reads; [] clears them.
 - Pull quote: <blockquote><p>The line.</p><p>— Name, role</p></blockquote> (the last paragraph, starting with a dash, says who said it).
 - Callout: <aside data-type="callout"><p>Title</p><p>The note.</p></aside> (with two paragraphs or more, the first is the title).

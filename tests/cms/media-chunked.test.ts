@@ -19,6 +19,8 @@ vi.mock('@/cms/lib/auth', () => {
   return { requirePermission, requireActor: (_req: Request, permission: Permission) => requirePermission(permission) }
 })
 vi.mock('@/cms/lib/cache-tags', () => ({ revalidatePost: vi.fn() }))
+// The rate limit counts in Postgres: without it, starting an upload runs with no database (only "completing" below needs one).
+vi.mock('@/cms/lib/rate-limit', () => ({ rateLimit: async () => ({ ok: true, count: 1, remaining: 59, resetAt: new Date() }) }))
 vi.mock('@/cms/lib/bucket', () => {
   const noSuchUpload = () => Object.assign(new Error('The specified upload does not exist'), { name: 'NoSuchUpload' })
   const upload = (id: string) => { const u = fake.uploads.get(id); if (!u) throw noSuchUpload(); return u }
