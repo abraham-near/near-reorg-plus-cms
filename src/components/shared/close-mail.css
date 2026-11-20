@@ -1,0 +1,35 @@
+/* "NEAR belongs to you" as on the homepage (Lawrence, Nov 20, 2026: "update the near belongs to you on the other pages with the one from the home page"):
+   the stack of mail in a band of daylight, its top letter green (D213, D214, D215, D223), in place of the meadow. A copy of v7.css's rules for the
+   homepage's close (html[data-v7="priv"] … .l-close__bleed:has(close-mail-light.webp)), which stay Lawrence's; here on `.cs-mail`, the close's bleed
+   on the other pages (shared/CloseScene.tsx, foundation/e/FoundationE.tsx). Keep the two in step.
+   The headline, line, buttons and stack are one group, centred below the nav. The stack is in the flow, drawn by the column's ::after from the photo
+   (the plate's own copy is hidden): only the stack takes room, it sits a set gap under the buttons, and on short screens it shrinks with the height.
+   The photo fades into the paper through two masks (a tight one solid over the stack, a wide one holding the floor at a third strength), eased. */
+.cs-mail {
+  --mw: min(calc(clamp(200px, 21vw, 360px) / 0.29), calc(clamp(100px, 19vh, 230px) / 0.196875));   /* the photo's width */
+  --mh: calc(var(--mw) * 0.5625);
+  --mask: radial-gradient(ellipse 38% 45.7% at 49.5% 54.5%, rgb(0 0 0 / 1) 54.0%, rgb(0 0 0 / 0.995) 57.8%, rgb(0 0 0 / 0.965) 61.7%, rgb(0 0 0 / 0.896) 65.5%, rgb(0 0 0 / 0.790) 69.3%,
+      rgb(0 0 0 / 0.653) 73.2%, rgb(0 0 0 / 0.500) 77.0%, rgb(0 0 0 / 0.347) 80.8%, rgb(0 0 0 / 0.210) 84.7%, rgb(0 0 0 / 0.104) 88.5%,
+      rgb(0 0 0 / 0.035) 92.3%, rgb(0 0 0 / 0.005) 96.2%, rgb(0 0 0 / 0.000) 100.0%),
+    radial-gradient(ellipse 49.3% 45.5% at 49.5% 54.5%, rgb(0 0 0 / 0.320) 0%, rgb(0 0 0 / 0.317) 10%, rgb(0 0 0 / 0.301) 20%, rgb(0 0 0 / 0.268) 30%, rgb(0 0 0 / 0.218) 40%,
+      rgb(0 0 0 / 0.160) 50%, rgb(0 0 0 / 0.102) 60%, rgb(0 0 0 / 0.052) 70%, rgb(0 0 0 / 0.019) 80%, rgb(0 0 0 / 0.003) 90%,
+      rgb(0 0 0 / 0.000) 100%);
+}
+.cs-mail .l-plate { background: var(--paper); }
+.cs-mail .l-plate > .l-img { visibility: hidden; }
+.cs-mail .l-close__in {
+  justify-content: center; isolation: isolate;
+  padding-top: 64px;                              /* clear of the nav (its foot is 64 px down) */
+  padding-bottom: clamp(8px, 2.2vh, 32px);        /* the group's centre sits a little above the middle of the room under the nav */
+}
+.cs-mail .l-close__nl { margin-top: clamp(32px, 5.5vh, 64px); }
+.cs-mail .l-close__in::after {
+  content: ""; flex: none; position: relative; z-index: -1; pointer-events: none;
+  width: var(--mw); height: var(--mh); max-width: none;
+  margin-top: calc(clamp(20px, 4vh, 44px) - 0.37 * var(--mh));   /* the gap under the buttons; the photo above the stack reaches up behind it */
+  margin-bottom: calc(-0.28 * var(--mh));                          /* and the photo below the stack takes no room */
+  translate: calc(0.005 * var(--mw)) 0;                            /* the stack's centre (.495) on the column's */
+  background: url("/images/home/bw/close-mail-light.webp") 50% 50% / 100% 100% no-repeat;
+  filter: saturate(0.72) contrast(0.96) brightness(1.02);          /* the house grade on photos (.l-plate > .l-img) */
+  -webkit-mask-image: var(--mask); mask-image: var(--mask); -webkit-mask-composite: source-over; mask-composite: add;
+}
