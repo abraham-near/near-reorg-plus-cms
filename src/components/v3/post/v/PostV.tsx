@@ -10,7 +10,7 @@ import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import type { Video } from "@/lib/blog/video";
 import { mountGrid } from "../../blog/grid";
 import type { Article } from "../article";
-import { Avatar, Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
+import { Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
 import { useReveal } from "../hooks";
 import "../post.css";
 import "../a/post-a.css";
@@ -52,7 +52,7 @@ export function PostV({ article: A }: { article: Article }) {
     <div ref={ref} className="bl pst pst-a pst-v">
       <article aria-labelledby="pa-t">
         <header>
-          <div className="bl-row pa-head" data-row="" data-start="">
+          <div className="bl-row pa-head pv-head" data-row="" data-start="" data-no-x="">
             <div className="bl-cell pa-title">
               <p className="pa-crumb t-label" data-rv=""><a href={A.blogHref}>Blog</a><span aria-hidden="true">/</span><span>{A.category || "Watch"}</span></p>
               <h1 id="pa-t" className="pa-h1">{A.title}</h1>
@@ -62,10 +62,6 @@ export function PostV({ article: A }: { article: Article }) {
             </div>
           </div>
           <div className="bl-row pa-facts" data-row="">
-            <div className="bl-cell pa-fact pa-fact--by" data-rv="">
-              <Avatar article={A} />
-              <span><span className="pa-fact__v">{A.author.name}</span>{A.author.role && <span className="pa-fact__l">{A.author.role}</span>}</span>
-            </div>
             <div className="bl-cell pa-fact" data-rv=""><span className="pa-fact__l">Published</span><time className="pa-fact__v" dateTime={A.dateIso}>{A.date}</time></div>
             <div className="bl-cell pa-fact" data-rv=""><span className="pa-fact__l">Watch</span><span className="pa-fact__v">{A.video ? source(A.video) : "Video"}</span></div>
             <div className="bl-cell pa-fact pa-fact--share" data-rv=""><Share title={A.title} /></div>
@@ -98,15 +94,6 @@ export function PostV({ article: A }: { article: Article }) {
           <div className="bl-row pa-end" data-row="">
             <div className="bl-cell pa-end__tags" data-rv=""><Tags article={A} /></div>
             <div className="bl-cell pa-end__share" data-rv=""><Share title={A.title} /></div>
-          </div>
-          <div className="bl-row pa-author" data-row="">
-            <div className="bl-cell pa-author__cell" data-rv="">
-              <Avatar article={A} cls="pa-author__av" />
-              <div>
-                <p className="pa-author__n">{A.author.name}</p>
-                {A.author.bio && <p className="pa-author__b">{A.author.bio}</p>}
-              </div>
-            </div>
           </div>
         </footer>
       </article>

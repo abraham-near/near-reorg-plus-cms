@@ -10,7 +10,7 @@ import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import { mountGrid } from "../../blog/grid";
 import { Photo } from "../../blog/parts";
 import type { Article } from "../article";
-import { Avatar, Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
+import { Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
 import { useActiveSection, useReadProgress, useReveal } from "../hooks";
 import "../post.css";
 import "./post-a.css";
@@ -50,10 +50,6 @@ export function PostA({ article: A }: { article: Article }) {
             </div>
           </div>
           <div className="bl-row pa-facts" data-row="">
-            <div className="bl-cell pa-fact pa-fact--by" data-rv="">
-              <Avatar article={A} />
-              <span><span className="pa-fact__v">{A.author.name}</span>{A.author.role && <span className="pa-fact__l">{A.author.role}</span>}</span>
-            </div>
             <div className="bl-cell pa-fact" data-rv=""><span className="pa-fact__l">Published</span><time className="pa-fact__v" dateTime={A.dateIso}>{A.date}</time></div>
             <div className="bl-cell pa-fact" data-rv=""><span className="pa-fact__l">Reading time</span><span className="pa-fact__v">{A.readMin} min read</span></div>
             <div className="bl-cell pa-fact pa-fact--share" data-rv=""><Share title={A.title} /></div>
@@ -101,15 +97,6 @@ export function PostA({ article: A }: { article: Article }) {
           <div className="bl-row pa-end" data-row="">
             <div className="bl-cell pa-end__tags" data-rv=""><Tags article={A} /></div>
             <div className="bl-cell pa-end__share" data-rv=""><Share title={A.title} /></div>
-          </div>
-          <div className="bl-row pa-author" data-row="">
-            <div className="bl-cell pa-author__cell" data-rv="">
-              <Avatar article={A} cls="pa-author__av" />
-              <div>
-                <p className="pa-author__n">{A.author.name}</p>
-                {A.author.bio && <p className="pa-author__b">{A.author.bio}</p>}
-              </div>
-            </div>
           </div>
         </footer>
       </article>

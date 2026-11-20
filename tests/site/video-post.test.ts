@@ -26,7 +26,7 @@ describe('safeVideo', () => {
 })
 
 const card = (over: Partial<PostCard> = {}): PostCard => ({
-  slug: 'talk', title: 'A talk', excerpt: null, image: null, publishedAt: '2026-11-19T00:00:00.000Z', author: null, category: null, tags: [], video: null, ...over,
+  slug: 'talk', title: 'A talk', excerpt: null, image: null, publishedAt: '2026-11-19T00:00:00.000Z', author: 'NEAR', category: null, tags: [], video: null, ...over,
 })
 
 describe('the blog index type', () => {

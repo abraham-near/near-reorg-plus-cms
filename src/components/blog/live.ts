@@ -8,7 +8,7 @@ export type BlogItem = Post & { excerpt?: string | null; date?: string; tags?: s
 
 export async function livePosts(): Promise<BlogItem[]> {
   return (await getLivePosts()).map((p) => ({
-    id: `cms-${p.slug}`, type: cardType(p), title: p.title, source: p.author ?? "NEAR blog", url: postHref(p.slug), pic: p.image?.src ?? null,
+    id: `cms-${p.slug}`, type: cardType(p), title: p.title, source: p.author, url: postHref(p.slug), pic: p.image?.src ?? null,
     excerpt: p.excerpt, date: p.publishedAt, tags: p.tags.map((t) => t.name),
   }));
 }

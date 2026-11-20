@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: { canonical: url },
     openGraph: {
       type: "article", url, title: share.title, description: share.description, images, videos,
-      publishedTime: post.publishedAt, modifiedTime: post.updatedAt, authors: post.author ? [post.author] : undefined, tags: post.tags.map((t) => t.name),
+      publishedTime: post.publishedAt, modifiedTime: post.updatedAt, authors: [post.author], tags: post.tags.map((t) => t.name),
     },
     twitter: { card: images ? "summary_large_image" : "summary", title: share.title, description: share.description, images: images?.map((i) => i.url) },
     // UNLISTED: reachable by its link only

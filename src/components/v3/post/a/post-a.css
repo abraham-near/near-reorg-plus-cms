@@ -1,5 +1,5 @@
 /* Post A · Ruled (PostA.tsx) on blog.css's grid + post.css's body.
-   Title row 8 / 4, the facts row in four cells, the photo in its own row, then the reading row: contents | text | margin notes. Below 1100: the contents
+   Title row 8 / 4, the facts row in three cells (published, reading time, share; no author: every post's is NEAR, not shown), the photo in its own row, then the reading row: contents | text | margin notes. Below 1100: the contents
    and the margin fold away (notes go under their paragraph); below 860 one column. */
 .pst-a { --side: clamp(220px, 20vw, 300px); --cp: clamp(24px, 3.4vw, 56px); }
 
@@ -11,7 +11,7 @@
 .pa-h1 { max-width: 15em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.5rem, 1.4rem + 3.6vw, 5rem); line-height: 1; letter-spacing: -0.032em; text-wrap: balance; }
 .pa-dek { display: flex; align-items: flex-end; padding-bottom: 44px; }
 
-.pa-facts { grid-template-columns: 4fr 2fr 2fr 4fr; }
+.pa-facts { grid-template-columns: 4fr 4fr 4fr; }
 .pa-fact { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-height: 84px; }
 .pa-fact--by { flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; }
 .pa-fact--by > span:last-child { display: flex; flex-direction: column; gap: 4px; }
@@ -91,6 +91,7 @@
   .pa-main .pb-body > *, .pa-keys { margin-left: auto; margin-right: auto; }
   .pst-a .pb-fig[data-size="wide"], .pst-a .pb-fig[data-size="bleed"] { margin-left: calc(-1 * var(--cp)); margin-right: calc(-1 * var(--cp)); }
   .pa-facts { grid-template-columns: 1fr 1fr; }
+  .pa-facts .pa-fact--share { grid-column: 1 / -1; }
 }
 @media (max-width: 859px) {
   .pa-head, .pa-end, .pa-more, .pa-facts { grid-template-columns: 1fr; }
