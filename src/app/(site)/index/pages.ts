@@ -8,23 +8,18 @@ export type Final = { id: string; href: string; path?: string; name: string; not
 export const FINALS: Final[] = [
   {
     id: "home", href: "/", name: "Homepage · v9",
-    note: "Home v9: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", then the rail with the signed identity, the Stack in lit matte, Origin, Go deeper, the voices one at a time and the mailboxes. Also at /home-v9.",
-    tags: ["Type-only hero", "Black-and-white photos", "Lit matte Stack"], img: "/index/home.webp",
-  },
-  {
-    id: "home-v8", href: "/home-v8", name: "Home v8",
-    note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it.",
-    tags: ["Type-only hero", "Cycling word"], img: "/index/home-v8.webp",
+    note: "Home v9: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail with the signed identity, the Stack in lit matte, Origin, Go deeper, Get into NEAR (Trade's photo with the glowing NEAR mark), the voices one at a time, and \"NEAR belongs to you\" as one centred group over a stack of mail. Also at /home-v9.",
+    tags: ["Type-only hero", "Still headline", "Black-and-white photos"], img: "/index/home.webp",
   },
   {
     id: "home-v7", href: "/home-v7", name: "Home v7",
-    note: "The homepage before v9: G1's time-lapse film as the hero under its traced layer, the intro through the grid, the rail, the Stack in lit matte, proof and Go deeper.",
+    note: "The homepage before v8 and v9: G1's time-lapse film as the hero under its traced layer, the intro through the grid, the rail, the Stack in lit matte, proof and Go deeper.",
     tags: ["Scroll-scrubbed film", "Tracked vectors", "Lit matte Stack"], img: "/index/home-v7.webp",
   },
   {
     id: "blog", href: "/blog", name: "Blog",
-    note: "Reading rail, open (direction J): search, type, sort and view in a sticky rail beside the feed; one lead post, then a grid of eighteen or a list. The CMS's posts first.",
-    tags: ["CMS posts", "Blog / Press / Watch", "Grid / list"], img: "/index/blog.webp",
+    note: "Version E: the heading, the lead post (always on screen), then All, Blog, Press and Watch as large words over tag pills you can combine (NEAR AI, NEAR Intents, near.com and NEAR Protocol first). Posts sit on the homepage's ruled cards with their date and tags, nine at a time. The CMS's posts first. The previous blog (direction J) is at /blog-index-a on /extra.",
+    tags: ["CMS posts", "Blog / Press / Watch", "Tags", "Ruled cards"], img: "/index/blog.webp",
   },
   {
     id: "post", href: "/post-b", path: "/blog/<slug>", name: "Blog post",
@@ -38,23 +33,38 @@ export const FINALS: Final[] = [
   },
   {
     id: "analytics", href: "/analytics", name: "Analytics",
-    note: "Ruled grid (Analytics C): the homepage's ruled grid and Blog J's ruled hero, the five core stats, revenue and network health side by side, the tools, SVRN and the ETPs. Sample figures until the live feed lands.",
-    tags: ["Ruled grid", "Homepage hand", "Sample figures"], img: "/index/analytics.webp",
+    note: "MVP (X, the Nov 19 review): D simplified, mostly copy, the plinth beside the hero, then one continuous ruled grid with spacer rows: the five stats, revenue as sixteen weekly bars beside network health, Go deeper with its hub, SVRN and the ETPs.",
+    tags: ["MVP", "Continuous grid", "Weekly bars"], img: "/index/analytics.webp",
   },
   {
     id: "economics", href: "/economics", name: "Economics",
-    note: "Ruled grid (Economics A): the four structural facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, the two revenue sources, one asset on the dark band, the homepage's close.",
-    tags: ["Ruled grid", "Scroll diagram", "Homepage close"], img: "/index/economics.webp",
+    note: "MVP (X, the Nov 19 review): an isometric beside the hero (fees running into the token), the foundation, the loop and the one asset on the ruled grid, the loop drawn as four isometric stations that light as you scroll, the two products on a dark band.",
+    tags: ["MVP", "Isometric", "Ruled grid"], img: "/index/economics.webp",
   },
   {
     id: "history", href: "/history", name: "History",
-    note: "Editorial (History C): huge years, the black-and-white whiteboard opening the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band, the homepage's close.",
-    tags: ["Editorial", "Sticky year", "Homepage close"], img: "/index/history.webp",
+    note: "MVP (X, the Nov 19 review): a type-only hero, a plain Origin, the years as a short sideways story after the homepage's rail (pinned, three at a time: the year on show at the centre with its text, its neighbours faint), Today on the ruled grid.",
+    tags: ["MVP", "Sideways rail", "Ruled grid"], img: "/index/history.webp",
   },
   {
     id: "community", href: "/community", name: "Community",
-    note: "Drawn (Community B): NEAR Foundation's isometric hand, the community as line drawings (people, places, events) that build as you scroll, then the homepage's close with the newsletter. Sample figures and events until the Luma feed is in.",
-    tags: ["Iso drawings", "Foundation hand", "Homepage close"], img: "/index/community.webp",
+    note: "MVP (X, the Nov 19 review): C made more typographic, an isometric drawing of crews joined by threads in the hero, the figures, channels and ways framed by the homepage's grid, the Legion on the dark band, the channels with the site's dot icons.",
+    tags: ["MVP", "Typographic", "Dot icons"], img: "/index/community.webp",
+  },
+  {
+    id: "solutions", href: "/solutions", name: "Solutions",
+    note: "MVP (X, the Nov 19 review): a calm hero beside B's hub, then one continuous ruled grid with spacer rows: the proof strip, the solutions, Confidential Intents as a dark band off the grid, the builders, the grid running down into the close.",
+    tags: ["MVP", "Continuous grid", "Dark band"], img: "/index/solutions.webp",
+  },
+  {
+    id: "research", href: "/research", name: "Research",
+    note: "MVP (X, the Nov 19 review): A without the grid by the header, B's paper stack as the hero's placeholder drawing, the catalogue in two columns with a topic filter, keep reading on the same grid, the grid running into the homepage's close.",
+    tags: ["MVP", "Catalogue", "Topic filter"], img: "/index/research.webp",
+  },
+  {
+    id: "protocol", href: "/protocol", name: "Protocol",
+    note: "Version B, \"The network lives\": the network at work on canvas in the hero (shard lanes, a block every 600 ms, the 1.2 s finality line, the private shard), a pinned dark chapter for Nightshade, resharding, the private shard and the key rotation, then the doc's sections on the ruled grid.",
+    tags: ["Canvas hero", "Pinned chapter", "Ruled grid"], img: "/index/protocol.webp",
   },
   {
     id: "contact", href: "/contact", name: "Contact",

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
-import { AnalyticsC } from "@/components/analytics/c/AnalyticsC";
+import { AnalyticsX } from "@/components/analytics/x/AnalyticsX";
 import { AnalyticsSwitch } from "@/components/analytics/AnalyticsSwitch";
 import { HERO } from "@/components/analytics/content";
 
-// near.org/analytics, version C: "Ruled grid" (components/analytics/c), on v3's shell. Copy and figures: components/analytics/content.ts.
+// near.org/analytics, version X: "MVP", the one in the menu (/analytics-x redirects here), D simplified after the Nov 19 review (components/analytics/x), on v3's shell. Copy and figures: components/analytics/content.ts.
 export const metadata: Metadata = {
   title: "Analytics",
   description: HERO.sub,
@@ -14,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function AnalyticsPage() {
-  return <><BlogShell home="/"><AnalyticsC /></BlogShell><AnalyticsSwitch on="c" /></>;
+  return <><BlogShell home="/"><AnalyticsX /></BlogShell><AnalyticsSwitch on="x" /></>;
 }

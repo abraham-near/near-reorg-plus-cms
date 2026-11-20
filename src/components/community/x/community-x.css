@@ -1,0 +1,254 @@
+/* Community X · MVP (CommunityX.tsx, /community-x): C's editorial page made more typographic. Big statements in Montreal Book with one Kepler word, generous
+   space, one dark band (the Legion), one drawing filling the hero's right half, the site's dot icons on the channels. No eyebrows, no decorative numerals. The homepage's
+   ruled grid (.cmx-grid: the frame, the cell rules, the + where they meet) holds the figures, the channels and the ways; none near the header. Tokens are C's (b10's), set here so nothing depends on another page's stylesheet. Everything is scoped
+   under .cmx; motion only under .cmx[data-motion] (motion.ts). */
+.cmx {
+  --ink: #262626; --graphite: #3d3e3f; --muted: #5f6669; --green-text: #00774f; --emerald: #00dc8d;
+  --paper-0: #f5f4f1; --paper-1: #edece8; --paper-2: #e2e1de; --band: #262626;
+  --line: rgb(38 38 38 / 0.12); --line-strong: rgb(38 38 38 / 0.24); --hair: 1px;
+  --margin: clamp(20px, 5.56vw, 96px);
+  --gut: max(var(--margin), calc(50% - 820px));     /* the page's side gutter: the margin, or wider past a 1640 px column */
+  --sans: var(--font-montreal-nav, var(--font-montreal)), ui-sans-serif, system-ui, sans-serif;
+  --text: var(--font-text);                          /* Montreal Book */
+  --acc: var(--font-acc);                            /* Kepler Medium Condensed Italic Display */
+  --mono: var(--font-montreal-mono), ui-monospace, monospace;
+  --ease-tick: cubic-bezier(0.2, 0, 0, 1); --ease-settle: cubic-bezier(0.16, 1, 0.3, 1); --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-h1: clamp(2.75rem, 1rem + 5.6vw, 7rem);
+  --t-h2: clamp(2.5rem, 1.2rem + 3.6vw, 4.75rem);
+  --t-statement: clamp(1.625rem, 0.9rem + 2.3vw, 3rem);
+  --t-h3: clamp(1.375rem, 1.15rem + 0.7vw, 1.875rem);
+  --t-lede: clamp(1.125rem, 0.95rem + 0.45vw, 1.375rem);
+  --t-body: clamp(1rem, 0.93rem + 0.15vw, 1.0625rem);
+  --t-small: clamp(0.875rem, 0.83rem + 0.19vw, 0.9375rem);
+  position: relative; z-index: 3; overflow-x: clip;
+  color: var(--ink); background: var(--paper-0); font-family: var(--sans); font-size: var(--t-body); line-height: 1.55;
+}
+.cmx .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:where(.cmx) :where(p, h1, h2, h3, figure, ol, ul) { margin: 0; padding: 0; }
+:where(.cmx) :where(ol, ul) { list-style: none; }
+:where(.cmx) a { color: inherit; text-decoration: none; }
+.cmx :focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.cmx [id] { scroll-margin-top: 96px; }
+
+/* ---------------------------------------------------------------- type: the headings' words, the Kepler word, the green square */
+.cmx :is(h1, h2, h3) { font-family: var(--text); font-weight: 400; color: inherit; text-wrap: balance; }
+.cmx .accent { font-family: var(--acc); font-style: italic; font-weight: 500; font-size: 1.24em; letter-spacing: -0.02em; line-height: 0; }
+.cmx .accent .cmx-w { line-height: 1; }
+.cmx-sq { display: inline-block; width: 0.19em; height: 0.19em; margin-left: 0.07em; background: var(--emerald); vertical-align: baseline; }
+.cmx-h2 { font-size: var(--t-h2); line-height: 1.02; letter-spacing: -0.028em; }
+.cmx-lede { max-width: 26em; font-size: var(--t-lede); line-height: 1.45; letter-spacing: -0.006em; color: var(--graphite); text-wrap: pretty; }
+
+/* the sample tag: a small outlined pill, a ring before the word (kept: it says which figures are not real yet) */
+.cmx-tag { display: inline-flex; align-items: center; gap: 7px; height: 22px; padding: 0 10px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong);
+  font: 400 11px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; vertical-align: middle; }
+.cmx-tag i { width: 6px; height: 6px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor; }
+.cmx-legion .cmx-tag { color: rgb(245 244 241 / 0.72); box-shadow: inset 0 0 0 1px rgb(245 244 241 / 0.3); }
+.cmx-note { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: clamp(24px, 3.4vh, 36px); font-size: 13px; line-height: 1.4; color: var(--muted); }
+
+/* ---------------------------------------------------------------- actions: b10's pill (48 px, the emerald dot on hover) and the text link */
+.cmx-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+.cmx-actions--col { flex-direction: column; align-items: flex-start; gap: 18px; }
+.cmx-arr, .cmx-ext { flex: none; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.3s var(--ease-settle); }
+.cmx-ext { width: 13px; height: 13px; }
+.cmx-btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 500 var(--t-small)/1.2 var(--sans); letter-spacing: -0.003em; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink);
+  transition: background-color 0.24s var(--ease-tick), color 0.24s var(--ease-tick), box-shadow 0.24s var(--ease-tick), padding 0.3s var(--ease-settle); }
+.cmx-btn::before { content: ""; position: absolute; left: 19px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
+  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
+.cmx-btn--ink { color: var(--paper-0); background: var(--ink); }
+.cmx-btn--green { color: var(--ink); background: var(--emerald); box-shadow: none; }
+.cmx-btn--green::before { background: var(--ink); }
+.cmx-link { display: inline-flex; align-items: center; gap: 10px; padding: 6px 0; font: 500 var(--t-small)/1.2 var(--sans); letter-spacing: -0.003em;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
+@media (hover: hover) {
+  .cmx-btn:hover { padding-left: 36px; color: var(--paper-0); background: var(--ink); box-shadow: none; }
+  .cmx-btn--green:hover { color: var(--ink); background: var(--paper-0); }
+  .cmx-btn:hover::before { transform: scale(1); }
+  .cmx-btn:hover :is(.cmx-arr, .cmx-ext) { translate: 3px 0; }
+  .cmx-link:hover { background-size: 100% var(--hair); }
+  .cmx-link:hover :is(.cmx-arr, .cmx-ext) { translate: 4px 0; }
+}
+.cmx-btn:focus-visible { padding-left: 36px; }
+.cmx-btn:focus-visible::before { transform: scale(1); }
+.cmx-link:focus-visible { background-size: 100% var(--hair); }
+
+/* ================================================================ 1 · the hero: the text on the left, one drawing on the right; no rules up here */
+.cmx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(24px, 3vw, 56px); align-items: center;
+  padding: clamp(148px, 22vh, 220px) var(--gut) 0; }
+.cmx-hero__text { display: flex; flex-direction: column; align-items: flex-start; gap: clamp(28px, 4vh, 44px); }
+/* a step under --t-h1 so the line holds two rows beside the drawing ("The people building / the open web.") from 1280 px up */
+.cmx-h1 { font-size: clamp(2.75rem, 0.8rem + 4.2vw, 6rem); line-height: 0.98; letter-spacing: -0.034em; max-width: 10.5em; }
+.cmx-h1 .accent { font-size: 1.3em; letter-spacing: -0.035em; }
+.cmx-hero__sub { max-width: 31em; font-size: var(--t-lede); line-height: 1.45; letter-spacing: -0.006em; color: var(--graphite); text-wrap: pretty; }
+/* [[TBD: graphic by Ali]] the crews drawing (./HeroWeb.tsx) in B's hand (white tops, light grey sides, ink hairlines, one green): big enough to fill the
+   hero's right half (centred in it, beside the text), still under the headline's weight */
+.cmx-hero__art { justify-self: center; width: min(100%, 640px); margin: 0; }
+.cmx-hero__art svg { display: block; width: 100%; height: auto; overflow: visible; }
+/* the hero drawing waits, hidden, until its motion has set every starting state (motion.ts adds .is-ready), so the finished frame never flashes before
+   the build (a page reached through a page transition shows it first otherwise); if the script never runs, it shows after 3 s */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .cmx .cmx-hero__art:not(.is-ready) { opacity: 0; animation: cmx-art-safe 0.4s 3s forwards; }
+}
+@keyframes cmx-art-safe { to { opacity: 1; } }
+.cmx-hero__art svg * { vector-effect: non-scaling-stroke; }
+.cmx-hero__art .sl polygon { stroke: #111; stroke-width: 1; stroke-linejoin: round; }
+.cmx-hero__art .sl__t { fill: #fff; } .cmx-hero__art .sl__l { fill: #f2f2f0; } .cmx-hero__art .sl__r { fill: #e8e8e6; }
+.cmx-hero__art .sl__e { fill: none; stroke: #111; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
+.cmx-hero__art .pw__b { fill: #e8e8e6; stroke: #111; stroke-width: 1; stroke-linejoin: round; }
+.cmx-hero__art :is(.pw__t, .pw__h) { fill: #fff; stroke: #111; stroke-width: 1; }
+.cmx-hero__art .pw--g .pw__h { fill: var(--emerald); }
+.cmx-hero__art .cmx-web__floor { fill: none; stroke: #111; stroke-opacity: 0.32; stroke-width: 2.2; stroke-linecap: round; }
+.cmx-hero__art .cmx-web__links path { fill: none; stroke: #111; stroke-opacity: 0.45; stroke-width: 1; stroke-dasharray: 2 4; stroke-linecap: round; }
+.cmx-hero__art .cmx-web__links .is-hub { stroke-opacity: 0.7; stroke-dasharray: none; }
+.cmx-hero__art .cmx-web__sig circle { fill: #111; stroke: none; }
+.cmx-hero__art .cmx-web__ring { fill: none; stroke: var(--emerald); stroke-width: 1.25; transform-box: fill-box; transform-origin: 50% 50%; }
+
+/* ================================================================ the homepage's grid (proof-deeper.css .l-row / .l-cell / .l-x), drawn in CSS:
+   a frame on the side gutters, a rule over every cell and between cells, a 9 px ink + at each cell's top corners (the shared ones overlap) */
+.cmx-grid { position: relative; display: grid; border-right: var(--hair) solid var(--line-strong); border-bottom: var(--hair) solid var(--line-strong); }
+.cmx-cell { position: relative; min-width: 0; border-top: var(--hair) solid var(--line-strong); border-left: var(--hair) solid var(--line-strong); }
+.cmx-cell::before, .cmx-cell::after { content: ""; position: absolute; z-index: 2; top: -5px; width: 9px; height: 9px; pointer-events: none;
+  background: linear-gradient(var(--ink), var(--ink)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 100% var(--hair) no-repeat; }
+.cmx-cell::before { left: -5px; }
+.cmx-cell::after { right: -5px; }
+
+/* ================================================================ sections */
+.cmx-sec { padding: clamp(104px, 16vh, 184px) var(--gut) 0; }
+
+/* ================================================================ 2 · the four figures */
+.cmx-stats { padding-top: clamp(96px, 14vh, 160px); }
+.cmx-stats__row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cmx-stat { padding: clamp(28px, 4vh, 40px) 24px clamp(32px, 4.4vh, 44px); }
+.cmx-stat__v { font-family: var(--text); font-size: clamp(3rem, 1.6rem + 3.9vw, 6.25rem); line-height: 1; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmx-stat__l { margin-top: 14px; font-size: var(--t-body); color: var(--graphite); }
+
+/* ================================================================ 3 · events: the head held on the left, the dates on the right */
+.cmx-events { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px clamp(40px, 6vw, 112px); align-items: start; }
+.cmx-sticky { position: sticky; top: 128px; display: flex; flex-direction: column; align-items: flex-start; gap: clamp(20px, 3vh, 32px); }
+.cmx-sticky .cmx-lede { max-width: 18em; }
+.cmx-ev { border-top: var(--hair) solid var(--line-strong); }
+.cmx-ev__i { border-bottom: var(--hair) solid var(--line-strong); }
+.cmx-ev__a { position: relative; isolation: isolate; display: grid; grid-template-columns: clamp(96px, 9vw, 140px) minmax(0, 1fr) 24px; align-items: baseline; gap: 20px;
+  padding: clamp(22px, 3vh, 30px) 8px clamp(22px, 3vh, 30px) 0; transition: padding 0.4s var(--ease-settle); }
+.cmx-ev__a::before { content: ""; position: absolute; z-index: -1; inset: 0 calc(var(--hair) * -1); background: var(--paper-1); transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 0.5s var(--ease-settle); }
+.cmx-ev__d { font-family: var(--text); font-size: var(--t-h3); line-height: 1.12; letter-spacing: -0.015em; color: var(--graphite); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmx-ev__main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cmx-ev__t { font-family: var(--text); font-size: var(--t-h3); line-height: 1.12; letter-spacing: -0.015em; }
+.cmx-ev__m { font-size: var(--t-small); color: var(--graphite); }
+.cmx-ev__go { align-self: center; justify-self: end; width: 16px; height: 16px; transition: translate 0.3s var(--ease-settle), color 0.2s; }
+@media (hover: hover) {
+  .cmx-ev__a:hover { padding-left: 16px; }
+  .cmx-ev__a:hover::before { transform: scaleX(1); }
+  .cmx-ev__a:hover .cmx-ev__go { translate: 3px -3px; color: var(--green-text); }
+}
+.cmx-ev__a:focus-visible { outline-offset: -2px; padding-left: 16px; }
+.cmx-ev__a:focus-visible::before { transform: scaleX(1); }
+
+/* ================================================================ 4 · the Legion: the dark band, one big statement */
+.cmx-legion { margin-top: clamp(120px, 18vh, 208px); background: var(--band); color: var(--paper-0); }
+.cmx-legion :focus-visible { outline-color: var(--paper-0); }
+.cmx-legion__in { display: flex; flex-direction: column; align-items: flex-start; gap: clamp(24px, 3.6vh, 40px); padding: clamp(104px, 17vh, 200px) var(--gut) clamp(80px, 12vh, 136px); }
+.cmx-legion__h { font-size: clamp(3rem, 1.2rem + 6vw, 7.25rem); line-height: 0.98; letter-spacing: -0.034em; }
+.cmx-legion__h .accent { font-size: 1.3em; }
+.cmx-legion__body { max-width: 25em; margin-top: clamp(8px, 2vh, 24px); font-family: var(--text); font-size: var(--t-statement); line-height: 1.16; letter-spacing: -0.02em; text-wrap: pretty; }
+.cmx-legion__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 32px; align-self: stretch;
+  margin-top: clamp(24px, 5vh, 56px); padding-top: 28px; border-top: var(--hair) solid rgb(245 244 241 / 0.2); }
+.cmx-legion__stat { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; font-size: var(--t-lede); line-height: 1.35; color: rgb(245 244 241 / 0.86); }
+
+/* ================================================================ 5 · socials: the channels with the site's dot icons, three across */
+.cmx-socials__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 48px; }
+.cmx-socials__head .cmx-lede { max-width: 20em; }
+.cmx-ch { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: clamp(48px, 7vh, 80px); }
+.cmx-ch__a { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ic ic" "name name" "line line" "cta cta"; align-content: start; gap: 8px;
+  height: 100%; padding: clamp(28px, 4vh, 40px) 24px; transition: background-color 0.3s var(--ease-tick); }
+@media (hover: hover) { .cmx-ch__a:hover { background: var(--paper-1); } }
+/* the dot icon (../../v3/header/icons.ts): rests as dots, draws into lines; 40 px so it reads, not an afterthought */
+.cmx-ch__ic { grid-area: ic; display: block; width: 40px; height: 40px; margin-bottom: clamp(20px, 3vh, 32px); line-height: 0; font-style: normal; color: var(--ink); }
+.cmx .ic { display: block; width: 100%; height: 100%; overflow: visible; }
+.cmx .ic-ln * { fill: none; stroke: currentColor; stroke-width: var(--ic-sw, 1.25); stroke-linecap: round; stroke-linejoin: round; }
+.cmx .ic-dots circle, .cmx .ic-f { fill: currentColor; stroke: none; }
+.cmx .ic-g { fill: var(--emerald); stroke: none; transform-box: fill-box; transform-origin: center; }
+.cmx-ch__name { grid-area: name; font-family: var(--text); font-size: clamp(1.5rem, 1.15rem + 1.05vw, 2.25rem); line-height: 1.05; letter-spacing: -0.022em; }
+.cmx-ch__line { grid-area: line; max-width: 22em; font-size: var(--t-small); line-height: 1.45; color: var(--graphite); }
+.cmx-ch__cta { grid-area: cta; display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font: 500 var(--t-small)/1.2 var(--sans); color: var(--ink); white-space: nowrap; }
+@media (hover: hover) {
+  .cmx-ch__a:hover .cmx-ch__cta .cmx-ext { translate: 3px -3px; }
+  .cmx-ch__a:hover .cmx-ch__cta { color: var(--green-text); }
+}
+.cmx-also { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; margin-top: 28px; font-size: var(--t-small); color: var(--muted); }
+
+/* ================================================================ 6 · ways to get involved: four short ways, text only */
+.cmx-ways__h { max-width: 12em; }
+.cmx-ways__list { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: clamp(48px, 7vh, 80px); }
+.cmx-way { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; height: 100%; padding: 28px 24px 32px; }
+.cmx-way__ic { display: block; width: 40px; height: 40px; margin-bottom: 20px; color: var(--ink); }
+.cmx-way__t { font-size: var(--t-h3); line-height: 1.12; letter-spacing: -0.015em; }
+.cmx-way__b { max-width: 22em; color: var(--graphite); text-wrap: pretty; }
+.cmx-way__cta { margin-top: auto; padding-top: 8px; }
+
+/* ================================================================ 7 · the FAQ: a quiet accordion */
+.cmx-faq { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px clamp(40px, 6vw, 112px); align-items: start; }
+.cmx-faq__head { display: flex; flex-direction: column; gap: 24px; }
+.cmx-faq__head .cmx-h2 { max-width: 7em; }
+.cmx-faq__note { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; max-width: 24em; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.cmx-faq__list { border-top: var(--hair) solid var(--line-strong); interpolate-size: allow-keywords; }
+.cmx-qa { border-bottom: var(--hair) solid var(--line-strong); }
+.cmx-qa__q { display: grid; grid-template-columns: minmax(0, 1fr) 20px; align-items: baseline; gap: 16px; padding: clamp(20px, 2.8vh, 28px) 0; cursor: pointer; list-style: none; }
+.cmx-qa__q::-webkit-details-marker { display: none; }
+.cmx-qa__t { font-family: var(--text); font-size: clamp(1.1875rem, 1rem + 0.55vw, 1.5rem); line-height: 1.25; letter-spacing: -0.012em; transition: color 0.2s; }
+.cmx-qa__x { position: relative; align-self: center; width: 16px; height: 16px; }
+.cmx-qa__x::before, .cmx-qa__x::after { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 1.5px; margin-top: -0.75px; background: currentColor;
+  transition: transform 0.4s var(--ease-settle); }
+.cmx-qa__x::after { transform: rotate(90deg); }
+.cmx-qa[open] .cmx-qa__x::after { transform: rotate(0deg); }
+.cmx-qa[open] .cmx-qa__x::before { transform: rotate(180deg); }
+.cmx-qa__q:focus-visible { outline-offset: 2px; }
+@media (hover: hover) { .cmx-qa__q:hover .cmx-qa__t { color: var(--green-text); } }
+.cmx-qa__a { padding: 0 36px clamp(24px, 3.4vh, 32px) 0; }
+.cmx-qa__a p { max-width: 36em; font-size: var(--t-lede); line-height: 1.5; color: var(--graphite); text-wrap: pretty; }
+/* the answer opens (where the browser can animate a details' content) */
+.cmx-qa::details-content { block-size: 0; overflow: clip; transition: block-size 0.45s var(--ease-settle), content-visibility 0.45s allow-discrete; }
+.cmx-qa[open]::details-content { block-size: auto; }
+
+/* ================================================================ tablets */
+@media (max-width: 1099px) {
+  .cmx-ways__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cmx-ch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ================================================================ phones and portrait tablets */
+@media (max-width: 859px) {
+  .cmx-hero { grid-template-columns: minmax(0, 1fr); }
+  .cmx-hero__art { justify-self: start; width: min(80%, 340px); }
+  .cmx-stats__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cmx-stat { padding: 24px 16px; }
+  .cmx-way { padding: 24px 16px 28px; }
+  .cmx-events, .cmx-faq { grid-template-columns: minmax(0, 1fr); }
+  .cmx-sticky { position: static; }
+  .cmx-ev__a { grid-template-columns: minmax(0, 1fr) 16px; gap: 6px 14px; }
+  .cmx-ev__d { grid-column: 1; font-size: var(--t-small); }
+  .cmx-ev__main { grid-column: 1; }
+  .cmx-ev__go { grid-column: 2; grid-row: 1 / span 2; }
+  .cmx-ways__list { grid-template-columns: minmax(0, 1fr); }
+  .cmx-ch { grid-template-columns: minmax(0, 1fr); }
+  .cmx-ch__a { padding: 28px 16px; }
+  .cmx-ch__ic { width: 36px; height: 36px; margin-bottom: 16px; }
+  .cmx-qa__a { padding: 0 0 24px; }
+  .cmx-legion__foot { flex-direction: column; align-items: flex-start; }
+}
+
+/* ================================================================ motion (motion.ts sets data-motion; reduced motion never does) */
+:where(.cmx[data-motion]) [data-rv]:not(.is-in) { opacity: 0; translate: 0 24px; }
+:where(.cmx[data-motion]) [data-rv].is-in { transition: opacity 0.9s var(--ease-glide) calc(0.05s + var(--rv, 0) * 0.09s), translate 1.1s var(--ease-settle) calc(0.05s + var(--rv, 0) * 0.09s); }
+:where(.cmx[data-motion]) [data-rv].is-now { transition: none; }
+/* the Legion's statement: each word between faint and paper (--k, scrubbed) */
+.cmx-legion__body.is-wipe .cmx-ww { color: color-mix(in srgb, var(--paper-0) calc(38% + var(--k, 0) * 62%), var(--band)); }
+/* the hero's line is hidden for the instant before its words are split (a safety brings it back if the script never runs) */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .cmx:not([data-motion]) [data-rise="now"] { opacity: 0; animation: cmx-safe 0s linear 2.5s forwards; }
+}
+@keyframes cmx-safe { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .cmx *, .cmx *::before, .cmx *::after { transition-duration: 0.01ms !important; }
+}

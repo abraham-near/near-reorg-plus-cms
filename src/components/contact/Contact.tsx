@@ -3,7 +3,8 @@
 // and where else to find NEAR. Scoped under .ct (contact.css), on top of the blog's tokens and pieces (v3/blog/blog.css: .bl, .bl-btn, .bl-link, .accent)
 // and Blog J's (v3/blog/j/blog-j.css: .bj-h1, .bj-field, .bj-lbl, .bj-err …).
 //   - two columns on desktop: on the left the about (heading with one Kepler accent word, a short lede) and, at the column's foot, the social links;
-//     on the right the form in a calm panel (paper-1, no lines but the fields'). Below 900 one column: about, form, social links.
+//     on the right the form on the homepage's ruled grid (a full-width head cell, then a cell per field, + at the corners). Below 900 one column:
+//     about, form, social links.
 //   - the form: name, email, topic, message. Checked here only (required, an email pattern, a few words); errors inline under each field, focus to the
 //     first; success in place, over the fields (no layout shift). There is no backend: nothing is sent, and the success says so. ?topic= presets the topic.
 //   - the social links: real, public accounts only; small line marks drawn here (not the brands' logos), each opens another site.
@@ -123,9 +124,9 @@ export function ContactBand() {
           </div>
         </section>
 
-        {/* ── the form, in its panel ── */}
+        {/* ── the form, on the ruled grid: the head cell, then a cell per field ── */}
         <section id="ct-write" className="ct-panel" aria-labelledby="ct-write-t" data-in="" style={{ ["--d" as string]: "0.25s" }}>
-          <div className="ct-panel__head">
+          <div className="ct-cell ct-panel__head">
             <h2 id="ct-write-t" className="ct-panel__t">Write to us</h2>
             <p className="ct-panel__s">Every field is required.</p>
           </div>

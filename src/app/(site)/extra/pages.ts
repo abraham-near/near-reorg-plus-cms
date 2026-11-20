@@ -6,14 +6,24 @@ export type Group = { id: string; title: string; note: string; pages: Extra[] };
 
 export const GROUPS: Group[] = [
   {
+    id: "home",
+    title: "Homepage",
+    note: "Homepage versions that were not chosen. The homepage (/) is home v9, the still headline; home v7, the film hero, is at /home-v7 on /index.",
+    pages: [
+      { href: "/home-v10", n: "v10", name: "Home · Stack second", note: "Home v8 with the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\"), then the same lower page.", tags: ["Type-only hero", "Stack second", "Branch Stack-Second"], img: "/extra/home-v10.webp" },
+      { href: "/home-v8", n: "v8", name: "Home · cycling word", note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it, on the same lower page. The homepage Nov 19–20, until v9 was chosen again.", tags: ["Type-only hero", "Cycling word", "Not chosen"], img: "/extra/home-v8.webp" },
+    ],
+  },
+  {
     id: "blog",
     title: "Blog",
-    note: "The blog index (near.org/blog), four versions: A is the live /blog; B and D are the October 2026 Figma's two blog frames (2026_10_Near_Web, nodes 980:723 and 756:41); C is B on the homepage's soft ruled grid. All list the CMS's live posts, then the Go deeper reads, stories and talks.",
+    note: "The blog index (near.org/blog), five versions: E is the live /blog (Lawrence's choice, tabs over a grid); A is the previous /blog (direction J); B and D are the October 2026 Figma's two blog frames (2026_10_Near_Web, nodes 980:723 and 756:41); C is B on the homepage's soft ruled grid. All list the CMS's live posts, then the Go deeper reads, stories and talks.",
     pages: [
-      { href: "/blog", n: "A", name: "Blog · Reading rail", note: "The live blog (direction J): the ruled head, a sticky rail with search, type, sort and view, the posts as open cards or rows, the state in the URL.", tags: ["Live", "Sticky rail", "Grid or list"], img: "/extra/blog-a.webp", featured: true },
+      { href: "/blog-index-a", n: "A", name: "Blog · Reading rail", note: "The previous /blog (direction J): the ruled head, a sticky rail with search, type, sort and view, the posts as open cards or rows, the state in the URL.", tags: ["Was /blog", "Sticky rail", "Grid or list"], img: "/extra/blog-a.webp" },
       { href: "/blog-index-b", n: "B", name: "Blog · Figma, featured", note: "Figma node 980:723: the heading with search, type chips, a large featured post beside three numbered rows with thumbnails, then boxed cards three to a row and numbered pages.", tags: ["Figma", "Featured + list", "Boxed cards"], img: "/extra/blog-b.webp" },
       { href: "/blog-index-c", n: "C", name: "Blog · Figma on the grid", note: "B's layout on the homepage's ruled grid, kept light: hairline columns and crosshairs at the joins instead of boxes, open cards in the cells.", tags: ["Figma", "Soft ruled grid", "Homepage hand"], img: "/extra/blog-c.webp" },
       { href: "/blog-index-d", n: "D", name: "Blog · Figma, lead card", note: "Figma node 756:41: a type menu and search over one wide lead card (photo | text), then the type chips, boxed cards three to a row and numbered pages.", tags: ["Figma", "Lead card", "Type menu"], img: "/extra/blog-d.webp" },
+      { href: "/blog", n: "E", name: "Blog · Tabs over a grid", note: "The live blog (Lawrence's choice): the heading with a short line at its right, one lead post (photo left, text right), then text tabs (All, Blog, Press, Watch) with their counts over cards three to a row, nine at a time with Show more. The CMS's posts first, with their dates; the Go deeper items in black and white.", tags: ["Live", "Type tabs", "Lead + grid"], img: "/extra/blog-e.webp", featured: true },
     ],
   },
   {
@@ -31,63 +41,80 @@ export const GROUPS: Group[] = [
   {
     id: "analytics",
     title: "Analytics",
-    note: "near.org/analytics in the official pages' hand (the homepage, Blog J), five versions of the doc's lean overview; C is /analytics, in the menu. Sample figures: no live feed yet.",
+    note: "near.org/analytics in the official pages' hand (the homepage, Blog J), five versions of the doc's lean overview, and X, the MVP. X is /analytics, in the menu (since Nov 19, 2026; C, the menu's before it, is at /analytics-c). Sample figures: no live feed yet. It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",
     pages: [
       { href: "/analytics-a", n: "A", name: "Analytics · Overview", note: "The doc read literally on the ruled grid: three core stats, the revenue and status cards side by side, the tools, SVRN and the ETPs. Quiet motion: rows draw in, numbers count up once.", tags: ["Ruled grid", "Top 3 stats", "Quiet"], img: "/extra/analytics-a.webp" },
       { href: "/analytics-b", n: "B", name: "Analytics · Instrument panel", note: "Mono and tabular: all five stats in a ticker beside the headline, a revenue chart with a crosshair readout, status.near.org-style uptime bars with tooltips, the tools as a dense table.", tags: ["Ticker", "Chart readouts", "Uptime bars"], img: "/extra/analytics-b.webp" },
-      { href: "/analytics", n: "C", name: "Analytics · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: the doc's page as rows of cells with crosshairs, mono labels and the Kepler accent; revenue and network health side by side on the paper.", tags: ["Ruled grid", "Homepage hand"], img: "/extra/analytics-c.webp", featured: true },
+      { href: "/analytics-c", n: "C", name: "Analytics · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: the doc's page as rows of cells with crosshairs, mono labels and the Kepler accent; revenue and network health side by side on the paper.", tags: ["Ruled grid", "Homepage hand"], img: "/extra/analytics-c.webp" },
       { href: "/analytics-d", n: "D", name: "Analytics · Drawn", note: "NEAR Foundation's isometric hand: the numbers and the products told with line drawings that build as you scroll.", tags: ["Iso drawings", "Foundation hand"], img: "/extra/analytics-d.webp" },
       { href: "/analytics-e", n: "E", name: "Analytics · Editorial", note: "The homepage's big type and dark bands (the Stack, the Council): a calm editorial read with one dark band for the network.", tags: ["Editorial", "Dark band"], img: "/extra/analytics-e.webp" },
+      { href: "/analytics", n: "X", name: "Analytics · MVP", note: "D simplified for the MVP: mostly copy, two drawings kept (hero plinth, Go deeper hub) as placeholders, no eyebrows or numerals, the homepage's ruled grid from the stats down (heads, Go deeper and the products included), two dot icons.", tags: ["MVP", "Drawn, simplified", "Grid"], img: "/extra/analytics-x.webp", featured: true },
     ],
   },
   {
     id: "community",
     title: "Community",
-    note: "near.org/community from the October 2026 doc (Revamp: Layout & Copy), three versions in the official pages' hand. Sample figures and events until the real ones and the Luma feed are in. B is /community, in the menu.",
+    note: "near.org/community from the October 2026 doc (Revamp: Layout & Copy), three versions in the official pages' hand. Sample figures and events until the real ones and the Luma feed are in. X is /community, in the menu (since Nov 19, 2026; B, the menu's before it, is at /community-b). It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",
     pages: [
       { href: "/community-a", n: "A", name: "Community · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: stats, events, the Legion, socials and the ways in as rows of cells with crosshairs.", tags: ["Ruled grid", "Homepage hand"], img: "/extra/community-a.webp" },
-      { href: "/community", n: "B", name: "Community · Drawn", note: "NEAR Foundation's isometric hand: the community as line drawings (people, places, events) that build as you scroll.", tags: ["Iso drawings", "Foundation hand"], img: "/extra/community-b.webp", featured: true },
+      { href: "/community-b", n: "B", name: "Community · Drawn", note: "NEAR Foundation's isometric hand: the community as line drawings (people, places, events) that build as you scroll.", tags: ["Iso drawings", "Foundation hand"], img: "/extra/community-b.webp" },
       { href: "/community-c", n: "C", name: "Community · Editorial", note: "The homepage's big type, photos that bleed and a dark band for the Legion: a warm editorial page.", tags: ["Editorial", "Dark band"], img: "/extra/community-c.webp" },
+      { href: "/community", n: "X", name: "Community · MVP", note: "C made more typographic for the MVP: no eyebrows or numerals, no grid near the header, the homepage's ruled grid round the figures, the channels and the ways, an isometric drawing of crews joined by threads in the hero, the site's dot icons on the channels.", tags: ["MVP", "Typographic", "Grid"], img: "/extra/community-x.webp", featured: true },
     ],
   },
   {
     id: "history",
     title: "History",
-    note: "near.org/history (History, \"From 2017 to now\" in the menu), three versions in the official pages' hand. The October 2026 doc has no copy for it: the timeline is near.org/roadmap-history's milestones, the rest adapted from the doc's Anthem Video beats (components/history/content.ts). C is /about, in the menu.",
+    note: "near.org/history (History, \"From 2017 to now\" in the menu), three versions in the official pages' hand. The October 2026 doc has no copy for it: the timeline is near.org/roadmap-history's milestones, the rest adapted from the doc's Anthem Video beats (components/history/content.ts). X is /history, in the menu (since Nov 19, 2026; C, the menu's before it, is at /history-c). It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",
     pages: [
       { href: "/history-a", n: "A", name: "History · Ruled grid", note: "The homepage's ruled grid and Blog J's ruled hero: an index of years, then the timeline as a ledger of entries in four chapters, with a green marker that runs down it as you read.", tags: ["Ruled grid", "Ledger", "Homepage hand"], img: "/extra/history-a.webp" },
       { href: "/history-b", n: "B", name: "History · Drawn", note: "NEAR Foundation's isometric hand: ten years as line drawings that build as you scroll, a road of years climbing to now, and today's stack on the dark.", tags: ["Iso drawings", "Foundation hand", "Timeline"], img: "/extra/history-b.webp" },
-      { href: "/history", n: "C", name: "History · Editorial", note: "The homepage's big type: the bw whiteboard bleeding into the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band.", tags: ["Editorial", "Sticky year", "Dark band"], img: "/extra/history.webp", featured: true },
+      { href: "/history-c", n: "C", name: "History · Editorial", note: "The homepage's big type: the bw whiteboard bleeding into the origin essay, a sticky year that rolls as each milestone passes, the stack on a dark band.", tags: ["Editorial", "Sticky year", "Dark band"], img: "/extra/history.webp" },
+      { href: "/history", n: "X", name: "History · MVP", note: "MVP from the review: the years as a short sideways story after the homepage's rail (pinned, three at a time: the year on show at the centre with its text, its neighbours faint), a type-only hero, a plain Origin, Today on the ruled grid, no Ahead.", tags: ["MVP", "Rail", "Grid"], img: "/extra/history-x.webp", featured: true },
     ],
   },
   {
     id: "economics",
     title: "Economics",
-    note: "near.org/economics from the October 2026 doc, three versions in the official pages' hand. Copy verbatim (components/economics/content.ts); no moving figures, by the doc's design: live numbers stay at revenue.near.org. A is /economics, in the menu.",
+    note: "near.org/economics from the October 2026 doc, three versions in the official pages' hand. Copy verbatim (components/economics/content.ts); no moving figures, by the doc's design: live numbers stay at revenue.near.org. X is /economics, in the menu (since Nov 19, 2026; A, the menu's before it, is at /economics-a). It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",
     pages: [
-      { href: "/economics", n: "A", name: "Economics · Ruled grid", note: "The homepage's ruled grid: the four facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, one asset on the dark band.", tags: ["Ruled grid", "Scroll diagram", "Proof strip"], img: "/extra/economics-a.webp", featured: true },
+      { href: "/economics-a", n: "A", name: "Economics · Ruled grid", note: "The homepage's ruled grid: the four facts as the proof strip, the loop drawn as four cells and a ring that lights step by step as you scroll, one asset on the dark band.", tags: ["Ruled grid", "Scroll diagram", "Proof strip"], img: "/extra/economics-a.webp" },
       { href: "/economics-b", n: "B", name: "Economics · Drawn", note: "NEAR Foundation's isometric hand: the economy as a machine, a flywheel that builds station by station as the four steps scroll past, the facts on plinths, two engines feeding the loop.", tags: ["Iso drawings", "Foundation hand", "Flywheel"], img: "/extra/economics-b.webp" },
       { href: "/economics-c", n: "C", name: "Economics · Editorial", note: "The homepage's big type: the four facts as large figures, the loop as a held dark band where a dot travels a ring as each step comes up.", tags: ["Editorial", "Pinned loop", "Dark band"], img: "/extra/economics-c.webp" },
+      { href: "/economics", n: "X", name: "Economics · MVP", note: "A made calm for the MVP: an isometric beside the hero (fees running into the token), the foundation, the loop and the one asset on the homepage's ruled grid, the loop drawn as four isometric stations, the products on a dark band, no eyebrows or numbering.", tags: ["MVP", "Isometric", "Grid"], img: "/extra/economics-x.webp", featured: true },
+    ],
+  },
+  {
+    id: "protocol",
+    title: "Protocol",
+    note: "near.org/protocol (Stack → Protocol in the menu), four versions. B is /protocol, in the menu (since Nov 20, 2026) built like a homepage: a narrative that explains the protocol, with a more elaborate hero than the About and Resources pages. Copy verbatim from the October 2026 doc (components/protocol/content.ts), regrouped for the story. The motion is illustrative, not live data.",
+    pages: [
+      { href: "/protocol-a", n: "A", name: "Protocol · The stack builds", note: "A large isometric of the protocol builds in the hero, then holds while you scroll: a shard fills and splits, the private shard appears, the account key rotates to ML-DSA. Nightshade on the dark band, a drawing for each part, the contract types in.", tags: ["Iso hero", "Pinned story", "Ruled grid"], img: "/extra/protocol-a.webp" },
+      { href: "/protocol", n: "B", name: "Protocol · The network lives", note: "The hero is the network at work on canvas: shard lanes closing a block every 600 ms, the 1.2 s finality line, the private shard, a lane splitting. A pinned dark chapter carries Nightshade, resharding, the private shard and the key rotation on the same lanes.", tags: ["Canvas hero", "Pinned chapter", "Ruled grid"], img: "/extra/protocol-b.webp", featured: true },
+      { href: "/protocol-c", n: "C", name: "Protocol · Read sideways", note: "B's layout with drawings that need no words. The hero is the network as a sphere of dots cut into ten shards and a dark private one, green running through as blocks go final. The dark chapter scrolls sideways through Nightshade, resharding, the private shard and the key swap; Speed is a clock, Chain Signatures a seal flying to its chain.", tags: ["Dot hero", "Sideways chapter", "No labels"], img: "/extra/protocol-c.webp" },
+      { href: "/protocol-d", n: "D", name: "Protocol · The graphic transforms", note: "B's layout with drawings that need no words. The hero is convergence: agents, apps and chains send threads into one point that writes a final ledger. In the dark chapter one isometric of the network transforms as you scroll, like the homepage's Stack; Speed deploys once to every shard, Chain Signatures lands native blocks on three chains.", tags: ["Convergence hero", "Morphing iso", "No labels"], img: "/extra/protocol-d.webp" },
     ],
   },
   {
     id: "solutions",
     title: "Solutions",
-    note: "near.org/solutions (Solutions, \"Explore use cases\" in the menu) from the October 2026 doc's Solutions Hub copy, three versions in the official pages' hand. Copy verbatim (components/solutions/content.ts); the logo wall uses the partner files in the repo, the rest set as names until their logos are in.",
+    note: "near.org/solutions (Solutions, \"Explore use cases\" in the menu) from the October 2026 doc's Solutions Hub copy, three versions in the official pages' hand. Copy verbatim (components/solutions/content.ts); the logo wall uses the partner files in the repo, the rest set as names until their logos are in. X is /solutions, in the menu (since Nov 19, 2026). It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",
     pages: [
       { href: "/solutions-a", n: "A", name: "Solutions · Ruled grid", note: "The homepage's ruled grid as a precise index: the five solutions as ruled rows (number, title, body, builder chips, link) that light as you scroll, Confidential Intents on the dark band, the builders as a ruled logo wall.", tags: ["Ruled grid", "Scroll index", "Logo wall"], img: "/extra/solutions-a.webp" },
       { href: "/solutions-b", n: "B", name: "Solutions · Drawn", note: "NEAR Foundation's isometric hand: each solution a small machine that builds as you scroll (payments crossing chains, agents settling, solvers bidding, a vault rebalancing, an enclave with the host locked out), the private shard under redaction bars.", tags: ["Iso drawings", "Foundation hand", "Builds on scroll"], img: "/extra/solutions-b.webp" },
       { href: "/solutions-c", n: "C", name: "Solutions · Editorial", note: "The homepage's big type and bw photos: the five solutions as chapters whose numeral and title hold while the story passes, the spotlight on a dark band, a quiet logo wall.", tags: ["Editorial", "Sticky chapters", "Dark band"], img: "/extra/solutions-c.webp" },
+      { href: "/solutions", n: "X", name: "Solutions · MVP", note: "A cleaned for the MVP: no kickers or numbering, a calm hero, the solutions and builders on the homepage's ruled grid with room to breathe, Confidential Intents as a dark band between them, dot icons on the solutions, two placeholder drawings from B awaiting Ali.", tags: ["MVP", "Grid", "Dark band"], img: "/extra/solutions-x.webp", featured: true },
     ],
   },
   {
     id: "research",
     title: "Research",
-    note: "near.org/research (Research, \"White paper and protocol work\" in the menu; near.org/papers redirects here), three versions in the official pages' hand. Hero and paper list from the October 2026 doc's Technical Papers note, summaries from the live papers page (components/research/content.ts).",
+    note: "near.org/research (Research, \"White paper and protocol work\" in the menu; near.org/papers redirects here), three versions in the official pages' hand. Hero and paper list from the October 2026 doc's Technical Papers note, summaries from the live papers page (components/research/content.ts). X is /research, in the menu (since Nov 19, 2026). It is the MVP from the Nov 19 review: one version, mostly copy, no eyebrows or numerals, no grid by the header, graphics as placeholders for Ali.",
     pages: [
       { href: "/research-a", n: "A", name: "Research · Ruled grid", note: "The papers as a library catalogue on the ruled grid: topic chips in the hero's bar, one ruled row per paper (number, title and summary, topic, year, source, read).", tags: ["Ruled grid", "Catalogue", "Topic filter"], img: "/extra/research-a.webp" },
       { href: "/research-b", n: "B", name: "Research · Drawn", note: "NEAR Foundation's isometric hand: the four papers drawn as a stack in the hero, then a card grid where each paper's iso cover builds as you scroll, under a topic filter.", tags: ["Iso drawings", "Paper covers", "Topic filter"], img: "/extra/research-b.webp" },
       { href: "/research-c", n: "C", name: "Research · Editorial", note: "A journal and its contents in the homepage's big type: the White Paper as a cover over a bleeding bw photo, the other papers as a ruled list with huge numerals, the user-owned AI papers on the dark band.", tags: ["Editorial", "Contents list", "Dark band"], img: "/extra/research-c.webp" },
+      { href: "/research", n: "X", name: "Research · MVP", note: "A's catalogue made calm for the MVP: a grid-free hero with one placeholder graphic (B's paper stack), the papers as clean ruled rows with real metadata, then keep reading on the same grid, running down into the close; no kickers or numbering.", tags: ["MVP", "Catalogue", "One graphic"], img: "/extra/research-x.webp", featured: true },
     ],
   },
   {

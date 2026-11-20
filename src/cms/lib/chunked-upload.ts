@@ -5,7 +5,6 @@ import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { once } from 'node:events'
 import os from 'node:os'
 import path from 'node:path'
-import { pipeline } from 'node:stream/promises'
 import { Prisma } from '@/generated/prisma/client'
 import { mediaSelect } from '@/cms/components/media/types'
 import { abortStaleUploads, abortUpload, bucketEnabled, completeUpload, createUpload, deleteMedia, headMedia, isNoSuchUpload, listParts, uploadPart } from './bucket'
@@ -280,9 +279,22 @@ async function assemble(ticket: UploadTicket) {
   const tmp = path.join(path.dirname(target), `.${randomBytes(6).toString('hex')}.upload`)
   try {
     const out = createWriteStream(tmp)
-    for (let n = 1; n <= ticket.parts; n++) await pipeline(createReadStream(path.join(dir, String(n))), out, { end: false })
+    let failed: unknown = null
+    out.on('error', (error) => { failed = error })
+    for (let n = 1; n <= ticket.parts && !failed; n++) {
+      for await (const chunk of createReadStream(path.join(dir, String(n)))) {
+        if (failed) break
+        // Wait for room (or for the stream to give up); listeners removed either way, so none pile up over 17 parts.
+        if (!out.write(chunk)) await new Promise<void>((resolve) => {
+          const done = () => { out.off('drain', done); out.off('close', done); resolve() }
+          out.on('drain', done)
+          out.on('close', done)
+        })
+      }
+    }
     out.end()
-    await once(out, 'close')
+    if (!out.closed) await once(out, 'close')
+    if (failed) throw failed
     await rename(tmp, target)
   } catch (error) {
     await rm(tmp, { force: true })

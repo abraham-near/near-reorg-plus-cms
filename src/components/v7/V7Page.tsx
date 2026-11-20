@@ -29,11 +29,13 @@ import "./v7.css";
 import "./rail-v7.css";
 
 // the lower page's photos: literal black and white with one green accent, after the CMS preview's story pictures (D170: Go deeper, the blog's own; D171: the rest; D177: the voices' crowd filming on a phone, in place of D171's ridges; D180: Origin's whiteboard, the Transformer's architecture as in the paper's
-// Figure 1, among 2017-era machines, in place of D171's lab; D199: the close's row of mailboxes, D186's P3 with its green box closed, in place of D171's meadow)
+// Figure 1, among 2017-era machines, in place of D171's lab; D213/D214: the close's stack of mail in a band of daylight, its top letter green, in place of
+// D199's mailboxes (sized and feathered into the paper by v7.css, not cropped))
 const BW = "/images/home/bw";
-const PHOTOS = { deeper: "/images/blog", origin: `${BW}/origin-transformer.webp`, ridges: `${BW}/voices-crowd.webp`, meadow: `${BW}/close-mailboxes.webp` };
+const PHOTOS = { deeper: "/images/blog", origin: `${BW}/origin-transformer.webp`, ridges: `${BW}/voices-crowd.webp`, meadow: `${BW}/close-mail-light.webp` };
 /* Integrate (D206, Lawrence: "integrating on near is building on the blockchain", then "I don't want a phone"): hands at a laptop beside a sketch of an app's parts, not D171's patch panel */
-const PATH_IMG = [`${BW}/paths-trade.webp`, `${BW}/paths-integrate-build.webp`, `${BW}/paths-build.webp`];
+/* Trade (D210, Lawrence picked T1): the same kitchen table, its chart replaced by a green glowing NEAR mark, drawn by the image model from the official icon (paths-trade.webp stays for /solutions-c) */
+const PATH_IMG = [`${BW}/paths-trade-near.webp`, `${BW}/paths-integrate-build.webp`, `${BW}/paths-build.webp`];
 // D179: Lawrence's title for Origin ("helped invent" in v4's copy, which other versions keep)
 const ORIGIN_TITLE = <>Built by the people <span className="l-nb">who invented</span> <span className="l-nb">modern AI</span></>;   // no lone "who" on phones
 /* Integrate's two ways in (D209, Lawrence): NEAR Intents and NEAR AI, each to its own site (PRODUCT.md), in place of the one "Integration docs" link */
@@ -51,21 +53,25 @@ const ORIGIN_RATIO = "4/3" as const;   /* v5's Origin photo (revenue option A's 
  *  top: "private" (home v8, Lawrence's branch NEAR-is-private-CYCLE, D200): the hero and the intro merged into one type-only section (./private), in place of both;
  *  "privacy" (home v9, branch NEAR-is-privacy-HEADLINE, D202): the same section with one still headline and two sentences under it.
  *  With `top`, the page below is those branches' too: the signed identity in the rail (D189), Origin above Go deeper (D179), the black-and-white photos
- *  (D170, D171), the voices one at a time (D190) and the mailboxes (D199), and the Stack list's animated icons (D204); html[data-v7="priv"] scopes their
- *  styles (./v7.css). Without it: home v7 as on main */
-export function V7Page({ tx, st, hero, voices, origin, close, top }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy" } = {}) {
+ *  (D170, D171), the voices one at a time (D190) and the stack of mail (D214), and the Stack list's animated icons (D204); html[data-v7="priv"] scopes their
+ *  styles (./v7.css). Without it: home v7 as on main;
+ *  privHero: with `top`, another hero in place of the type-only one (the cycling hero studies, D224; local pages under /home-v7/heroes/cycle);
+ *  stackFirst (home v10, D239): the Stack right after the hero, then Real Usage (the revenue band, out of the lower page), then the rail; the rail ends with
+ *  no tide (exit "none") and the Stack comes in on its own (no tide to rise under) */
+export function V7Page({ tx, st, hero, voices, origin, close, top, privHero, stackFirst = false }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy"; privHero?: React.ReactNode; stackFirst?: boolean } = {}) {
   const priv = !!top;
   const photos = { ...(priv ? PHOTOS : {}), ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) };
   const deeper = priv
-    ? { ...DEEPER, lead: <RevenueD flat />, voicesMode: "timer" as const, voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO, originFirst: true, scope: "v7", photos }
+    ? { ...DEEPER, lead: stackFirst ? undefined : <RevenueD flat />, voicesMode: "timer" as const, voicesSlot: <VoicesOne />, originRatio: ORIGIN_RATIO, originFirst: true, scope: "v7", photos }
     : { ...V4_DEEPER, lead: <RevenueD flat />, voicesMode: "timer" as const, originRatio: ORIGIN_RATIO, scope: "v7", photos };
   return (
     <>
       {/* as v5: no globe, and v5's style scope; v8 and v9 (top) also html[data-v7="priv"] */}
       <InlineScript html={`document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')${priv ? ";document.documentElement.setAttribute('data-v7','priv')" : ""}`} />
-      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} /> : <WorldV7 tx={tx} st={st} hero={hero} />}
-        rail={<RailV4 exit="wipe" steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity={priv ? "sign" : undefined} />}
-        stack={<StackV4 still steps stick enter="tide" icons={priv} art={<><StackArtV7 look="matte" /><StackEnterV7 />{priv && <StackIconsV7 />}</>} />}
+      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? (privHero ?? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} />) : <WorldV7 tx={tx} st={st} hero={hero} />}
+        stackFirst={stackFirst} between={stackFirst ? <div className="l-page" data-scope="v7"><RevenueD flat /></div> : undefined}
+        rail={<RailV4 exit={stackFirst ? "none" : "wipe"} steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity={priv ? "sign" : undefined} />}
+        stack={<StackV4 still steps stick enter={stackFirst ? undefined : "tide"} icons={priv} art={<><StackArtV7 look="matte" />{!stackFirst && <StackEnterV7 />}{priv && <StackIconsV7 />}</>} />}
         afterStack={<ProofDeeper content={deeper} />} footer={<V3Footer />} />
     </>
   );

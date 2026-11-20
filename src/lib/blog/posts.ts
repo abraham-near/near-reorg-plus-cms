@@ -15,12 +15,12 @@ const TAG = { posts: "cms:posts", post: (slug: string) => `cms:post:${slug}`, ca
 export type Pic = { src: string; w: number | null; h: number | null; alt: string };
 export type Term = { name: string; slug: string };
 /** `video`: a video post's video (lib/blog/video.ts), null for an article */
-export type PostCard = { slug: string; title: string; excerpt: string | null; image: Pic | null; publishedAt: string; author: string | null; category: Term | null; video: Video | null };
+export type PostCard = { slug: string; title: string; excerpt: string | null; image: Pic | null; publishedAt: string; author: string | null; category: Term | null; tags: Term[]; video: Video | null };
 export type LivePost = PostCard & {
   visibility: "PUBLIC" | "UNLISTED";
   updatedAt: string;
   metaTitle: string | null; metaDescription: string | null; metaImage: string | null;
-  categories: Term[]; tags: Term[];
+  categories: Term[];
   html: string; sections: Section[]; readMin: number; summary: string; notes: string[];
   takeaways: string[]; layout: string | null;
 };
@@ -51,6 +51,7 @@ const cardSelect = {
   slug: true, title: true, excerpt: true, featuredImage: true, publishedAt: true, createdAt: true, video: true,
   author: { select: { name: true } },
   categories: { orderBy: { position: "asc" }, select: { category: { select: { name: true, slug: true } } } },
+  tags: { orderBy: { name: "asc" }, select: { name: true, slug: true } },   // the index filters by them (D244)
 } satisfies Prisma.PostSelect;
 
 type CardRow = Prisma.PostGetPayload<{ select: typeof cardSelect }>;
@@ -62,17 +63,17 @@ const videoOf = (value: string | null, media: Record<string, MediaInfo>): Video 
 
 const toCard = (p: CardRow, media: Record<string, MediaInfo>): PostCard => ({
   slug: p.slug, title: p.title, excerpt: p.excerpt, image: pic(p.featuredImage, media),
-  publishedAt: (p.publishedAt ?? p.createdAt).toISOString(), author: p.author?.name ?? null, category: p.categories[0]?.category ?? null,
+  publishedAt: (p.publishedAt ?? p.createdAt).toISOString(), author: p.author?.name ?? null, category: p.categories[0]?.category ?? null, tags: p.tags,
   video: videoOf(p.video, media),
 });
 
-/** live PUBLIC posts, newest first (the index and every post's "more posts") */
+/** every live PUBLIC post, newest first (the index and every post's "more posts"); all of them, since the index searches, filters and pages them in the browser */
 export async function getLivePosts(): Promise<PostCard[]> {
   "use cache";
   cacheTag(TAG.posts, TAG.categories);
   const now = new Date();
   const [rows, next] = await Promise.all([
-    db.post.findMany({ where: { ...liveWhere(now), visibility: "PUBLIC" }, orderBy: [{ publishedAt: "desc" }, { id: "asc" }], take: 200, select: cardSelect }),
+    db.post.findMany({ where: { ...liveWhere(now), visibility: "PUBLIC" }, orderBy: [{ publishedAt: "desc" }, { id: "asc" }], select: cardSelect }),
     db.post.findFirst({ where: { status: "PUBLISHED", visibility: "PUBLIC", publishedAt: { gt: now } }, orderBy: { publishedAt: "asc" }, select: { publishedAt: true } }),
   ]);
   lifeUntil(next?.publishedAt);
@@ -89,7 +90,6 @@ export async function getLivePost(slug: string): Promise<LivePost | null> {
     where: { slug, status: "PUBLISHED" },
     select: {
       ...cardSelect, body: true, visibility: true, updatedAt: true, metaTitle: true, metaDescription: true, metaImage: true, takeaways: true, layout: true,
-      tags: { orderBy: { name: "asc" }, select: { name: true, slug: true } },
     },
   });
   // scheduled: not there yet, and the entry lasts only until it is
@@ -101,7 +101,7 @@ export async function getLivePost(slug: string): Promise<LivePost | null> {
     ...toCard(p, media),
     visibility: p.visibility, updatedAt: p.updatedAt.toISOString(),
     metaTitle: p.metaTitle, metaDescription: p.metaDescription, metaImage: p.metaImage,
-    categories: p.categories.map((c) => c.category), tags: p.tags,
+    categories: p.categories.map((c) => c.category),
     html: body.html, sections: body.sections, readMin: body.readMin, summary: body.summary, notes: body.notes,
     takeaways: p.takeaways.filter((t) => t.trim()).slice(0, 3), layout: p.layout,
   };

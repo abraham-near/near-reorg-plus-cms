@@ -87,6 +87,9 @@ const ST: Stair = { dw: 0.18, dl: 0.42, dur: 1.5, span: 3.6 };           /* the 
 const STT: Stair = { dw: 0.3, dl: 0, dur: 1.5, span: 2.4 };              /* the station title's ("Own your data.") */
 const STP: Stair = { dw: 0.16, dl: 0.55, dur: 1.6, span: 5.1 };          /* the problem paragraph's (bottom -> top, word by word) */
 const SCREENS = () => TOTAL * (innerWidth <= 760 ? RATE.m : RATE.d);
+/* exit "none" (home v10, D239: the Stack comes before the rail, so nothing follows it to turn dark into): no tide; the timeline ends a beat after identity
+   has left (95.2) and the pin lets go, the line and its tile scrolling away with the section */
+const OPEN_END = 97;
 const NB = 16;
 const FDS = 0.2;
 const RU = { step: 12, y0: 4, s: 6, a: 0.2 };                            /* the ruler: one tick every RU.step px of the world, RU.y0 under the line, RU.s long, alpha RU.a */
@@ -165,6 +168,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   const sec = document.querySelector<HTMLElement>(".layer"); if (!sec) return null;
   /* how the tide closes the world into the Stack: "dots" (v1 / v3: the lattice's dots grow and merge) or, without dots (v4's options), "floor" | "frame" | "seam" | "ruler" */
   const EXIT = sec.dataset.exit || "dots";
+  const OPEN = EXIT === "none", END = OPEN ? OPEN_END : TOTAL;   /* D239 */
   /* v4 (.layer[data-line="ink"]): the line and its sweep's dots in ink, not green (no green on the line yet), and the ruler's ticks draw in from both ends
      (the frontend's, the backend's) and meet under the node as the section arrives */
   const INKLINE = sec.dataset.line === "ink", LINE_C = INKLINE ? INK : GREEN;
@@ -191,7 +195,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
 
   /* the animated state (everything the timeline moves that is not an item). gy / gq: the background world's turn and exit (rail/railglobe.ts) */
   /* own: the problem's drawing becomes the user's (v5); ik: how far the ink line reaches (world vw; v5 keeps it across the screen while the world slides to the problem) */
-  const S = { enter: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gp: 0, rk: 1, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
+  const S = { enter: 0, ink: 0, wv: 50, pt: 0, dock: 0, nx: 0, mark: 0, finS: 1.14, sd: [0, 0, 0, 0], va: [0, 0, 0, 0], tk: 0, tg: 0, gf: 100, pf: 0, gp: 0, rk: 1, gy: 0, gq: 0, ga: 0, own: 0, ik: SPLIT ? RAIL.end : 0 };
   const M = {} as Metrics;
   let R: Stage | null = null, field: Field | null = null, toneImg: Tone | null = null, P: Lattice | null = null, RGl: RailGlobe | null = null;
   const items: Item[] = [];
@@ -229,9 +233,11 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
   /* ───────────────────────────── the stage (DOM) ───────────────────────────── */
   function buildStage(copy: Copy): Stage {
     const stage = document.createElement("div"); stage.className = "rs"; stage.setAttribute("aria-hidden", "true");
-    /* v5: the answer runs on three lines ("On NEAR, that stack" / "is user-owned," / "from inference to settlement."): the break goes before the mid's last word,
-       so the marked phrase stays whole on the second line. The second line is its own span (the spans are inline-blocks: a <br> inside .rest2 would indent it under "NEAR") */
-    const mm = SPLIT ? copy.mid.match(/^(.*?)(\s*)(\S+)(\s*)$/) : null;
+    /* The answer runs on two lines ("On NEAR, that stack is yours," / "from inference to settlement.", D238). v5 used to break it into three, before the mid's last word
+       ("On NEAR, that stack" / "is user-owned," / …); with the short mark "yours" that left "is yours," alone, so the split is off (ANS3). Kept for a longer mark:
+       the second line is its own span (the spans are inline-blocks: a <br> inside .rest2 would indent it under "NEAR") */
+    const ANS3 = false;
+    const mm = SPLIT && ANS3 ? copy.mid.match(/^(.*?)(\s*)(\S+)(\s*)$/) : null;
     const ansTail = `<span class="rs__mk">${TX(copy.owned)}</span>${TX(copy.tail)}`;
     const ansNear = NEAROUT ? `<span class="nw">${TX("NEAR")}</span>` : "";   /* v6: the answer's NEAR is a word of its own (the spacer stays, 0 wide) */
     const ansRest = mm
@@ -575,11 +581,13 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     const h = M.playHW - 1;
     return [S.pf >= 0.81 ? h : 0, S.pf >= 0.31 ? h : 0];
   };
-  const inkReach = () => (INKLINE ? (M.W / 2 + 8) * inOut3(clamp(S.enter / 0.92, 0, 1)) : 0);
+  /* D223: the two runs close on their own clock once the line comes on the screen (S.ink, its own tween at mount), not on the scroll: they used to wait,
+     half-met, until the reader scrolled on */
+  const inkReach = () => (INKLINE ? (M.W / 2 + 8) * S.ink : 0);
   function drawRuler(c: CanvasRenderingContext2D, it: Item, ed: Edges) {
     const fade = 1 - s01(S.tk * 4); if (fade < 0.01) return;
     const { cx, Xc, Y0 } = M, k0 = Math.ceil((Xc - cx - 2) / RU.step), k1 = Math.floor((Xc + cx + 2) / RU.step), y = Math.round(Y0) + RU.y0;
-    /* ink line: the ticks come in from both ends with the arrival (S.enter), the two fronts meeting under the node; a few ticks at each front stand taller and darker */
+    /* ink line: the ticks come in from both ends (S.ink), the two fronts meeting under the node; a few ticks at each front stand taller and darker */
     const reach = inkReach(), FR = 54;
     const front: number[] = [];
     for (let k = k0; k <= k1; k++) {
@@ -587,7 +595,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
       let q: number;
       if (INKLINE) {
         const fromEnd = Math.min(x, M.W - x), ahead = reach - fromEnd; if (ahead <= 0) continue;
-        q = 15; if (S.enter < 0.999 && ahead < FR) front.push(x, 1 - ahead / FR);
+        q = 15; if (S.ink < 0.999 && ahead < FR) front.push(x, 1 - ahead / FR);
       } else { q = Math.round(cov(it, ed, x)[0] * 15); if (q < 1) continue; }
       TBs[q].push(x);
     }
@@ -965,13 +973,15 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     to(I.fin, { a: 0, duration: 2.0, ease: "none" }, ID_OUT);
     /* 95.8 - 106.3 THE WORLD BECOMES THE STACK: S.tk the cells under the line darken and merge from just under the centre outwards; S.tg the tide: the dark rises from the line as a straight edge,
        carrying the line and the node, until the line has left the top. The Stack slides in under the last TR.ov units (the band's overlap), on the same ground */
-    to(S, { tk: 1, duration: TR.k1 - TR.t0, ease: "power1.out" }, TR.t0);
-    if (EXIT === "wipe") to(S, { tg: 1, duration: TR.g1 - TR.t0, ease: "sine.inOut" }, TR.t0);   /* the line rises with the wipe from the start (D133) */
-    else to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
+    if (!OPEN) {   /* D239: exit "none" has no tide */
+      to(S, { tk: 1, duration: TR.k1 - TR.t0, ease: "power1.out" }, TR.t0);
+      if (EXIT === "wipe") to(S, { tg: 1, duration: TR.g1 - TR.t0, ease: "sine.inOut" }, TR.t0);   /* the line rises with the wipe from the start (D133) */
+      else to(S, { tg: 1, duration: TR.g1 - TR.g0, ease: "power2.inOut" }, TR.g0);
+    }
     /* the background world (rail/railglobe.ts): ONE turn from the thesis (0) to identity's exit (95.2), linear; it leaves with identity (92.3 - 95.2) */
     to(S, { gy: 1, duration: ID_OUT + 2.9, ease: "none" }, 0);
     to(S, { gq: 1, duration: 2.9, ease: "none" }, ID_OUT);
-    tl.set({}, {}, TOTAL);
+    tl.set({}, {}, END);
     tl.eventCallback("onUpdate", apply);
   }
 
@@ -1019,8 +1029,8 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
 
   /* ───────────────────────────── mount ───────────────────────────── */
   const trigs: Trig[] = [];
-  let main: Tl | null = null, enterTl: Tl | null = null, rsTm = 0, disposed = false;
-  const band = document.querySelector<HTMLElement>(".stk");
+  let main: Tl | null = null, enterTl: Tl | null = null, inkTw: ReturnType<V1Ctx["gsap"]["to"]> | null = null, rsTm = 0, disposed = false;
+  const band = OPEN ? null : document.querySelector<HTMLElement>(".stk");   /* D239: with no tide, the Stack (above the rail on v10) is not the rail's to pull up */
   const TIDE = !!band?.hasAttribute("data-enter");
   const dispose: Dispose = () => {
     if (disposed) return; disposed = true;
@@ -1028,7 +1038,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     clearTimeout(rsTm);
     if (idleRaf) cancelAnimationFrame(idleRaf); idleRaf = 0; idleIO?.disconnect(); idleIO = null;
     trigs.forEach((t) => t.kill()); trigs.length = 0;
-    main?.kill(); enterTl?.kill(); main = enterTl = null;
+    main?.kill(); enterTl?.kill(); inkTw?.kill(); main = enterTl = null; inkTw = null;
     try { RGl?.dispose(); } catch (e) { console.warn("[rail] globe dispose", e); }
     RGl = null;
     if (R) { for (const v of [...R.vig, R.gvig]) { try { v?.dispose?.(); } catch (e) { console.warn("[rail] vignette dispose", e); } } R.stage.remove(); R = null; }
@@ -1059,7 +1069,7 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
     return staticPage(sec);
   }
   /* the Stack band is pulled up over the last TR.ov units of the pin (stack.css: html[data-rail] .stk; the overlap is see-through, the world's dark shows under it) */
-  const pinPx = () => SCREENS() * innerHeight;
+  const pinPx = () => SCREENS() * (END / TOTAL) * innerHeight;
   const PLACE = html.getAttribute("data-stk-enter") === "place";
   const setOv = () => { if (band) band.style.setProperty("--ov", (PLACE ? innerHeight : (TR.ov / TOTAL) * pinPx()).toFixed(1) + "px"); };
   setOv();
@@ -1072,6 +1082,13 @@ export async function mountLayer(ctx: V1Ctx): Promise<Dispose | null> {
      on screen until the scroll came back into the rail (D134) */
   const redraw = () => { if (!disposed) apply(); };
   trigs.push(ScrollTrigger.create({ trigger: sec, start: "top bottom", end: "top top", scrub: 0.8, animation: enterTl, invalidateOnRefresh: true, onRefresh: redraw }));
+  /* D223: the ink line's two runs meet on a clock once the line is 85 % down the screen (they finish while the reader stops), and part again above it */
+  if (INKLINE) {
+    inkTw = gsap.to(S, { ink: 1, duration: 1.4, ease: "power2.inOut", paused: true, onUpdate: apply });
+    trigs.push(ScrollTrigger.create({ trigger: sec, start: () => `top+=${Math.round(M.railY || 0)} 85%`, end: "max", invalidateOnRefresh: true,
+      onEnter: () => inkTw?.play(), onLeaveBack: () => inkTw?.reverse(),
+      onRefresh: (st) => { if (inkTw && st.progress > 0 && !inkTw.isActive()) inkTw.progress(1); } }));
+  }
   trigs.push(ScrollTrigger.create({ trigger: sec, start: "top top", end: () => "+=" + Math.round(pinPx()), pin: true, pinSpacing: true, scrub: 0.8, animation: main, invalidateOnRefresh: true, anticipatePin: 1, onRefresh: redraw }));
   apply(); html.setAttribute("data-ly-ready", "");
   requestRefresh();

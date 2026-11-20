@@ -10,14 +10,17 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 | Address | Page | Code |
 |---|---|---|
-| `/` (and `/home-v9`) | **Homepage**: home v9. One type-only section, "NEAR is privacy for onchain capital and the agent economy.", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) and v8 (`/home-v8`, the cycling word) stay at their own addresses, also on `/index`. | `src/components/v7` (on pieces of v1–v5) |
-| `/blog` | **Blog**: direction J. The CMS's posts, a rail with search, type, sort and view, and grid or list. | `src/components/v3/blog/j` |
+| `/` (and `/home-v9`) | **Homepage**: home v9. One type-only section, "NEAR is privacy for onchain capital and the agent economy.", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) stays at its own address, also on `/index`; v8 (`/home-v8`, the cycling word) is on `/extra`. | `src/components/v7` (on pieces of v1–v5) |
+| `/blog` | **Blog**: version E (Lawrence's choice). The CMS's posts, the lead post always on screen, All / Blog / Press / Watch as large words, tag pills you can combine (the CMS's tags, with NEAR AI, NEAR Intents, near.com and NEAR Protocol first), and the homepage's ruled cards with date and tags, nine at a time. | `src/components/blog/e` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c\|d` shows A, C or D. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
-| `/analytics` | **Analytics**: C (Ruled grid). Sample figures until the live feed lands. | `src/components/analytics/c` |
-| `/economics` | **Economics**: A (Ruled grid), from the October 2026 doc. | `src/components/economics/a` |
-| `/history` | **History** ("From 2017 to now" in the menu): C (Editorial). | `src/components/history/c` |
-| `/community` | **Community**: B (Drawn), from the October 2026 doc. Sample figures and events. | `src/components/community/b` |
+| `/analytics` | **Analytics**: X (MVP, the Nov 19 review). Sample figures until the live feed lands. | `src/components/analytics/x` |
+| `/economics` | **Economics**: X (MVP), from the October 2026 doc. | `src/components/economics/x` |
+| `/history` | **History** ("From 2017 to now" in the menu): X (MVP). | `src/components/history/x` |
+| `/community` | **Community**: X (MVP), from the October 2026 doc. Sample figures and events. | `src/components/community/x` |
+| `/solutions` | **Solutions**: X (MVP), from the October 2026 doc's Solutions Hub. | `src/components/solutions/x` |
+| `/research` | **Research**: X (MVP), the technical papers. | `src/components/research/x` |
+| `/protocol` | **Protocol** (Stack in the menu): version B, "The network lives", from the October 2026 doc. Illustrative motion, not live data. | `src/components/protocol/b` |
 | `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
 | any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
 | `/index`, `/extra` | The two lists of pages (see below). | `src/app/(site)/index`, `src/app/(site)/extra` |
@@ -25,25 +28,29 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 Explorations that still have their own routes are listed at `/extra`:
 - the blog post layouts `/post-a`, `/post-b`, `/post-c` and `/post-d` (D: the October 2026 Figma's blog look; the CMS picker still offers A–C only), and `/post-v`, the video post layout (a CMS post with Format: Video always opens in it);
-- the blog index versions B–D at `/blog-index-b…d` (A is the live `/blog`): B and D from the October 2026 Figma's two blog frames (nodes 980:723, 756:41), C is B on the homepage's soft ruled grid (`src/components/blog/<letter>`). Not `/blog-b…d`: those still redirect to `/blog` (the old directions A–L);
-- Analytics A, B, D and E at `/analytics-a`, `/analytics-b`, `/analytics-d`, `/analytics-e`;
-- Economics B and C at `/economics-b`, `/economics-c`, History A and B at `/history-a`, `/history-b`, and Community A and C at `/community-a`, `/community-c`;
-- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (no final version chosen yet: the menu's `/solutions`, `/research` and `/brand` don't exist yet). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
+- the blog index versions A–D at `/blog-index-a…d` (E is the live `/blog`; A is direction J, the previous `/blog`, `src/components/v3/blog/j`): B and D from the October 2026 Figma's two blog frames (nodes 980:723, 756:41), C is B on the homepage's soft ruled grid (`src/components/blog/<letter>`). Not `/blog-b…d`: those still redirect to `/blog` (the old directions A–L);
+- the MVP versions X from the Nov 19 review (`src/components/<page>/x`) are the menu's Analytics, Community, History, Economics, Solutions and Research, at the plain addresses (`/analytics`…); `/analytics-x`, `/community-x`, `/history-x`, `/economics-x`, `/solutions-x` and `/research-x` still lead there (a temporary redirect). One version per page: mostly copy, no eyebrows or decorative numerals, no ruled grid by the header, the site's dot icons where they help, graphics as placeholders (`[[TBD: graphic by Ali]]`);
+- Analytics A–E at `/analytics-a`…`/analytics-e` (C was `/analytics` until Nov 19, 2026);
+- Economics A–C at `/economics-a…c`, History A–C at `/history-a…c` and Community A–C at `/community-a…c` (the menu's versions until Nov 19, 2026: Economics A, History C, Community B);
+- Protocol A, C and D at `/protocol-a`, `/protocol-c`, `/protocol-d` (B is the menu's `/protocol`). Copy verbatim from the October 2026 doc in `src/components/protocol/content.ts`.
+- Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (the menu's `/brand` isn't built yet: it redirects to `/brand-a` for now). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
 
 ### What changed (November 2026)
 
-- **Homepage:** home v9 is the first page (v7 and v8 at `/home-v7`, `/home-v8`). Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
+- **Homepage:** home v9 is the first page (v7 at `/home-v7`; v8 at `/home-v8`, on `/extra`). Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
 - **Removed pages:**
-  - the blog directions A–L (J is `/blog`);
+  - the blog directions A–L (J, which was `/blog` until E was chosen, is at `/blog-index-a`);
   - the 404 previews and designs B and C;
   - `/template`;
   - Analytics C;
   - Foundation A, B, C, D and F (`/foundation`, `/foundation-b`…`-f` redirect to `/near-foundation`).
 - **Moved pages:**
   - Foundation E moved to `/near-foundation`. It now has F's pillars and F's Council, and no badges on its drawings. It still uses a few of B's and C's pieces (`foundation/b`, `foundation/c`).
-  - Analytics C (the ruled grid) is `/analytics`; B is back at `/analytics-b`, A is at `/analytics-a`, and `/analytics-c` redirects to `/analytics`.
+  - Analytics C (the ruled grid) was `/analytics` until Nov 19, 2026; it is at `/analytics-c` again (with A, B, D and E at their letters).
+  - Nov 19, 2026: the X versions became the menu's Analytics, Economics, History, Community, Solutions and Research at the plain addresses; Economics A, History C and Community B moved to `/economics-a`, `/history-c`, `/community-b`, and `/<page>-x` redirects to `/<page>`.
   - Old addresses redirect: see `redirects()` in `next.config.ts`.
 - **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, History → `/history`, Economics → `/economics`, Community → `/community`, Contact → `/contact`.
+- **Page transitions:** the browser's cross-document View Transitions (`src/styles/view-transitions.css`, loaded by the site's layout only): the header holds still while the page under it changes. Two versions to compare: A "Quiet" (default: the page fades and lifts out, the next rises in) and B "Curtain" (the next page is drawn up over the last); `?vt=a` or `?vt=b` on any page picks one, remembered in that browser. Chrome/Edge 126+ and Safari 18.2+; elsewhere pages simply load. Reduced motion: no animation.
 - **Type:** every h1, h2 and h3 sets its words in PP Neue Montreal Book and its accent in Kepler Std Medium Condensed Italic Display, as in the hero (see "Building a page").
 - **Contact:** rebuilt as about + form + social links.
 - **Hero film:** home v7's film is served from the media bucket (see "Big media").
@@ -114,7 +121,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 
 ## The homepage (home v7, v8 and v9)
 
-- **Route and owner:** the homepage is home v9: `/` re-exports `/home-v9/page.tsx` (`src/app/(site)/page.tsx`), so changes to v9 show on both. `/home-v7` and `/home-v8` are the earlier versions, on the same code. Lawrence owns `src/components/v7`.
+- **Route and owner:** the homepage is home v9: `/` re-exports `/home-v9/page.tsx` (`src/app/(site)/page.tsx`), so changes to v9 show on both. `/home-v7` (earlier) and `/home-v8` (on `/extra`) are the other versions, on the same code. Lawrence owns `src/components/v7`.
 - **Home v8 and v9** (`/home-v8`, `/home-v9`; v9 is `/`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/home-v7` stays as it was.
 - **Code:** `src/components/v7` builds the page from pieces of v1–v5:
   - `V1Page` and its boot (world, rail, Stack);

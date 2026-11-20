@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
-import { EconomicsA } from "@/components/economics/a/EconomicsA";
+import { EconomicsX } from "@/components/economics/x/EconomicsX";
 import { EconomicsSwitch } from "@/components/economics/EconomicsSwitch";
 import { CLOSE, HERO } from "@/components/economics/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
-// near.org/economics: the Economics page, version A: "Ruled grid" (components/economics/a), on v3's shell, closing with the homepage's scene. Copy: components/economics/content.ts.
+// near.org/economics, version X: "MVP", the one in the menu (/economics-x redirects here) (components/economics/x), A made calm after the Nov 19 2026 review, on v3's shell, closing with the homepage's
+// scene, the ruled grid running down into it. Copy: components/economics/content.ts.
 export const metadata: Metadata = {
   title: "Economics",
   description: HERO.sub,
@@ -15,5 +16,5 @@ export const metadata: Metadata = {
 };
 
 export default function EconomicsPage() {
-  return <><BlogShell home="/"><EconomicsA /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><EconomicsSwitch on="a" /></>;
+  return <><BlogShell home="/"><EconomicsX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><EconomicsSwitch on="x" /></>;
 }

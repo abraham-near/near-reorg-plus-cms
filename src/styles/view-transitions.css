@@ -1,0 +1,40 @@
+/* Page transitions: the browser's cross-document View Transitions (Chrome / Edge 126+, Safari 18.2+). The site navigates with plain <a> on purpose
+   (each page loads fresh: its CSS and its motion never meet another page's), so the transition is the browser's: it snapshots the page that leaves,
+   loads the next one, and animates between the two. No library, no router. Browsers without it simply navigate as before.
+   Imported by the site's layout only (app/(site)/layout.tsx); the CMS never loads it.
+
+   - the header (.nvh) is named, so it holds still across the change (it only eases between its spread and pill states) while the page under it moves;
+   - two versions to compare, on <html data-vt> (set before first paint by the layout's script; `?vt=a` / `?vt=b` on any page picks one and it is
+     remembered in this browser):
+       A (default) · "Quiet": the page leaves fading and lifting a little, the next one rises in after it, on the site's long settle ease;
+       B · "Curtain": the next page is drawn up over the one leaving, which sinks back and dims under it;
+   - reduced motion: no animation (the pages simply swap). */
+
+@view-transition { navigation: auto; }
+
+/* the header: its own layer, so it doesn't fade with the page */
+.nvh { view-transition-name: nv-header; }
+
+/* what shows between the two snapshots: the paper, never a white flash */
+::view-transition { background: var(--color-surface, #f5f5f5); }
+
+/* the header's layer eases between its two states (the spread bar at the top of a page, the pill once scrolled) */
+::view-transition-group(nv-header) { animation-duration: 0.6s; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+::view-transition-old(nv-header), ::view-transition-new(nv-header) { animation-duration: 0.35s; }
+
+/* ---------------------------------------------------------------- A · Quiet (default) */
+::view-transition-old(root) { animation: vt-a-out 0.3s cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: vt-a-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both; }
+@keyframes vt-a-out { to { opacity: 0; transform: translateY(-14px); } }
+@keyframes vt-a-in { from { opacity: 0; transform: translateY(22px); } }
+
+/* ---------------------------------------------------------------- B · Curtain */
+:root[data-vt="b"]::view-transition-old(root) { animation: vt-b-out 0.85s cubic-bezier(0.65, 0, 0.35, 1) both; }
+:root[data-vt="b"]::view-transition-new(root) { animation: vt-b-in 0.85s cubic-bezier(0.65, 0, 0.35, 1) both; }
+@keyframes vt-b-out { to { opacity: 0.35; transform: translateY(-8%) scale(0.97); } }
+@keyframes vt-b-in { from { clip-path: inset(100% 0 0 0); transform: translateY(6%); } to { clip-path: inset(0 0 0 0); transform: none; } }
+
+/* ---------------------------------------------------------------- reduced motion: the pages swap, nothing moves */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

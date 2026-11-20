@@ -9,8 +9,9 @@ import { HEAD } from "./world/head";
 
 /** The page's frame: every slot is the caller's (home v7: components/v7/V7Page.tsx). There are no defaults on purpose: a default here is imported, and
  *  so bundled, even when the caller replaces it. world, rail and stack keep v1's classes, so boot / rail / stack motion run on them unchanged. */
-export function V1Page({ v = "v1", header, afterStack, footer, world, rail, stack }: {
-  v?: Version; header: ReactNode; afterStack: ReactNode; footer: ReactNode; world: ReactNode; rail: ReactNode; stack: ReactNode;
+/** stackFirst (home v10, D239): the Stack right after the world, then `between` (the Real Usage band), then the rail, then the rest */
+export function V1Page({ v = "v1", header, afterStack, footer, world, rail, stack, stackFirst, between }: {
+  v?: Version; header: ReactNode; afterStack: ReactNode; footer: ReactNode; world: ReactNode; rail: ReactNode; stack: ReactNode; stackFirst?: boolean; between?: ReactNode;
 }) {
   return (
     <>
@@ -20,8 +21,7 @@ export function V1Page({ v = "v1", header, afterStack, footer, world, rail, stac
       <V1Gate>
         <main id="main">
           {world}
-          {rail}
-          {stack}
+          {stackFirst ? <>{stack}{between}{rail}</> : <>{rail}{stack}</>}
           {afterStack}
         </main>
         {footer}
