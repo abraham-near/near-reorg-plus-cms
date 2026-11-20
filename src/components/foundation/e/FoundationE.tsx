@@ -20,6 +20,7 @@ import { mountAll } from "./motion";
 import "../../v3/proof-deeper/proof-deeper.css";
 import "../b/foundation-b.css";
 import "./foundation-e.css";
+import "../../shared/close-mail.css";
 
 // the pillars (from version F's Figma page): an icon, a mono label, the title and the text
 const PILLARS = [
@@ -125,13 +126,13 @@ export function FoundationE() {
         </div>
       </section>
 
-      {/* 8 · NEAR belongs to you: the close scene of the homepage, with the doc's subhead and two buttons */}
+      {/* 8 · NEAR belongs to you: the close scene of the homepage (its stack of mail, shared/close-mail.css), with the doc's subhead and two buttons */}
       <section className="l-sec l-close" id="close" aria-labelledby="l-close-t">
         <div className="l-row l-spacer" data-row="" aria-hidden="true"><div className="l-cell" /></div>
         <div className="l-bleed-wrap">
-          <div className="l-bleed l-close__bleed" data-bleed="" data-close="">
+          <div className="l-bleed l-close__bleed cs-mail" data-bleed="" data-close="">
             <div className="l-close__stage">
-              <div className="l-ph l-bleed__ph l-close__ph" data-ph=""><div className="l-plate"><img className="l-img" src="/v3/bleed-meadow.webp" alt="" loading="lazy" decoding="async" /></div></div>
+              <div className="l-ph l-bleed__ph l-close__ph" data-ph=""><div className="l-plate"><img className="l-img" src="/images/home/bw/close-mail-light.webp" alt="" loading="lazy" decoding="async" /></div></div>
               <div className="l-bleed__in l-close__in">
                 <h2 id="l-close-t" className="l-display l-close__h">
                   <span className="l-close__logo">
