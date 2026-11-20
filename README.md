@@ -10,7 +10,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 
 | Address | Page | Code |
 |---|---|---|
-| `/` (and `/home-v8`) | **Homepage**: home v8. One type-only section, "NEAR is private" with a word that cycles until it rests on "by design", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) stays at its own address, also on `/index`; v9 (`/home-v9`, the still headline) is archived on `/extra`. | `src/components/v7` (on pieces of v1–v5) |
+| `/` (and `/home-v9`) | **Homepage**: home v9. One type-only section, "NEAR is privacy for onchain capital and the agent economy.", then the rail, the Stack in lit matte, proof and Go deeper. Home v7 (`/home-v7`, the film hero) stays at its own address, also on `/index`; v8 (`/home-v8`, the cycling word) is on `/extra`. | `src/components/v7` (on pieces of v1–v5) |
 | `/blog` | **Blog**: version E (Lawrence's choice). The CMS's posts, the lead post always on screen, All / Blog / Press / Watch as large words, tag pills you can combine (the CMS's tags, with NEAR AI, NEAR Intents, near.com and NEAR Protocol first), and the homepage's ruled cards with date and tags, nine at a time. | `src/components/blog/e` |
 | `/blog/<slug>` | **Blog post**: layout B (Cover) by default; `?layout=a\|c\|d` shows A, C or D. `/post-b` is the sample article. | `src/components/v3/post` |
 | `/near-foundation` | **NEAR Foundation**: Foundation E (Living columns), with F's pillars and F's Council. | `src/components/foundation/e` (+ `f`) |
@@ -35,7 +35,7 @@ Explorations that still have their own routes are listed at `/extra`:
 
 ### What changed (November 2026)
 
-- **Homepage:** home v8 is the first page (v7 at `/home-v7`; v9, archived, at `/home-v9`). Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
+- **Homepage:** home v9 is the first page (v7 at `/home-v7`; v8 at `/home-v8`, on `/extra`). Homes v1–v6 were removed, with the code and assets only they used. `/home-v1`…`/home-v6` redirect to `/`.
 - **Removed pages:**
   - the blog directions A–L (J, which was `/blog` until E was chosen, is at `/blog-index-a`);
   - the 404 previews and designs B and C;
@@ -119,8 +119,8 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 
 ## The homepage (home v7, v8 and v9)
 
-- **Route and owner:** the homepage is home v8: `/` re-exports `/home-v8/page.tsx` (`src/app/(site)/page.tsx`), so changes to v8 show on both. `/home-v7` (earlier) and `/home-v9` (archived) are the other versions, on the same code. Lawrence owns `src/components/v7`.
-- **Home v8 and v9** (`/home-v8`, `/home-v9`; v8 is `/`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/home-v7` stays as it was.
+- **Route and owner:** the homepage is home v9: `/` re-exports `/home-v9/page.tsx` (`src/app/(site)/page.tsx`), so changes to v9 show on both. `/home-v7` (earlier) and `/home-v8` (on `/extra`) are the other versions, on the same code. Lawrence owns `src/components/v7`.
+- **Home v8 and v9** (`/home-v8`, `/home-v9`; v9 is `/`): Lawrence's branches `NEAR-is-private-CYCLE` and `NEAR-is-privacy-HEADLINE`, on the same `V7Page` with `top="private"` or `top="privacy"`. `top` swaps the hero and the intro for one type-only section (`v7/private`) and turns on those branches' lower page: the signed identity in the rail, Origin above Go deeper, the black-and-white photos, the voices one at a time (`v7/voices`) and the mailboxes. Their styles sit under `html[data-v7="priv"]` in `v7.css`, so `/home-v7` stays as it was.
 - **Code:** `src/components/v7` builds the page from pieces of v1–v5:
   - `V1Page` and its boot (world, rail, Stack);
   - v4's rail and Stack;
