@@ -1,6 +1,7 @@
-/* Contact (Contact.tsx): three things on open paper: the about, the form in a calm panel, the social links. Scoped to .ct.
+/* Contact (Contact.tsx): three things on open paper: the about, the form on the ruled grid, the social links. Scoped to .ct.
    Tokens and pieces from v3/blog/blog.css (.bl): paper, ink, one emerald, Montreal, the Kepler .accent, .bl-btn, .bl-link; Blog J's heading and fields
-   (v3/blog/j/blog-j.css: .bj-h1, .bj-field, .bj-lbl, .bj-err). Lines: one hairline under each field and under each social link. Nothing else is ruled.
+   (v3/blog/j/blog-j.css: .bj-h1, .bj-field, .bj-lbl, .bj-err). Lines: the form sits on the homepage's ruled grid (a cell per field, + at the corners),
+   each field keeps its hairline underline, and one hairline under each social link.
    The grid: two columns (about over the social links | the panel) from 900 up; below, one column: about, panel, social links. */
 .ct { --ct-gap: clamp(28px, 2.6vw, 40px); --ct-r: 10px; }
 
@@ -19,15 +20,24 @@
   color: var(--graphite); text-wrap: pretty; }
 .ct-lede p + p { margin-top: 0.85em; color: var(--muted); }
 
-/* ---------------------------------------------------------------- the panel: paper-1, rounded, air inside; the form is Blog J's fields */
-.ct-panel { padding: clamp(28px, 3.4vw, 52px); border-radius: var(--ct-r); background: var(--paper-1); scroll-margin-top: var(--j-top); }
-.ct-panel__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; margin-bottom: clamp(28px, 3.6vh, 40px); }
+/* ---------------------------------------------------------------- the form on the homepage's ruled grid (the design system's .l-row / .l-cell, drawn in
+   CSS here): a frame, a rule over and beside every cell, a 9 px ink + where the rules meet at each cell's top corners. The head is one full-width cell,
+   then a cell per field (name | email, then topic, message and the send row across); the fields keep Blog J's underline inside their cells */
+.ct-panel { --ct-rule: rgb(38 38 38 / 0.24); --ct-pad: clamp(20px, 2.2vw, 32px); position: relative; scroll-margin-top: var(--j-top);
+  border-right: var(--hair) solid var(--ct-rule); border-bottom: var(--hair) solid var(--ct-rule); }
+.ct-cell, .ct-panel .ct-f, .ct-panel .ct-send { position: relative; min-width: 0; border-top: var(--hair) solid var(--ct-rule); border-left: var(--hair) solid var(--ct-rule); }
+:is(.ct-cell, .ct-panel .ct-f, .ct-panel .ct-send)::before, :is(.ct-cell, .ct-panel .ct-f, .ct-panel .ct-send)::after { content: ""; position: absolute; z-index: 2; top: -5px;
+  width: 9px; height: 9px; pointer-events: none;
+  background: linear-gradient(var(--ink), var(--ink)) 50% 0 / var(--hair) 100% no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 100% var(--hair) no-repeat; }
+:is(.ct-cell, .ct-panel .ct-f, .ct-panel .ct-send)::before { left: -5px; }
+:is(.ct-cell, .ct-panel .ct-f, .ct-panel .ct-send)::after { right: -5px; }
+.ct-panel__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; padding: calc(var(--ct-pad) + 4px) var(--ct-pad); }
 .ct-panel__t { font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); }
 .ct-panel__s { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
 
 .ct-slot { position: relative; }
-.ct-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--ct-gap); row-gap: 20px; transition: opacity 0.3s var(--ease-tick); }
-.ct-f { min-width: 0; }
+.ct-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; transition: opacity 0.3s var(--ease-tick); }
+.ct-f { min-width: 0; padding: var(--ct-pad) var(--ct-pad) calc(var(--ct-pad) - 8px); }
 .ct-f--wide, .ct-send { grid-column: 1 / -1; }
 .ct-f__top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .ct-count { font-size: var(--t-caption); line-height: 1.2; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -51,13 +61,14 @@
 .ct .ct-err, .ct .ct-err:empty { min-height: 1.3em; margin-top: 10px; }
 .ct-err svg { flex: none; }
 /* the send row */
-.ct-send { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 18px; }
+.ct-send { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; padding: var(--ct-pad); }
 .ct .ct-fine { margin-top: 0; max-width: 26em; }
 
-/* success, in place: over the fields (they keep their room), an emerald hairline on top */
+/* success, in place: over the fields (they keep their room), one ruled cell with an emerald hairline on top */
 .ct-done-wrap { position: absolute; inset: 0; pointer-events: none; }
 .ct-slot.is-done .ct-fields { opacity: 0; visibility: hidden; }
-.ct-done { padding-top: 32px; pointer-events: auto; background: linear-gradient(var(--emerald), var(--emerald)) 0 0 / 100% 1px no-repeat; }
+.ct-slot.is-done .ct-done-wrap { border-top: var(--hair) solid var(--ct-rule); border-left: var(--hair) solid var(--ct-rule); }
+.ct-done { height: 100%; padding: calc(var(--ct-pad) + 8px) var(--ct-pad); pointer-events: auto; background: linear-gradient(var(--emerald), var(--emerald)) 0 0 / 100% 1px no-repeat; }
 :where(.bl-j[data-motion]) .ct-done { animation: bl-rise 0.6s var(--ease-settle) both; }
 .ct-done__ic { display: block; color: var(--green-text); }
 .ct-done__t { margin-top: 18px; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; overflow-wrap: anywhere; }
@@ -97,7 +108,7 @@
   .ct-lede { max-width: 32em; }
 }
 @media (max-width: 599px) {
-  .ct-panel { padding: 28px 20px 32px; }
+  .ct-panel { --ct-pad: 20px; }
   .ct-fields { grid-template-columns: minmax(0, 1fr); }
   .ct-send { flex-direction: column; align-items: flex-start; }
 }

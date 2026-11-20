@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import { fontVariables } from "@/styles/fonts";
 import { InlineScript } from "@/components/InlineScript";
+import { VtToggle } from "@/components/VtToggle";
 import { VERSION_HEAD } from "@/components/shared/version";
 import { indexable, siteOrigin } from "@/lib/site";
 import "../globals.css";
+import "@/styles/view-transitions.css";
+
+// the page transition to show (styles/view-transitions.css): A by default; ?vt=a or ?vt=b on any page picks one, remembered in this browser
+// and, when this page arrives through one, window.__vtDone (a promise, settled when it ends): the motion hook holds the page's intros until then
+const VT_HEAD = "try{var q=new URLSearchParams(location.search).get('vt');if(q==='a'||q==='b')localStorage.setItem('near-vt',q);document.documentElement.setAttribute('data-vt',localStorage.getItem('near-vt')||'a')}catch(e){document.documentElement.setAttribute('data-vt','a')}addEventListener('pagereveal',function(e){if(e.viewTransition)window.__vtDone=e.viewTransition.finished.catch(function(){})});";
 
 export const metadata: Metadata = {
   title: { default: "NEAR: Own your world", template: "%s · NEAR" },
@@ -25,10 +31,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <InlineScript html="document.documentElement.setAttribute('data-js','')" />
         {/* data-version (v1 | v2): which homepage direction the shared pieces render in (styles/versions.css). The homes fix their own. */}
         <InlineScript html={VERSION_HEAD} />
+        {/* data-vt (a | b): which page transition plays (styles/view-transitions.css) */}
+        <InlineScript html={VT_HEAD} />
       </head>
       {/* suppressHydrationWarning: browser extensions set attributes on <body> before React loads (contenteditable="false" seen on /); it covers
           the body's own attributes only, not its children */}
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>{children}<VtToggle />{/* temporary: compares the page transitions A | B; remove once one is chosen */}</body>
     </html>
   );
 }

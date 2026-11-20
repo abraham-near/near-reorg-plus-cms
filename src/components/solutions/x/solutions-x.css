@@ -1,0 +1,196 @@
+/* Solutions X · MVP (SolutionsX.tsx). Version A cleaned: the homepage's ruled grid (proof-deeper.css: .l-page tokens, .l-row / .l-cell, the + crosshairs
+   from its motion, arrivals, the proof strip's green rule) at the homepage's weight, ONE continuous grid from the proof strip to the logo wall (no paper
+   gaps: sections are spaced by empty ruled rows, .l-spacer, inside it); the hero on bare paper (no rules near the header); no kickers, no numbering. Room
+   to breathe: a wider text inset (--l-pad), 40-56 px inside the cells, a measure of ~34em, tall spacer rows (--sx-gap). One dark band (4 · the spotlight)
+   in the middle as the page's separator, off the grid (no rules, no +). Two placeholder drawings from Solutions B (their "hand" is copied
+   below under .so-x, B's sheet is scoped to .so-b; the shard's dark tones under .sx-sp). Motion only under .so-x[data-motion]. Scoped under .so-x. */
+.so-x { --top: clamp(132px, 16vh, 176px); --sx-ink: #111; --sx-g1: #5fe0ae; --sx-g2: #3cc994; --sx-g3: #22a374; --sx-lit: #d4f8e7;
+  --sx-gap: clamp(72px, 10vh, 128px); --l-pad: clamp(24px, 2.6vw, 40px);
+  background: var(--paper-0); overflow-x: clip; }
+.so-x .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
+.so-x :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.so-x [id] { scroll-margin-top: 96px; }
+.so-x .l-ext { width: 10px; height: 10px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ease-tick); }
+.so-x .sx-w { will-change: transform, opacity; }
+.so-x .sx-h1 .accent .sx-w, .so-x .sx-h2 .accent .sx-w { line-height: 0.92; }
+
+/* ---------------------------------------------------------------- shared bits */
+.so-x .sx-btn { gap: 10px; background: var(--ink); color: var(--paper-0); }
+.so-x .sx-btn--line { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+@media (hover: hover) { .so-x .l-btn:hover .l-ext { translate: 2px -2px; } .so-x .l-btn:hover .l-arr { translate: 3px 0; } }
+.so-x .sx-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+:where(.so-x[data-motion]) [data-in]:not(.is-in) { opacity: 0; translate: 0 18px; }
+:where(.so-x[data-motion]) [data-in].is-in { transition: opacity 0.9s var(--ease-glide) var(--d, 0s), translate 1.1s var(--ease-settle) var(--d, 0s); }
+/* a section head on the grid (the homepage's .l-head): the heading alone in one ruled row */
+.so-x .sx-head .l-head__cell { padding: clamp(48px, 7vh, 64px) var(--l-pad) clamp(32px, 4.4vh, 44px); }
+/* the grid's spacing: an empty ruled row between sections (its + at the top, the frame through it), sized here, not by margins */
+.so-x .l-spacer .l-cell { height: var(--sx-gap); padding: 0; }
+/* the logo wall has no closing rule: the close scene's ruled spacer row (CloseScene `ruled`) carries the grid on down to the photo */
+.so-x .sx-h2 { max-width: 13em; text-wrap: balance; }
+.so-x .sx-h2--w { max-width: 17em; }
+
+/* ---------------------------------------------------------------- 1 · hero: no rules, no crosshairs */
+.so-x .sx-hero { position: relative; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: center; column-gap: clamp(24px, 4vw, 72px);
+  padding: var(--top) calc(var(--margin) + var(--l-pad)) clamp(56px, 9vh, 104px); }
+.so-x .sx-hero__copy { display: flex; flex-direction: column; gap: clamp(24px, 3.4vh, 36px); }
+.so-x .sx-h1 { max-width: 9em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 1.25rem + 5vw, 6.25rem); line-height: 0.97;
+  letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.so-x .sx-hero__sub { max-width: 31em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
+.so-x .sx-acts { margin-top: 4px; }
+.so-x .sx-hero__art { margin: 0; pointer-events: none; }
+/* the hero drawing waits, hidden, until its motion has set every starting state (motion.ts adds .is-ready), so the finished frame never flashes before
+   the build (a page reached through a page transition shows it first otherwise); if the script never runs, it shows after 3 s */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-js] .so-x .sx-hero__art:not(.is-ready) { opacity: 0; animation: sx-art-safe 0.4s 3s forwards; }
+}
+@keyframes sx-art-safe { to { opacity: 1; } }
+.so-x .sx-hero__art .sb-svg { max-height: min(58vh, 540px); margin: 0 auto; }
+.so-x .hb-labs { display: none; }   /* the hub's labels carry B's numbering; the sections below name the solutions */
+
+/* ---------------------------------------------------------------- 2 · proof: the homepage's strip */
+.so-x .sx-fig .l-fig__c { max-width: 15em; }
+
+/* ---------------------------------------------------------------- 3 · solutions: a ruled row each (the title | the copy), framed, + at each top */
+.so-x .sx-list { margin: 0; padding: 0; list-style: none; }
+.so-x .sx-sol { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.so-x .sx-sol .l-cell { padding-top: clamp(40px, 5.4vh, 52px); padding-bottom: clamp(44px, 6vh, 56px); }
+.so-x .sx-sol__t { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+.so-x .sx-ic { display: block; width: 32px; height: 32px; color: var(--ink); }
+.so-x .sx-ic svg { display: block; width: 100%; height: 100%; }
+.so-x .sx-sol__t h3 { max-width: 11em; font-family: var(--sans-display); font-weight: 500; font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); text-wrap: balance; }
+.so-x .sx-sol__b { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding-right: clamp(24px, 4vw, 72px); }
+.so-x .sx-sol__b p { max-width: 34em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.so-x .sx-sol__b .sx-who { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--muted); }
+.so-x .sx-sol__b .sx-sol__a { margin-top: 12px; color: var(--ink); }
+/* inline, so a label on two lines keeps its mark right after its last word */
+.so-x .sx-go { display: inline; padding: 0; line-height: 1.45; text-wrap: balance; }
+.so-x .sx-go :is(.l-ext, .l-arr) { display: inline-block; margin-left: 10px; vertical-align: 0; }
+@media (hover: hover) { .so-x .sx-go:hover .l-ext { translate: 2px -2px; } }
+
+/* ---------------------------------------------------------------- 4 · spotlight: the dark band. Ink ground edge to edge, off the grid (no rules, no +): the
+   band's own padding gives it room; its edges end and restart the grid (the builders' head carries data-after-bleed: no rule doubling the edge).
+   Paper type; the one green stays the drawing's and the button's */
+.so-x .sx-sp { background: var(--ink); color: var(--paper-0); padding: clamp(80px, 12vh, 144px) 0;
+  --l-soft: rgb(245 244 241 / 0.1);
+  --muted: rgb(245 244 241 / 0.6); --graphite: rgb(245 244 241 / 0.8); --sx-ink: #f5f4f1; }
+.so-x .sx-sp :focus-visible { outline-color: var(--paper-0); }
+/* off the grid: the row keeps the grid's columns and arrivals, not its rules or + */
+.so-x .sx-sp .l-row::before, .so-x .sx-sp .l-row::after, .so-x .sx-sp .l-cell + .l-cell::before, .so-x .sx-sp .l-x { display: none; }
+.so-x .sx-sp__row { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.so-x .sx-sp__txt { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 28px;
+  padding: 0 var(--l-pad); }
+.so-x .sx-sp .sx-h2 { max-width: 9em; }
+.so-x .sx-sp .l-lede { max-width: 30em; }
+.so-x .sx-sp .sx-btn { margin-top: 8px; background: var(--paper-0); color: var(--ink); box-shadow: none; }
+.so-x .sx-sp .l-btn::before { background: var(--ink); }
+@media (hover: hover) { .so-x .sx-sp .l-btn:hover { background: var(--emerald); color: var(--ink); } }
+.so-x .sx-sp__art { display: flex; align-items: center; justify-content: center; padding: 0 clamp(24px, 4vw, 72px); }
+.so-x .sx-sp__art .sx-art { width: 100%; margin: 0; }
+.so-x .sx-sp__art .sb-svg { max-width: 600px; max-height: 58vh; margin: 0 auto; }
+/* the shard on ink: dark faces, paper hairlines (--sx-ink), the disclosed row in green */
+.so-x .sx-sp .sl__t { fill: #3a3936; } .so-x .sx-sp .sl__l { fill: #302f2c; } .so-x .sx-sp .sl__r { fill: #2a2926; }
+.so-x .sx-sp .sl polygon { stroke: rgb(245 244 241 / 0.7); }
+.so-x .sx-sp .cn__s, .so-x .sx-sp .pw__b { fill: #2f2e2b; }
+.so-x .sx-sp .cn__t, .so-x .sx-sp .pw__t, .so-x .sx-sp .pl__b { fill: #3a3936; }
+.so-x .sx-sp .pw__h--g { fill: var(--emerald); stroke: var(--ink); }
+.so-x .sx-sp .sh-bar { fill: rgb(245 244 241 / 0.9); }
+.so-x .sx-sp .sh-open { fill: rgb(0 220 141 / 0.2); stroke: var(--emerald); mix-blend-mode: normal; }
+.so-x .sx-sp .sh-look { stroke: var(--emerald); }
+.so-x .sx-sp .sb-dots { stroke-opacity: 0.22; }
+
+/* ---------------------------------------------------------------- 5 · builders: the logo wall on the grid */
+.so-x .sx-wall { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.so-x .sx-lg { display: flex; align-items: center; justify-content: center; min-height: clamp(128px, 16vh, 168px); padding: 28px var(--l-pad); }
+.so-x .sx-lg:nth-child(n + 6) { border-top: var(--hair) solid var(--l-line); }
+.so-x .sx-lg:nth-child(5n + 1)::before { display: none; }   /* the frame is its left line */
+/* one height, one ink tone: the files are toned to black, then set at the ink's weight */
+.so-x .sx-lg__img { display: block; height: 26px; width: auto; max-width: 100%; filter: brightness(0); opacity: 0.86; }
+.so-x .sx-lg__name { font-family: var(--sans-display); font-weight: 500; font-size: 24px; line-height: 1; letter-spacing: -0.03em; color: var(--ink); opacity: 0.86; white-space: nowrap; }
+:where(.so-x[data-motion]) .sx-wall .sx-lg > * { opacity: 0; translate: 0 10px; }
+:where(.so-x[data-motion]) .sx-wall.is-in .sx-lg > * { opacity: 1; translate: none;
+  transition: opacity 0.9s var(--ease-glide) calc(0.2s + var(--j) * 0.05s), translate 1.1s var(--ease-settle) calc(0.2s + var(--j) * 0.05s); }
+
+/* ---------------------------------------------------------------- the placeholder drawings: Solutions B's hand (white tops, light grey sides, ink hairlines, one green) */
+.so-x .sb-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.so-x .sb-svg * { vector-effect: non-scaling-stroke; }
+.so-x .sl polygon { stroke: var(--sx-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-x .sl__t { fill: #fff; } .so-x .sl__l { fill: #f2f2f0; } .so-x .sl__r { fill: #e8e8e6; }
+.so-x .sl--g .sl__t { fill: var(--sx-g1); } .so-x .sl--g .sl__l { fill: var(--sx-g2); } .so-x .sl--g .sl__r { fill: var(--sx-g3); }
+.so-x .sl--lit .sl__t { fill: var(--sx-lit); }
+.so-x .sl__e { fill: none; stroke: var(--sx-ink); stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; vector-effect: none; }
+.so-x .gl polygon { stroke: none; }
+.so-x .gl__t { fill: rgb(255 255 255 / 0.32); } .so-x .gl__l { fill: rgb(242 242 240 / 0.42); } .so-x .gl__r { fill: rgb(232 232 230 / 0.5); }
+.so-x .gl__e { fill: none; stroke: var(--sx-ink); stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; vector-effect: none; }
+.so-x .gl__h { fill: none; stroke: var(--sx-ink); stroke-opacity: 0.5; stroke-width: 1; stroke-dasharray: 2 3; }
+.so-x .cn__s { fill: #e8e8e6; stroke: var(--sx-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-x .cn__t { fill: #fff; stroke: var(--sx-ink); stroke-width: 1; }
+.so-x .cn--g .cn__t { fill: var(--emerald); }
+.so-x .pw__b { fill: #e8e8e6; stroke: var(--sx-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-x .pw__t, .so-x .pw__h { fill: #fff; stroke: var(--sx-ink); stroke-width: 1; }
+.so-x .pw__h--g { fill: var(--emerald); }
+.so-x .tk__s { fill: #ecebe8; stroke: var(--sx-ink); stroke-width: 1; stroke-linejoin: round; }
+.so-x .tk__t { fill: #fff; stroke: var(--sx-ink); stroke-width: 1; }
+.so-x .tk__rim { fill: none; stroke: var(--sx-ink); stroke-opacity: 0.28; stroke-width: 1; }
+.so-x .tk__n { fill: var(--sx-ink); stroke: none; vector-effect: none; }
+.so-x .ag__ant { fill: none; stroke: var(--sx-ink); stroke-width: 1.1; }
+.so-x .ag__dot { fill: var(--emerald); stroke: var(--sx-ink); stroke-width: 0.9; }
+.so-x .vt__door circle, .so-x .vt__door path { fill: none; stroke: var(--sx-ink); stroke-width: 1; stroke-linecap: round; }
+.so-x .vt__door .vt__hub { fill: var(--sx-ink); }
+.so-x .vt__lamp { fill: var(--emerald); stroke: var(--sx-ink); stroke-width: 0.9; }
+.so-x .pl__b { fill: #fff; stroke: var(--sx-ink); stroke-width: 1; }
+.so-x .pl__sh { fill: none; stroke: var(--sx-ink); stroke-width: 1.6; stroke-linecap: round; }
+.so-x .pl__k { fill: var(--sx-ink); stroke: var(--sx-ink); stroke-width: 1; stroke-linecap: round; }
+.so-x .sb-dots { fill: none; stroke: var(--sx-ink); stroke-opacity: 0.3; stroke-width: 1.6; stroke-linecap: round; }
+.so-x .sb-route, .so-x .sb-route path { fill: none; stroke: var(--sx-ink); stroke-opacity: 0.55; stroke-width: 1.2; stroke-dasharray: 1 5; stroke-linecap: round; }
+.so-x .sb-sigs circle { fill: var(--emerald); stroke: var(--sx-ink); stroke-width: 0.8; }
+.so-x .sh-entry { fill: none; stroke: var(--sx-ink); stroke-opacity: 0.5; stroke-width: 1; stroke-linecap: round; }
+.so-x .sh-bar { fill: var(--sx-ink); stroke: none; }
+.so-x .sh-open { fill: var(--sx-lit); stroke: var(--emerald-deep, #00a86b); stroke-width: 1.2; }
+.so-x .sh-row--open .sh-entry { stroke: var(--sx-ink); stroke-opacity: 1; }
+.so-x .sh-row--open { isolation: isolate; }
+.so-x .sh-row--open .sh-open { mix-blend-mode: multiply; }
+.so-x .sh-look { fill: none; stroke: var(--emerald-deep, #00a86b); stroke-width: 1.6; stroke-dasharray: 1 4; stroke-linecap: round; }
+
+@media (prefers-reduced-motion: reduce) {
+  .so-x *, .so-x *::before, .so-x *::after { transition: none !important; animation: none !important; }
+}
+
+/* ---------------------------------------------------------------- below 1100 / 860 / 600 */
+@media (max-width: 1099px) {
+  .so-x .sx-sol { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); }
+  .so-x .sx-sp__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .so-x .sx-proof__row .l-fig__v { font-size: clamp(1.5rem, 0.6rem + 2.2vw, 2.5rem); }
+}
+@media (max-width: 859px) {
+  .so-x { --sx-gap: 52px; --l-pad: 20px; }
+  .so-x .sx-hero { grid-template-columns: minmax(0, 1fr); row-gap: 40px; padding-top: 132px; }
+  .so-x .sx-hero__art .sb-svg { max-height: 44vh; }
+  .so-x .sx-head .l-head__cell { padding: 40px var(--l-pad) 28px; }
+  /* a solution: its icon and title on one line, the copy under it, in the same cell's frame */
+  .so-x .sx-sol, .so-x .sx-sp__row { grid-template-columns: minmax(0, 1fr); }
+  .so-x .sx-sol .sx-sol__t { padding-top: 32px; padding-bottom: 14px; flex-direction: row; align-items: center; gap: 14px; }
+  .so-x .sx-ic { width: 28px; height: 28px; flex: none; }
+  .so-x .sx-sol .sx-sol__b { padding-top: 0; padding-bottom: 36px; padding-right: var(--l-pad); }
+  .so-x .sx-sol__b .sx-sol__a { margin-top: 6px; }
+  /* the dark band: the copy, then the drawing under it */
+  .so-x .sx-sp { padding: 64px 0; }
+  .so-x .sx-sp__txt { padding: 0 var(--l-pad); gap: 24px; }
+  .so-x .sx-sp__art { padding: 40px var(--l-pad) 0; }
+  .so-x .sx-sp__art .sb-svg { max-height: 44vh; }
+  /* the proof strip, one figure per row: the figure | its label */
+  .so-x .sx-proof__row .sx-fig { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: baseline; column-gap: 16px; padding: 24px var(--l-pad); }
+  .so-x .sx-proof__row .sx-fig + .sx-fig { border-top: var(--hair) solid var(--l-line); }
+  .so-x .sx-proof__row .l-fig__v { font-size: 1.75rem; }
+  .so-x .sx-proof__row .l-fig__c { margin-top: 0; }
+  .so-x .sx-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .so-x .sx-lg:nth-child(n + 3) { border-top: var(--hair) solid var(--l-line); }
+  .so-x .sx-lg:nth-child(2n)::before { display: block; }
+  .so-x .sx-lg:nth-child(2n + 1)::before { display: none; }
+  .so-x .sx-lg { min-height: 112px; padding: 24px 16px; }
+  .so-x .sx-lg__img { height: 22px; }
+  .so-x .sx-lg__name { font-size: 20px; }
+}
+@media (max-width: 599px) {
+  .so-x .sx-sol__t h3 { font-size: 1.5rem; }
+  .so-x .sx-proof__row .l-fig__v { font-size: 1.5rem; }
+}

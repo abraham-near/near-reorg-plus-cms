@@ -26,12 +26,39 @@ export const MotionGate = MotionGateCtx.Provider;
  * ctx.reduced = true (interactions only: no scroll build-in), so every section has ONE static state that is the finished layout.
  * A late ScrollTrigger.refresh follows every mount (the pins above — the hero and the rail — move every start / end below them).
  */
+/**
+ * Page transitions (styles/view-transitions.css): a page reached through one is still fading in when its sections mount, so their intros (the h1's words,
+ * the hero drawings' builds) would play out unseen. While the transition runs (window.__vtDone, set by the site layout's head script on `pagereveal`),
+ * gsap's global timeline is held (each mount runs with it live for that instant, so every starting state, gsap.set and .from, paints at once): nothing
+ * pops, and the intros start as it ends.
+ * Once per page; never longer than 2 s.
+ */
+let checked = false, holding = false;
+function holdForTransition() {
+  if (checked || typeof window === "undefined") return;
+  checked = true;
+  const done = (window as unknown as { __vtDone?: Promise<void> }).__vtDone;
+  if (!done) return;
+  holding = true;
+  gsap.globalTimeline.pause();
+  const go = () => { holding = false; gsap.globalTimeline.resume(); };
+  Promise.race([done, new Promise((r) => setTimeout(r, 2000))]).then(go, go);
+}
+/** runs a mount with the global timeline live for that instant (a gsap.set on a held timeline would wait for it), then holds it again: no tick passes in
+ *  between, so the starting states paint and nothing else moves */
+function live(fn: () => void) {
+  if (!holding) return fn();
+  gsap.globalTimeline.resume();
+  try { fn(); } finally { if (holding) gsap.globalTimeline.pause(); }
+}
+
 export function useScrollMotion(ref: RefObject<HTMLElement | null>, mount: Mount) {
   const gate = useContext(MotionGateCtx);
   useEffect(() => {
     const root = ref.current; if (!root) return;
+    holdForTransition();
     let dead = false, cleanup: void | (() => void), gctx: gsap.Context | null = null;
-    const run = () => { gctx = gsap.context(() => { cleanup = mount(root, { gsap, ScrollTrigger, reduced: prefersReduced() }); }, root); };
+    const run = () => live(() => { gctx = gsap.context(() => { cleanup = mount(root, { gsap, ScrollTrigger, reduced: prefersReduced() }); }, root); });
     if (gate) gate().then(() => { if (dead) return; run(); requestRefresh(); });
     else { run(); requestRefresh(); }
     return () => { dead = true; if (typeof cleanup === "function") cleanup(); gctx?.revert(); };

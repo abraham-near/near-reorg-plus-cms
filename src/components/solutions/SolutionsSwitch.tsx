@@ -5,6 +5,7 @@ export const SOLUTIONS_VERSIONS = [
   { k: "a", href: "/solutions-a", name: "Ruled grid" },
   { k: "b", href: "/solutions-b", name: "Drawn" },
   { k: "c", href: "/solutions-c", name: "Editorial" },
+  { k: "x", href: "/solutions", name: "MVP" },
 ] as const;
 
 export function SolutionsSwitch({ on }: { on: (typeof SOLUTIONS_VERSIONS)[number]["k"] }) {
