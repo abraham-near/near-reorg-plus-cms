@@ -8,23 +8,18 @@ export type Final = { id: string; href: string; path?: string; name: string; not
 export const FINALS: Final[] = [
   {
     id: "home", href: "/", name: "Homepage · v9",
-    note: "Home v9: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", then the rail with the signed identity, the Stack in lit matte, Origin, Go deeper, the voices one at a time and the mailboxes. Also at /home-v9.",
-    tags: ["Type-only hero", "Black-and-white photos", "Lit matte Stack"], img: "/index/home.webp",
-  },
-  {
-    id: "home-v8", href: "/home-v8", name: "Home v8",
-    note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it.",
-    tags: ["Type-only hero", "Cycling word"], img: "/index/home-v8.webp",
+    note: "Home v9: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail with the signed identity, the Stack in lit matte, Origin, Go deeper, Get into NEAR (Trade's photo with the glowing NEAR mark), the voices one at a time, and \"NEAR belongs to you\" as one centred group over a stack of mail. Also at /home-v9.",
+    tags: ["Type-only hero", "Still headline", "Black-and-white photos"], img: "/index/home.webp",
   },
   {
     id: "home-v7", href: "/home-v7", name: "Home v7",
-    note: "The homepage before v9: G1's time-lapse film as the hero under its traced layer, the intro through the grid, the rail, the Stack in lit matte, proof and Go deeper.",
+    note: "The homepage before v8 and v9: G1's time-lapse film as the hero under its traced layer, the intro through the grid, the rail, the Stack in lit matte, proof and Go deeper.",
     tags: ["Scroll-scrubbed film", "Tracked vectors", "Lit matte Stack"], img: "/index/home-v7.webp",
   },
   {
     id: "blog", href: "/blog", name: "Blog",
-    note: "Reading rail, open (direction J): search, type, sort and view in a sticky rail beside the feed; one lead post, then a grid of eighteen or a list. The CMS's posts first.",
-    tags: ["CMS posts", "Blog / Press / Watch", "Grid / list"], img: "/index/blog.webp",
+    note: "Version E: the heading, the lead post (always on screen), then All, Blog, Press and Watch as large words over tag pills you can combine (NEAR AI, NEAR Intents, near.com and NEAR Protocol first). Posts sit on the homepage's ruled cards with their date and tags, nine at a time. The CMS's posts first. The previous blog (direction J) is at /blog-index-a on /extra.",
+    tags: ["CMS posts", "Blog / Press / Watch", "Tags", "Ruled cards"], img: "/index/blog.webp",
   },
   {
     id: "post", href: "/post-b", path: "/blog/<slug>", name: "Blog post",

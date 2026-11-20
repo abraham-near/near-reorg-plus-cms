@@ -16,16 +16,17 @@
 .ph__c { display: inline-block; }
 .ph__sq { display: inline-block; width: calc(var(--ph) * .2125); height: calc(var(--ph) * .2125); margin-left: calc(var(--ph) * .07); background: var(--green); }
 
-/* the change (Cycle sets data-run once it can play): the last word's letters lift away left to right (gone by about 0.35 s), the next one's rise in from 0.3 s, each a
+/* the change (Cycle sets data-run once it can play): the last word's letters lift away left to right (gone by about 0.32 s), the next one's rise in from 0.27 s, each a
    beat behind the one before; the square lands on "by design" once its letters are in */
 [data-run] .ph__w:not([data-on]):not([data-out]) { visibility: hidden; }
 [data-run] .ph__w[data-out] { visibility: visible; }
-[data-run] .ph__c { opacity: 0; transform: translateY(.42em); transition: opacity .2s ease-in, transform .24s cubic-bezier(.55, 0, .8, .2); transition-delay: calc(var(--j) * 12ms); }
+/* D235: every time here is 10% shorter than D200's (the whole cycle is 10% faster) */
+[data-run] .ph__c { opacity: 0; transform: translateY(.42em); transition: opacity .18s ease-in, transform .22s cubic-bezier(.55, 0, .8, .2); transition-delay: calc(var(--j) * 11ms); }
 [data-run] .ph__w[data-out] .ph__c { transform: translateY(-.3em); }
 [data-run] .ph__w[data-on] .ph__c { opacity: 1; transform: none;
-  transition: opacity .4s ease calc(.3s + var(--j) * 30ms), transform .75s cubic-bezier(.16, .84, .24, 1) calc(.3s + var(--j) * 30ms); }
-[data-run] .ph__sq { transform: scale(0); transition: transform .2s ease-in; }
-[data-run] .ph__w[data-on] .ph__sq { transform: none; transition: transform .55s cubic-bezier(.3, 1.4, .5, 1) .85s; }
+  transition: opacity .36s ease calc(.27s + var(--j) * 27ms), transform .68s cubic-bezier(.16, .84, .24, 1) calc(.27s + var(--j) * 27ms); }
+[data-run] .ph__sq { transform: scale(0); transition: transform .18s ease-in; }
+[data-run] .ph__w[data-on] .ph__sq { transform: none; transition: transform .5s cubic-bezier(.3, 1.4, .5, 1) .77s; }
 
 /* the paragraph (the intro's statement, moved up) and the button */
 .ph__p { margin: clamp(28px, 2.6vw, 52px) 0 0; max-width: 29em; font-size: var(--p); line-height: 1.26; letter-spacing: -.0134em; color: var(--ink); text-wrap: pretty; }

@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
       { source: "/:page(analytics|community|history|economics|solutions|research)-x", destination: "/:page", permanent: false },
       { source: "/home-v:v([1-6])", destination: "/", permanent: true },
       { source: "/home-v:v([1-6])/:path*", destination: "/", permanent: true },
+      // the previous CMS's post addresses (near.org/blog/<slug>.html), still linked from around the web
+      { source: "/blog/:slug([^/.]+)\\.html", destination: "/blog/:slug", permanent: true },
     ];
   },
   turbopack: {

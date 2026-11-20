@@ -1,12 +1,13 @@
 // The switch between the blog index's versions (top left, under the header): plain links. Same pill as the Solutions and Community switches.
-// A is the live blog (/blog, direction J); B–D are explorations listed at /extra.
+// E is the live blog (/blog, "Tabs over a grid", D221); A (direction J, the previous /blog) and B–D are explorations listed at /extra.
 import "../v4/revenue/switch.css";
 
 export const BLOG_VERSIONS = [
-  { k: "a", href: "/blog", name: "Reading rail (current)" },
+  { k: "a", href: "/blog-index-a", name: "Reading rail" },
   { k: "b", href: "/blog-index-b", name: "Figma: featured + cards" },
   { k: "c", href: "/blog-index-c", name: "Figma on the homepage grid" },
   { k: "d", href: "/blog-index-d", name: "Figma: lead card + type menu" },
+  { k: "e", href: "/blog", name: "Tabs over a grid (current)" },
 ] as const;
 
 export function BlogSwitch({ on }: { on: (typeof BLOG_VERSIONS)[number]["k"] }) {

@@ -4,7 +4,7 @@ import { FINALS } from "./(site)/index/pages";
 import { getLivePosts } from "@/lib/blog/posts";
 import { indexable, NEVER_INDEXED, siteOrigin } from "@/lib/site";
 
-// The sitemap: the final pages (/index's list, the ones with an address of their own, less the older homepages at /home-v7 and /home-v8) and every live public blog post. Built on request: the CMS's
+// The sitemap: the final pages (/index's list, the ones with an address of their own, less the older homepage at /home-v7) and every live public blog post. Built on request: the CMS's
 // database is not reachable at build. Empty until launch (SITE_INDEXABLE, src/lib/site.ts), like robots.txt.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();

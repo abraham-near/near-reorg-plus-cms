@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 };
 
 // Home v9 = Lawrence's branch NEAR-is-privacy-HEADLINE (D202): home v8 with one still headline, "NEAR is privacy for onchain capital and the agent
-// economy.", and two sentences under it (components/v7/private), and the lower page of that branch (V7Page `top`). Home v7 (/) is unchanged.
+// economy.", and two sentences under it (components/v7/private), and the lower page of that branch (V7Page `top`). It is the homepage: / re-exports this
+// page (D246; it was before v8's turn, D222).
 export default function HomeV9() {
   return <V7Page top="privacy" />;
 }
