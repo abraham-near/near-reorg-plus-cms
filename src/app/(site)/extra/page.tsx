@@ -3,10 +3,12 @@ import Link from "next/link";
 import styles from "../Selector.module.css";
 import x from "./Extra.module.css";
 import { GROUPS } from "./pages";
+import { Fill } from "../Fill";
 
 export const metadata: Metadata = { title: "Extra pages" };
 
-// The extra pages (pages.ts), in the selector's language. Plain <a> on purpose, as on /index: each page loads fresh.
+// The extra pages (pages.ts), in the selector's language: each group is its title over its cards, and each card the picture, the address, the name and
+// the arrow (the group notes, the card notes and the tags stay in the data). Plain <a> on purpose, as on /index: each page loads fresh.
 const Go = () => (
   <span className={styles.go} aria-hidden="true">
     <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
@@ -32,20 +34,18 @@ export default function ExtraIndex() {
         <section key={g.id} id={g.id} className={x.group} aria-labelledby={`${g.id}-t`}>
           <div className={x.head}>
             <h2 id={`${g.id}-t`} className={x.h2}>{g.title}</h2>
-            <p className={x.gnote}>{g.note}</p>
           </div>
           <ul className={`${styles.grid} ${x.grid}`}>
             {g.pages.map((p) => (
               <li key={p.href}>
                 <a className={`${styles.card}${p.featured ? ` ${x.featured}` : ""}`} href={p.href}>
                   <span className={styles.frame}>{p.featured && <span className={x.badge}>Featured</span>}<img className={styles.img} src={p.img} alt="" width={1200} height={750} loading="lazy" /></span>
-                  <span className={styles.meta}><span className={styles.n}>{p.n}</span><span className={styles.path}>{p.href}</span></span>
+                  <span className={styles.meta}><span className={styles.path}>{p.href}</span></span>
                   <span className={styles.row}><span className={`${styles.name} ${x.name}`}>{p.name}</span><Go /></span>
-                  <span className={styles.note}>{p.note}</span>
-                  <span className={styles.tags}>{p.tags.map((t) => <span key={t} className={styles.tag}>{t}</span>)}</span>
                 </a>
               </li>
             ))}
+            <Fill n={g.pages.length} />
           </ul>
         </section>
       ))}

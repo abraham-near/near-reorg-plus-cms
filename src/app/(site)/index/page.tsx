@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import styles from "../Selector.module.css";
 import { COUNT, GROUPS } from "../extra/pages";
 import { FINALS } from "./pages";
+import { Fill } from "../Fill";
 
 export const metadata: Metadata = { title: "Index" };
 
 const EXTRA_LINE = GROUPS.map((g) => `${g.title} (${g.pages.length})`).join(" · ");
 
-// The index (/index): the site's final pages, one card each (./pages.ts), and the way into /extra, where the explorations live (../extra/pages.ts).
+// The index (/index): the site's final pages, one card each (./pages.ts: the picture, the address, the name and the arrow; the notes and tags stay in the
+// data, not on the cards), and the way into /extra, where the explorations live (../extra/pages.ts).
 // Plain <a> on purpose: each page loads fresh (their global CSS and their boots never meet).
 export default function Selector() {
   return (
@@ -34,7 +36,6 @@ export default function Selector() {
                 <img className={styles.img} src={v.img} alt="" width={1200} height={750} loading={i < 3 ? undefined : "lazy"} />
               </span>
               <span className={styles.meta}>
-                <span className={styles.n}>{String(i + 1).padStart(2, "0")}</span>
                 <span className={styles.path}>{v.path ?? v.href}</span>
               </span>
               <span className={styles.row}>
@@ -43,13 +44,10 @@ export default function Selector() {
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.25" /></svg>
                 </span>
               </span>
-              <span className={styles.note}>{v.note}</span>
-              <span className={styles.tags}>
-                {v.tags.map((t) => <span key={t} className={styles.tag}>{t}</span>)}
-              </span>
             </a>
           </li>
         ))}
+        <Fill n={FINALS.length} />
       </ul>
 
       {/* the way into /extra (../extra/pages.ts) */}
