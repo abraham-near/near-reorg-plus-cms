@@ -640,9 +640,12 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           afterPublishClose.current = null
           requestAnimationFrame(run) } }} />}
     {post && <RevisionsPanel open={revisionsOpen} onOpenChange={setRevisionsOpen} postId={post.id} expectedUpdatedAt={post.updatedAt} canRestore={editable} onRestore={acceptPost} onRestoreBusyChange={setBusy} />}
-    <MediaPickerModal open={!!mediaField} kind={mediaField === 'video' ? 'video' : 'image'} onClose={() => setMediaField(null)} onSelect={(selected) => { const url = safeUrl(Array.isArray(selected) ? selected[0] : selected)
+    <MediaPickerModal open={!!mediaField} kind={mediaField === 'video' ? 'video' : 'image'} onClose={() => setMediaField(null)} onSelect={(selected, items) => { const url = safeUrl(Array.isArray(selected) ? selected[0] : selected)
       if (mediaField === 'video' && url) { setVideoBroken(false)
-        update('video', url) }
+        update('video', url)
+        // A post without a cover takes the video's poster: the picture of its card in the blog and of the player before play.
+        const poster = safeUrl(items[0]?.posterUrl ?? '')
+        if (poster && !form.featuredImage) { update('featuredImage', poster); toast.success("Cover set from the video's poster") } }
       else if (mediaField && url) update(mediaField, url)
       setMediaField(null) }} />
   </div>

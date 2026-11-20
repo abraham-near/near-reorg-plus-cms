@@ -366,6 +366,11 @@ model Media {
   originalKey      String?
   originalMimeType String?
   originalSize     Int?
+  /// A video's poster: an image of the library ("/cms/<hash>.webp"), a frame the browser took when the video was
+  /// uploaded, or one chosen later. Shown on the video's tile and offered as a post's cover. Null: none yet.
+  posterUrl        String?
+  /// A video's length in seconds, as the browser read it on upload. Null: unknown (and for everything else).
+  duration         Int?
   uploadedById     String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

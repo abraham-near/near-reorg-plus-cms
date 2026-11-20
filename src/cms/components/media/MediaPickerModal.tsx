@@ -17,7 +17,8 @@ import { useUploadQueue } from './useUploadQueue'
 interface MediaPickerModalProps {
   open: boolean
   onClose: () => void
-  onSelect: (url: string | string[]) => void
+  /** The chosen `/cms/...` URL(s), and the library rows behind them (for a video: its poster). */
+  onSelect: (url: string | string[], items: MediaItem[]) => void
   multiSelect?: boolean
   /** 'video': pick or upload a video post's video (MP4/WebM only). Default 'image'. */
   kind?: 'image' | 'video'
@@ -69,7 +70,7 @@ function MediaPickerBody({ open, onClose, onSelect, multiSelect = false, kind = 
   function confirm(urls = selected) {
     if (!urls.length) return
     if (uploads.busy) { toast.warning('Wait for the upload to finish, or cancel it in the list first.'); return }
-    onSelect(multiSelect ? urls : urls[0])
+    onSelect(multiSelect ? urls : urls[0], urls.flatMap((url) => list.items.filter((item) => item.url === url)))
     close()
   }
 

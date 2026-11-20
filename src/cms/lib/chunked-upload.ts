@@ -139,6 +139,27 @@ export async function readPart(req: Request, expected: number): Promise<Buffer> 
   return Buffer.concat(chunks, length)
 }
 
+/** A poster frame: one small image, read with a cap (src/proxy.ts passes 10 MB; a 1280 px frame is a few hundred KB). */
+export const POSTER_MAX = 4 * 1024 * 1024
+
+export async function readPoster(req: Request): Promise<Buffer> {
+  const tooLarge = () => new HttpError(413, 'Poster too large')
+  if (Number(req.headers.get('content-length') ?? 0) > POSTER_MAX) throw tooLarge()
+  const reader = req.body?.getReader()
+  if (!reader) throw new HttpError(400, 'No poster')
+  const chunks: Uint8Array[] = []
+  let length = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    length += value.byteLength
+    if (length > POSTER_MAX) { await reader.cancel(); throw tooLarge() }
+    chunks.push(value)
+  }
+  if (!length) throw new HttpError(400, 'No poster')
+  return Buffer.concat(chunks, length)
+}
+
 export async function putPart(ticket: UploadTicket, n: number, body: Buffer) {
   if (!Number.isInteger(n) || n < 1 || n > ticket.parts) throw new HttpError(400, 'Invalid part number')
   if (body.length !== partLength(ticket.size, n)) throw new HttpError(400, 'Part size mismatch')
@@ -176,7 +197,10 @@ type MediaRow = Prisma.MediaGetPayload<{ select: typeof mediaSelect }>
  * two at once) returns the row the first one created, with `created: false`. A replacement is checked again here: the
  * original may have been deleted since the upload started.
  */
-export async function finishUpload(ticket: UploadTicket, userId: string, alt?: string | null): Promise<{ media: MediaRow; created: boolean; original: MediaRow | null }> {
+/** What the browser read from the video while sending it (shown on its tile; never trusted for anything else). */
+export type VideoFacts = { alt?: string | null; width?: number; height?: number; duration?: number }
+
+export async function finishUpload(ticket: UploadTicket, userId: string, facts: VideoFacts = {}): Promise<{ media: MediaRow; created: boolean; original: MediaRow | null }> {
   let original: MediaRow | null = null
   if (ticket.rid) {
     original = await db.media.findUnique({ where: { id: ticket.rid }, select: mediaSelect })
@@ -198,7 +222,10 @@ export async function finishUpload(ticket: UploadTicket, userId: string, alt?: s
   }
   try {
     const media = await db.media.create({
-      data: { key: ticket.key, url: `/${ticket.key}`, filename: ticket.name, mimeType: ticket.mime, size: ticket.size, alt: alt?.trim() || null, uploadedById: userId },
+      data: {
+        key: ticket.key, url: `/${ticket.key}`, filename: ticket.name, mimeType: ticket.mime, size: ticket.size, alt: facts.alt?.trim() || null, uploadedById: userId,
+        width: facts.width ?? null, height: facts.height ?? null, duration: facts.duration ?? null,
+      },
       select: mediaSelect,
     })
     return { media, created: true, original }

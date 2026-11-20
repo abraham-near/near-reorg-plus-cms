@@ -9,6 +9,10 @@ const completeSchema = z.object({
   ticket: z.string().min(1).max(4096),
   alt: z.string().trim().max(500).optional(),
   replaceEverywhere: z.boolean().optional(),
+  // What the browser read from the video (its tile shows them).
+  width: z.number().int().min(1).max(16384).optional(),
+  height: z.number().int().min(1).max(16384).optional(),
+  duration: z.number().min(0).max(86400).transform(Math.round).optional(),
 }).strict()
 
 /**
@@ -21,7 +25,7 @@ export const POST = route(async (req) => {
   const ticket = readTicket(input.ticket, user.id)
   // A replacement is checked again: the role may have changed since the upload started.
   if (ticket.rid) await requirePermission('media:edit')
-  const { media, created, original } = await finishUpload(ticket, user.id, input.alt)
+  const { media, created, original } = await finishUpload(ticket, user.id, { alt: input.alt, width: input.width, height: input.height, duration: input.duration })
   if (created) await audit(user, { action: 'UPLOAD', entityType: 'MEDIA', entityId: media.id, entityTitle: media.filename }, req)
   if (!original) return json(media, created ? 201 : 200)
   // A repeat (the first call failed or its answer was lost after the file was stored) replaces again: safe, since

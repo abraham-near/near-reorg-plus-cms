@@ -73,3 +73,11 @@ describe('uploadMedia', () => {
     expect(log).toEqual(['POST /api/admin/media/uploads', 'PUT /api/admin/media/uploads/part?n=1 (4)', 'fetch /api/admin/media/uploads/abort'])
   })
 })
+
+describe('video facts', () => {
+  it('formats a length and picks a poster frame past the first black one', async () => {
+    const { formatDuration, posterTime } = await import('@/cms/components/media/video-poster')
+    expect([formatDuration(42.4), formatDuration(725), formatDuration(3723), formatDuration(null), formatDuration(-1)]).toEqual(['0:42', '12:05', '1:02:03', '', ''])
+    expect([posterTime(1684), posterTime(4), posterTime(NaN)]).toEqual([1, 0.4, 0])
+  })
+})

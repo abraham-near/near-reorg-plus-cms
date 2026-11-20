@@ -3,6 +3,7 @@
 import { AdminApiError } from '@/cms/lib/client'
 import type { MediaItem } from './types'
 import { findUploadKind } from './upload-limits'
+import { readVideoFacts } from './video-poster'
 
 type UploadOptions = { imagesOnly?: boolean; videosOnly?: boolean; onProgress?: (fraction: number | null) => void; signal?: AbortSignal }
 
@@ -109,6 +110,8 @@ export async function uploadVideoInParts<T>(file: File, opts: UploadOptions & { 
   const start = await send('POST', '/api/admin/media/uploads', JSON.stringify({ filename: file.name, ext, size: file.size, videosOnly: !!opts.videosOnly, ...(opts.replaceId ? { replaceId: opts.replaceId } : {}) }), json, signal)
   if (!ok(start)) throw failure(start)
   const { ticket, partSize, parts } = start.data as { ticket: string; partSize: number; parts: number }
+  // Size, length and a poster frame, read from the file while its parts go up.
+  const facts = readVideoFacts(file)
 
   const drop = () => {
     void fetch('/api/admin/media/uploads/abort', { method: 'POST', keepalive: true, credentials: 'same-origin', headers: json, body: JSON.stringify({ ticket }) }).catch(() => undefined)
@@ -124,8 +127,17 @@ export async function uploadVideoInParts<T>(file: File, opts: UploadOptions & { 
       sent += part.size
       opts.onProgress?.(sent / file.size)
     }
-    const done = await withRetries(() => send('POST', '/api/admin/media/uploads/complete', JSON.stringify({ ticket, ...(opts.replaceId ? { replaceEverywhere: true } : {}) }), json, signal), signal)
+    const { poster, ...size } = await facts
+    const done = await withRetries(() => send('POST', '/api/admin/media/uploads/complete', JSON.stringify({ ticket, ...size, ...(opts.replaceId ? { replaceEverywhere: true } : {}) }), json, signal), signal)
     if (!ok(done)) throw failure(done)
+    // The poster is a nicety: the video is stored either way.
+    if (poster) {
+      const framed = await send('PUT', '/api/admin/media/uploads/poster', poster, { 'x-upload-ticket': ticket }, signal).catch(() => null)
+      if (framed && ok(framed)) {
+        const data = done.data as { media?: unknown }
+        return (data && typeof data === 'object' && 'media' in data ? { ...data, media: framed.data } : framed.data) as T
+      }
+    }
     return done.data as T
   } catch (error) {
     drop()

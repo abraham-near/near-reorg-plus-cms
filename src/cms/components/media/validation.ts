@@ -5,6 +5,8 @@ import { HttpError, parseJson } from '@/cms/lib/http'
 export const mediaPatchSchema = z.object({
   filename: z.string().trim().min(1).max(200).transform(cleanFilename).optional(),
   alt: z.string().trim().max(500).nullable().optional(),
+  /** A video's poster: an image of the library, or null to clear it. */
+  posterUrl: z.string().max(300).nullable().optional(),
 }).strict().refine((value) => Object.keys(value).length > 0, 'No changes provided')
 export const deleteSchema = z.object({ force: z.boolean().default(false) }).strict()
 export const bulkDeleteSchema = deleteSchema.extend({ ids: z.array(z.string().min(1).max(100)).min(1).max(100).transform((ids) => [...new Set(ids)]) })

@@ -1,10 +1,12 @@
 'use client'
 
-import { Check, FileArchive, FileAudio, FileText, FileVideo, Maximize2, Type } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Check, FileArchive, FileAudio, FileText, FileVideo, Maximize2, Play, Type } from 'lucide-react'
 import { cn } from '@/cms/lib/utils'
 import { isCmsMediaUrl } from './reference-values'
 import type { MediaItem } from './types'
 import { formatBytes, isImage, typeLabel } from './upload-limits'
+import { formatDuration } from './video-poster'
 
 /** Icon tile for files that have no thumbnail. */
 export function FileTypeIcon({ item, className }: { item: Pick<MediaItem, 'mimeType' | 'filename'>; className?: string }) {
@@ -20,10 +22,42 @@ export function FileTypeIcon({ item, className }: { item: Pick<MediaItem, 'mimeT
 }
 
 export function MediaThumb({ item, className }: { item: MediaItem; className?: string }) {
+  if (item.mimeType.startsWith('video/') && isCmsMediaUrl(item.url)) return <VideoThumb item={item} className={className} />
   return isImage(item) && isCmsMediaUrl(item.url)
     // eslint-disable-next-line @next/next/no-img-element -- /cms files are served as-is
     ? <img src={item.url} alt="" loading="lazy" decoding="async" className={cn('size-full object-cover', className)} />
     : <FileTypeIcon item={item} className={className} />
+}
+
+/**
+ * A video's tile: its poster (taken when it was uploaded, or chosen later), else a frame of the video itself, loaded only
+ * once the tile is on screen (the browser asks for the start of the file, not all of it), else the file icon. Its length
+ * sits in a corner.
+ */
+function VideoThumb({ item, className }: { item: MediaItem; className?: string }) {
+  const [posterFailed, setPosterFailed] = useState(false)
+  const [frameFailed, setFrameFailed] = useState(false)
+  const [visible, setVisible] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+  const poster = item.posterUrl && isCmsMediaUrl(item.posterUrl) && !posterFailed ? item.posterUrl : null
+  useEffect(() => {
+    if (poster || visible || !ref.current) return
+    const observer = new IntersectionObserver((entries) => { if (entries.some((entry) => entry.isIntersecting)) setVisible(true) }, { rootMargin: '200px' })
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [poster, visible])
+  const length = formatDuration(item.duration)
+  return <span ref={ref} className="relative block size-full">
+    {poster
+      // eslint-disable-next-line @next/next/no-img-element -- /cms files are served as-is
+      ? <img src={poster} alt="" loading="lazy" decoding="async" onError={() => setPosterFailed(true)} className={cn('size-full object-cover', className)} />
+      : frameFailed || !visible
+        ? <FileTypeIcon item={item} className={className} />
+        : <video src={`${item.url}#t=1`} muted playsInline preload="metadata" aria-hidden="true" tabIndex={-1} onError={() => setFrameFailed(true)} className={cn('pointer-events-none size-full bg-black object-cover', className)} />}
+    <span aria-hidden="true" className="pointer-events-none absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-[5px] bg-black/65 px-1.5 py-0.5 text-[11px] font-medium text-white tabular-nums">
+      <Play className="size-2.5 fill-current" />{length || typeLabel(item)}
+    </span>
+  </span>
 }
 
 type TileProps = {
@@ -44,7 +78,7 @@ const added = (iso: string) => new Date(iso).toLocaleDateString(undefined, { mon
 /** "Added Nov 12, 2026 · 1600×900 · 240 KB" */
 export function tileDetails(item: MediaItem) {
   const dims = item.width && item.height ? `${item.width}×${item.height}` : isImage(item) ? null : typeLabel(item)
-  return [`Added ${added(item.createdAt)}`, dims, formatBytes(item.size)].filter(Boolean).join(' · ')
+  return [`Added ${added(item.createdAt)}`, dims, formatDuration(item.duration), formatBytes(item.size)].filter(Boolean).join(' · ')
 }
 
 function UsageChip({ usage }: { usage: number }) {

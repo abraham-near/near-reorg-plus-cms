@@ -2,7 +2,7 @@ import { audit, diffFields } from '@/cms/lib/audit'
 import { requireActor, requirePermission } from '@/cms/lib/auth'
 import { db } from '@/cms/lib/db'
 import { HttpError, json, parseJson, route } from '@/cms/lib/http'
-import { findMediaReferences, removeMedia } from '@/cms/components/media/service'
+import { findMediaReferences, removeMedia, setVideoPoster } from '@/cms/components/media/service'
 import { mediaSelect } from '@/cms/components/media/types'
 import { deleteSchema, mediaPatchSchema } from '@/cms/components/media/validation'
 
@@ -28,7 +28,9 @@ export const PATCH = route<Context>(async (req, { params }) => {
   const before = await db.media.findUnique({ where: { id }, select: mediaSelect })
   if (!before) throw new HttpError(404, 'File not found')
   // Alt text and filename never change the file's URL, so a token may fix them on live images too.
-  const saved = await db.media.update({ where: { id }, data, select: mediaSelect })
+  const { posterUrl, ...fields } = data
+  if (posterUrl !== undefined) await setVideoPoster(id, posterUrl)
+  const saved = Object.keys(fields).length ? await db.media.update({ where: { id }, data: fields, select: mediaSelect }) : await db.media.findUniqueOrThrow({ where: { id }, select: mediaSelect })
   await audit(user, { action: 'UPDATE', entityType: 'MEDIA', entityId: id, entityTitle: saved.filename, diff: diffFields(before, saved) }, req)
   return json(saved)
 }, { token: true })

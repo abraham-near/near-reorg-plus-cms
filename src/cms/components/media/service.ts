@@ -111,6 +111,18 @@ export async function replaceMediaReferences(oldUrl: string, newUrl: string, use
 
 type MediaRow = Prisma.MediaGetPayload<{ select: typeof mediaSelect }>
 
+/** Sets (or clears, null) a video's poster: an image of the library. */
+export async function setVideoPoster(videoId: string, posterUrl: string | null) {
+  const video = await db.media.findUnique({ where: { id: videoId }, select: { mimeType: true } })
+  if (!video) throw new HttpError(404, 'File not found')
+  if (!video.mimeType.startsWith('video/')) throw new HttpError(400, 'Only a video has a poster')
+  if (posterUrl !== null) {
+    const poster = isCmsMediaUrl(posterUrl) ? await db.media.findUnique({ where: { url: posterUrl }, select: { mimeType: true } }) : null
+    if (!poster?.mimeType.startsWith('image/')) throw new HttpError(400, 'The poster must be an image from the media library')
+  }
+  return db.media.update({ where: { id: videoId }, data: { posterUrl }, select: mediaSelect })
+}
+
 /**
  * The second half of replacing a file, once the new one is stored (its UPLOAD is audited by the caller): every post that
  * used the original now uses the replacement, the alt text carries over, and the REPLACE is audited. The original stays
@@ -144,6 +156,8 @@ export async function removeMedia(id: string, force: boolean, user: Actor, req?:
     throw new HttpError(503, 'Storage deletion failed. The file record was kept; retry later.')
   }
   await db.media.delete({ where: { id } })
+  // An image used as a video's poster: the video goes back to showing a frame of itself.
+  if (media.mimeType.startsWith('image/')) await db.media.updateMany({ where: { posterUrl: media.url }, data: { posterUrl: null } })
   await audit(user, { action: force ? 'FORCE_DELETE' : 'DELETE', entityType: 'MEDIA', entityId: id, entityTitle: media.filename, diff: { url: media.url, references: references.length } }, req)
   return { id, references: references.length }
 }

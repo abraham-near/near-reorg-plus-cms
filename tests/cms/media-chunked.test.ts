@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import sharp from 'sharp'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '@/cms/lib/db'
 import { HttpError } from '@/cms/lib/http'
@@ -44,6 +45,9 @@ import { POST as START } from '@/app/(cms)/api/admin/media/uploads/route'
 import { PUT as PART } from '@/app/(cms)/api/admin/media/uploads/part/route'
 import { POST as COMPLETE } from '@/app/(cms)/api/admin/media/uploads/complete/route'
 import { POST as ABORT } from '@/app/(cms)/api/admin/media/uploads/abort/route'
+import { PUT as POSTER } from '@/app/(cms)/api/admin/media/uploads/poster/route'
+import { PATCH as PATCH_MEDIA } from '@/app/(cms)/api/admin/media/[id]/route'
+import { removeMedia } from '@/cms/components/media/service'
 
 const MB = 1024 * 1024
 const ORIGIN = 'http://localhost:3055'
@@ -235,6 +239,40 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('completing (database)', () => {
     const res = await COMPLETE(post('/api/admin/media/uploads/complete', { ticket: data.ticket }), undefined)
     expect(res.status).toBe(404)
     expect((await PART(put(1, data.ticket, mp4(64)), undefined)).status).toBe(410)
+  })
+
+  it('keeps what the browser read (size, length) and a poster frame, stored as a re-encoded image', async () => {
+    const file = mp4(256)
+    const { data } = await start({ filename: 'Keynote.mp4', ext: 'mp4', size: file.length })
+    await sendAll(data.ticket, file, 1)
+    const frame = await sharp({ create: { width: 64, height: 36, channels: 3, background: '#3a6' } }).jpeg().toBuffer()
+    const putPoster = (ticket: string) => POSTER(new Request(`${ORIGIN}/api/admin/media/uploads/poster`, { method: 'PUT', headers: { ...headers, 'x-upload-ticket': ticket }, body: new Uint8Array(frame) }), undefined)
+    // not before the video is stored
+    expect((await putPoster(data.ticket)).status).toBe(409)
+    const res = await COMPLETE(post('/api/admin/media/uploads/complete', { ticket: data.ticket, width: 1920, height: 1080, duration: 42.4 }), undefined)
+    const video = await res.json()
+    keys.push(video.key)
+    expect(video).toMatchObject({ width: 1920, height: 1080, duration: 42, posterUrl: null })
+    const framed = await putPoster(data.ticket)
+    expect(framed.status).toBe(200)
+    const withPoster = await framed.json()
+    expect(withPoster.posterUrl).toMatch(/^\/cms\/[0-9a-f]{16}\.webp$/)
+    const poster = await db.media.findUniqueOrThrow({ where: { url: withPoster.posterUrl } })
+    keys.push(poster.key)
+    expect(poster).toMatchObject({ mimeType: 'image/webp', filename: 'Keynote poster.webp', width: 64, height: 36 })
+    // not an image: refused
+    const html = await POSTER(new Request(`${ORIGIN}/api/admin/media/uploads/poster`, { method: 'PUT', headers: { ...headers, 'x-upload-ticket': data.ticket }, body: new TextEncoder().encode('<html></html>') }), undefined)
+    expect(html.status).toBe(415)
+
+    // A poster chosen later: only an image of the library, on a video; deleting the image takes it away.
+    const patch = (id: string, body: unknown) => PATCH_MEDIA(new Request(`${ORIGIN}/api/admin/media/${id}`, { method: 'PATCH', headers: { ...headers, 'content-type': 'application/json' }, body: JSON.stringify(body) }), { params: Promise.resolve({ id }) })
+    expect((await patch(video.id, { posterUrl: video.url })).status).toBe(400)
+    expect((await patch(video.id, { posterUrl: '/cms/missing.webp' })).status).toBe(400)
+    expect((await patch(poster.id, { posterUrl: poster.url })).status).toBe(400)
+    expect((await (await patch(video.id, { posterUrl: null })).json()).posterUrl).toBeNull()
+    expect((await (await patch(video.id, { posterUrl: poster.url })).json()).posterUrl).toBe(poster.url)
+    await removeMedia(poster.id, true, { id: state.userId, email: state.email })
+    expect((await db.media.findUniqueOrThrow({ where: { id: video.id } })).posterUrl).toBeNull()
   })
 
   it('an image cannot be replaced by a video', async () => {
