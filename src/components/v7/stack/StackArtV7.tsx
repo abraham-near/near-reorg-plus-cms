@@ -142,8 +142,11 @@ const Ring = ({ k, only, mark }: { k: keyof typeof BOXES; only?: number[]; mark?
 /* a front box (FRONT): its original hides while the copy over the parted pillar shows, so its outline isn't drawn twice */
 const fb = (k: keyof typeof FRONT, i: number) => (FRONT[k].includes(i) ? "s7-fb" : undefined);
 
-/* look: "matte" draws the pieces lit, in three.js, over this drawing (D149: StackMatteV7); "flat", the drawing as it is */
-export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
+/* look: "matte" draws the pieces lit, in three.js, over this drawing (D149: StackMatteV7); "flat", the drawing as it is.
+   facts: false (home v11, D253) leaves the facts sentence (and its hairline) out of the hover boxes: the title and the green line only */
+export function StackArtV7({ look = "flat", facts = true }: { look?: "flat" | "matte"; facts?: boolean }) {
+  const factsRef = useRef(facts);
+  factsRef.current = facts;
   const svgRef = useRef<SVGSVGElement>(null), tipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -363,7 +366,7 @@ export function StackArtV7({ look = "flat" }: { look?: "flat" | "matte" }) {
         tip.dataset.key = key!; tip.dataset.kind = d.kind ?? "card";
         tip.querySelector(".s7-tip__t")!.textContent = d.title;
         const set = (sel: string, text?: string) => { const el = tip.querySelector<HTMLElement>(sel)!; el.textContent = text ?? ""; el.hidden = !text; };
-        set(".s7-tip__sub", d.sub); set(".s7-tip__body", d.body); set(".s7-tip__facts", d.facts);   /* the facts in sentences (D136) */
+        set(".s7-tip__sub", d.sub); set(".s7-tip__body", d.body); set(".s7-tip__facts", factsRef.current ? d.facts : undefined);   /* the facts in sentences (D136); none on v11 (D253) */
       }
       /* beside the pointer: to its left (D136, Lawrence; D127 had it to the right), 16 px off, centred on it; kept on the screen and under the nav pill.
          Where the left has no room (narrow screens), it goes to the right rather than over the pointer (D136 critic) */

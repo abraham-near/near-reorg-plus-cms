@@ -7,8 +7,8 @@ export type Final = { id: string; href: string; path?: string; name: string; not
 
 export const FINALS: Final[] = [
   {
-    id: "home", href: "/", name: "Homepage · v10",
-    note: "Home v10, \"Stack second\" (Lawrence's branch Stack-Second): \"NEAR is private\" and a word that cycles until it rests on \"by design\", then the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\") and the same lower page as v8 and v9.",
+    id: "home", href: "/", name: "Homepage · v11",
+    note: "Home v11, the working version: v10's \"Stack second\" with the new copy. \"NEAR is private\" and a word that cycles until it rests on \"by design\", the paragraph \"…so your intelligence and assets belong to you\", then the NEAR Stack and Real Usage, then the rail (\"Whoever runs the infrastructure…\") and the same lower page as v8 and v9.",
     tags: ["Cycling hero", "Stack second", "Lit matte Stack"], img: "/index/home.webp",
   },
   {
