@@ -99,7 +99,11 @@ export function Footnotes({ article }: { article: Article }) {
   );
 }
 
-export const Avatar = ({ article, cls = "" }: { article: Article; cls?: string }) => <span className={`pb-av ${cls}`} aria-hidden="true">{article.author.initials}</span>;
+/** the author's initials in a circle; when the author is NEAR itself, the official NEAR mark (public/brand/icon.svg) in their place */
+export const Avatar = ({ article, cls = "" }: { article: Article; cls?: string }) => {
+  const near = article.author.name.trim().toLowerCase() === "near";
+  return <span className={`pb-av ${cls}`} data-mark={near || undefined} aria-hidden="true">{near ? null : article.author.initials}</span>;
+};
 
 export function Tags({ article, cls = "" }: { article: Article; cls?: string }) {
   if (!article.tags.length) return null;

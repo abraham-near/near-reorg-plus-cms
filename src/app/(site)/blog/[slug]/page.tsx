@@ -10,6 +10,7 @@ import { PostSwitch, type PostLayout } from "@/components/v3/post/PostSwitch";
 import { DEFAULT_LAYOUT, postHref, shareOf, toArticle } from "@/lib/blog/article";
 import { getLivePost, getMorePosts } from "@/lib/blog/posts";
 import { localArticle, localPost, orLocal } from "@/lib/blog/local";
+import { withToneHints } from "@/lib/blog/tone-hint";
 import { siteOrigin } from "@/lib/site";
 import { videoMime } from "@/lib/blog/video";
 
@@ -20,6 +21,7 @@ import { videoMime } from "@/lib/blog/video";
 // A video post (the CMS's Format: Video) always opens in PostV, the video layout: no ?layout= and no switch.
 // In `next dev` only, when the CMS can't be read (no database here), the 4 newest articles open from what is hard-wired (lib/blog/local.ts, D256);
 // any other slug is then not found. Production always reads the CMS.
+// Each photo with type over it gets a tone hint from the server (lib/blog/tone-hint.ts, D264), so the cover opens in the right type colour.
 export const instant = false;
 
 const LAYOUTS = { a: PostA, b: PostB, c: PostC, d: PostD } as const;
@@ -64,7 +66,7 @@ export default async function BlogPost({ params, searchParams }: Props) {
     const own = layoutOf(l.layout ?? undefined);
     const layout = query.layout ? layoutOf(query.layout) : own;
     const Local = LAYOUTS[layout];
-    return <><BlogShell home="/"><Local article={localArticle(l, layout)} /></BlogShell><PostSwitch on={layout} base={postHref(slug)} fallback={own} /></>;
+    return <><BlogShell home="/"><Local article={await withToneHints(localArticle(l, layout))} /></BlogShell><PostSwitch on={layout} base={postHref(slug)} fallback={own} /></>;
   }
   if (!post) notFound();
   if (post.video) {
@@ -75,5 +77,5 @@ export default async function BlogPost({ params, searchParams }: Props) {
   const layout = query.layout ? layoutOf(query.layout) : own;
   const more = await getMorePosts(post.slug, post.category?.slug);
   const Post = LAYOUTS[layout];
-  return <><BlogShell home="/"><Post article={toArticle(post, more, layout)} /></BlogShell><PostSwitch on={layout} base={postHref(post.slug)} fallback={own} /></>;
+  return <><BlogShell home="/"><Post article={await withToneHints(toArticle(post, more, layout))} /></BlogShell><PostSwitch on={layout} base={postHref(post.slug)} fallback={own} /></>;
 }

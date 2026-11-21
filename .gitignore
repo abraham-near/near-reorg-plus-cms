@@ -63,3 +63,6 @@ next-env.d.ts
 # home v7's hero options sheet and its option pages and frames: on Lawrence's machine only, like the v6 studies (D155)
 /src/app/(site)/home-v7/heroes/
 /public/home-v7-heroes/
+# the blog hero study (/blog-heroes, D257-D260): local, like the home hero studies
+/src/app/(site)/blog-heroes/
+/public/blog-heroes/

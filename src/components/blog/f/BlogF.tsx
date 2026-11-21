@@ -39,7 +39,7 @@ const dupe = (posts: BlogItem[]) => { const s = new Set(posts.map(slugOf)); retu
 
 function Pic({ p, className = "", lazy }: { p: BlogItem; className?: string; lazy?: boolean }) {
   const src = picOf(p);
-  return <span className={`bf-pic ${className}`}>{src && <img src={src} alt="" loading={lazy ? "lazy" : undefined} />}</span>;
+  return <span className={`bf-pic ${className}`}>{src && <img src={src} alt="" loading={lazy ? "lazy" : undefined} style={p.picFocus ? { objectPosition: p.picFocus } : undefined} />}</span>;
 }
 
 /** the type, and the date when the post has one */

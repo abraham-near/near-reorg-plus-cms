@@ -27,7 +27,7 @@ export function PostD({ article: A }: { article: Article }) {
       <article aria-labelledby="pd-t">
         <header className="pd-lead pd-box">
           <div className={`pd-poster${A.hero ? "" : " pd-poster--plain"}`}>
-            <div className="pd-poster__ph">{A.hero && <img src={A.hero.src} alt={A.hero.alt} fetchPriority="high" decoding="async" />}</div>
+            <div className="pd-poster__ph">{A.hero && <img src={A.hero.src} alt={A.hero.alt} fetchPriority="high" decoding="async" style={A.hero.focus ? { objectPosition: A.hero.focus } : undefined} />}</div>
             <div className="pd-poster__veil" aria-hidden="true" />
             <span className="pd-chip"><i aria-hidden="true" />{chip}</span>
             {/* eslint-disable-next-line @next/next/no-img-element -- the brand's reversed logo, a small static SVG, as on the Figma's dark cover */}

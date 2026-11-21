@@ -2,7 +2,8 @@
 // Taken on 2026-11-20 from the live site's own pages (each post's /blog/<slug> in its default layout, B): the Article the page hands its layout,
 // so the body is the CMS's, already prepared (lib/blog/html.ts), word for word. "More posts" is left out and rebuilt from these four.
 // Photos: the hero is public/images/blog/cms/<slug>.webp (as on /blog); the body's images are public/images/blog/cms/<slug>/<id>.webp.
-// Generated: edit the CMS, not this file, and pull again.
+// Generated: edit the CMS, not this file, and pull again. One hand edit (D261): the 4 heroes point at public/images/blog/heroes/<slug>.webp,
+// the new heroes from the blog hero study, which the CMS doesn't have yet. A re-pull puts the CMS's photos back until they're uploaded there.
 import type { Article } from "@/components/v3/post/article";
 
 export type LocalArticle = { slug: string; publishedAt: string; layout: string | null; metaTitle: string | null; metaDescription: string | null; article: Omit<Article, "more" | "blogHref"> };
@@ -29,7 +30,8 @@ export const LOCAL_ARTICLES: LocalArticle[] = [
    "dateIso": "2026-11-16",
    "tags": [],
    "hero": {
-    "src": "/images/blog/cms/near-inflation-rate-reducing-to-1-6-percent.webp",
+    "src": "/images/blog/heroes/near-inflation-rate-reducing-to-1-6-percent.webp",
+    "focus": "90% 50%",
     "alt": ""
    },
    "takeaways": [],
@@ -88,7 +90,8 @@ export const LOCAL_ARTICLES: LocalArticle[] = [
    "dateIso": "2026-11-09",
    "tags": [],
    "hero": {
-    "src": "/images/blog/cms/near-intents-live-in-talos-oems.webp",
+    "src": "/images/blog/heroes/near-intents-live-in-talos-oems.webp",
+    "focus": "60% 50%",
     "alt": ""
    },
    "takeaways": [],
@@ -143,7 +146,8 @@ export const LOCAL_ARTICLES: LocalArticle[] = [
    "dateIso": "2026-10-23",
    "tags": [],
    "hero": {
-    "src": "/images/blog/cms/chain-signatures-tee.webp",
+    "src": "/images/blog/heroes/chain-signatures-tee.webp",
+    "focus": "50% 50%",
     "alt": ""
    },
    "takeaways": [],
@@ -190,7 +194,8 @@ export const LOCAL_ARTICLES: LocalArticle[] = [
    "dateIso": "2026-10-20",
    "tags": [],
    "hero": {
-    "src": "/images/blog/cms/introducing-near-business.webp",
+    "src": "/images/blog/heroes/introducing-near-business.webp",
+    "focus": "85% 50%",
     "alt": ""
    },
    "takeaways": [],

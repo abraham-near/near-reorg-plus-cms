@@ -49,7 +49,7 @@ export function PostC({ article: A }: { article: Article }) {
           </div>
           {A.hero && (
             <figure className="pc-open__fig">
-              <div className="pc-open__ph"><img src={A.hero.src} alt={A.hero.alt} /></div>
+              <div className="pc-open__ph"><img src={A.hero.src} alt={A.hero.alt} style={A.hero.focus ? { objectPosition: A.hero.focus } : undefined} /></div>
               {A.hero.cap && <figcaption className="pb-cap">{A.hero.cap}</figcaption>}
             </figure>
           )}

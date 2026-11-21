@@ -4,8 +4,12 @@
 // Inline marks in block text: **bold** and *italic* (Body.tsx renders them).
 import type { Video } from "@/lib/blog/video";
 import { POSTS, TYPE_LABEL, href, img, type Type } from "../blog/data";
+import type { ToneHint } from "@/lib/blog/tone-math";
 
-export type Img = { src: string; alt: string; cap?: string; w?: number; h?: number };
+// focus: the picture's CSS object-position where a crop must keep its subject (a hero composed with the subject right of centre, D261); none: centred
+// textTone: the colour of type set over this picture (the post cover), when the measured choice (tone.ts, D262) must be overridden; none: measured.
+// hint: the server's first guess at that tone and its veil (lib/blog/tone-hint.ts, D264), rendered into the HTML; the browser refines it
+export type Img = { src: string; alt: string; cap?: string; w?: number; h?: number; focus?: string; textTone?: "white" | "ink"; hint?: ToneHint };
 export type Block =
   | { k: "p"; t: string; note?: string }
   | { k: "h2"; id: string; t: string }
@@ -20,7 +24,8 @@ export type Block =
 
 export type Section = { id: string; t: string };
 /** a post in Keep reading / Up next / Related */
-export type MorePost = { key: string; title: string; href: string; img: string | null; label: string; source: string; type?: Type; note?: string };
+// imgFocus: the picture's object-position, as Img.focus (D261); imgHint: its tone hint, as Img.hint (D264)
+export type MorePost = { key: string; title: string; href: string; img: string | null; imgFocus?: string; imgHint?: ToneHint; label: string; source: string; type?: Type; note?: string };
 export type Article = {
   category: string;
   type: string;

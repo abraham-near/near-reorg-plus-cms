@@ -1,7 +1,7 @@
 // The blog index's posts: v3's Go deeper items (proof-deeper/ProofDeeper.tsx ITEMS), copy and data verbatim, in the same order (newest first).
 // No dates, authors or figures of our own: an item without its own url goes to the NEAR blog.
 export type Type = "story" | "read" | "watch";
-export type Post = { id: string; type: Type; title: string; source: string; url?: string; note?: string; pic?: string | null };   // pic: a CMS post's own photo (null: none)
+export type Post = { id: string; type: Type; title: string; source: string; url?: string; note?: string; pic?: string | null; picFocus?: string };   // pic: a CMS post's own photo (null: none); picFocus: its object-position in a crop (D261)
 export type FilterKey = "all" | Type;
 
 export const BLOG = "https://www.near.org/blog";
