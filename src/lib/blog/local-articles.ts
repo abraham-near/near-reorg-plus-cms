@@ -1,8 +1,9 @@
-// The 4 newest CMS posts' articles, hard-wired so /blog/<slug> opens them in `next dev` with no database (D256; lib/blog/local.ts uses them).
+// The 5 newest CMS posts' articles, hard-wired so /blog/<slug> opens them in `next dev` with no database (D256; lib/blog/local.ts uses them).
 // Taken on 2026-11-20 from the live site's own pages (each post's /blog/<slug> in its default layout, B): the Article the page hands its layout,
-// so the body is the CMS's, already prepared (lib/blog/html.ts), word for word. "More posts" is left out and rebuilt from these four.
+// so the body is the CMS's, already prepared (lib/blog/html.ts), word for word. "More posts" is left out and rebuilt from the others.
+// The fifth, near.com × Ondo, was added on 2026-11-21 the same way, from production (D268), when its blog hero was picked.
 // Photos: the hero is public/images/blog/cms/<slug>.webp (as on /blog); the body's images are public/images/blog/cms/<slug>/<id>.webp.
-// Generated: edit the CMS, not this file, and pull again. One hand edit (D261): the 4 heroes point at public/images/blog/heroes/<slug>.webp,
+// Generated: edit the CMS, not this file, and pull again. One hand edit (D261, D268): the heroes point at public/images/blog/heroes/<slug>.webp once picked,
 // the new heroes from the blog hero study, which the CMS doesn't have yet. A re-pull puts the CMS's photos back until they're uploaded there.
 import type { Article } from "@/components/v3/post/article";
 
@@ -235,6 +236,62 @@ export const LOCAL_ARTICLES: LocalArticle[] = [
     }
    ],
    "readMin": 5,
+   "video": null
+  }
+ },
+ {
+  "slug": "tokenized-stocks-rwas-ondo",
+  "publishedAt": "2026-09-22T13:00:00.000Z",
+  "layout": null,
+  "metaTitle": "Buy tokenized US stocks and ETFs onchain with any crypto and trade confidentially across 30+ chains, no brokerage account. In partnership with Ondo Finance.",
+  "metaDescription": null,
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "near.com Partners with Ondo: Buy Tokenized Stocks and ETFs Onchain, Confidentially",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "September 22, 2026",
+   "dateIso": "2026-09-22",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/heroes/tokenized-stocks-rwas-ondo.webp",
+    "focus": "68% 50%",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<h2 id=\"key-insights\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">Key Insights</span></h2><ul class=\"pb-list\"><li>Buy tokenized US stocks and ETFs with stablecoins or any supported crypto. The most actively traded names, no brokerage account required.</li><li>Fund from 30+ chains, including Bitcoin, Zcash, Solana, Tron, and more. </li><li>Trade confidentially. Onchain, your size and strategy are exposed the moment you act. <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u> keeps trades confidential by default, your positions stay yours, your edge stays yours. </li><li>No brokerage account required, no <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u> platform fees for 30 days.</li></ul><p class=\"pb-p\">You can now buy tokenized US stocks and ETFs on <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u> with stablecoins or any supported crypto, across 30+ chains, all from one account. US equities are the world’s largest and most valuable risk-asset market. Starting today, they're available from any chain, with no brokerage account standing between you and the trade. </p><h2 id=\"stocks-onchain-confidentially\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\"><strong>Stocks Onchain, Confidentially</strong></span></h2><p class=\"pb-p\">We're starting with some of the world's most actively traded names: NVDA, TSLA, AAPL, GOOGL, META, MSFT, and AMZN, plus ETFs including SPY and QQQ, with more to come. Fund your account with crypto from any of 30+ networks and hold real economic exposure to the companies that move markets, all from <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u>.</p><p class=\"pb-p\"><u><a href=\"https://ondo.finance/ondo-stocks\" rel=\"noopener noreferrer\" target=\"_blank\">Ondo's tokenized stocks</a></u> are total return tracker tokens. Each one gives you economic exposure to the underlying security, including price movements and reinvested dividends net of applicable withholding taxes. Fractional tokens are supported, so a single dollar can buy you a slice of NVDA.</p><p class=\"pb-p\">These assets trade with the same liquidity as the underlying markets, around the clock, no windows to wait for. Powered by Ondo Finance.</p><p class=\"pb-p\">Then there's the advantage of an account on near.com. Onchain, everything you do is public by default: every position and every dollar, readable by anyone who has your address. Through NEAR’s innovative <u><a href=\"https://intents.near.org/confidential\" rel=\"noopener noreferrer\" target=\"_blank\">confidential execution infrastructure</a></u>, users on <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u> can keep every trade confidential. Your trade still settles onchain, but it isn't linked to you, with selective disclosure available for compliance.</p><h2 id=\"how-it-works\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\"><strong>How It Works</strong></span></h2><p class=\"pb-p\"><strong>Deposit.</strong> Fund your near.com account with USDC, ETH, or any asset from 30+ networks. </p><p class=\"pb-p\"><strong>Buy.</strong> Swap into any available stock or ETF in a single transaction. Most assets mint 24/7. </p><p class=\"pb-p\"><strong>Trade confidentially.</strong> Swaps are confidential, keeping your activity out of public view, with selective disclosure available for compliance.</p><p class=\"pb-p\"><strong>Sell or hold.</strong> Hold while the token reflects reinvested dividends, or swap it back to USDC or any other assets.</p><p class=\"pb-p\">No brokerage account. Just your near.com account and the exposure you want.</p><h2 id=\"section\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">04</span><span class=\"pb-h2__t\"><strong><img src=\"/images/blog/cms/tokenized-stocks-rwas-ondo/e555b5617759974d.webp\" height=\"564\" width=\"259\" loading=\"lazy\" decoding=\"async\" alt=\"\"></strong></span></h2><h2 id=\"not-just-near-com-across-near-intents\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">05</span><span class=\"pb-h2__t\"><strong>Not Just near.com—Across NEAR Intents</strong></span></h2><p class=\"pb-p\">The same integration that brings stocks and ETFs into <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u> opens it to every app built with NEAR Intents. <u><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></u> is the first place you can trade these assets, but not the only one.</p><p class=\"pb-p\">Through <u><a href=\"https://intents.near.org/\" rel=\"noopener noreferrer\" target=\"_blank\">NEAR Intents</a></u>, Ondo's tokenized stocks, ETFs, and real-world assets, become reachable to wallets, exchanges, and apps across 30+ chains, subject to applicable eligibility and compliance controls. A partner sends a request, and Intents handles the cross-chain routing and settlement into Ondo's compliant infrastructure. Any developer or DeFi protocol can now opt-in to put tokenized real-world assets in front of their users through NEAR Intents, and switch confidentiality on with a single parameter.</p><p class=\"pb-p\">For partners, that's one integration, on whatever chains your users are already on. For users, it's the same assets, wherever you already are.</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "key-insights",
+     "t": "Key Insights"
+    },
+    {
+     "id": "stocks-onchain-confidentially",
+     "t": "Stocks Onchain, Confidentially"
+    },
+    {
+     "id": "how-it-works",
+     "t": "How It Works"
+    },
+    {
+     "id": "section",
+     "t": ""
+    },
+    {
+     "id": "not-just-near-com-across-near-intents",
+     "t": "Not Just near.com—Across NEAR Intents"
+    }
+   ],
+   "readMin": 2,
    "video": null
   }
  }

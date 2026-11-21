@@ -53,9 +53,10 @@ describe('blog index F', () => {
 })
 
 describe('hard-wired articles (D256)', () => {
-  it('are the 4 newest CMS posts, with their photos on disk and no /cms/ links left', async () => {
+  it('are the newest CMS posts in order (4 in D256, the fifth in D268), with their photos on disk and no /cms/ links left', async () => {
     const { LOCAL_ARTICLES } = await import('@/lib/blog/local-articles')
-    expect(LOCAL_ARTICLES.map((a) => `cms-${a.slug}`)).toEqual(CMS_POSTS.slice(0, 4).map((p) => p.id))
+    expect(LOCAL_ARTICLES.length).toBeGreaterThanOrEqual(4)
+    expect(LOCAL_ARTICLES.map((a) => `cms-${a.slug}`)).toEqual(CMS_POSTS.slice(0, LOCAL_ARTICLES.length).map((p) => p.id))
     for (const a of LOCAL_ARTICLES) {
       const html = 'html' in a.article.body ? a.article.body.html : ''
       expect(html.length).toBeGreaterThan(3000)
