@@ -32,6 +32,7 @@ export const LOCAL_ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/near-inflation-rate-reducing-to-1-6-percent.webp",
     "focus": "90% 50%",
+    "textFrame": { "zoom": 1.3, "at": "0% 100%" },
     "alt": ""
    },
    "takeaways": [],

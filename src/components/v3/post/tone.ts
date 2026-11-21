@@ -3,14 +3,14 @@
 // now (object-fit: cover and its object-position), and picks:
 //   - the type: white on a dark photo, ink on a light one. A post can force it (Img.textTone); otherwise the photo's hint (lib/blog/tone-hint.ts,
 //     rendered into the HTML) is preferred unless the other tone needs clearly less veil, so a photo keeps one tone across screen sizes;
-//   - the veil: dark under white type, white under ink type, the least at which every word's 95th-percentile pixel reaches 3.1:1 (title) or
-//     4.6:1 (small text), and none when the type already reads (lib/blog/tone-math.ts).
+//   - the veil: dark under white type, white under ink type, the least at which every word's 98th-percentile pixel reaches 3.4:1 (title) or
+//     4.9:1 (small text), and at least what the detail behind it asks for (busyness, D265); none when the type already reads on a plain area.
 // The veil sits only behind the text: the root gets data-tone="white" | "ink", --veil-a (0…0.9) and --veil-x/y/w/h/f (px: the box round the
 // words, and its feather, which grows with the box so no edge shows). Measured again on resize and when fonts load. With no hint, the text waits
 // hidden until measured (CSS shows a safe default after 2.5 s). A photo that can't be read (another origin without CORS) keeps the hint or the
 // safe default.
 import { useEffect, type RefObject } from "react";
-import { DARK_VEIL, LIGHT_VEIL, TARGET, choose, parseColor, veilFor, type RGB, type TextTone, type ToneHint } from "@/lib/blog/tone-math";
+import { DARK_VEIL, LIGHT_VEIL, TARGET, busyFloor, busyness, choose, parseColor, veilFor, type RGB, type TextTone, type ToneHint } from "@/lib/blog/tone-math";
 
 export type { TextTone };
 /** a piece of text over the photo: its selector inside the root, whether it is large (the title: 3:1) and the opacity its colour is drawn at.
@@ -38,12 +38,13 @@ function pixelsUnder(data: ImageData, box: DOMRect, img: HTMLImageElement, imgBo
   const W = imgBox.width, H = imgBox.height, s = Math.max(W / iw, H / ih);
   const [px, py] = getComputedStyle(img).objectPosition.split(" ").map((v) => (v.endsWith("%") ? parseFloat(v) / 100 : 0.5));
   const ox = (W - iw * s) * px, oy = (H - ih * s) * py, k = data.width / iw;
+  box = new DOMRect(box.left, box.top - box.height * 0.1, box.width, box.height * 1.2);   // a little taller: the glyphs' tops and tails reach past the word's box (D265)
   const x0 = Math.max(0, Math.floor(((box.left - imgBox.left - ox) / s) * k)), x1 = Math.min(data.width, Math.ceil(((box.right - imgBox.left - ox) / s) * k));
   const y0 = Math.max(0, Math.floor(((box.top - imgBox.top - oy) / s) * k)), y1 = Math.min(data.height, Math.ceil(((box.bottom - imgBox.top - oy) / s) * k));
-  const step = Math.max(1, Math.round(Math.sqrt(((x1 - x0) * (y1 - y0)) / 4000)));
+  const step = Math.max(1, Math.round((2 * k) / s));   // about every 2 CSS px, so busyness reads the same at any image size
   const out: RGB[] = [];
   for (let y = y0; y < y1; y += step) for (let x = x0; x < x1; x += step) { const i = (y * data.width + x) * 4; out.push([data.data[i], data.data[i + 1], data.data[i + 2]]); }
-  return out;
+  return { px: out, cols: Math.max(0, Math.ceil((x1 - x0) / step)) };
 }
 
 /**
@@ -82,11 +83,14 @@ export function useTextTone(root: RefObject<HTMLElement | null>, imgSel: string,
       const f = Math.min(160, Math.max(40, 0.4 * Math.min(u.r - u.l, u.b - u.t)));
       const box = { x: u.l - rootBox.left - PAD - f, y: u.t - rootBox.top - PAD - f, w: u.r - u.l + 2 * (PAD + f), h: u.b - u.t + 2 * (PAD + f), f };
       if (!data) { set(prefer ?? "white", hintVeil ?? 0.5, box, gaveUp); return; }
-      // the veil each tone needs: the most any one word or line needs
-      const need = (t: RGB, v: RGB) => Math.max(...bits.map(({ z, r }) => veilFor(pixelsUnder(data!, r, img, imgBox), t, z.alpha ?? 1, v, z.large ? TARGET.large : TARGET.small)));
+      // the veil each tone needs: the most any one word or line needs, for its brightness and (D265) for the detail behind it
+      const under = bits.map(({ z, r }) => { const u = pixelsUnder(data!, r, img, imgBox); const b = busyness(u.px, u.cols); return { z, px: u.px, b, floor: busyFloor(b) }; });
+      const need = (t: RGB, v: RGB) => Math.max(...under.map(({ z, px, floor }) => Math.max(floor, veilFor(px, t, z.alpha ?? 1, v, z.large ? TARGET.large : TARGET.small))));
       const white = force === "ink" ? Infinity : need(WHITE, DARK_VEIL), ink = force === "white" ? Infinity : need(INK, LIGHT_VEIL);
       const c = choose(white, ink, prefer);
       set(c.tone, c.veil, box);
+      el.dataset.toneBusy = String(Math.max(...under.map((u) => u.floor)));   // for checking: the veil the detail alone asks for
+      el.dataset.toneEdges = String(Math.round(Math.max(...under.map((u) => u.b)) * 1000) / 1000);   // for checking: the busiest piece's edge share
     };
     const later = () => { if (!raf) raf = requestAnimationFrame(read); };
 
@@ -105,11 +109,13 @@ export function useTextTone(root: RefObject<HTMLElement | null>, imgSel: string,
     img.addEventListener("error", fail, { once: true });
     // a lazy picture (Up next) loads only near the view: with a hint the text already shows; without one, stop waiting after 2.5 s
     const timer = hinted ? 0 : window.setTimeout(fail, 2500);
+    // and once more after the cover's settle and the title's rise (about 2.3 s), in case anything measured mid-way (D265)
+    const settle = window.setTimeout(later, 2600);
     const ro = new ResizeObserver(later);
     ro.observe(el);
     document.fonts?.ready.then(later);
     later();
-    return () => { dead = true; cancelAnimationFrame(raf); clearTimeout(timer); ro.disconnect(); img.removeEventListener("load", load); img.removeEventListener("error", fail); };
+    return () => { dead = true; cancelAnimationFrame(raf); clearTimeout(timer); clearTimeout(settle); ro.disconnect(); img.removeEventListener("load", load); img.removeEventListener("error", fail); };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- zones are fixed per layout; `key` stands for them
   }, [root, imgSel, key, force, prefer, hintVeil]);
 }

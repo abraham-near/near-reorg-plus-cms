@@ -10,7 +10,7 @@ import { useRef, type CSSProperties } from "react";
 import { SplitText } from "gsap/SplitText";
 import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import { Arrow } from "../../blog/parts";
-import type { Article } from "../article";
+import type { Article, TextFrame } from "../article";
 import { Avatar, Body, Footnotes, Share, Tags } from "../Body";
 import { useReadProgress, useReveal } from "../hooks";
 import { useTextTone, type ToneZone } from "../tone";
@@ -42,6 +42,14 @@ function mount(root: HTMLElement, ctx: MotionCtx) {
 // the text over the cover and over Up next, measured for the type's colour and the veil behind it (tone.ts, D262)
 const COVER: ToneZone[] = [{ sel: ".pbv-cover__label" }, { sel: ".pbv-h1", large: true }, { sel: ".pbv-cover__meta", alpha: 0.8 }, { sel: ".pbv-cover__cap", alpha: 0.8, own: true }];
 const NEXT: ToneZone[] = [{ sel: ".pbv-next__l", alpha: 0.8 }, { sel: ".pbv-next__t", large: true }];
+
+// Up next's photo: zoomed towards a corner so its planned empty space sits behind the type (Img.textFrame, D265). The image box itself grows
+// (not a transform), so tone.ts measures the crop as shown; else the post's focus point.
+function framed(f?: TextFrame, focus?: string): CSSProperties | undefined {
+  if (!f) return focus ? { objectPosition: focus } : undefined;
+  const [ax, ay] = f.at.split(" ").map((v) => parseFloat(v));
+  return { position: "absolute", width: `${f.zoom * 100}%`, height: `${f.zoom * 100}%`, left: `${-(f.zoom - 1) * ax}%`, top: `${-(f.zoom - 1) * ay}%`, objectPosition: f.at };
+}
 
 // the server's tone hint, in the HTML: the text shows at once in that tone; the browser then measures the real crop (tone.ts)
 const toneAttrs = (tone?: "white" | "ink", veil?: number) =>
@@ -110,7 +118,7 @@ export function PostB({ article: A }: { article: Article }) {
       {next && (
         <section className="pbv-next" aria-labelledby="pbv-next-t">
           <a ref={nextRef} className="pbv-next__a" href={next.href} {...toneAttrs(next.imgHint?.tone, next.imgHint?.veil)}>
-            <div className="pbv-next__ph">{next.img && <img src={next.img} alt="" loading="lazy" style={next.imgFocus ? { objectPosition: next.imgFocus } : undefined} />}</div>
+            <div className="pbv-next__ph">{next.img && <img src={next.img} alt="" loading="lazy" style={framed(next.imgFrame, next.imgFocus)} />}</div>
             <div className="pbv-next__in">
               <p className="pbv-next__l">Up next · {next.label}</p>
               <h2 id="pbv-next-t" className="pbv-next__t">{next.title}</h2>

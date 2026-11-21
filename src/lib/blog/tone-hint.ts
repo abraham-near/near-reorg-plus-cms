@@ -21,8 +21,12 @@ async function compute(src: string): Promise<ToneHint | undefined> {
   const px: RGB[] = [];
   for (let y = Math.floor(info.height * 0.45); y < Math.floor(info.height * 0.92); y++)
     for (let x = 0; x < Math.floor(info.width * 0.62); x++) { const i = (y * info.width + x) * 3; px.push([data[i], data[i + 1], data[i + 2]]); }
-  return choose(veilFor(px, WHITE, 1, DARK_VEIL, TARGET.large), veilFor(px, INK, 1, LIGHT_VEIL, TARGET.large));
+  const c = choose(veilFor(px, WHITE, 1, DARK_VEIL, TARGET.large), veilFor(px, INK, 1, LIGHT_VEIL, TARGET.large));
+  // the hint stands until the browser has measured (seconds on a slow load), over a crop it can't see: never less than HINT_VEIL
+  return { tone: c.tone, veil: Math.max(c.veil, HINT_VEIL) };
 }
+/** the least veil the server's hint starts with (D265): enough for white or ink type over most of a busy crop until the browser measures */
+const HINT_VEIL = 0.4;
 
 export function toneHint(src: string | null | undefined) {
   if (!src) return Promise.resolve(undefined);

@@ -7,8 +7,8 @@ export type ToneHint = { tone: TextTone; veil: number };
 
 export const DARK_VEIL: RGB = [13, 15, 14];       // under white type
 export const LIGHT_VEIL: RGB = [255, 255, 255];   // under ink type: white, not grey
-export const PCT = 0.95;                          // the share of pixels behind a piece of text that must reach the target
-export const TARGET = { large: 3.1, small: 4.6 }; // WCAG 3:1 (large) and 4.5:1 (normal), with a little margin
+export const PCT = 0.98;                          // the share of pixels behind a piece of text that must reach the target (D265: was 0.95)
+export const TARGET = { large: 3.4, small: 4.9 }; // WCAG 3:1 (large) and 4.5:1 (normal), with margin for what the sampling misses (D265: was 3.1, 4.6)
 export const MAX_VEIL = 0.9;
 
 const lin = (c: number) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
@@ -47,6 +47,25 @@ export function choose(white: number, ink: number, prefer?: TextTone): { tone: T
   return { tone, veil: Number.isFinite(veil) ? veil : MAX_VEIL };
   function needOf(t: TextTone) { return t === "ink" ? ink : white; }
 }
+
+/**
+ * How busy the photo is behind a piece of text (D265): the share of neighbouring samples of `px` (a grid `cols` wide, sampled about 2 CSS px
+ * apart) whose lightness (CIE L*, 0…100) jumps by more than BUSY.jump. Brightness alone passes thin sharp detail (glass edges running through a
+ * word), which still makes type hard to read. A plain or softly graded area scores near 0; edges, text and texture behind a word score 0.05 and up.
+ */
+export function busyness(px: RGB[], cols: number) {
+  if (cols < 2 || px.length < 2 * cols) return 0;
+  const L = px.map((p) => { const y = lum(...p); return y > 0.008856 ? 116 * Math.cbrt(y) - 16 : 903.3 * y; });
+  let hit = 0, n = 0;
+  for (let i = 0; i < L.length; i++) {
+    if ((i + 1) % cols) { n++; if (Math.abs(L[i] - L[i + 1]) > BUSY.jump) hit++; }
+    if (i + cols < L.length) { n++; if (Math.abs(L[i] - L[i + cols]) > BUSY.jump) hit++; }
+  }
+  return n ? hit / n : 0;
+}
+/** the least veil a piece of text gets for the detail behind it: none below BUSY.from, rising by BUSY.per for each 0.1 of busyness, at most BUSY.max */
+export const BUSY = { jump: 8, from: 0.02, per: 0.35, max: 0.5 };
+export const busyFloor = (b: number) => Math.round(Math.min(BUSY.max, Math.max(0, ((b - BUSY.from) / 0.1) * BUSY.per)) * 50) / 50;
 
 export function parseColor(s: string, fallback: RGB): RGB {
   s = s.trim();

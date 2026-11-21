@@ -21,7 +21,7 @@ export const localPost = (slug: string): LocalArticle | null => (LOCAL_FALLBACK 
 /** a hard-wired article in `layout`, its "more posts" the other three (newest first), so they open locally too */
 export function localArticle(p: LocalArticle, layout: PostLayout): Article {
   const more = LOCAL_ARTICLES.filter((o) => o.slug !== p.slug).slice(0, 3).map((o) => ({
-    key: o.slug, title: o.article.title, href: postHref(o.slug, layout), img: o.article.hero?.src ?? null, imgFocus: o.article.hero?.focus,
+    key: o.slug, title: o.article.title, href: postHref(o.slug, layout), img: o.article.hero?.src ?? null, imgFocus: o.article.hero?.focus, imgFrame: o.article.hero?.textFrame,
     label: o.article.category || "Blog", source: longDate(o.publishedAt),
   }));
   return { ...p.article, more, blogHref: BLOG_HREF };
