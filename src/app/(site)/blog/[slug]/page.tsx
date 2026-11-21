@@ -9,6 +9,7 @@ import { PostV } from "@/components/v3/post/v/PostV";
 import { PostSwitch, type PostLayout } from "@/components/v3/post/PostSwitch";
 import { DEFAULT_LAYOUT, postHref, shareOf, toArticle } from "@/lib/blog/article";
 import { getLivePost, getMorePosts } from "@/lib/blog/posts";
+import { localArticle, localPost, orLocal } from "@/lib/blog/local";
 import { siteOrigin } from "@/lib/site";
 import { videoMime } from "@/lib/blog/video";
 
@@ -17,6 +18,8 @@ import { videoMime } from "@/lib/blog/video";
 // the CMS's tags (lib/blog/posts.ts). A slug that is not live gets the not-found page: a 404 in dev; in production Next has already sent the route's
 // (empty) prerendered shell, so it is a 200 with noindex, as on the CMS's own [id] pages.
 // A video post (the CMS's Format: Video) always opens in PostV, the video layout: no ?layout= and no switch.
+// In `next dev` only, when the CMS can't be read (no database here), the 4 newest articles open from what is hard-wired (lib/blog/local.ts, D256);
+// any other slug is then not found. Production always reads the CMS.
 export const instant = false;
 
 const LAYOUTS = { a: PostA, b: PostB, c: PostC, d: PostD } as const;
@@ -27,7 +30,11 @@ type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<s
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getLivePost(slug);
+  const post = await orLocal(() => getLivePost(slug), () => undefined);
+  if (post === undefined) {   // dev, no database
+    const l = localPost(slug);
+    return l ? { title: l.metaTitle || l.article.title, description: l.metaDescription || l.article.dek, robots: { index: false, follow: false } } : { title: "Post not found" };
+  }
   if (!post) return { title: "Post not found" };
   const share = shareOf(post), url = postHref(post.slug);
   const v = post.video;
@@ -50,7 +57,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPost({ params, searchParams }: Props) {
   const [{ slug }, query] = await Promise.all([params, searchParams]);
-  const post = await getLivePost(slug);
+  const post = await orLocal(() => getLivePost(slug), () => undefined);
+  if (post === undefined) {   // dev, no database: a hard-wired article, in its layout (Cover unless the CMS chose one) or ?layout=
+    const l = localPost(slug);
+    if (!l) notFound();
+    const own = layoutOf(l.layout ?? undefined);
+    const layout = query.layout ? layoutOf(query.layout) : own;
+    const Local = LAYOUTS[layout];
+    return <><BlogShell home="/"><Local article={localArticle(l, layout)} /></BlogShell><PostSwitch on={layout} base={postHref(slug)} fallback={own} /></>;
+  }
   if (!post) notFound();
   if (post.video) {
     const more = await getMorePosts(post.slug, post.category?.slug);
