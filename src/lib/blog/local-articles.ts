@@ -1066,7 +1066,8 @@ const ARTICLES: LocalArticle[] = [
    "dateIso": "2026-05-27",
    "tags": [],
    "hero": {
-    "src": "/images/blog/cms/how-confidential-intents-works.webp",
+    "src": "/images/blog/heroes/how-confidential-intents-works.webp",
+    "focus": "83% 50%",
     "alt": ""
    },
    "takeaways": [],
