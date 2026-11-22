@@ -9,6 +9,8 @@
 // Since then the batch of 2026-11-21 (D274, D278) added the next eight the same way; the list is sorted by date at the end of the file.
 // Generated: edit the CMS, not this file, and pull again. One hand edit (D261, D268): the heroes point at public/images/blog/heroes/<slug>.webp once picked,
 // the new heroes from the blog hero study, which the CMS doesn't have yet. A re-pull puts the CMS's photos back until they're uploaded there.
+// A second hand edit (D279): NEAR@3.33's article title is set to "Introducing NEAR@3.33: A Milestone Incentive Program". Production's still reads
+// NEAR@3.99, but the program was renamed before it was announced (Lawrence); fix it in the CMS too (TASKS), or a re-pull brings 3.99 back.
 import type { Article } from "@/components/v3/post/article";
 
 export type LocalArticle = { slug: string; publishedAt: string; layout: string | null; metaTitle: string | null; metaDescription: string | null; article: Omit<Article, "more" | "blogHref"> };
@@ -776,6 +778,333 @@ const ARTICLES: LocalArticle[] = [
     }
    ],
    "readMin": 3,
+   "video": null
+  }
+ },
+ {
+  "slug": "legion-city-nodes",
+  "publishedAt": "2026-03-18T06:00:00.000Z",
+  "layout": null,
+  "metaTitle": "NEAR Legion Launches City Nodes: A Global Infrastructure for the NEAR Community",
+  "metaDescription": "The NEAR Legion is launching Legion City Nodes—a staking-funded program that gives cities around the world the resources to build sustained NEAR communities.",
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "NEAR Legion City Nodes: Expanding the NEAR Community, City by City",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "March 18, 2026",
+   "dateIso": "2026-03-18",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/heroes/legion-city-nodes.webp",
+    "focus": "81% 50%",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<p class=\"pb-p\">Since January 2026, the <a href=\"https://nearlegion.com/\" rel=\"noopener noreferrer\" target=\"_blank\">NEAR Legion</a> has hosted more than 30 events across cities on five continents—Tokyo, Frankfurt, New Delhi, Bali, Chicago, Barcelona, Kuala Lumpur, and more. These events have ranged from builder workshops and technical deep-dives to ecosystem introductions for new audiences. Each one has been organized and run by community members.</p><p class=\"pb-p\">That momentum is now the foundation for something more structured. Today, the NEAR Legion is launching Legion City Nodes: a program that gives cities with active Legion communities the onchain infrastructure—and the funding—to sustain and grow their presence over time.</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/legion-city-nodes/576a21e2c5619f09.webp\" loading=\"lazy\" decoding=\"async\" width=\"1280\" height=\"720\" alt=\"\" class=\"pb-fig__img\"></div></figure><h2 id=\"what-is-a-legion-city-node\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">What Is a Legion City Node?&nbsp;</span></h2><p class=\"pb-p\">A Legion City Node is a validator node on the NEAR network, operated by a local Legion team. Each node is delegated 300,000 $NEAR and retains 100% of the staking rewards it earns—approximately 1,250 $NEAR per month, or 15,000 $NEAR annually.</p><p class=\"pb-p\">Those rewards fund the node's operations directly: recurring events, co-working space for local ecosystem and community teams, educational materials, and programming that expands the NEAR presence in that city. The mechanism is designed to be self-sustaining—community activity generates the resources to support more community activity.</p><p class=\"pb-p\">For 2026, 10 City Node slots are available globally.</p><h2 id=\"how-to-qualify\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\">How to Qualify</span></h2><p class=\"pb-p\">There are two qualification paths:</p><p class=\"pb-p\"><strong>Individual path:</strong> A Legion member who has hosted three or more monthly events in their city is eligible to submit a City Node application.</p><p class=\"pb-p\"><strong>Group path:</strong> Three or more Vanguard-ranked Legion members can jointly apply after hosting at least one event together.</p><p class=\"pb-p\">The application threshold is intentionally accessible. Selection is not. With 10 slots available globally, the Legion team will prioritize applicants who demonstrate independence, operational readiness, and a credible plan to build a sustained NEAR presence in their city—not just a track record of events.&nbsp;</p><p class=\"pb-p\">The ultimate goal of the Legion City Node program is to identify talented individuals or teams around the world who can run a node on their own and grow a NEAR presence in their city. Once selected for a City Node, teams are free to run the node as they see fit. Every six months nodes are compared to one another and independently reviewed by the Legion team. Based on this review, further funds may be delegated or allocated to certain nodes to bolster their growth and development.&nbsp;</p><h2 id=\"how-to-apply\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\">How to Apply</span></h2><p class=\"pb-p\">Applying for a City Node is straightforward: <a href=\"https://docs.google.com/forms/d/e/1FAIpQLScJWdRx2ZP0ymDstiVJMIP8D-IdkJpfGFXNi66LEzM0leDWog/viewform\" rel=\"noopener noreferrer\" target=\"_blank\">Fill out the application form</a> after you’ve completed more than three events for the Legion or have hosted one event as a trio of Vanguards.&nbsp;</p><p class=\"pb-p\">The Legion team will follow up with you if selected, and request your Validator Node Name. While many options exist for running a node on the NEAR network, the Legion team recommends <a href=\"https://nodestudio.metapool.app/?utm_source=www.digitalizados.co&amp;utm_medium=referral&amp;utm_campaign=gana-dinero-corriendo-un-nodo-sin-ser-dev\" rel=\"noopener noreferrer\" target=\"_blank\">Node Studio</a>—a straightforward option for getting a NEAR validator node operational and securely within a few hours.</p><h2 id=\"why-legion-city-nodes\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">04</span><span class=\"pb-h2__t\">Why Legion City Nodes?&nbsp;</span></h2><p class=\"pb-p\"><a href=\"/blog/what-is-near-protocol\" rel=\"noopener noreferrer\" target=\"_blank\">NEAR's technology stack</a>—NEAR Intents for cross-chain execution, NEAR AI for confidential and verifiable AI infrastructure, and the base layer's 1M+ TPS scalability—is built for developers, enterprises, and users across the globe navigating the intersection of blockchain and AI.</p><p class=\"pb-p\">Legion City Nodes put NEAR’s infrastructure within reach of local builder communities. These cities nodes will operate as pillars of the NEAR Ecosystem: providing co-working spaces for teams, events for new recruits, merch, books, and talks from NEAR leaders. The goal for 2026 is ten active City Nodes. Each one is a node on the network, a center for the local community, and a durable stake in the cities where NEAR is taking root.</p><h2 id=\"apply-for-a-city-node-today\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">05</span><span class=\"pb-h2__t\">Apply for a City Node Today</span></h2><p class=\"pb-p\">If you have been running Legion events in your city and are ready to operate a validator node, the <a href=\"https://docs.google.com/forms/d/e/1FAIpQLScJWdRx2ZP0ymDstiVJMIP8D-IdkJpfGFXNi66LEzM0leDWog/viewform\" rel=\"noopener noreferrer\" target=\"_blank\">application is now open</a>. Fill out the form, and the Legion team will be in touch.</p><p class=\"pb-p\">To learn more about the NEAR Legion and find events near you, visit<a href=\"https://www.near.org/legion\" rel=\"noopener noreferrer\" target=\"_blank\"> </a><a href=\"https://nearlegion.com/\" rel=\"noopener noreferrer\" target=\"_blank\">nearlegion.com</a>.</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "what-is-a-legion-city-node",
+     "t": "What Is a Legion City Node?"
+    },
+    {
+     "id": "how-to-qualify",
+     "t": "How to Qualify"
+    },
+    {
+     "id": "how-to-apply",
+     "t": "How to Apply"
+    },
+    {
+     "id": "why-legion-city-nodes",
+     "t": "Why Legion City Nodes?"
+    },
+    {
+     "id": "apply-for-a-city-node-today",
+     "t": "Apply for a City Node Today"
+    }
+   ],
+   "readMin": 3,
+   "video": null
+  }
+ },
+ {
+  "slug": "milestone-incentive-program",
+  "publishedAt": "2026-06-11T06:00:00.000Z",
+  "layout": null,
+  "metaTitle": "Introducing NEAR@3.33: A Milestone Incentive Program",
+  "metaDescription": "A milestone reward for real usage.",
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "Introducing NEAR@3.33: A Milestone Incentive Program",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "June 11, 2026",
+   "dateIso": "2026-06-11",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/heroes/milestone-incentive-program.webp",
+    "focus": "91% 50%",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<p class=\"pb-p\">If you have been using Confidential Swap on <a href=\"https://near.com\">near.com</a>, you are already eligible for Drop 1.</p><p class=\"pb-p\">Nothing is in your account yet. When Confidential Intents TVL hits $70 million, a snapshot is taken and milestone tokens go to the eligible accounts. Your activity to date counts toward your allocation and will keep updating until the snapshot criteria is met. Users joining now can still earn a higher allocation by increasing their activity on <a href=\"https://near.com\">near.com</a>.</p><p class=\"pb-p\"><em>Milestone tokens are locked rewards that convert 1:1 into NEAR if the ecosystem reaches specific growth milestones.</em></p><h2 id=\"how-it-works\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">How it works</span></h2><p class=\"pb-p\">Drop 1 will distribute 333,333 milestone tokens.</p><p class=\"pb-p\">Distribution occurs when the aggregate Confidential Intents TVL hits $70 million. When this criteria is met, eligible accounts will receive milestone tokens.</p><p class=\"pb-p\">Milestone tokens are locked on arrival and cannot be sold or transferred. They convert 1:1 to NEAR once NEAR's volume-weighted average price holds at or above $3.33 for three consecutive days.</p><p class=\"pb-p\">There is a per-wallet cap of 2% of the drop pool. This ensures that no single wallet is overrepresented.</p><p class=\"pb-p\">To be eligible for the snapshot, users must have a sustained confidential balance above $100 on <a href=\"https://near.com\">near.com</a> in any asset and at least one confidential swap. Holdings and activity above this floor shape your allocation.</p><p class=\"pb-p\">While score components are public, the exact weights are not. Your own score is visible to you. No one else’s is. And distribution of the milestone tokens will occur through Confidential Intents.&nbsp;</p><h2 id=\"why-this-structure\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\">Why this structure</span></h2><p class=\"pb-p\">Most airdrops hand out liquid tokens for past activity, recipients sell, and the project loses mindshare within a quarter.</p><p class=\"pb-p\">NEAR@3.33 is designed differently.&nbsp;</p><p class=\"pb-p\">Milestone tokens are locked until NEAR holds the price target VWAP for three consecutive days, a condition the whole community has reason to support and no single holder can engineer alone. The TVL trigger works the same way: a larger confidential pool means stronger confidentiality for everyone in it. The reward only pays out when the protocol is more valuable.</p><h2 id=\"round-two\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\">Round two</span></h2><p class=\"pb-p\">This is not a one and done program. Round two is coming.&nbsp;</p><p class=\"pb-p\">Future drops will be announced as their conditions come into reach. Each future milestone will be calibrated to higher community activity. The floor moves up.</p><h2 id=\"what-we-re-testing\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">04</span><span class=\"pb-h2__t\">What we’re testing</span></h2><p class=\"pb-p\">A generation of point programs extracted value from the systems they were supposed to reward. Recipients sell within days, and the programs are forgotten.</p><p class=\"pb-p\">NEAR is introducing a new design, an incentive program where the recipient and the protocol succeed in the same direction.</p><p class=\"pb-p\">Drop 1 is live. More drops will follow.</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "how-it-works",
+     "t": "How it works"
+    },
+    {
+     "id": "why-this-structure",
+     "t": "Why this structure"
+    },
+    {
+     "id": "round-two",
+     "t": "Round two"
+    },
+    {
+     "id": "what-we-re-testing",
+     "t": "What we’re testing"
+    }
+   ],
+   "readMin": 2,
+   "video": null
+  }
+ },
+ {
+  "slug": "cross-chain-swaps-near-intents-ledger-wallet",
+  "publishedAt": "2026-04-11T05:00:00.000Z",
+  "layout": null,
+  "metaTitle": "How to Swap With NEAR Intents in Ledger WalletTM’s New UI",
+  "metaDescription": "NEAR Intents is live in Ledger Wallet's upgraded UI. Here’s how to seamlessly swap assets across 30+ chains using NEAR Intents on Ledger’s desktop and mobile apps.",
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "How to Swap With NEAR Intents in Ledger Wallet’s New UI",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "April 11, 2026",
+   "dateIso": "2026-04-11",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/heroes/cross-chain-swaps-near-intents-ledger-wallet.webp",
+    "focus": "72% 50%",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<p class=\"pb-p\">Ledger Wallet's upgraded UI is now live, making one of its most useful features easier to reach: cross-chain swaps powered by<a href=\"https://intents.near.org/\" rel=\"noopener noreferrer\" target=\"_blank\"> NEAR Intents</a> via Swapkit. A few clicks inside the swap feature, an on-device confirmation, and your assets move across chains, without manual bridging, gas management, or browser extensions, and without your keys leaving the hardware device.</p><p class=\"pb-p\">NEAR Intents was <a href=\"https://www.ledger.com/blog-near-intents-joins-ledger-wallet-via-swapkit\" rel=\"noopener noreferrer\" target=\"_blank\">integrated into Ledger Wallet via SwapKit</a> last fall and has since processed millions of dollars in cross-chain swap volume for Ledger users. NEAR Intents is <a href=\"https://docs.near-intents.org/\" rel=\"noopener noreferrer\" target=\"_blank\">universal cross-chain infrastructure </a>that enables users to specify a desired outcome, such as swap asset A on one chain for asset B on another, rather than manually managing routes, bridges, or liquidity sources. A competitive network of solvers returns the best execution, and the entire route settles in a single signed transaction. One signature, one destination asset, no intermediate steps exposed to the user.</p><h2 id=\"built-for-hardware-secured-swaps\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">Built for Hardware-Secured Swaps</span></h2><p class=\"pb-p\">Cross-chain swaps are among the higher-risk operations a self-custody user performs. Each additional chain introduces more smart contracts, more approvals, and more surface area for failure. A hardware wallet like Ledger exists to enforce a physical boundary between private keys and any process that requests access to them, and that boundary matters most when the transaction is complex.</p><p class=\"pb-p\">The NEAR Intents integration in Ledger Wallet is designed around that boundary. Route discovery and transaction construction happen off-device. Signing happens on the Ledger device itself, with the destination and amount displayed on the device screen, and no value moves until the user confirms on the hardware. The result is a one-step cross-chain swap backed by a hardware wallet's assurance model.</p><p class=\"pb-p\">Ledger Wallet's redesigned UI makes this flow shorter and more legible. Swap is a top-level action. NEAR Intents quotes appear alongside other routes for direct comparison. The whole experience remains fully integrated within Ledger Wallet, with transaction approval handled on-device.&nbsp;</p><h2 id=\"what-ledger-users-can-do-today\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\">What Ledger Users Can Do Today</span></h2><p class=\"pb-p\">Ledger users can access NEAR Intents within Ledger Wallet’s Swap interface to:</p><ul class=\"pb-list\"><li>Swap assets across 30+ chains, without manually bridging.</li><li>Compare quotes inside Ledger Wallet, without leaving the hardware-secured environment for a third-party aggregator.</li><li>Confirm every swap on the Ledger device, with the destination and amount displayed on the hardware screen before signing.</li><li>Verifiable onchain settlement. Every swap settles transparently onchain.</li></ul><h2 id=\"how-to-swap-with-near-intents-in-ledger-wallet-s-updated-ui\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\">How to Swap With NEAR Intents in Ledger Wallet’s updated UI</span></h2><p class=\"pb-p\">The flow is the same on desktop and mobile. Open Ledger Wallet and select <em>Swap</em> in the navigation bar or on the homepage for desktop.&nbsp;On mobile, open the Ledger Wallet app, select <em>Swap</em> from the navigation bar From there:</p><ol class=\"pb-list pb-list--ol\"><li>Select the source asset, destination asset, and the accounts on each side.</li><li>Enter the amount.</li><li>Select <strong>NEAR Intents</strong> from the available quotes.</li><li>Click <em>Swap with NEAR Intents</em>.</li><li>Connect and unlock the Ledger device.</li><li>Open the <em>Exchange</em> app on-device and confirm the transaction.</li></ol><p class=\"pb-p\">The swap settles and the destination asset arrives in the receiving account.</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/cross-chain-swaps-near-intents-ledger-wallet/07e502522faf36f4.webp\" loading=\"lazy\" decoding=\"async\" width=\"2000\" height=\"1549\" alt=\"\" class=\"pb-fig__img\"></div></figure><h2 id=\"additional-information\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">04</span><span class=\"pb-h2__t\">Additional Information</span></h2><ul class=\"pb-list\"><li>Transaction times depend on the underlying chains and may vary depending on various chain network congestion. Most swaps complete in seconds to a few minutes.</li><li>Ledger maintains a step-by-step support article:<a href=\"https://support.ledger.com/article/how-to-swap-crypto-with-near-intent-through-ledger-live\" rel=\"noopener noreferrer\" target=\"_blank\"> How to Swap Crypto With NEAR Intents Through Ledger</a>.</li><li>Developers integrating NEAR Intents can begin with the<a href=\"https://docs.near-intents.org/\" rel=\"noopener noreferrer\" target=\"_blank\"> NEAR Intents documentation</a>.</li></ul><h2 id=\"get-started\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">05</span><span class=\"pb-h2__t\">Get Started</span></h2><p class=\"pb-p\">Ledger Wallet's upgraded UI and redesigned Swap interface is available now. To learn more about the protocol powering it, visit<a href=\"https://intents.near.org/\" rel=\"noopener noreferrer\" target=\"_blank\"> intents.near.org</a>, or read the<a href=\"https://docs.near-intents.org/\" rel=\"noopener noreferrer\" target=\"_blank\"> developer documentation</a> to build on top of NEAR Intents.</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "built-for-hardware-secured-swaps",
+     "t": "Built for Hardware-Secured Swaps"
+    },
+    {
+     "id": "what-ledger-users-can-do-today",
+     "t": "What Ledger Users Can Do Today"
+    },
+    {
+     "id": "how-to-swap-with-near-intents-in-ledger-wallet-s-updated-ui",
+     "t": "How to Swap With NEAR Intents in Ledger Wallet’s updated UI"
+    },
+    {
+     "id": "additional-information",
+     "t": "Additional Information"
+    },
+    {
+     "id": "get-started",
+     "t": "Get Started"
+    }
+   ],
+   "readMin": 3,
+   "video": null
+  }
+ },
+ {
+  "slug": "making-near-protocol-post-quantum-safe",
+  "publishedAt": "2026-05-06T06:00:00.000Z",
+  "layout": null,
+  "metaTitle": "Preparing NEAR for the Quantum Computing Era | NEAR Blog",
+  "metaDescription": "How the Near One and NEAR Intents teams are making NEAR Protocol post-quantum-safe.",
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "Preparing NEAR for the Quantum Computing Era",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "May 6, 2026",
+   "dateIso": "2026-05-06",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/heroes/making-near-protocol-post-quantum-safe.webp",
+    "focus": "64% 50%",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<p class=\"pb-p\"><em>Anton Astafiev, CTO at Near One, and Mally Anderson, writer at NEAR</em></p><p class=\"pb-p\">Quantum computing poses a threat to every blockchain protocol. Progress has recently accelerated (<a href=\"https://research.google/blog/safeguarding-cryptocurrency-by-disclosing-quantum-vulnerabilities-responsibly/\" rel=\"noopener noreferrer\" target=\"_blank\">this recent paper on safeguarding cryptocurrency</a> from Google’s Quantum AI team got a lot of attention) and things that seemed years away have been achieved <a href=\"https://blog.trailofbits.com/2026/04/17/we-beat-googles-zero-knowledge-proof-of-quantum-cryptanalysis/\" rel=\"noopener noreferrer\" target=\"_blank\">in months</a>. As an industry, we can no longer assume we have time to figure things out or that a working quantum computer is decades away.&nbsp;</p><p class=\"pb-p\">What exactly does the quantum threat to blockchains look like? Whether the attack vector is from advanced AI models or from people spending more time working on increasingly powerful quantum computers, blockchain signature schemes could be breakable and private keys easily derived from public keys. (Post-quantum-safe cryptography exists, but today’s blockchains aren’t using it.) While the industry has known this since its inception with Bitcoin nearly two decades ago, quantum computing has seemed far enough away to justify deferring work on the problem. Investing in quantum safety isn’t a product, it doesn’t bring more customers or more revenue, and it’s extremely complex.&nbsp;</p><p class=\"pb-p\">Leaders from across Near One, NEAR Intents, and the NEAR Foundation believe that the NEAR ecosystem is uniquely positioned to lead the way toward the post-quantum future. This post unpacks the unique features of NEAR Protocol that can already make accounts and assets more quantum-secure, as well as upcoming updates and research to accelerate the transition. We hope this effort from NEAR will push the rest of the blockchain industry to start preparing for the post-quantum era and offer options to users from across ecosystems.&nbsp;</p><h2 id=\"securing-the-near-protocol-and-near-accounts\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">Securing the NEAR Protocol and NEAR Accounts&nbsp;</span></h2><p class=\"pb-p\">The Near One team is working on longer-term research to secure the NEAR Protocol: consensus, signing, validators, epoch sync, and sending transactions will all work differently once quantum computing arrives. Every blockchain will eventually need to make these major updates and NEAR is starting the work now to ensure that such a challenging and resource-intensive migration will only need to happen once. We want to create something future-proof that will last for decades.&nbsp;</p><p class=\"pb-p\">While this research is ongoing, NEAR is also well-positioned to adapt as the state of the art evolves. Unlike most earlier blockchains, NEAR has had human readable account IDs by design since the beginning. In fact, this design was created by the early NEAR team with future quantum safety in mind. Unlike Bitcoin and Ethereum, where the addresses of the blockchain are tied to breakable cryptography, NEAR accounts are decoupled from cryptography: every account can hold a smart contract and is controlled through rotatable “access keys” rather than being bound to a single keypair. (Read more about the NEAR account model <a href=\"https://docs.near.org/protocol/accounts-contracts/account-model\" rel=\"noopener noreferrer\" target=\"_blank\">here</a>.)</p><p class=\"pb-p\">This flexible account model offers some creative ways to adapt to new quantum-resistant technologies as they develop. Today, your account is secured by your access keys. NEAR already supports two signing schemes, neither of which is quantum safe: NEAR defaults to EdDSA (Ed25519) and also supports ECDSA (secp256k1). Since there are already multiple, adding another is feasible by design.&nbsp;</p><p class=\"pb-p\">The Near One team is currently working on adding the first post-quantum-safe signing scheme for implicit accounts and for user signing schemes, currently planned to launch on testnet by the end of Q2 2026. They decided to start with FIPS-204 (ML-DSA, prev. Dilithium), a lattice-based signature scheme that is <a href=\"https://csrc.nist.gov/pubs/fips/204/final\" rel=\"noopener noreferrer\" target=\"_blank\">NIST-approved</a> for post-quantum cryptography.</p><p class=\"pb-p\">This update will enable anyone on NEAR to simply run a transaction and rotate their keys to become quantum safe. While it’s the first of many steps towards preparing the ecosystem for the quantum future, it allows NEAR account holders to prepare today while the team is securing the protocol in parallel. It’s also valuable to see what works and what doesn’t as early as possible, i.e. how do bigger keys work in practice and which downstream updates will be required to accommodate them.&nbsp;&nbsp;</p><h2 id=\"beyond-the-protocol-wallets-and-near-intents\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\">Beyond the Protocol: Wallets and NEAR Intents&nbsp;</span></h2><p class=\"pb-p\">Adding signing schemes is relatively simple compared to everything else that needs to change as a result of this addition. Importantly, wallets will need to support new quantum-safe signing schemes. Unless the protocol’s changing endpoints and APIs are made available to wallet builders, account owners won’t be able to use them. As new types of signatures and contracts emerge, they will all require updates and NEAR’s approach will be to push them forward incrementally. The size of the keys and signatures in new schemes is likely to be much larger, so workflows will need to evolve accordingly. Getting this right will require close work between protocol and wallet teams as well as directly with users over time; some collaborations are already in progress.&nbsp;</p><p class=\"pb-p\">Hardware wallets will also require major changes: today’s crypto hardware wallets do not support quantum-safe signing or features, and it may not even be possible for all of them to do so. Rather than waiting for the ecosystem to realize this is a problem, the goal is to collaborate with hardware wallet manufacturers to bring new solutions to the market as soon as possible. Near One is already working with both software and hardware wallet builders to align on post-quantum plans, including Ledger. Given the critical role hardware wallets play for cryptoasset holders in maintaining security, this will be one of the most important areas of research in the next few years and the NEAR team aims to set the standard.&nbsp;</p><p class=\"pb-p\">In addition to single signers, NEAR also supports threshold signatures to 35+ chains via the Chain Signatures MPC network. Some post-quantum solutions exist, but are still in the research stage. The Defuse team is actively working on securing consensus and offering quantum-safe Chain Signatures to all NEAR Intents users no matter which chains they’re coming from. This not only ensures security of the protocol but can also offer users from other ecosystems a place to back up their assets in a quantum-safe environment. If other ecosystems are slow to make advancements like adopting new signing schemes for contracts, or their contracts don’t have time to migrate, NEAR Protocol and Intents contracts will be quantum safe in the mid-term.</p><p class=\"pb-p\">The NEAR One team is conducting further security research inspired by <a href=\"https://gist.github.com/Roasbeef/563f173fe44e2005e003a082716e586f#stark-proof-of-bip-32-seed-knowledge-bip32-pq-zkp\" rel=\"noopener noreferrer\" target=\"_blank\">an idea</a> from the Bitcoin ecosystem. The current assumption is that as soon as there is a quantum computer, private keys will be extractable and today’s cryptography will be broken. When that happens, we won’t be able to tell if someone running a transaction is the rightful owner of the asset or not. Protocols will face the challenge of deciding to either block all assets at this moment, or enter a wild west.&nbsp;</p><p class=\"pb-p\">But many private keys are backed by a seed phrase and there is a hashing step between the keys and the seed which is not broken by quantum computing. So the protocol could block regular transactions out of caution but allow a user to prove with a zero-knowledge proof that they know the original seed phrase that enables derivation of the private key, they can prove they’re the rightful owner of an asset while keeping their keys and seed protected. This is one example of how research across blockchain ecosystems is essential and valuable as everyone prepares for quantum unknowns.&nbsp;</p><h2 id=\"the-quantum-future-is-near\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\">The Quantum Future Is NEAR</span></h2><p class=\"pb-p\">While quantum computing poses a global security threat to blockchains, good research is underway to make sure it’s not all over the moment the quantum computer arrives. Thanks to the flexibility of the protocol and the strength of the protocol team, NEAR is well-positioned to lead the way in the quantum transition by adding quantum-safe signing and wants to push projects in the ecosystem to start taking action today. The Near One team will share updates and deeper technical details on their research in the coming months at https://blog.nearone.org/ for those interested, as will the Defuse team for updates on Chain Signatures and NEAR Intents.&nbsp;</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "securing-the-near-protocol-and-near-accounts",
+     "t": "Securing the NEAR Protocol and NEAR Accounts"
+    },
+    {
+     "id": "beyond-the-protocol-wallets-and-near-intents",
+     "t": "Beyond the Protocol: Wallets and NEAR Intents"
+    },
+    {
+     "id": "the-quantum-future-is-near",
+     "t": "The Quantum Future Is NEAR"
+    }
+   ],
+   "readMin": 6,
+   "video": null
+  }
+ },
+ {
+  "slug": "introducing-dynamic-resharding",
+  "publishedAt": "2026-05-20T06:00:00.000Z",
+  "layout": null,
+  "metaTitle": "Introducing Dynamic Resharding: Automatic Scaling for NEAR Protocol",
+  "metaDescription": "Dynamic resharding enables NEAR Protocol to add shards automatically as demand grows. Shipping in network upgrade 2.13.",
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "Introducing Dynamic Resharding: The Next NEAR Scalability Upgrade",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "May 20, 2026",
+   "dateIso": "2026-05-20",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/heroes/introducing-dynamic-resharding.webp",
+    "focus": "60% 50%",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<p class=\"pb-p\"><em>Anton Astafiev, CTO at Near One, and Mally Anderson, writer at NEAR</em></p><p class=\"pb-p\">NEAR is making a major upgrade towards delivering the world’s most scalable blockchain protocol. By the end of Q2 2026, the Near One team will release Dynamic Resharding – a protocol upgrade that delivers on the protocol’s scalability promise at the highest level of performance. Dynamic resharding will enable NEAR to add shards automatically with demand, supporting the growth of NEAR Intents and the agent economy that NEAR Intents and NEAR AI will underpin. The <a href=\"https://github.com/near/NEPs/pull/639\" rel=\"noopener noreferrer\" target=\"_blank\">NEP</a> has been approved by SMEs and will soon be up for a vote by the protocol working group. Dynamic resharding is scheduled to launch as part of the upcoming network upgrade 2.13.&nbsp;</p><p class=\"pb-p\">NEAR sharding is not a monolith, but rather a multi-layered approach to horizontal scaling that has undergone many upgrades since the first iteration in 2019. NEAR has advanced the network’s scalability across several phases:</p><ol class=\"pb-list pb-list--ol\"><li>Mainnet launch, 2020: sharded blockchain with <a href=\"/blog/near-launches-simple-nightshade-the-first-step-towards-a-sharded-blockchain\" rel=\"noopener noreferrer\" target=\"_blank\">Nightshade 1.0</a> and Doomslug consensus</li><li><a href=\"/blog/nightshade-2-launches-on-near-mainnet-introducing-stateless-validation\" rel=\"noopener noreferrer\" target=\"_blank\">Nightshade 2.0 with stateless validation</a>, 2024</li><li><a href=\"/blog/near-protocol-achieves-1-million-tps\" rel=\"noopener noreferrer\" target=\"_blank\">1 million transactions-per-second scaling</a>, 2025</li><li><a href=\"https://x.com/NEARProtocol/status/1998757342108860914\" rel=\"noopener noreferrer\" target=\"_blank\">Sharded smart contracts and deterministic account IDs</a>, 2025</li><li>Dynamic resharding, coming in Q2 2026</li></ol><p class=\"pb-p\">The best way to understand the accomplishment of dynamic resharding and the improvements it unlocks is to understand how things worked in each previous phase of NEAR sharding.&nbsp;</p><h2 id=\"building-on-the-original-near-sharding-vision\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">Building on the Original NEAR Sharding Vision</span></h2><p class=\"pb-p\">In October 2019, when the <a href=\"https://www.near.org/papers\" rel=\"noopener noreferrer\" target=\"_blank\">white paper</a> was published, the early NEAR team declared that they would make NEAR “the world’s most usable and scalable decentralized platform” that could support global-scale adoption with a sharded architecture. The primary benefit of sharding is that it allows for horizontal scaling: the network scales by increasing the number of shards to provide more throughput to the network. This is the same as Google or Amazon adding more servers when there are more users interacting with their services. The idea was, developers can build and not have to worry about throughput or scaling: the more usage you get, the more demand and transactions you have, the network will scale to meet it – without slowdowns, outages, or increasing transaction fees (as happened, for example, in early Ethereum).&nbsp;&nbsp;</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/introducing-dynamic-resharding/3b3c4bf411c7d2c4.webp\" loading=\"lazy\" decoding=\"async\" width=\"1696\" height=\"1010\" alt=\"\" class=\"pb-fig__img\"></div></figure><p class=\"pb-p\">NEAR has increased the number of shards 5 times since mainnet: going from 1 shard (or Simple Nightshade) at launch in 2020, to 4 shards in 2022, to 6 shards in <a href=\"/blog/legends-of-near-expansion-from-4-to-6-shards\" rel=\"noopener noreferrer\" target=\"_blank\">2024</a> as part of launching Nightshade 2.0, to 8 shards in early 2025, to 9 shards today (as well as a private shard powering <a href=\"https://intents.near.org/confidential\" rel=\"noopener noreferrer\" target=\"_blank\">Confidential Intents</a>).&nbsp;</p><p class=\"pb-p\">Resharding until now has been a manual and therefore slow process to prepare, although the actual resharding itself takes place within a block, i.e. less than 2 seconds (and without any interruption to users). Because resharding happens as part of a protocol upgrade, it has required weeks of coordination with validators to decide to make the upgrade and progress through the release schedule. This will soon change with dynamic resharding, which makes the addition of new shards automatic – the network can detect when a split is needed and carry it out with no effect on validators, developers, and users.&nbsp;</p><h2 id=\"improving-performance-with-1-million-tps-and-sharded-smart-c\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\">Improving Performance with 1 Million TPS and Sharded Smart Contracts</span></h2><p class=\"pb-p\">A sharded blockchain doesn’t scale linearly in reality. To solve sublinear scaling challenges that affected performance, the Near One team introduced the 1 million transactions-per-second (TPS) research initiative in 2025, done in an experimental environment (basically a fork of NEAR). They found that things scaled well up until approximately thirty shards, although the NEAR Nightshade sharding architecture allows for a theoretical 70-100 shards. Above thirty, adding shards introduced overhead that ate up the added capacity. So Near One undertook months of optimization work to reduce that overhead.</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/introducing-dynamic-resharding/f5a322bfa84c8c6b.webp\" height=\"336\" width=\"624\" loading=\"lazy\" decoding=\"async\" alt=\"\" class=\"pb-fig__img\"></div></figure><p class=\"pb-p\"><em>A trace visualization tool built by Near One, mapping the critical path of NEAR's block and chunk production pipeline across validator nodes during 1M TPS benchmark profiling.</em></p><p class=\"pb-p\">The result, which enabled NEAR to achieve <a href=\"https://blog.nearone.org/announcement/2025/12/11/scaling-near-to-1m-tps.html\" rel=\"noopener noreferrer\" target=\"_blank\">1 million TPS in a publicly verifiable benchmark</a>, now allows the network to scale to at least 70 shards without any sacrifice in performance (not perfectly linear scaling, but close). This would be around 10x scaling from today’s network capacity, which means NEAR would be able to scale far beyond the throughput of current high-usage networks like Visa. Adding shards now works as intended in the protocol design and developers are able to utilize this capacity.&nbsp;</p><p class=\"pb-p\">In late 2025 via <a href=\"https://github.com/near/NEPs/blob/master/neps/nep-0616.md\" rel=\"noopener noreferrer\" target=\"_blank\">NEP-616</a>, NEAR added another scaling unlock: sharded smart contract support. Before, a single smart contract always lived on a single shard. Since applications logically live on one smart contract, this presents a potential limitation for an app that has millions of users or a lot of transactions. Sharded smart contracts let state live on multiple shards and even allow for a sharded fungible token. Thanks to the <a href=\"https://docs.near.org/protocol/accounts-contracts/account-model\" rel=\"noopener noreferrer\" target=\"_blank\">NEAR account model</a>, every user is effectively a smart contract and each balance is a separate account. So those can move across shards and spread out a given application or user base.</p><p class=\"pb-p\">Combined, sharded smart contracts and 1 million TPS optimizations introduced significant performance improvements for apps on NEAR and also paved the way for full dynamic resharding.&nbsp;</p><h2 id=\"accelerating-the-near-future-with-dynamic-resharding\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\">Accelerating the NEAR Future with Dynamic Resharding</span></h2><p class=\"pb-p\">The next major protocol upgrade for NEAR introduces dynamic resharding, a major upgrade for the protocol’s promise of true horizontal scaling that builds on sharded smart contracts. (For those interested in reading the NEP, <a href=\"https://github.com/near/NEPs/pull/639\" rel=\"noopener noreferrer\" target=\"_blank\">see GitHub</a>.) Now, dividing shards gets substantially faster and lets apps adapt to demand spikes or usage growth as it happens. The entire process is deterministic, validated through state witnesses, and requires no human intervention – also making the protocol more resilient.</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/introducing-dynamic-resharding/6e6e8bf7df3acbbf.webp\" loading=\"lazy\" decoding=\"async\" width=\"1696\" height=\"1477\" alt=\"\" class=\"pb-fig__img\"></div></figure><p class=\"pb-p\">The primary improvement of dynamic resharding is speed of adaptability. Resharding v3 (completed in early 2025) allowed a shard to split quasi-instantly, within one block, but doing so required a protocol upgrade. Since these are hard-coded, the update is static rather than dynamic, meaning it requires someone to put it into motion, go through the preparation and coordination with validators, a vote, and finally the actual update. Protocol upgrades are generally 1-2 months apart to allow for smooth coordination with validators, which means getting to 70 shards would take multiple years if done this way.&nbsp;</p><p class=\"pb-p\">Now, dynamic resharding happens <em>dynamically,</em> meaning that a shard can split automatically when it reaches a certain state size. Now, an application on NEAR can scale at the pace builders need it to scale––within hours, i.e. 1.5 epochs on average. Neither storage nor throughput are blockers to dynamic scaling on demand.</p><h2 id=\"the-next-era-of-scaling-near-the-settlement-layer-for-millio\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">04</span><span class=\"pb-h2__t\">The Next Era of Scaling NEAR: The Settlement Layer for Millions of Agents</span></h2><p class=\"pb-p\">In addition to scaling to 70 shards and powering 1 million TPS, dynamic resharding also helps support the growth of NEAR Intents and the agent economy. NEAR Co-founder Illia Polosukhin <a href=\"https://ilblackdragon.substack.com/p/the-unified-commerce-layer\" rel=\"noopener noreferrer\" target=\"_blank\">has predicted</a> that AI agents will carry out the majority of commerce in the future, potentially billions of them. Supporting agentic commerce will require a high-throughput infrastructure that can handle large transaction volume and demand spikes.</p><p class=\"pb-p\">Dynamic resharding future-proofs NEAR Protocol to ensure it can support agentic commerce, as well as near.com and projects and infrastructure that integrate NEAR Intents. NEAR Intents is already utilizing sharded contracts for <a href=\"https://github.com/near/intents/tree/main/contracts/wallet\" rel=\"noopener noreferrer\" target=\"_blank\">wallet contracts</a> and the <a href=\"https://github.com/near/intents/tree/main/contracts/global-deployer\" rel=\"noopener noreferrer\" target=\"_blank\">global deployer</a>, and is exclusively writing and adding new contracts as NEP-616 sharded smart contracts to ensure long-term scalability. Another near-term upgrade will be to introduce sharded RPC and archival nodes, which is a work in progress (in a sharded system, all components must be sharded, including these nodes).&nbsp;</p><p class=\"pb-p\">Over time, Intents is starting to function as an integrated part of the core NEAR protocol, benefiting from all the horizontal scaling benefits of sharding as well as delivering the benefits to users across many other chains.&nbsp;</p><p class=\"pb-p\">Stay tuned for more updates on protocol upgrade 2.13, which will not only launch dynamic resharding but also introduce a post-quantum-safe signing scheme for NEAR. The upgrade is expected to go through in June 2026.</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "building-on-the-original-near-sharding-vision",
+     "t": "Building on the Original NEAR Sharding Vision"
+    },
+    {
+     "id": "improving-performance-with-1-million-tps-and-sharded-smart-c",
+     "t": "Improving Performance with 1 Million TPS and Sharded Smart Contracts"
+    },
+    {
+     "id": "accelerating-the-near-future-with-dynamic-resharding",
+     "t": "Accelerating the NEAR Future with Dynamic Resharding"
+    },
+    {
+     "id": "the-next-era-of-scaling-near-the-settlement-layer-for-millio",
+     "t": "The Next Era of Scaling NEAR: The Settlement Layer for Millions of Agents"
+    }
+   ],
+   "readMin": 6,
+   "video": null
+  }
+ },
+ {
+  "slug": "how-confidential-intents-works",
+  "publishedAt": "2026-05-27T06:00:00.000Z",
+  "layout": null,
+  "metaTitle": "How Confidential Intents Works | NEAR Blog",
+  "metaDescription": "A technical deep dive into Confidential Intents and its underlying privacy architecture.",
+  "article": {
+   "category": "",
+   "type": "",
+   "title": "How Confidential Intents Works: Privacy Architecture for Cross-Chain DeFi",
+   "dek": "",
+   "author": {
+    "name": "NEAR",
+    "role": "",
+    "initials": "N",
+    "bio": ""
+   },
+   "date": "May 27, 2026",
+   "dateIso": "2026-05-27",
+   "tags": [],
+   "hero": {
+    "src": "/images/blog/cms/how-confidential-intents-works.webp",
+    "alt": ""
+   },
+   "takeaways": [],
+   "body": {
+    "html": "<p class=\"pb-p\">Confidential Intents is a confidentiality layer built into <a href=\"https://intents.near.org/\" rel=\"noopener noreferrer\" target=\"_blank\">NEAR Intents</a> that enables users to execute cross-chain transactions without exposing position data to the public chain. Confidential deposits, withdrawals, swaps, and peer-to-peer transfers are now available at<a href=\"https://near.com/\" rel=\"noopener noreferrer\" target=\"_blank\"> </a><a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a> through the “Confidential Mode” feature.</p><p class=\"pb-p\">Powered by a NEAR private shard, Confidential Intents ensures verifiable settlement while also preventing MEV, frontrunning, and strategy copying that can occur when your order size, token pair, direction, and timing are all visible. These risks around fully transparent public chain transactions have historically pushed institutional capital and traders moving real size toward centralized exchanges, which offer confidential execution by default. Confidential Intents brings that same property to cross-chain DeFi, while ensuring users retain full control of their assets, transactions settle on verifiable infrastructure, and position data stays off the public chain.</p><p class=\"pb-p\">Below we explore the importance of confidentiality in both traditional and decentralized financial markets, and walk through Confidential Intents’ underlying privacy architecture and key design decisions.</p><h2 id=\"confidentiality-as-market-infrastructure\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">01</span><span class=\"pb-h2__t\">Confidentiality as Market Infrastructure</span></h2><p class=\"pb-p\">Financial institutions have used confidential execution for decades. In traditional equity markets, dark pools were developed nearly half a century ago to enable institutional investors to execute large block trades without signaling intent to the broader market. A fund selling a large equity position on a public exchange risks market signaling before the order completes. Dark pools solve this by keeping pre-trade order flow confidential while maintaining post-trade reporting and regulatory compliance.</p><p class=\"pb-p\">This is the structural model behind Confidential Intents. Similar economic dynamics apply in DeFi, where visible onchain order flow can create extractable value. MEV bots can frontrun pending swaps, sandwich attacks can profit from bracketing user orders, and large positions can be copied or targeted for liquidation. These are measurable costs, which have kept institutional-scale capital on centralized venues. Confidential Intents is designed to provide the same execution quality that institutional participants and power users expect from any serious trading venue.</p><h2 id=\"using-confidential-mode-on-near-com\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">02</span><span class=\"pb-h2__t\">Using Confidential Mode on <a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a></span></h2><p class=\"pb-p\">Confidential Mode operates within your existing<a href=\"https://near.com/\" rel=\"noopener noreferrer\" target=\"_blank\"> near.com</a> account. There is no separate application, no additional wallet, and no new key management.</p><p class=\"pb-p\">First, toggle on. Find the Confidential Mode toggle in the sidebar. Authenticate when prompted. The interface switches to a dark theme to confirm you are in the confidential environment.</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/how-confidential-intents-works/bcaf69c716bfa598.webp\" loading=\"lazy\" decoding=\"async\" width=\"512\" height=\"230\" alt=\"\" class=\"pb-fig__img\"></div></figure><p class=\"pb-p\">Your account now has two balances: Main (standard onchain transparency) and Confidential (encrypted onchain, visible only to you). You can move assets between them at any time via the Transfer screen.</p><p class=\"pb-p\"><strong><img src=\"/images/blog/cms/how-confidential-intents-works/5a273dc264048757.webp\" height=\"138\" width=\"450\" loading=\"lazy\" decoding=\"async\" alt=\"\"></strong></p><p class=\"pb-p\">From your confidential balance, you can swap tokens, send funds to other near.com accounts, or withdraw to any supported foreign chain. Transaction details, such as amounts, counterparties, and token pairs, stay off the public NEAR&nbsp;blockchain.</p><p class=\"pb-p\">Here’s <a href=\"https://x.com/surgecodes/status/2039371640228778143\" rel=\"noopener noreferrer\" target=\"_blank\">a full walkthrough</a> of the Confidential Swaps flow on <a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a>.&nbsp;</p><h2 id=\"the-private-shard-architecture-underpinning-confidential-int\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">03</span><span class=\"pb-h2__t\">The Private Shard Architecture Underpinning Confidential Intents</span></h2><p class=\"pb-p\">Confidential Intents runs on a NEAR private shard, a dedicated execution environment operated by a decentralized set of independent, permissioned validators, connected to NEAR mainnet via a bridge.</p><p class=\"pb-p\"><strong><img src=\"/images/blog/cms/how-confidential-intents-works/479105e921db0a2e.webp\" alt=\"Both public and private states are &quot;on chain&quot;\" height=\"348\" width=\"624\" loading=\"lazy\" decoding=\"async\"></strong></p><p class=\"pb-p\">Watch Bowen Wang’s <a href=\"https://www.youtube.com/watch?v=O7LGqNJnOKY&amp;list=PL9tzQn_TEuFUvCYDl-fDmFTiOUEwZ6jj5&amp;index=8\" rel=\"noopener noreferrer\" target=\"_blank\">full NEARCON keynote</a> on Nightshade 3.0 and the NEAR Protocol private shard.&nbsp;</p><p class=\"pb-p\">The private shard is where confidential transactions execute. It functions as a NEAR shard with restricted visibility. Transactions that occur on the private shard are not exposed on the public NEAR blockchain. The private shard has no public RPC endpoint, API, or block explorer. The permissioned validator set uses a Practical Byzantine Fault Tolerance consensus model that provides ~200ms finality. Tokens on the private shard are burned after withdrawal.&nbsp;</p><p class=\"pb-p\">The bridgeconnects the private shard to NEAR mainnet and handles fund movement between the confidential and public environments while preserving the integrity boundary.&nbsp;</p><h2 id=\"how-a-confidential-transaction-executes\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">04</span><span class=\"pb-h2__t\">How a Confidential Transaction Executes</span></h2><p class=\"pb-p\">Here is the lifecycle of a confidential swap on near.com:</p><p class=\"pb-p\"><strong>Deposit.</strong> You move funds from your Main balance to your Confidential balance. This is a transfer from the public NEAR Intents environment to the private shard. Once the transfer completes, those assets are no longer visible on the public chain.</p><p class=\"pb-p\"><strong>Execution.</strong> You initiate a swap from your confidential balance. The swap executes on the private shard. Amounts, token pairs, and routing details are not recorded on the public NEAR blockchain.</p><p class=\"pb-p\"><strong>Settlement or withdrawal.</strong> You can hold the resulting assets in your confidential balance, move them back to Main, or withdraw directly to any supported foreign chain. <a href=\"http://near.com\" rel=\"noopener noreferrer\" target=\"_blank\">near.com</a> also now supports <a href=\"https://x.com/NEARProtocol/status/2054990234027184591\" rel=\"noopener noreferrer\" target=\"_blank\">confidential withdrawals</a>. The explorer simply shows an anonymous sender.</p><figure class=\"pb-fig pb-fig--free\" data-size=\"col\" data-reveal=\"\"><div class=\"pb-fig__ph\"><img src=\"/images/blog/cms/how-confidential-intents-works/56e71a426963033e.webp\" height=\"199\" width=\"624\" loading=\"lazy\" decoding=\"async\" alt=\"\" class=\"pb-fig__img\"></div></figure><p class=\"pb-p\">The user experience is identical to a standard<a href=\"https://near.com/\" rel=\"noopener noreferrer\" target=\"_blank\"> near.com</a> swap, with the same one-click cross-chain execution powered by NEAR Intents. The confidentiality layer operates underneath without adding client-side complexity, so no ZK-proof generation, state sync, or additional wallet setup.</p><h2 id=\"selective-disclosure-and-integrity-at-the-boundary\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">05</span><span class=\"pb-h2__t\">Selective Disclosure and Integrity at the Boundary</span></h2><p class=\"pb-p\">Confidential Intents provides strong privacy while maintaining legal compliance.&nbsp;</p><p class=\"pb-p\">Your confidential balance and full transaction history are encrypted onchain using your wallet's private key. You have complete visibility into your own activity. No other user can decrypt your data.</p><p class=\"pb-p\">Confidential Intents plans to roll out a selective disclosure feature, where users hold an account-level view key for their confidential data that they can choose to share with an auditor, tax advisor, compliance officer, or any other party for a limited period of time. This is entirely user-initiated with time-scoped access. No one can compel you to share your view key outside of lawful legal process. NEAR Intents’ financial integrity measures are explained in the <a href=\"https://docs.near-intents.org/security-compliance/risk-and-compliance\" rel=\"noopener noreferrer\" target=\"_blank\">Risk &amp; Compliance docs</a>, as well as the <a href=\"https://near.com/privacy\" rel=\"noopener noreferrer\" target=\"_blank\">NEAR Intents privacy policy</a>. These measures follow the same posture Signal takes on encrypted metadata and Zcash takes on view keys when legally compelled.&nbsp;</p><p class=\"pb-p\">Confidential Intents applies comprehensive screening at ingress, before funds enter the confidential environment, a boundary control that is consistent with industry-standard compliance practices. This means funds are checked against known sanctions lists and flagged addresses at the point of deposit so that identified illicit sources are filtered before they enter the private shard. Once assets pass screening and enter the confidential environment, transactions are not continuously monitored or surveilled. This is the same model used by regulated trading venues that verify participant eligibility at onboarding without observing individual order flow in real time.</p><p class=\"pb-p\">This design is what separates Confidential Intents from mixing services, which accept funds from any source and rely on pooling and redistribution to obscure origin. Confidential Intents takes the opposite approach: screen at the boundary, protect execution inside.</p><h2 id=\"architecture-decisions\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">06</span><span class=\"pb-h2__t\">Architecture Decisions</span></h2><p class=\"pb-p\">Confidential Intents reflects a set of deliberate design choices that distinguish it from other approaches to onchain privacy.&nbsp;</p><p class=\"pb-p\"><strong>Encryption over proof generation.</strong> ZK-based privacy systems require users to generate client-side cryptographic proofs for each transaction. This adds computational overhead, wallet complexity, and limits the set of supported operations. Confidential Intents provides confidentiality through the private shard execution environment: encrypted onchain data and restricted validator access. The tradeoff is a trust-minimized model rather than a fully trustless one, in exchange for broader functionality and a standard user experience with no client-side burden.</p><p class=\"pb-p\"><strong>Compliance-aware by design.</strong> Fully opaque privacy systems offer strong cryptographic guarantees but provide no mechanism for lawful disclosure. Confidential Intents supports selective disclosure to law enforcement, which will only be done in response to the service of valid legal process, because long-term institutional adoption requires an architecture that can operate in a compliant fashion. The goal is durable privacy infrastructure, not temporary opacity.</p><p class=\"pb-p\"><strong>Individual encryption, not pooled obfuscation.</strong> Mixing services pool user funds and redistribute them to break the link between source and destination. Confidential Intents encrypts each user's data individually on the private shard. Your assets are not pooled with other users' funds. Your confidentiality does not depend on the size of an anonymity set.</p><p class=\"pb-p\">Confidential Intents’ architecture is ultimately designed to sustain institutional-grade confidential execution at scale while remaining operational over time.</p><h2 id=\"start-using-confidential-intents\" class=\"pb-h2\" data-reveal=\"\"><span class=\"pb-h2__n\" aria-hidden=\"true\">07</span><span class=\"pb-h2__t\">Start Using Confidential Intents</span></h2><p class=\"pb-p\">Confidential Mode is live. Toggle it on at<a href=\"https://near.com/\" rel=\"noopener noreferrer\" target=\"_blank\"> near.com</a>, move funds into your confidential balance, and execute your first confidential swap.</p>"
+   },
+   "notes": [],
+   "sections": [
+    {
+     "id": "confidentiality-as-market-infrastructure",
+     "t": "Confidentiality as Market Infrastructure"
+    },
+    {
+     "id": "using-confidential-mode-on-near-com",
+     "t": "Using Confidential Mode on near.com"
+    },
+    {
+     "id": "the-private-shard-architecture-underpinning-confidential-int",
+     "t": "The Private Shard Architecture Underpinning Confidential Intents"
+    },
+    {
+     "id": "how-a-confidential-transaction-executes",
+     "t": "How a Confidential Transaction Executes"
+    },
+    {
+     "id": "selective-disclosure-and-integrity-at-the-boundary",
+     "t": "Selective Disclosure and Integrity at the Boundary"
+    },
+    {
+     "id": "architecture-decisions",
+     "t": "Architecture Decisions"
+    },
+    {
+     "id": "start-using-confidential-intents",
+     "t": "Start Using Confidential Intents"
+    }
+   ],
+   "readMin": 6,
    "video": null
   }
  }
