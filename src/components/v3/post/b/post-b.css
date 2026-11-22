@@ -9,6 +9,10 @@
 .pbv-cover { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: flex-end; min-height: max(640px, 100svh); overflow: hidden; background: #111; color: var(--paper-0); }
 .pbv-cover__ph { position: absolute; z-index: -2; inset: 0; }
 .pbv-cover__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* the focus at each width (D284, PostB's focused()): desktop, then tablet (768-1199), then phone (under 768), each falling back to the wider one */
+.pbv-cover__img, .pbv-next__ph img, .pbv-rest__ph img { object-position: var(--f, 50% 50%); }
+@media (max-width: 1199px) { .pbv-cover__img, .pbv-next__ph img, .pbv-rest__ph img { object-position: var(--f-md, var(--f, 50% 50%)); } }
+@media (max-width: 767px) { .pbv-cover__img, .pbv-next__ph img, .pbv-rest__ph img { object-position: var(--f-sm, var(--f-md, var(--f, 50% 50%))); } }
 /* type over the photo (D262): tone.ts measures the photo behind the text and sets data-tone (white | ink), --veil-a and the veil's box.
    White type sits on a dark veil, ink type on a white one; the veil is only behind the text, feathered, and as strong as that photo needs (0: none).
    Until it is measured the text waits hidden, so a light photo never shows white type first. .pbv-cover__veil is the whole-photo dim of leaving. */

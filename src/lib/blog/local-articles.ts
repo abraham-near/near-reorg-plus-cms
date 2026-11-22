@@ -268,6 +268,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/tokenized-stocks-rwas-ondo.webp",
     "focus": "68% 50%",
+    "focusAt": { "md": "69% 50%", "sm": "73% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -324,6 +325,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/introducing-top-level-accounts-and-recovery-keys-on-near.webp",
     "focus": "77% 50%",
+    "focusAt": { "md": "88% 50%", "sm": "85% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -452,6 +454,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/the-state-of-near-q-2-2026.webp",
     "focus": "74% 50%",
+    "focusAt": { "sm": "76% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -564,6 +567,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/SimpleSwap-Integrates-NEAR-Intents.webp",
     "focus": "66% 50%",
+    "focusAt": { "md": "71% 50%", "sm": "75% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -604,6 +608,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/near-foundation-joins-x402-foundation.webp",
     "focus": "55% 50%",
+    "focusAt": { "md": "40% 50%", "sm": "37% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -648,6 +653,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/near-quantum-safe-roadmap.webp",
     "focus": "73% 50%",
+    "focusAt": { "sm": "74% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -704,6 +710,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/announcing-general-availability-of-confidential-intents.webp",
     "focus": "60% 50%",
+    "focusAt": { "md": "70% 50%", "sm": "66% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -760,6 +767,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/staking-for-near-ai.webp",
     "focus": "95% 50%",
+    "focusAt": { "sm": "92% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -860,6 +868,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/milestone-incentive-program.webp",
     "focus": "91% 50%",
+    "focusAt": { "sm": "92% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -1016,6 +1025,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/introducing-dynamic-resharding.webp",
     "focus": "60% 50%",
+    "focusAt": { "md": "71% 50%", "sm": "68% 50%" },
     "alt": ""
    },
    "takeaways": [],
@@ -1068,6 +1078,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/how-confidential-intents-works.webp",
     "focus": "83% 50%",
+    "focusAt": { "md": "78% 50%", "sm": "80% 50%" },
     "alt": ""
    },
    "takeaways": [],

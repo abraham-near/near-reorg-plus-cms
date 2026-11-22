@@ -11,7 +11,10 @@ import type { ToneHint } from "@/lib/blog/tone-math";
 // textFrame: how to frame this picture in a full-bleed band whose type sits away from its subject (Up next): zoom in by `zoom` towards `at`
 // (an object-position corner, e.g. "0% 100%", the lower left) so the photo's planned empty space sits behind the type (D265); none: as `focus`.
 // hint: the server's first guess at that tone and its veil (lib/blog/tone-hint.ts, D264), rendered into the HTML; the browser refines it
-export type Img = { src: string; alt: string; cap?: string; w?: number; h?: number; focus?: string; textTone?: "white" | "ink"; hint?: ToneHint; textFrame?: TextFrame };
+// focusAt: the focus on narrower screens (D284), where the cover crops the 16:9 photo hardest: md from 768 to 1199 px, sm under 768. Each falls
+// back to the wider one, then to `focus`. finish.cjs sets them from where the accent sits (accent.cjs), so the subject stays whole at every width.
+export type Img = { src: string; alt: string; cap?: string; w?: number; h?: number; focus?: string; focusAt?: FocusAt; textTone?: "white" | "ink"; hint?: ToneHint; textFrame?: TextFrame };
+export type FocusAt = { md?: string; sm?: string };
 export type TextFrame = { zoom: number; at: string };
 export type Block =
   | { k: "p"; t: string; note?: string }
@@ -27,8 +30,8 @@ export type Block =
 
 export type Section = { id: string; t: string };
 /** a post in Keep reading / Up next / Related */
-// imgFocus: the picture's object-position, as Img.focus (D261); imgHint: its tone hint, as Img.hint (D264); imgFrame: as Img.textFrame (D265)
-export type MorePost = { key: string; title: string; href: string; img: string | null; imgFocus?: string; imgHint?: ToneHint; imgFrame?: TextFrame; label: string; source: string; type?: Type; note?: string };
+// imgFocus: the picture's object-position, as Img.focus (D261), and imgFocusAt as Img.focusAt (D284); imgHint: its tone hint, as Img.hint (D264); imgFrame: as Img.textFrame (D265)
+export type MorePost = { key: string; title: string; href: string; img: string | null; imgFocus?: string; imgFocusAt?: FocusAt; imgHint?: ToneHint; imgFrame?: TextFrame; label: string; source: string; type?: Type; note?: string };
 export type Article = {
   category: string;
   type: string;

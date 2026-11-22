@@ -10,7 +10,7 @@ import { useRef, type CSSProperties } from "react";
 import { SplitText } from "gsap/SplitText";
 import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import { Arrow } from "../../blog/parts";
-import type { Article, TextFrame } from "../article";
+import type { Article, FocusAt, TextFrame } from "../article";
 import { Avatar, Body, Footnotes, Share, Tags } from "../Body";
 import { useReadProgress, useReveal } from "../hooks";
 import { useTextTone, type ToneZone } from "../tone";
@@ -45,11 +45,16 @@ const NEXT: ToneZone[] = [{ sel: ".pbv-next__l", alpha: 0.8 }, { sel: ".pbv-next
 
 // Up next's photo: zoomed towards a corner so its planned empty space sits behind the type (Img.textFrame, D265). The image box itself grows
 // (not a transform), so tone.ts measures the crop as shown; else the post's focus point.
-function framed(f?: TextFrame, focus?: string): CSSProperties | undefined {
-  if (!f) return focus ? { objectPosition: focus } : undefined;
+function framed(f?: TextFrame, focus?: string, at?: FocusAt): CSSProperties | undefined {
+  if (!f) return focused(focus, at);
   const [ax, ay] = f.at.split(" ").map((v) => parseFloat(v));
   return { position: "absolute", width: `${f.zoom * 100}%`, height: `${f.zoom * 100}%`, left: `${-(f.zoom - 1) * ax}%`, top: `${-(f.zoom - 1) * ay}%`, objectPosition: f.at };
 }
+
+// the picture's focus at each width (D284): custom properties that post-b.css reads per breakpoint (--f, then --f-md under 1200 px, --f-sm under
+// 768), so the crop moves with the screen and tone.ts, which reads the computed object-position, measures the crop as shown
+const focused = (focus?: string, at?: FocusAt): CSSProperties | undefined =>
+  focus || at?.md || at?.sm ? ({ "--f": focus, "--f-md": at?.md, "--f-sm": at?.sm } as CSSProperties) : undefined;
 
 // the server's tone hint, in the HTML: the text shows at once in that tone; the browser then measures the real crop (tone.ts)
 const toneAttrs = (tone?: "white" | "ink", veil?: number) =>
@@ -71,7 +76,7 @@ export function PostB({ article: A }: { article: Article }) {
       <div ref={bar} className="pbv-bar" aria-hidden="true"><i /></div>
       <article aria-labelledby="pbv-t">
         <header ref={cover} className={`pb-cover pbv-cover${A.hero ? "" : " pbv-cover--plain"}`} {...toneAttrs(A.hero?.textTone ?? A.hero?.hint?.tone, A.hero?.hint?.veil)}>
-          <div className="pbv-cover__ph">{A.hero && <img className="pbv-cover__img" src={A.hero.src} alt={A.hero.alt} style={A.hero.focus ? { objectPosition: A.hero.focus } : undefined} />}</div>
+          <div className="pbv-cover__ph">{A.hero && <img className="pbv-cover__img" src={A.hero.src} alt={A.hero.alt} style={focused(A.hero.focus, A.hero.focusAt)} />}</div>
           <div className="pbv-cover__veil" aria-hidden="true" />
           <div className="pbv-cover__in">
             {label && <p className="pbv-cover__label"><span className="pbv-dot" aria-hidden="true" />{label}</p>}
@@ -118,7 +123,7 @@ export function PostB({ article: A }: { article: Article }) {
       {next && (
         <section className="pbv-next" aria-labelledby="pbv-next-t">
           <a ref={nextRef} className="pbv-next__a" href={next.href} {...toneAttrs(next.imgHint?.tone, next.imgHint?.veil)}>
-            <div className="pbv-next__ph">{next.img && <img src={next.img} alt="" loading="lazy" style={framed(next.imgFrame, next.imgFocus)} />}</div>
+            <div className="pbv-next__ph">{next.img && <img src={next.img} alt="" loading="lazy" style={framed(next.imgFrame, next.imgFocus, next.imgFocusAt)} />}</div>
             <div className="pbv-next__in">
               <p className="pbv-next__l">Up next · {next.label}</p>
               <h2 id="pbv-next-t" className="pbv-next__t">{next.title}</h2>
@@ -131,7 +136,7 @@ export function PostB({ article: A }: { article: Article }) {
         {rest.map((p) => (
           <li key={p.key}>
             <a className="pbv-rest__a" href={p.href}>
-              <div className="pbv-rest__ph">{p.img && <img src={p.img} alt="" loading="lazy" style={p.imgFocus ? { objectPosition: p.imgFocus } : undefined} />}</div>
+              <div className="pbv-rest__ph">{p.img && <img src={p.img} alt="" loading="lazy" style={focused(p.imgFocus, p.imgFocusAt)} />}</div>
               <p className="pbv-rest__l">{p.label}</p>
               <p className="pbv-rest__t">{p.title}</p>
             </a>
