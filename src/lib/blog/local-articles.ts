@@ -1244,7 +1244,7 @@ const ARTICLES: LocalArticle[] = [
    "hero": {
     "src": "/images/blog/heroes/near-com.webp",
     "focus": "30% 50%",
-    "focusAt": { "md": "87% 50%", "sm": "83% 50%" },
+    "focusAt": { "md": "87% 50%", "sm": "85% 50%" },
     "alt": ""
    },
    "takeaways": [],
