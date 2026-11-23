@@ -323,6 +323,12 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
       }
       // The server may have taken the next free URL (launch-2): show it, unless the URL was edited meanwhile.
       if (saved.slug !== values.slug) setForm((form) => form.slug === values.slug ? { ...form, slug: saved.slug } : form)
+      // The server may have put a new video post in Watch: show it, unless the categories were edited meanwhile.
+      const savedCategories = saved.categories.map((join) => join.categoryId)
+      if (savedCategories.join() !== values.categoryIds.join()) {
+        setForm((form) => form.categoryIds.join() === values.categoryIds.join() ? { ...form, categoryIds: savedCategories } : form)
+        if (savedCategories.some((id) => !categories.some((item) => item.id === id))) router.refresh()
+      }
       // A new post keeps its /admin/posts/new URL while you write: changing the URL by hand desynchronized
       // Next's router (New post reopened the previous post). Reload reopens it (rememberNewDraft).
       if (!current) {
@@ -592,6 +598,9 @@ export default function PostForm({ initialPost, categories, tags, permissions }:
           layout={form.layout} onLayout={(value) => update('layout', value)} takeaways={form.takeaways} onTakeaways={(value) => update('takeaways', value)}
           format={format} onFormat={(value) => { formatRef.current = value
             setFormat(value)
+            // A video post goes in Watch by default (first; the person can change it). The server does the same on save.
+            const watch = value === 'video' ? categories.find((item) => item.slug === 'watch') : undefined
+            if (watch) setForm((current) => current.categoryIds.includes(watch.id) ? current : { ...current, categoryIds: [watch.id, ...current.categoryIds] })
             markChanged() }}
           video={form.video} videoValue={videoValue === 'invalid' ? null : videoValue} videoInvalid={videoValue === 'invalid'} videoRef={videoRef}
           onVideo={(value) => { setVideoBroken(false)

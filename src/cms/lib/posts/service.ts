@@ -69,6 +69,20 @@ async function validateVideo(tx: Prisma.TransactionClient, input: PostInput, pre
   if (!media || !VIDEO_MIMES.has(media.mimeType)) throw new HttpError(400, 'The video must be an MP4 or WebM file from the media library')
 }
 
+/** The blog's Watch category (slug "watch"): video posts go in it by default. Made here if it was removed. */
+export const WATCH_SLUG = 'watch'
+
+/**
+ * A post that becomes a video post (its video is set now, it had none) goes in Watch, first, unless it is in it
+ * already; later saves keep whatever categories the person chose. The blog lists video posts under Watch.
+ */
+async function videoCategories(tx: Prisma.TransactionClient, input: PostInput, previous?: AdminPost): Promise<PostInput> {
+  if (!input.video || previous?.video) return input
+  const watch = await tx.category.upsert({ where: { slug: WATCH_SLUG }, create: { name: 'Watch', slug: WATCH_SLUG }, update: {}, select: { id: true } })
+  const ids = input.categoryIds ?? previous?.categories.map((join) => join.categoryId) ?? []
+  return ids.includes(watch.id) ? input : { ...input, categoryIds: [watch.id, ...ids] }
+}
+
 function dates(input: PostInput, previous?: AdminPost) {
   const status = input.status ?? previous?.status ?? 'DRAFT'
   const publishedAt = input.publishedAt !== undefined ? input.publishedAt ? new Date(input.publishedAt) : null : previous?.publishedAt ?? null
@@ -119,6 +133,7 @@ async function prepare(tx: Prisma.TransactionClient, input: PostInput, user: Ses
   if (input.slug && input.slug !== previous?.slug) input = { ...input, slug: await claimSlug(tx, input.slug, followsTitle, previous?.id) }
   await validateTaxonomy(tx, input)
   await validateVideo(tx, input, previous)
+  input = await videoCategories(tx, input, previous)
   const { categoryIds, tagIds, body, expectedUpdatedAt: _expected, autoSlug: _auto, ...fields } = input
   void _expected
   void _auto

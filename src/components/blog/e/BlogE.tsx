@@ -1,14 +1,16 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 // Blog index E (/blog; D221, rebuilt as the study's A2: D240–D244).
-// The heading with a short line at its right over a hairline; the lead post, always on screen (D242); then the filters and a grid of cards.
+// The heading with a short line at its right; the lead post, always on screen (D242) unless a search is on; then the filters and a grid of cards.
 //   - Types: All, Blog, Press, Watch as large words, one at a time, the chosen one in ink with the site's green dot sliding to it (as Go deeper's tabs).
+//   - Search, at the row's right: every word in the title, excerpt, source or tags (accents and case ignored); kept in the URL (?q=) to share; "/" focuses
+//     it, Esc clears it. While a search is on, the lead is listed with the rest (shown only when it matches).
 //   - Tags: pills under them, several at once (a post with any of them shows), × on a chosen pill, then Clear. The four product tags lead (tags.ts).
 //   - Cards: the homepage's own (Go deeper, proof-deeper.css): cells of a ruled grid with + where the lines meet, the photo inset 24 px, the type and the
 //     date under it, the title, the source, then the post's tags; a paper fill and the green dot on hover. Nine at a time, with Show more.
 // Posts: the CMS's live ones first (components/blog/live.ts), each with its own photo, date, excerpt and tags; then data.ts's Go deeper items, in black
 // and white (/images/blog/<id>.webp), with no dates of their own. Labels are /blog's (J's KIND): Blog, Press, Watch.
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { BlogItem } from "@/components/blog/live";
 import { POSTS, href, isExt, type FilterKey, type Type } from "@/components/v3/blog/data";
 import { DEEPER_TAGS, tagKey, tagList } from "./tags";
@@ -27,6 +29,12 @@ const dateOf = (p: BlogItem) => (p.date ? new Date(p.date).toLocaleDateString("e
 const linkOf = (p: BlogItem) => { const h = href(p); return isExt(h) ? { href: h, target: "_blank", rel: "noreferrer" } : { href: h }; };
 /** a post's tags: the CMS's, or those read off a Go deeper item's title and source */
 const tagsOf = (p: BlogItem) => p.tags ?? DEEPER_TAGS[p.id] ?? [];
+/** lower case, without accents: "Café" finds "cafe" */
+const fold = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+/** what a search reads of a post */
+const textOf = (p: BlogItem) => fold([p.title, p.excerpt ?? "", p.source, ...tagsOf(p)].join(" "));
+/** the line under the title: a Go deeper item's source (a publication); none for the CMS's posts, whose author (NEAR) is not shown */
+const srcOf = (p: BlogItem) => (p.id.startsWith("cms-") ? null : p.source);
 
 function Pic({ p, className = "", lazy }: { p: BlogItem; className?: string; lazy?: boolean }) {
   const src = picOf(p);
@@ -54,15 +62,45 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
   const [tab, setTab] = useState<FilterKey>("all");
   const [picked, setPicked] = useState<string[]>([]);   // tag keys
   const [shown, setShown] = useState(STEP);
+  const [q, setQ] = useState("");
   const on = new Set(picked);
-  // the lead stays on screen whatever is chosen (D242): the filters narrow the grid under it
-  const matches = (p: BlogItem) => (tab === "all" || p.type === tab) && (!on.size || tagsOf(p).some((t) => on.has(tagKey(t))));
-  const list = all.filter((p) => p !== lead && matches(p));
-  const leadMatches = !!lead && matches(lead);
+  const words = fold(q).split(/\s+/).filter(Boolean);
+  const searching = words.length > 0;
+  // the lead stays on screen whatever type or tag is chosen (D242): those narrow the grid under it. A search lists it with the rest.
+  const matches = (p: BlogItem) => (tab === "all" || p.type === tab) && (!on.size || tagsOf(p).some((t) => on.has(tagKey(t))))
+    && (!searching || words.every((w) => textOf(p).includes(w)));
+  const list = all.filter((p) => (searching || p !== lead) && matches(p));
+  const leadMatches = !searching && !!lead && matches(lead);
   const chosen = tags.filter((t) => on.has(tagKey(t))).join(" or ");
   const pickTab = (k: FilterKey) => { setTab(k); setShown(STEP); };
   const toggle = (k: string) => { setShown(STEP); setPicked((s) => (s.includes(k) ? s.filter((x) => x !== k) : [...s, k])); };
   const clear = () => { setShown(STEP); setPicked([]); };
+
+  // the search: read from the URL once (?q=, a shared link), written back as it changes (replaceState: no history entry per letter)
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const from = new URLSearchParams(window.location.search).get("q");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the URL is only readable in the browser
+    if (from) setQ(from.slice(0, 200));
+  }, []);
+  const search = (v: string) => {
+    setQ(v);
+    setShown(STEP);
+    const url = new URL(window.location.href);
+    if (v.trim()) url.searchParams.set("q", v.trim()); else url.searchParams.delete("q");
+    window.history.replaceState(window.history.state, "", url);
+  };
+  // "/" focuses the search (not while typing in a field)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey || t?.closest("input, textarea, select, [contenteditable]")) return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // the dot's place: the chosen word's left edge, read after layout (and again once the fonts are in, and on resize); hidden until then
   const rowRef = useRef<HTMLDivElement>(null);
@@ -83,14 +121,14 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
         <p className="be-aside">Customer stories from teams building with NEAR, reads on the agent economy and talks from Inside NEAR.</p>
       </header>
 
-      {lead && (
+      {lead && !searching && (
         <a className="be-lead" {...linkOf(lead)}>
           <Pic p={lead} className="be-lead__pic" />
           <span className="be-lead__text">
             <Meta p={lead} />
             <h2 className="be-lead__title">{lead.title}</h2>
             {lead.excerpt && <span className="be-lead__x">{lead.excerpt}</span>}
-            <span className="be-src">{lead.source}</span>
+            {srcOf(lead) && <span className="be-src">{srcOf(lead)}</span>}
             <Tags p={lead} on={on} names={names} />
           </span>
         </a>
@@ -104,7 +142,17 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
               <button key={t.key} type="button" className="be-tb" data-key={t.key} aria-pressed={tab === t.key} onClick={() => pickTab(t.key)}>{t.label}</button>
             ))}
           </div>
-          <p className="be-n" aria-live="polite">{plural(list.length)}</p>
+          <div className="be-side">
+            <label className="be-search">
+              <span className="sr-only">Search the blog</span>
+              <svg className="be-search__ic" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="7" cy="7" r="4.75" /><path d="m10.5 10.5 3.5 3.5" /></svg>
+              <input ref={searchRef} type="search" className="be-search__in" placeholder="Search posts" value={q} maxLength={200} autoComplete="off" spellCheck={false}
+                aria-keyshortcuts="/" onChange={(e) => search(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape" && q) { e.preventDefault(); search(""); } }} />
+              {q ? <button type="button" className="be-search__x" onClick={() => { search(""); searchRef.current?.focus(); }} aria-label="Clear the search">×</button>
+                : <kbd className="be-search__k" aria-hidden="true">/</kbd>}
+            </label>
+            <p className="be-n" aria-live="polite">{plural(list.length)}</p>
+          </div>
         </div>
         <div className="be-tags" role="group" aria-label="Show posts by tag">
           {tags.map((t) => {
@@ -127,7 +175,7 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
                 <Pic p={p} lazy />
                 <Meta p={p} />
                 <h3 className="be-card__title">{p.title}</h3>
-                <span className="be-src">{p.source}</span>
+                {srcOf(p) && <span className="be-src">{srcOf(p)}</span>}
                 <Tags p={p} on={on} names={names} />
               </a>
             </li>
@@ -136,9 +184,12 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
       ) : (
         // nothing in the grid: say so, minding the lead above when it matches what is chosen (it stays on screen, D242)
         <p className="be-empty">
-          {leadMatches
-            ? `The post above is the only ${tab === "all" ? "" : `${LABEL[tab]} `}post${on.size ? ` on ${chosen}` : ""} so far.`
-            : `No ${tab === "all" ? "" : `${LABEL[tab]} `}posts${on.size ? ` on ${chosen}` : ""} yet.`}
+          {searching
+            ? `No ${tab === "all" ? "" : `${LABEL[tab]} `}posts${on.size ? ` on ${chosen}` : ""} match “${q.trim()}”.`
+            : leadMatches
+              ? `The post above is the only ${tab === "all" ? "" : `${LABEL[tab]} `}post${on.size ? ` on ${chosen}` : ""} so far.`
+              : `No ${tab === "all" ? "" : `${LABEL[tab]} `}posts${on.size ? ` on ${chosen}` : ""} yet.`}
+          {searching && <>{" "}<button type="button" className="be-clear" onClick={() => search("")}>Clear the search</button></>}
           {on.size > 0 && <>{" "}<button type="button" className="be-clear" onClick={clear}>Clear tags</button></>}
         </p>
       )}

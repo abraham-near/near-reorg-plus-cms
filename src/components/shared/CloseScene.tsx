@@ -1,5 +1,5 @@
 "use client";
-// The homepage's close ("NEAR belongs to you" over the meadow: the lockup large in the sky glides down to the headline's size, `belongs to you` opens
+// The homepage's close ("NEAR belongs to you" over the homepage's stack of mail (close-mail.css): the lockup large glides down to the headline's size, `belongs to you` opens
 // out of it word by word while the stage holds, then the page's own line, buttons and, optionally, a newsletter arrive under it; the footer rises over
 // it). Markup and motion are the homepage's (v3/proof-deeper: ProofDeeper.tsx's close, motion.ts's scene), like NEAR Foundation's close, with each
 // page's own CTA inside. Its own `.l-page` root and motion, so it sits after a page's component, whatever that page is built on.
@@ -9,18 +9,22 @@ import { mount } from "../v3/proof-deeper/motion";
 import { LOCKUP_LETTERS, LOCKUP_TILE, LOCKUP_VIEWBOX } from "../v3/proof-deeper/lockup";
 import "../v3/proof-deeper/proof-deeper.css";
 import "./close-scene.css";
+import "./close-mail.css";
 
 export type CloseLink = { label: string; href: string };
 export type CloseNewsletter = { h: string; sub: string; cta: string };
+
+/** the homepage's close picture (the stack of mail in daylight, close-mail.css); any other photo keeps the full bleed */
+const MAIL = "/images/home/bw/close-mail-light.webp";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isExt = (h: string) => /^https?:\/\//.test(h);
 const ext = (h: string) => (isExt(h) ? { target: "_blank", rel: "noopener noreferrer" } : {});
 const Arrow = () => <svg className="l-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>;
 
-export function CloseScene({ sub, primary, secondary, newsletter, photo = "/v3/bleed-meadow.webp", ruled = false }: {
+export function CloseScene({ sub, primary, secondary, newsletter, photo = MAIL, ruled = false }: {
   sub: string; primary: CloseLink; secondary?: CloseLink; newsletter?: CloseNewsletter;
-  /** the sky behind the scene (the homepage's meadow by default) */
+  /** the picture behind the scene (the homepage's stack of mail by default) */
   photo?: string;
   /** the empty ruled row above it, for pages on the ruled grid (as on the homepage) */
   ruled?: boolean;
@@ -51,7 +55,7 @@ export function CloseScene({ sub, primary, secondary, newsletter, photo = "/v3/b
       <section className="l-sec l-close" id="close" aria-labelledby="cs-close-t">
         {ruled && <div className="l-row l-spacer" data-row="" aria-hidden="true"><div className="l-cell" /></div>}
         <div className="l-bleed-wrap">
-          <div className="l-bleed l-close__bleed" data-bleed="" data-close="">
+          <div className={`l-bleed l-close__bleed${photo === MAIL ? " cs-mail" : ""}`} data-bleed="" data-close="">
             <div className="l-close__stage">
               <div className="l-ph l-bleed__ph l-close__ph" data-ph=""><div className="l-plate"><img className="l-img" src={photo} alt="" loading="lazy" decoding="async" /></div></div>
               <div className="l-bleed__in l-close__in">

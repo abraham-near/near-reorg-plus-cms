@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Arrow } from "../../blog/parts";
 import type { Article } from "../article";
-import { Avatar, Body, Footnotes, Share, Tags, htmlNotes } from "../Body";
+import { Body, Footnotes, Share, Tags, htmlNotes } from "../Body";
 import { useActiveSection, useReadProgress, useReveal } from "../hooks";
 import "../post.css";
 import "./post-c.css";
@@ -42,7 +42,6 @@ export function PostC({ article: A }: { article: Article }) {
             <h1 id="pc-t" className="pc-h1">{A.title}</h1>
             {A.dek && <p className="pc-dek">{A.dek}</p>}
             <dl className="pc-facts">
-              <div className="pc-facts__by"><Avatar article={A} /><div><dt className="sr-only">Author</dt><dd>{A.author.name}</dd>{A.author.role && <dd className="pc-facts__sub">{A.author.role}</dd>}</div></div>
               <div><dt>Published</dt><dd><time dateTime={A.dateIso}>{A.date}</time></dd></div>
               <div><dt>Read</dt><dd>{READ_MIN} min</dd></div>
             </dl>
@@ -84,13 +83,6 @@ export function PostC({ article: A }: { article: Article }) {
             {htmlNotes(A) && <Footnotes article={A} />}
             <footer className="pc-foot">
               <Tags article={A} />
-              <div className="pc-author">
-                <Avatar article={A} cls="pc-author__av" />
-                <div>
-                  <p className="pc-author__n">Written by {A.author.name}</p>
-                  {A.author.bio && <p className="pc-author__b">{A.author.bio}</p>}
-                </div>
-              </div>
             </footer>
           </div>
         </div>

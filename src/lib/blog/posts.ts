@@ -15,7 +15,10 @@ const TAG = { posts: "cms:posts", post: (slug: string) => `cms:post:${slug}`, ca
 export type Pic = { src: string; w: number | null; h: number | null; alt: string };
 export type Term = { name: string; slug: string };
 /** `video`: a video post's video (lib/blog/video.ts), null for an article */
-export type PostCard = { slug: string; title: string; excerpt: string | null; image: Pic | null; publishedAt: string; author: string | null; category: Term | null; tags: Term[]; video: Video | null };
+/** every post's public author: NEAR (Nov 20, 2026). The CMS keeps who wrote it (permissions, history); the site never reads or shows that person */
+export const PUBLIC_AUTHOR = "NEAR";
+
+export type PostCard = { slug: string; title: string; excerpt: string | null; image: Pic | null; publishedAt: string; author: string; category: Term | null; tags: Term[]; video: Video | null };
 export type LivePost = PostCard & {
   visibility: "PUBLIC" | "UNLISTED";
   updatedAt: string;
@@ -27,7 +30,7 @@ export type LivePost = PostCard & {
 
 const liveWhere = (now: Date): Prisma.PostWhereInput => ({ status: "PUBLISHED", OR: [{ publishedAt: null }, { publishedAt: { lte: now } }] });
 
-/** an hour (the CMS expires the tags on every write; this only bounds what no tag covers, like an author's name), or until `next` if that is sooner */
+/** an hour (the CMS expires the tags on every write; this only bounds what no tag covers), or until `next` if that is sooner */
 function lifeUntil(next: Date | null | undefined) {
   const s = next ? Math.ceil((next.getTime() - Date.now()) / 1000) : Infinity;
   if (s >= 3600) cacheLife("hours");
@@ -49,7 +52,6 @@ const pic = (src: string | null, media: Record<string, MediaInfo>): Pic | null =
 
 const cardSelect = {
   slug: true, title: true, excerpt: true, featuredImage: true, publishedAt: true, createdAt: true, video: true,
-  author: { select: { name: true } },
   categories: { orderBy: { position: "asc" }, select: { category: { select: { name: true, slug: true } } } },
   tags: { orderBy: { name: "asc" }, select: { name: true, slug: true } },   // the index filters by them (D244)
 } satisfies Prisma.PostSelect;
@@ -63,7 +65,7 @@ const videoOf = (value: string | null, media: Record<string, MediaInfo>): Video 
 
 const toCard = (p: CardRow, media: Record<string, MediaInfo>): PostCard => ({
   slug: p.slug, title: p.title, excerpt: p.excerpt, image: pic(p.featuredImage, media),
-  publishedAt: (p.publishedAt ?? p.createdAt).toISOString(), author: p.author?.name ?? null, category: p.categories[0]?.category ?? null, tags: p.tags,
+  publishedAt: (p.publishedAt ?? p.createdAt).toISOString(), author: PUBLIC_AUTHOR, category: p.categories[0]?.category ?? null, tags: p.tags,
   video: videoOf(p.video, media),
 });
 

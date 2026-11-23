@@ -34,13 +34,12 @@ export const toMore = (p: PostCard, layout = DEFAULT_LAYOUT): MorePost => ({
 });
 
 export function toArticle(p: LivePost, more: PostCard[], layout = DEFAULT_LAYOUT): Article {
-  const author = p.author || "NEAR";
   return {
     category: p.category?.name ?? "",
     type: "",
     title: p.title,
     dek: p.excerpt ?? "",
-    author: { name: author, role: "", initials: initials(author), bio: "" },
+    author: { name: p.author, role: "", initials: initials(p.author), bio: "" },   // NEAR (lib/blog/posts.ts); the layouts do not show it
     date: longDate(p.publishedAt),
     dateIso: p.publishedAt.slice(0, 10),
     tags: p.tags.map((t) => ({ name: t.name, href: "" })),

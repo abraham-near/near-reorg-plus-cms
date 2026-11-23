@@ -11,7 +11,7 @@ import { SplitText } from "gsap/SplitText";
 import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import { Arrow } from "../../blog/parts";
 import type { Article, FocusAt, TextFrame } from "../article";
-import { Avatar, Body, Footnotes, Share, Tags } from "../Body";
+import { Body, Footnotes, Share, Tags } from "../Body";
 import { useReadProgress, useReveal } from "../hooks";
 import { useTextTone, type ToneZone } from "../tone";
 import "../post.css";
@@ -82,7 +82,6 @@ export function PostB({ article: A }: { article: Article }) {
             {label && <p className="pbv-cover__label"><span className="pbv-dot" aria-hidden="true" />{label}</p>}
             <h1 id="pbv-t" className="pbv-h1">{A.title}</h1>
             <div className="pbv-cover__meta">
-              <span className="pbv-by"><Avatar article={A} />{A.author.name}</span>
               <time dateTime={A.dateIso}>{A.date}</time>
               <span>{A.readMin} min read</span>
             </div>
@@ -108,11 +107,6 @@ export function PostB({ article: A }: { article: Article }) {
         </div>
 
         <footer className="pbv-foot">
-          <div className="pbv-author" data-reveal="">
-            <Avatar article={A} cls="pbv-author__av" />
-            <p className="pbv-author__n">{A.author.name}</p>
-            {A.author.bio && <p className="pbv-author__b">{A.author.bio}</p>}
-          </div>
           <div className="pbv-foot__row" data-reveal="">
             <Tags article={A} />
             <Share title={A.title} />

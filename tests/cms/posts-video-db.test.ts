@@ -54,6 +54,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('video posts (database)', () => 
     await db.revision.deleteMany({ where: { entityId: { in: posts.map((p) => p.id) } } })
     await db.auditLog.deleteMany({ where: { userId: user.id } })
     await db.post.deleteMany({ where: { slug: { startsWith: prefix } } })
+    await db.category.deleteMany({ where: { slug: { startsWith: prefix } } })
     await db.media.deleteMany({ where: { url: { startsWith: `/cms/${prefix}` } } })
     await db.user.deleteMany({ where: { id: user.id } })
   })
@@ -99,6 +100,19 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('video posts (database)', () => 
     const kept = await restore(request('POST', { revisionId: old.id, expectedUpdatedAt: again.updatedAt }), ctx(post.id))
     expect(kept.status).toBe(200)
     expect(await kept.json()).toMatchObject({ title: 'Old title', video: mp4 })
+  })
+
+  it('a post that becomes a video post goes in Watch, first; later saves keep the categories chosen', async () => {
+    const other = await db.category.create({ data: { name: 'Other', slug: `${prefix}-cat` }, select: { id: true } })
+    const slugs = (post: { categories: { category: { slug: string } }[] }) => post.categories.map((join) => join.category.slug)
+    const talk = await (await create(request('POST', { title: 'Talk', slug: slug(), video: mp4, categoryIds: [other.id] }), ctx(''))).json()
+    expect(slugs(talk)).toEqual(['watch', `${prefix}-cat`])
+    const kept = await (await patch(request('PATCH', { categoryIds: [other.id], expectedUpdatedAt: talk.updatedAt }), ctx(talk.id))).json()
+    expect(slugs(kept)).toEqual([`${prefix}-cat`])
+    const read = await (await create(request('POST', { title: 'Read', slug: slug(), categoryIds: [other.id] }), ctx(''))).json()
+    expect(slugs(read)).toEqual([`${prefix}-cat`])
+    const became = await (await patch(request('PATCH', { video: mp4, expectedUpdatedAt: read.updatedAt }), ctx(read.id))).json()
+    expect(slugs(became)).toEqual(['watch', `${prefix}-cat`])
   })
 
   it('the media library counts the video as used, and replacing the file moves the post to the new one', async () => {
