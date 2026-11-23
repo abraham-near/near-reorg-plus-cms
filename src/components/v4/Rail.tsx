@@ -13,13 +13,22 @@ import "./v4.css";
 /** words: "lines" (home v6, with beats="split") moves the type line by line, not word by word, and brings line 3 in after a beat (rail/layer.ts LINES) */
 /** identity: "sign" (home v7, D189) draws "Own your identity." as the signed account (rail/vig2/sign.ts) in place of the key (rail/layer.ts ownKey) */
 /** type: "even" (home v6) sets the thesis, the problem and the answer (all the type above the line) in one size (v6/rail-v6.css) */
-export function RailV4({ exit, steps, beats, back, near, square, type, words, identity }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop" | "wipe" | "none"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges"; near?: "out"; square?: "early"; type?: "even"; words?: "lines"; identity?: "sign" }) {
+/** copy "v11" (home v11, D251): "infrastructure" for "stack" (D248), the problem's exploit / expose / capture (D250), and the answer "NEAR’s infrastructure works for you, …" (D252) */
+export function RailV4({ exit, steps, beats, back, near, square, type, words, identity, copy }: { exit?: "floor" | "frame" | "seam" | "ruler" | "drop" | "wipe" | "none"; steps?: "tiles" | "line"; beats?: "split"; back?: "ridges"; near?: "out"; square?: "early"; type?: "even"; words?: "lines"; identity?: "sign"; copy?: "v11" }) {
+  const v11 = copy === "v11";
+  const what = v11 ? "infrastructure" : "stack";
   return (
-    <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps} data-beats={beats} data-back={back} data-near={near} data-square={square} data-type={type} data-words={words} data-identity={identity}>
+    <section className="layer layer--v4" id="layer" aria-labelledby="ly-h" data-exit={exit} data-line="ink" data-steps={steps} data-beats={beats} data-back={back} data-near={near} data-square={square} data-type={type} data-words={words} data-identity={identity} data-copy={copy}>
       <div className="rail__static">
         <h2 className="rail__h" id="ly-h"><span className="rail__s">AI is the frontend.</span> <span className="rail__s">Blockchain is the backend.</span> <span className="rail__s">NEAR is the full stack.</span></h2>
-        <p className="rail__problem">Whoever runs the stack beneath your agents can read your most sensitive data, watch every move you make, and keep the value you create.</p>
-        <p className="rail__answer">On NEAR, that stack is <span className="rail__mark">yours</span>, <span className="rail__next">from inference to settlement.</span></p>
+        <p className="rail__problem">Whoever runs the {what} beneath your agents can {v11 ? "exploit your most sensitive data, expose your assets, and capture the value you create." : "read your most sensitive data, watch every move you make, and keep the value you create."}</p>
+        {v11 ? (
+          /* v11 (D252): the answer's NEAR leads it; layer.ts reads "" before NEAR, "’s infrastructure " after it, the mark ("works for you"), then the next lines; the stage keeps the "\n" (white-space: pre), so
+              the long close runs on two lines of its own and fits the stage's width */
+          <p className="rail__answer">NEAR’s infrastructure <span className="rail__mark">works for you</span>, <span className="rail__next">from protecting your prompts{"\n"}to keeping your transactions confidential.</span></p>
+        ) : (
+          <p className="rail__answer">On NEAR, that stack is <span className="rail__mark">yours</span>, <span className="rail__next">from inference to settlement.</span></p>
+        )}
         <ol className="rail__list" role="list">
           <li data-own="data"><div className="rail__art va" data-art="data" aria-hidden="true"></div><h3>Own your <span className="acc">data.</span></h3><p>Your trades and prompts stay confidential, hidden from bots, competitors, and the public chain.</p></li>
           <li data-own="assets"><div className="rail__art va" data-art="assets" aria-hidden="true"></div><h3>Own your <span className="acc">assets.</span></h3><p>Crypto and tokenized assets across every chain you use, in one account only you control.</p></li>

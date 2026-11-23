@@ -4,11 +4,12 @@
 // header's action while it shows), but has no .statement, so nothing is pinned or wiped. Styles: ./private.css.
 // copy "privacy" (branch NEAR-is-privacy-HEADLINE, D202): Lawrence's second option, one still headline, "NEAR is privacy for onchain capital and the agent
 // economy.", and his two sentences under it, in place of the cycle and the statement.
+// copy "v11" (home v11, D251): the cycle, with Lawrence's new paragraph under it (D249).
 import { Cycle } from "./Cycle";
 import "../../v1/world/world.css";
 import "./private.css";
 
-export function WorldPrivate({ copy = "cycle" }: { copy?: "cycle" | "privacy" } = {}) {
+export function WorldPrivate({ copy = "cycle" }: { copy?: "cycle" | "privacy" | "v11" } = {}) {
   return (
     <div className="pin pin--priv">
       <div className="stage" aria-hidden="true"><canvas /></div>
@@ -28,8 +29,13 @@ export function WorldPrivate({ copy = "cycle" }: { copy?: "cycle" | "privacy" } 
                 <span className="ph__l">NEAR is private</span> <Cycle />
               </h1>
               <p className="ph__p">
-                One account, any chain, private by design. NEAR encrypts your prompts and transactions so you and your agents can think and trade in
-                confidence. Fully sharded, quantum-ready, and permissionless to the core, NEAR is the infrastructure for a{" "}
+                {copy === "v11" ? (
+                  <>One account, any chain, private by design. NEAR encrypts your prompts and transactions so your intelligence and assets belong to you.
+                  Infinitely scalable and quantum-ready, NEAR is the infrastructure for the{" "}</>
+                ) : (
+                  <>One account, any chain, private by design. NEAR encrypts your prompts and transactions so you and your agents can think and trade in
+                  confidence. Fully sharded, quantum-ready, and permissionless to the core, NEAR is the infrastructure for a{" "}</>
+                )}
                 <span className="ph__mk">user-owned agent economy.</span>
               </p>
             </>

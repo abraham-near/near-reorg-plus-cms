@@ -74,6 +74,12 @@
 /* byline, tags, share */
 .pst .pb-av { display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--paper-0); font: 500 13px/1 var(--sans); letter-spacing: 0.02em; position: relative; }
 .pst .pb-av::after { content: ""; position: absolute; right: 1px; bottom: 1px; width: 9px; height: 9px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 0 2px var(--paper-0); }
+/* NEAR as the author: the official mark (brand/icon.svg) as a mask in the avatar's own text colour, so it is white on ink and ink on paper.
+   The mark sits exactly in the middle of its file (its bounds and its area's centre are both at 319.5 of 639), and the mask fills the circle and is
+   centred, so the mark's centre is the circle's centre with no rounding from an overflowing box. The file's margin makes the mark 55% of the mask,
+   so a mask of 87% puts the mark at about 48% of the circle (D263: 58%, then 55%, then smaller again). */
+.pst .pb-av[data-mark]::before { content: ""; position: absolute; inset: 0; background: currentColor;
+  -webkit-mask: url(/brand/icon.svg) 50% 50% / 87% 87% no-repeat; mask: url(/brand/icon.svg) 50% 50% / 87% 87% no-repeat; }
 .pst .pb-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .pst .pb-tag { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--l-line); font: 500 var(--t-small)/1 var(--sans); color: var(--ink); transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick), box-shadow 0.2s var(--ease-tick); }
 .pst .pb-tag:hover { background: var(--ink); color: var(--paper-0); box-shadow: inset 0 0 0 1px var(--ink); }

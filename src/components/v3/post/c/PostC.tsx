@@ -38,7 +38,7 @@ export function PostC({ article: A }: { article: Article }) {
       <article aria-labelledby="pc-t">
         <header className={`pc-open${A.hero ? "" : " pc-open--plain"}`}>
           <div className="pc-open__text">
-            <p className="pc-crumb"><a href={A.blogHref}>Blog</a>{A.category && <><span aria-hidden="true">→</span><span>{A.category}</span></>}</p>
+            <p className="pc-crumb"><a href={A.blogHref}>News</a>{A.category && <><span aria-hidden="true">→</span><span>{A.category}</span></>}</p>
             <h1 id="pc-t" className="pc-h1">{A.title}</h1>
             {A.dek && <p className="pc-dek">{A.dek}</p>}
             <dl className="pc-facts">
@@ -48,7 +48,7 @@ export function PostC({ article: A }: { article: Article }) {
           </div>
           {A.hero && (
             <figure className="pc-open__fig">
-              <div className="pc-open__ph"><img src={A.hero.src} alt={A.hero.alt} /></div>
+              <div className="pc-open__ph"><img src={A.hero.src} alt={A.hero.alt} style={A.hero.focus ? { objectPosition: A.hero.focus } : undefined} /></div>
               {A.hero.cap && <figcaption className="pb-cap">{A.hero.cap}</figcaption>}
             </figure>
           )}

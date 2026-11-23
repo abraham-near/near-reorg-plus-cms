@@ -57,8 +57,9 @@ const ORIGIN_RATIO = "4/3" as const;   /* v5's Origin photo (revenue option A's 
  *  styles (./v7.css). Without it: home v7 as on main;
  *  privHero: with `top`, another hero in place of the type-only one (the cycling hero studies, D224; local pages under /home-v7/heroes/cycle);
  *  stackFirst (home v10, D239): the Stack right after the hero, then Real Usage (the revenue band, out of the lower page), then the rail; the rail ends with
- *  no tide (exit "none") and the Stack comes in on its own (no tide to rise under) */
-export function V7Page({ tx, st, hero, voices, origin, close, top, privHero, stackFirst = false }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy"; privHero?: React.ReactNode; stackFirst?: boolean } = {}) {
+ *  no tide (exit "none") and the Stack comes in on its own (no tide to rise under);
+ *  v11 (home v11, D251): with top "private", the new copy: the hero's paragraph (D249) and the rail's "infrastructure" lines (D248, D250) */
+export function V7Page({ tx, st, hero, voices, origin, close, top, privHero, stackFirst = false, v11 = false }: { tx?: TxKey; st?: StKey; hero?: HeroAlt; voices?: string; origin?: string; close?: string; top?: "private" | "privacy"; privHero?: React.ReactNode; stackFirst?: boolean; v11?: boolean } = {}) {
   const priv = !!top;
   const photos = { ...(priv ? PHOTOS : {}), ...(voices && { ridges: voices }), ...(origin && { origin }), ...(close && { meadow: close }) };
   const deeper = priv
@@ -68,10 +69,10 @@ export function V7Page({ tx, st, hero, voices, origin, close, top, privHero, sta
     <>
       {/* as v5: no globe, and v5's style scope; v8 and v9 (top) also html[data-v7="priv"] */}
       <InlineScript html={`document.documentElement.setAttribute('data-gl','off');document.documentElement.setAttribute('data-home','v5')${priv ? ";document.documentElement.setAttribute('data-v7','priv')" : ""}`} />
-      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? (privHero ?? <WorldPrivate copy={top === "privacy" ? "privacy" : "cycle"} />) : <WorldV7 tx={tx} st={st} hero={hero} />}
+      <V1Page v="v3" header={<V3Header home="/" spread stay soft />} world={top ? (privHero ?? <WorldPrivate copy={top === "privacy" ? "privacy" : v11 ? "v11" : "cycle"} />) : <WorldV7 tx={tx} st={st} hero={hero} />}
         stackFirst={stackFirst} between={stackFirst ? <div className="l-page" data-scope="v7"><RevenueD flat /></div> : undefined}
-        rail={<RailV4 exit={stackFirst ? "none" : "wipe"} steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity={priv ? "sign" : undefined} />}
-        stack={<StackV4 still steps stick enter={stackFirst ? undefined : "tide"} icons={priv} art={<><StackArtV7 look="matte" />{!stackFirst && <StackEnterV7 />}{priv && <StackIconsV7 />}</>} />}
+        rail={<RailV4 exit={stackFirst ? "none" : "wipe"} steps="tiles" beats="split" back="ridges" near="out" square="early" type="even" words="lines" identity={priv ? "sign" : undefined} copy={v11 ? "v11" : undefined} />}
+        stack={<StackV4 still steps stick enter={stackFirst ? undefined : "tide"} icons={priv} art={<><StackArtV7 look="matte" facts={!v11} />{!stackFirst && <StackEnterV7 />}{priv && <StackIconsV7 />}</>} />}
         afterStack={<ProofDeeper content={deeper} />} footer={<V3Footer />} />
     </>
   );

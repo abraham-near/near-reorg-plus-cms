@@ -23,7 +23,7 @@ const STACK: [string, Link[]] = ["Stack", [
 ]];
 const COLS: [string, Link[]][] = [
   ["Build", [{ name: "Docs", href: "https://docs.near.org/" }, { name: "Solutions", href: "/solutions" }]],
-  ["Learn", [{ name: "Research", href: "/research" }, { name: "Blog", href: "/blog" }, { name: "Analytics", href: "/analytics" }]],
+  ["Learn", [{ name: "Research", href: "/research" }, { name: "News", href: "/blog" }, { name: "Analytics", href: "/analytics" }]],
   ["Connect", [{ name: "Brand", href: "/brand" }, { name: "Contact", href: "/contact" }, { name: "Careers", href: "https://job-boards.eu.greenhouse.io/nearfoundation" }]],
   ["Fundamentals", [{ name: "History", href: "/history" }, { name: "Roadmap", href: "https://roadmap.near.org/" }, { name: "Economics", href: "/economics" }]],
   ["Ecosystem", [{ name: "NEAR Foundation", href: "/near-foundation" }, { name: "Ecosystem", href: "/ecosystem" }, { name: "Community", href: "/community" }, { name: "Governance", href: "https://houseofstake.org/" }]],

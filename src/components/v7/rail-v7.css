@@ -23,6 +23,13 @@ html[data-home="v5"] .layer[data-type="even"] :is(.rail__h, .rail__problem, .rai
   /* the square holds the centre from the start (data-square="early"): on a phone the end labels sit close enough to it, so they hang below it (D114) */
   html[data-home="v5"] .layer[data-square="early"] .rs__end { top: calc(var(--rail-y) + var(--frame) / 2 + 8px); }
 }
+/* v11's answer (D252) closes on a long line ("to keeping your transactions confidential."): on phones it wraps at the margin, instead of the type shrinking
+   for everything above the line */
+/* on wide screens its type stops at 54 px (not 62), so that line ends before the drawing beside it */
+@media (min-width: 761px) { html[data-home="v5"] .layer[data-copy="v11"][data-type="even"] { --ev: clamp(30px, calc(3.44 * var(--u)), 54px); } }
+@media (max-width: 760px) {
+  html[data-home="v5"] .layer[data-copy="v11"] .rs__ans .rs__next { white-space: pre-wrap; max-width: calc(100vw - 2 * var(--m)); }
+}
 
 /* the stations' drawings centred on the tile (D117). Each sits in its box (rail.css .rs__art, centred on the station) by its svg's viewBox (xMidYMax meet), but
    intelligence's drawing is off the middle of its viewBox: 2.7 % left (-4 - 394 of 412), from its svg geometry. The drawn width is the box's, or its height x the

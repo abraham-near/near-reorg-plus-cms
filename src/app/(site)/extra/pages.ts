@@ -8,8 +8,9 @@ export const GROUPS: Group[] = [
   {
     id: "home",
     title: "Homepage",
-    note: "Homepage versions that were not chosen. The homepage (/) is home v10, Stack second (since Nov 20, 2026; v9 before it); home v7, the film hero, is at /home-v7 on /index.",
+    note: "Homepage versions that were not chosen. The homepage (/) is home v11, Stack second with the new copy (since Nov 20, 2026; v10, then v9, before it); home v7, the film hero, is at /home-v7 on /index.",
     pages: [
+      { href: "/home-v10", n: "v10", name: "Home · Stack second", note: "The homepage on Nov 20, 2026, before v11's new copy: v8's cycling hero, then the NEAR Stack and Real Usage straight after it, then the rail (\"Whoever runs the stack…\") with no tide, and the same lower page.", tags: ["Cycling hero", "Stack second", "Branch Stack-Second"], img: "/extra/home-v10.webp" },
       { href: "/home-v9", n: "v9", name: "Home · still headline", note: "The homepage until Nov 20, 2026: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail, the Stack in lit matte and the same lower page.", tags: ["Type-only hero", "Still headline", "Branch NEAR-is-privacy-HEADLINE"], img: "/extra/home-v9.webp" },
       { href: "/home-v8", n: "v8", name: "Home · cycling word", note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it, on the same lower page. The homepage Nov 19–20, until v9 was chosen again.", tags: ["Type-only hero", "Cycling word", "Not chosen"], img: "/extra/home-v8.webp" },
     ],
@@ -17,13 +18,14 @@ export const GROUPS: Group[] = [
   {
     id: "blog",
     title: "Blog",
-    note: "The blog index (near.org/blog), five versions: E is the live /blog (Lawrence's choice, tabs over a grid); A is the previous /blog (direction J); B and D are the October 2026 Figma's two blog frames (2026_10_Near_Web, nodes 980:723 and 756:41); C is B on the homepage's soft ruled grid. All list the CMS's live posts, then the Go deeper reads, stories and talks.",
+    note: "The blog index (near.org/blog), six versions: F is the live /blog (E's tabs over a grid with the CMS's 24 newest posts hard-coded, and an editorial lead); E is the same design reading the CMS (it was /blog); A is direction J, the /blog before E; B and D are the October 2026 Figma's two blog frames (2026_10_Near_Web, nodes 980:723 and 756:41); C is B on the homepage's soft ruled grid. A–E list the CMS's live posts, then the Go deeper reads, stories and talks.",
     pages: [
       { href: "/blog-index-a", n: "A", name: "Blog · Reading rail", note: "The previous /blog (direction J): the ruled head, a sticky rail with search, type, sort and view, the posts as open cards or rows, the state in the URL.", tags: ["Was /blog", "Sticky rail", "Grid or list"], img: "/extra/blog-a.webp" },
       { href: "/blog-index-b", n: "B", name: "Blog · Figma, featured", note: "Figma node 980:723: the heading with search, type chips, a large featured post beside three numbered rows with thumbnails, then boxed cards three to a row and numbered pages.", tags: ["Figma", "Featured + list", "Boxed cards"], img: "/extra/blog-b.webp" },
       { href: "/blog-index-c", n: "C", name: "Blog · Figma on the grid", note: "B's layout on the homepage's ruled grid, kept light: hairline columns and crosshairs at the joins instead of boxes, open cards in the cells.", tags: ["Figma", "Soft ruled grid", "Homepage hand"], img: "/extra/blog-c.webp" },
       { href: "/blog-index-d", n: "D", name: "Blog · Figma, lead card", note: "Figma node 756:41: a type menu and search over one wide lead card (photo | text), then the type chips, boxed cards three to a row and numbered pages.", tags: ["Figma", "Lead card", "Type menu"], img: "/extra/blog-d.webp" },
-      { href: "/blog", n: "E", name: "Blog · Tabs over a grid", note: "The live blog (Lawrence's choice): the heading with a short line at its right, one lead post (photo left, text right), then text tabs (All, Blog, Press, Watch) with their counts over cards three to a row, nine at a time with Show more. The CMS's posts first, with their dates; the Go deeper items in black and white.", tags: ["Live", "Type tabs", "Lead + grid"], img: "/extra/blog-e.webp", featured: true },
+      { href: "/blog-index-e", n: "E", name: "Blog · Tabs over a grid", note: "Lawrence's choice (D221), /blog until F: the heading with a short line at its right, one lead post (photo left, text right), then text tabs (All, Blog, Press, Watch) with their counts over cards three to a row, nine at a time with Show more. The CMS's posts first, read on request, with their dates; the Go deeper items in black and white.", tags: ["Was /blog", "Reads the CMS", "Lead + grid"], img: "/extra/blog-e.webp" },
+      { href: "/blog", n: "F", name: "Blog · 24 posts, editorial lead", note: "The live blog: E's design with the CMS's 24 newest posts written into the code (pulled Nov 20, 2026, with their photos), so it shows them without the database; then the Go deeper samples (press stories and talks) so Press and Watch show, less the two that are among the 24. The newest leads as an editorial opener: a Latest kicker, the title large, the summary as a standfirst. Design changes go here; E stays as it was.", tags: ["Live", "24 CMS posts", "Editorial lead"], img: "/extra/blog-f.webp", featured: true },
     ],
   },
   {

@@ -54,7 +54,7 @@ export function PostV({ article: A }: { article: Article }) {
         <header>
           <div className="bl-row pa-head pv-head" data-row="" data-start="" data-no-x="">
             <div className="bl-cell pa-title">
-              <p className="pa-crumb t-label" data-rv=""><a href={A.blogHref}>Blog</a><span aria-hidden="true">/</span><span>{A.category || "Watch"}</span></p>
+              <p className="pa-crumb t-label" data-rv=""><a href={A.blogHref}>News</a><span aria-hidden="true">/</span><span>{A.category || "Watch"}</span></p>
               <h1 id="pa-t" className="pa-h1">{A.title}</h1>
             </div>
             <div className="bl-cell pa-dek">

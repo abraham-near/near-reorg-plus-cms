@@ -7,8 +7,8 @@ export type Final = { id: string; href: string; path?: string; name: string; not
 
 export const FINALS: Final[] = [
   {
-    id: "home", href: "/", name: "Homepage · v10",
-    note: "Home v10, \"Stack second\" (Lawrence's branch Stack-Second): \"NEAR is private\" and a word that cycles until it rests on \"by design\", then the NEAR Stack and Real Usage straight after the hero, then the rail (\"AI is the frontend…\") and the same lower page as v8 and v9.",
+    id: "home", href: "/", name: "Homepage · v11",
+    note: "Home v11, the working version: v10's \"Stack second\" with the new copy. \"NEAR is private\" and a word that cycles until it rests on \"by design\", the paragraph \"…so your intelligence and assets belong to you\", then the NEAR Stack and Real Usage, then the rail (\"Whoever runs the infrastructure…\") and the same lower page as v8 and v9.",
     tags: ["Cycling hero", "Stack second", "Lit matte Stack"], img: "/index/home.webp",
   },
   {
@@ -17,8 +17,8 @@ export const FINALS: Final[] = [
     tags: ["Scroll-scrubbed film", "Tracked vectors", "Lit matte Stack"], img: "/index/home-v7.webp",
   },
   {
-    id: "blog", href: "/blog", name: "Blog",
-    note: "Version E: the heading, the lead post (always on screen), then All, Blog, Press and Watch as large words over tag pills you can combine (NEAR AI, NEAR Intents, near.com and NEAR Protocol first). Posts sit on the homepage's ruled cards with their date and tags, nine at a time. The CMS's posts first. The previous blog (direction J) is at /blog-index-a on /extra.",
+    id: "blog", href: "/blog", name: "News from NEAR",
+    note: "Version F (version E with the CMS's 24 newest posts hard-coded): the heading, the lead post (always on screen), then All, Blog, Press and Watch as large words over tag pills you can combine (NEAR AI, NEAR Intents, near.com and NEAR Protocol first). Posts sit on the homepage's ruled cards with their date and tags, nine at a time. The newest post leads, large and editorial. E, which reads the CMS, is at /blog-index-e; direction J at /blog-index-a.",
     tags: ["CMS posts", "Blog / Press / Watch", "Tags", "Ruled cards"], img: "/index/blog.webp",
   },
   {

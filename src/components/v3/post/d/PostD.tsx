@@ -27,13 +27,13 @@ export function PostD({ article: A }: { article: Article }) {
       <article aria-labelledby="pd-t">
         <header className="pd-lead pd-box">
           <div className={`pd-poster${A.hero ? "" : " pd-poster--plain"}`}>
-            <div className="pd-poster__ph">{A.hero && <img src={A.hero.src} alt={A.hero.alt} fetchPriority="high" decoding="async" />}</div>
+            <div className="pd-poster__ph">{A.hero && <img src={A.hero.src} alt={A.hero.alt} fetchPriority="high" decoding="async" style={A.hero.focus ? { objectPosition: A.hero.focus } : undefined} />}</div>
             <div className="pd-poster__veil" aria-hidden="true" />
             <span className="pd-chip"><i aria-hidden="true" />{chip}</span>
             {/* eslint-disable-next-line @next/next/no-img-element -- the brand's reversed logo, a small static SVG, as on the Figma's dark cover */}
             <img className="pd-poster__logo" src="/brand/logo_rev.svg" alt="" width={1656} height={567} />
             <div className="pd-poster__copy">
-              <p className="pd-kicker"><i aria-hidden="true" /><a href={A.blogHref}>NEAR blog</a></p>
+              <p className="pd-kicker"><i aria-hidden="true" /><a href={A.blogHref}>News from NEAR</a></p>
               <h1 id="pd-t" className="pd-h1">{accented(A.title)}</h1>
             </div>
           </div>
@@ -69,7 +69,7 @@ export function PostD({ article: A }: { article: Article }) {
         <section className="pd-more" aria-labelledby="pd-more-t">
           <div className="pd-more__head">
             <div>
-              <Label>NEAR blog</Label>
+              <Label>News from NEAR</Label>
               <h2 id="pd-more-t" className="pd-more__t">Keep <span className="accent">reading</span></h2>
             </div>
             <a className="pd-pill pd-pill--ink" href={A.blogHref}><span>All posts</span><Arrow /></a>

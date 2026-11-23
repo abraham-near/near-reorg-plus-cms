@@ -1,7 +1,7 @@
 // The blog index's posts: v3's Go deeper items (proof-deeper/ProofDeeper.tsx ITEMS), copy and data verbatim, in the same order (newest first).
 // No dates, authors or figures of our own: an item without its own url goes to the NEAR blog.
 export type Type = "story" | "read" | "watch";
-export type Post = { id: string; type: Type; title: string; source: string; url?: string; note?: string; pic?: string | null };   // pic: a CMS post's own photo (null: none)
+export type Post = { id: string; type: Type; title: string; source: string; url?: string; note?: string; pic?: string | null; picFocus?: string };   // pic: a CMS post's own photo (null: none); picFocus: its object-position in a crop (D261)
 export type FilterKey = "all" | Type;
 
 export const BLOG = "https://www.near.org/blog";
@@ -12,7 +12,7 @@ export const SHORT_LABEL: Record<Type, string> = { ...TYPE_LABEL, story: "Story"
 export const ACTION: Record<Type, string> = { story: "Read the story", read: "Read", watch: "Watch" };
 
 export const POSTS: Post[] = [
-  { id: "agent-economy", type: "read", title: "The Agent Economy: Who Owns the Rails AI Runs On", source: "NEAR blog" },
+  { id: "agent-economy", type: "read", title: "The Agent Economy: Who Owns the Rails AI Runs On", source: "NEAR" },
   { id: "abound", type: "story", title: "Abound is bringing agentic payments to cross-border finance with NEAR AI", source: "Abound", url: "https://near.ai/blog/near-ai-and-the-times-of-india-groups-abound-are-bringing-agentic-payments-to-cross-border-finance", note: "NEAR Foundation is an investor in Abound." },
   { id: "nearvana", type: "watch", title: "NEARvana", source: "Illia Polosukhin, Inside NEAR" },
   { id: "ledger", type: "story", title: "Ledger Wallet integrates NEAR Intents to power seamless cross-chain swaps", source: "Ledger", url: "https://www.near.org/blog/cross-chain-swaps-near-intents-ledger-wallet" },
