@@ -31,7 +31,7 @@ export const PAPERS: Paper[] = [
 export const MORE = {
   h: "Keep reading",
   links: [
-    { label: "Blog", desc: "News and deep dives", href: "/blog" },
+    { label: "News", desc: "Announcements, stories and talks", href: "/blog" },
     { label: "History", desc: "From 2017 to now", href: "/history" },
     { label: "Docs", desc: "Build on NEAR", href: "https://docs.near.org/" },
   ],

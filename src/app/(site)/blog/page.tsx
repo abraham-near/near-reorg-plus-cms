@@ -15,8 +15,8 @@ import { orLocal } from "@/lib/blog/local";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Blog",
-  description: "Customer stories, reads and talks from across the NEAR ecosystem.",
+  title: "News",
+  description: "Announcements, stories, press and talks from across the NEAR ecosystem.",
   alternates: { canonical: "/blog" },
   openGraph: og({ url: "/blog" }),
 };

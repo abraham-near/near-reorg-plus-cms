@@ -38,7 +38,7 @@ export function PostC({ article: A }: { article: Article }) {
       <article aria-labelledby="pc-t">
         <header className={`pc-open${A.hero ? "" : " pc-open--plain"}`}>
           <div className="pc-open__text">
-            <p className="pc-crumb"><a href={A.blogHref}>Blog</a>{A.category && <><span aria-hidden="true">→</span><span>{A.category}</span></>}</p>
+            <p className="pc-crumb"><a href={A.blogHref}>News</a>{A.category && <><span aria-hidden="true">→</span><span>{A.category}</span></>}</p>
             <h1 id="pc-t" className="pc-h1">{A.title}</h1>
             {A.dek && <p className="pc-dek">{A.dek}</p>}
             <dl className="pc-facts">

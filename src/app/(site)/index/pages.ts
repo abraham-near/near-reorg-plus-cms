@@ -17,7 +17,7 @@ export const FINALS: Final[] = [
     tags: ["Scroll-scrubbed film", "Tracked vectors", "Lit matte Stack"], img: "/index/home-v7.webp",
   },
   {
-    id: "blog", href: "/blog", name: "Blog",
+    id: "blog", href: "/blog", name: "News from NEAR",
     note: "Version F (version E with the CMS's 24 newest posts hard-coded): the heading, the lead post (always on screen), then All, Blog, Press and Watch as large words over tag pills you can combine (NEAR AI, NEAR Intents, near.com and NEAR Protocol first). Posts sit on the homepage's ruled cards with their date and tags, nine at a time. The newest post leads, large and editorial. E, which reads the CMS, is at /blog-index-e; direction J at /blog-index-a.",
     tags: ["CMS posts", "Blog / Press / Watch", "Tags", "Ruled cards"], img: "/index/blog.webp",
   },

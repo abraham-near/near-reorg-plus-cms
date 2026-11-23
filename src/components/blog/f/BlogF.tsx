@@ -95,8 +95,8 @@ export function BlogF({ posts = CMS_POSTS }: { posts?: BlogItem[] }) {
   return (
     <div className="bl bf">
       <header className="bf-head">
-        <h1 className="bf-h1">The NEAR <span className="accent">blog</span></h1>
-        <p className="bf-aside">Customer stories from teams building with NEAR, reads on the agent economy and talks from Inside NEAR.</p>
+        <h1 className="bf-h1"><span className="accent">News</span> from NEAR</h1>
+        <p className="bf-aside">Announcements, deep dives, press and talks from across the NEAR ecosystem.</p>
       </header>
 
       {lead && (
