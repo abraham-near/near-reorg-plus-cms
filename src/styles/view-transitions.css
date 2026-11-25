@@ -4,10 +4,10 @@
    Imported by the site's layout only (app/(site)/layout.tsx); the CMS never loads it.
 
    - the header (.nvh) is named, so it holds still across the change (it only eases between its spread and pill states) while the page under it moves;
-   - two versions to compare, on <html data-vt> (set before first paint by the layout's script; `?vt=a` / `?vt=b` on any page picks one and it is
-     remembered in this browser):
-       A (default) · "Quiet": the page leaves fading and lifting a little, the next one rises in after it, on the site's long settle ease;
-       B · "Curtain": the next page is drawn up over the one leaving, which sinks back and dims under it;
+   - "Curtain" (B, chosen Nov 20, 2026): the next page is drawn up over the one leaving, which sinks back and dims under it. Lawrence: the page behind
+     starts moving back at once, as the curtain rises, and eases to a smooth stop just after the curtain lands (0.8 s curtain, 1.05 s behind).
+     Both move by transform and opacity only, which the browser runs off the main thread: the next page hydrating and mounting its motion meanwhile
+     can't stall them (the clip-path wipe it replaces could, by up to 0.44 s on /community, measured in production);
    - reduced motion: no animation (the pages simply swap). */
 
 @view-transition { navigation: auto; }
@@ -22,17 +22,15 @@
 ::view-transition-group(nv-header) { animation-duration: 0.6s; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
 ::view-transition-old(nv-header), ::view-transition-new(nv-header) { animation-duration: 0.35s; }
 
-/* ---------------------------------------------------------------- A · Quiet (default) */
-::view-transition-old(root) { animation: vt-a-out 0.3s cubic-bezier(0.4, 0, 1, 1) both; }
-::view-transition-new(root) { animation: vt-a-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both; }
-@keyframes vt-a-out { to { opacity: 0; transform: translateY(-14px); } }
-@keyframes vt-a-in { from { opacity: 0; transform: translateY(22px); } }
-
-/* ---------------------------------------------------------------- B · Curtain */
-:root[data-vt="b"]::view-transition-old(root) { animation: vt-b-out 0.85s cubic-bezier(0.65, 0, 0.35, 1) both; }
-:root[data-vt="b"]::view-transition-new(root) { animation: vt-b-in 0.85s cubic-bezier(0.65, 0, 0.35, 1) both; }
-@keyframes vt-b-out { to { opacity: 0.35; transform: translateY(-8%) scale(0.97); } }
-@keyframes vt-b-in { from { clip-path: inset(100% 0 0 0); transform: translateY(6%); } to { clip-path: inset(0 0 0 0); transform: none; } }
+/* ---------------------------------------------------------------- the curtain
+   the two snapshots blend normally (the browser's default, plus-lighter, would add the page behind into the curtain over it) */
+::view-transition-old(root), ::view-transition-new(root) { mix-blend-mode: normal; }
+/* the page leaving: back and dimmed into the paper, starting at once, slowing to a stop just after the curtain lands */
+::view-transition-old(root) { animation: vt-out 1.05s cubic-bezier(0.33, 1, 0.68, 1) both; }
+/* the next page: up from below the screen, a gentle start (the page behind is already on its way) and a soft landing; a shadow along its top edge so it reads as a sheet over the last one */
+::view-transition-new(root) { animation: vt-in 0.8s cubic-bezier(0.7, 0, 0.2, 1) both; box-shadow: 0 -18px 48px rgb(0 0 0 / 0.14); }
+@keyframes vt-out { to { opacity: 0.4; transform: translateY(-6%) scale(0.95); } }
+@keyframes vt-in { from { transform: translateY(100%); } }
 
 /* ---------------------------------------------------------------- reduced motion: the pages swap, nothing moves */
 @media (prefers-reduced-motion: reduce) {

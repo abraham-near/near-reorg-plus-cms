@@ -31,9 +31,11 @@ export const MotionGate = MotionGateCtx.Provider;
  * the hero drawings' builds) would play out unseen. While the transition runs (window.__vtDone, set by the site layout's head script on `pagereveal`),
  * gsap's global timeline is held (each mount runs with it live for that instant, so every starting state, gsap.set and .from, paints at once): nothing
  * pops, and the intros start as it ends.
+ * A section that starts below the first screen can't be seen during the transition, so its mount waits until the transition ends, then runs one per
+ * idle slot (not all in one frame): the main thread stays free for the page's first screen while the curtain is drawn up.
  * Once per page; never longer than 2 s.
  */
-let checked = false, holding = false;
+let checked = false, holding = false, ended: Promise<void> | null = null;
 function holdForTransition() {
   if (checked || typeof window === "undefined") return;
   checked = true;
@@ -42,7 +44,20 @@ function holdForTransition() {
   holding = true;
   gsap.globalTimeline.pause();
   const go = () => { holding = false; gsap.globalTimeline.resume(); };
-  Promise.race([done, new Promise((r) => setTimeout(r, 2000))]).then(go, go);
+  ended = Promise.race([done, new Promise<void>((r) => setTimeout(r, 2000))]).then(go, go);
+}
+/** the mounts held back until the transition ends, run one per idle slot */
+const later: (() => void)[] = [];
+const idle = (fn: () => void) =>
+  typeof requestIdleCallback === "function" ? requestIdleCallback(fn, { timeout: 300 }) : setTimeout(fn, 16);
+function drain() {
+  const fn = later.shift(); if (!fn) return;
+  fn(); if (later.length) idle(drain);
+}
+/** runs `fn` now, or, while a transition runs and `root` starts below the first screen, once it ends */
+function whenSeen(root: HTMLElement, fn: () => void) {
+  if (!holding || !ended || root.getBoundingClientRect().top < innerHeight) return fn();
+  if (later.push(fn) === 1) ended.then(() => idle(drain));
 }
 /** runs a mount with the global timeline live for that instant (a gsap.set on a held timeline would wait for it), then holds it again: no tick passes in
  *  between, so the starting states paint and nothing else moves */
@@ -59,8 +74,9 @@ export function useScrollMotion(ref: RefObject<HTMLElement | null>, mount: Mount
     holdForTransition();
     let dead = false, cleanup: void | (() => void), gctx: gsap.Context | null = null;
     const run = () => live(() => { gctx = gsap.context(() => { cleanup = mount(root, { gsap, ScrollTrigger, reduced: prefersReduced() }); }, root); });
-    if (gate) gate().then(() => { if (dead) return; run(); requestRefresh(); });
-    else { run(); requestRefresh(); }
+    const start = () => whenSeen(root, () => { if (dead) return; run(); requestRefresh(); });
+    if (gate) gate().then(() => { if (!dead) start(); });
+    else start();
     return () => { dead = true; if (typeof cleanup === "function") cleanup(); gctx?.revert(); };
     // mount is a module-level function and the gate is fixed per page: the effect runs once per mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
