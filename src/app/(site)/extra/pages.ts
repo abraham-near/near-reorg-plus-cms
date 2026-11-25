@@ -15,6 +15,21 @@ export const GROUPS: Group[] = [
     ],
   },
   {
+    id: "hero3d",
+    title: "Homepage · 3D heroes",
+    note: "Three studies for a cinematic homepage hero in three.js (Nov 24, 2026), after the brand's renders (glass, brushed steel, concrete, one green object): home v10 whole, its copy and cycling word as they are, a scene behind them that keeps step with the words. A and B are dark, C is on the paper. Second round (D, E, F): the mark and light only, kept clear of the copy, each pinned for a stretch of scroll that hands the hero over to the Stack (D and E long, F short).",
+    pages: [
+      { href: "/hero-a", n: "A", name: "Hero · Light room", note: "WebGL: standing light tubes in a hazy room over a wet floor, out of focus in the distance. They flicker on a few per word; the green one, nearest the headline, comes on with \"by design\" and its light runs across the floor. Scrolling walks in between them.", tags: ["WebGL", "Dark", "Haze + reflections"], img: "/extra/hero-a.webp" },
+      { href: "/hero-b", n: "B", name: "Hero · The display case", note: "3D: the NEAR mark in green glass, turning in a glass case on a concrete plinth, a wall of lockers behind. The camera travels in from the side; each word lights a locker; on \"by design\" the light from above opens, the case glows green and the mark stops, facing you.", tags: ["3D", "Dark", "Glass + concrete"], img: "/extra/hero-b.webp" },
+      { href: "/hero-c", n: "C", name: "Hero · The layered N", note: "Isometric 3D on the paper: the mark as seven plates of brushed steel on a plate of green glass, falling into place. Each word sends a green beam through a layer; on \"by design\" the glass lights and the beam rests on the floor. Scrolling lifts the plates apart, into the Stack below.", tags: ["Isometric 3D", "Light", "Steel + glass"], img: "/extra/hero-c.webp" },
+      { href: "/hero-d", n: "D", name: "Hero · The N of light", note: "The mark as a slab of black glass, its outline a green neon line drawn by a point of light, A's tubes far behind. Each word sends a comet of light round it; on \"by design\" it burns green. Scrolling (pinned, 1.6 screens) walks through the N to the Stack's pillar, built cube by cube at the drawing's angle.", tags: ["WebGL + bloom", "Dark", "Long hand-off"], img: "/extra/hero-d.webp" },
+      { href: "/hero-e", n: "E", name: "Hero · Layers", note: "C carried on: steel plates on green glass under a drifting light. Scrolling (pinned, 1.4 screens) lifts the plates apart, turns the paper to ink and folds each plate into a cube of the Stack's pillar, at the drawing's exact isometric angle.", tags: ["Isometric 3D", "Light to dark", "Long hand-off"], img: "/extra/hero-e.webp" },
+      { href: "/hero-f", n: "F", name: "Hero · Prism", note: "A beam of white light falls on the mark in clear glass and leaves it as a fan of rays sweeping the room, one green. Each word flares a ray; on \"by design\" the fan turns green and a ring opens on the floor. Scrolling (a short pin) rises over the mark as the Stack's three rings open round it.", tags: ["WebGL + bloom", "Dark", "Short hand-off"], img: "/extra/hero-f.webp" },
+      { href: "/hero-g", n: "G", name: "Hero · Liquid metal", note: "Third round. The NEAR mark in polished metal rises out of a dark liquid surface, at E's isometric angle. Scrolling (pinned) hands it over to the Stack.", tags: ["WebGL", "Dark", "Long hand-off"], img: "/extra/hero-g.webp" },
+      { href: "/hero-h", n: "H", name: "Hero · Veils", note: "Third round. The mark three times, in layers, each one diffusing the light further: privacy as frosted glass. Scrolling (pinned) hands it over to the Stack.", tags: ["WebGL", "Dark", "Long hand-off"], img: "/extra/hero-h.webp" },
+    ],
+  },
+  {
     id: "blog",
     title: "Blog",
     note: "The blog index (near.org/blog), five versions: E is the live /blog (Lawrence's choice, tabs over a grid); A is the previous /blog (direction J); B and D are the October 2026 Figma's two blog frames (2026_10_Near_Web, nodes 980:723 and 756:41); C is B on the homepage's soft ruled grid. All list the CMS's live posts, then the Go deeper reads, stories and talks.",
