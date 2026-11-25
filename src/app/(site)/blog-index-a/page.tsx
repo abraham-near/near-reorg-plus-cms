@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { BlogJ } from "@/components/v3/blog/j/BlogJ";
-import { BlogSwitch } from "@/components/blog/BlogSwitch";
 import { livePosts } from "@/components/blog/live";
 
 // The blog index, version A: direction J (Reading rail, open; components/v3/blog/j). It was /blog until Lawrence chose E (D221); kept here as an
@@ -17,5 +16,5 @@ export const metadata: Metadata = {
 export default async function BlogIndexA() {
   await connection();
   const live = await livePosts();
-  return <><BlogShell home="/"><BlogJ live={live} /></BlogShell><BlogSwitch on="a" /></>;
+  return <BlogShell home="/"><BlogJ live={live} /></BlogShell>;
 }

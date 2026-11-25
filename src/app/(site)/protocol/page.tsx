@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { ProtocolB } from "@/components/protocol/b/ProtocolB";
-import { ProtocolSwitch } from "@/components/protocol/ProtocolSwitch";
 import { CLOSE, META } from "@/components/protocol/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -16,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProtocolPage() {
-  return <><BlogShell home="/"><ProtocolB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} ruled /></BlogShell><ProtocolSwitch on="b" /></>;
+  return <BlogShell home="/"><ProtocolB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} ruled /></BlogShell>;
 }

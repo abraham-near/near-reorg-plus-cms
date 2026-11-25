@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { BrandC } from "@/components/brand/c/BrandC";
-import { BrandSwitch } from "@/components/brand/BrandSwitch";
 import { CLOSE, HERO } from "@/components/brand/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -12,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function BrandCPage() {
-  return <><BlogShell home="/"><BrandC /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} /></BlogShell><BrandSwitch on="c" /></>;
+  return <BlogShell home="/"><BrandC /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} /></BlogShell>;
 }

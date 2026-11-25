@@ -50,7 +50,7 @@ Explorations that still have their own routes are listed at `/extra`:
   - Nov 19, 2026: the X versions became the menu's Analytics, Economics, History, Community, Solutions and Research at the plain addresses; Economics A, History C and Community B moved to `/economics-a`, `/history-c`, `/community-b`, and `/<page>-x` redirects to `/<page>`.
   - Old addresses redirect: see `redirects()` in `next.config.ts`.
 - **Header:** every page uses the homepage's header. At the top of the page it is spread out (the wordmark, the menus and Get started sit at the margins). On the first scroll it gathers into the pill, and it stays on screen. Opening a menu at the top no longer gathers it. Menu links: Blog → `/blog`, NEAR Foundation → `/near-foundation`, Analytics → `/analytics`, History → `/history`, Economics → `/economics`, Community → `/community`, Contact → `/contact`.
-- **Page transitions:** the browser's cross-document View Transitions (`src/styles/view-transitions.css`, loaded by the site's layout only): the header holds still while the page under it changes. Two versions to compare: A "Quiet" (default: the page fades and lifts out, the next rises in) and B "Curtain" (the next page is drawn up over the last); `?vt=a` or `?vt=b` on any page picks one, remembered in that browser. Chrome/Edge 126+ and Safari 18.2+; elsewhere pages simply load. Reduced motion: no animation.
+- **Page transitions:** the browser's cross-document View Transitions (`src/styles/view-transitions.css`, loaded by the site's layout only): the header holds still while the page under it changes, and the next page is drawn up over the last like a curtain while the one behind sinks back and dims (transform and opacity only, so a page busy hydrating can't stall it). While it runs, the page's intros wait, and its sections below the first screen mount only once it ends. Chrome/Edge 126+ and Safari 18.2+; elsewhere pages simply load. Reduced motion: no animation.
 - **Type:** every h1, h2 and h3 sets its words in PP Neue Montreal Book and its accent in Kepler Std Medium Condensed Italic Display, as in the hero (see "Building a page").
 - **Contact:** rebuilt as about + form + social links.
 - **Hero film:** home v7's film is served from the media bucket (see "Big media").
@@ -72,16 +72,15 @@ npm run capture -- /contact public/index/contact.webp          # path, output, o
 BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 ```
 
-`scripts/capture.mjs` loads the page in headless Chrome at 1440×900, hides the working aids (the Extra pages chip and the version switches) and saves the first screen as WebP. It reads from `BASE` (default `http://localhost:3300`) and uses Google Chrome on macOS unless `CHROME` names another binary.
+`scripts/capture.mjs` loads the page in headless Chrome at 1440×900, scrolls to the top and saves the first screen as WebP. It reads from `BASE` (default `http://localhost:3300`) and uses Google Chrome on macOS unless `CHROME` names another binary.
 
 ### A new version of a page (an exploration)
 
 1. **Route:** add it under `src/app/(site)/<page>-<letter>/page.tsx`, for example `/contact-b` or `/foundation-g`.
    - Its code goes in `src/components/<page>/<letter>/`.
    - Wrap it in `BlogShell` (`src/components/v3/blog/BlogShell.tsx`), which gives it the site's header, footer and v3 values.
-2. **Switch (optional):** if the page has versions, add a switch to move between them. Copy `AnalyticsSwitch`; they sit under the header, at the top left.
-3. **List it:** add an entry to the right group in `extra/pages.ts` (or a new group), then capture its picture into `public/extra/`.
-4. **Leave the final page alone:** don't touch the final page or its entry in `index/pages.ts` until the new version is chosen.
+2. **List it:** add an entry to the right group in `extra/pages.ts` (or a new group), then capture its picture into `public/extra/`.
+3. **Leave the final page alone:** don't touch the final page or its entry in `index/pages.ts` until the new version is chosen.
 
 ### When a version is chosen
 
@@ -98,7 +97,7 @@ BASE=http://localhost:3000 npm run capture -- /blog public/index/blog.webp
 ## Building a page
 
 - **Shell:**
-  - `BlogShell` = `V3Header` (with `spread stay soft`) + `<main>` + `V3Footer` + the temporary Extra pages chip.
+  - `BlogShell` = `V3Header` (with `spread stay soft`) + `<main>` + `V3Footer`. There is no version switch or Extra pages chip on the pages: versions are reached from `/extra`.
   - `FixVersion v="v3"` sets the page's values (`html[data-version="v3"]`, `src/styles/versions.css`).
 - **Type:**
   - Fonts load in `src/styles/fonts.ts`. Montreal Medium and Regular for the header load from `src/components/v3/header/font.ts`.

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { EconomicsA } from "@/components/economics/a/EconomicsA";
-import { EconomicsSwitch } from "@/components/economics/EconomicsSwitch";
 import { CLOSE, HERO } from "@/components/economics/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -12,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function EconomicsAPage() {
-  return <><BlogShell home="/"><EconomicsA /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><EconomicsSwitch on="a" /></>;
+  return <BlogShell home="/"><EconomicsA /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell>;
 }

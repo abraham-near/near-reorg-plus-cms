@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { SolutionsB } from "@/components/solutions/b/SolutionsB";
-import { SolutionsSwitch } from "@/components/solutions/SolutionsSwitch";
 import { CLOSE, META } from "@/components/solutions/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -13,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function SolutionsBPage() {
-  return <><BlogShell home="/"><SolutionsB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><SolutionsSwitch on="b" /></>;
+  return <BlogShell home="/"><SolutionsB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell>;
 }

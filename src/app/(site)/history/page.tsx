@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { HistoryX } from "@/components/history/x/HistoryX";
-import { HistorySwitch } from "@/components/history/HistorySwitch";
 import { CLOSE, HERO } from "@/components/history/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -17,5 +16,5 @@ export const metadata: Metadata = {
 };
 
 export default function HistoryPage() {
-  return <><BlogShell home="/"><HistoryX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><HistorySwitch on="x" /></>;
+  return <BlogShell home="/"><HistoryX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell>;
 }

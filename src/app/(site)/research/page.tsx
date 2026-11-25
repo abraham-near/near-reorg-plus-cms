@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { ResearchX } from "@/components/research/x/ResearchX";
-import { ResearchSwitch } from "@/components/research/ResearchSwitch";
 import { CLOSE, HERO } from "@/components/research/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -16,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function ResearchPage() {
-  return <><BlogShell home="/"><ResearchX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><ResearchSwitch on="x" /></>;
+  return <BlogShell home="/"><ResearchX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell>;
 }
