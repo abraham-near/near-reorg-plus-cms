@@ -2,7 +2,6 @@
 // No world, no rail, no Stack: V1Page is not used, so nothing waits for a boot; the page scrolls natively.
 import type { ReactNode } from "react";
 import { FixVersion } from "@/components/shared/version";
-import { ExtraChip } from "@/components/ExtraChip";
 import { V3Header } from "../header/Header";
 import { V3Footer } from "../footer/Footer";
 import "../buttons.css";
@@ -17,7 +16,6 @@ export function BlogShell({ children, home = "/" }: { children: ReactNode; home?
       <V3Header home={home} spread stay soft />
       <main id="main">{children}</main>
       <V3Footer />
-      <ExtraChip />{/* temporary way back to /extra: remove this line to drop it */}
     </>
   );
 }

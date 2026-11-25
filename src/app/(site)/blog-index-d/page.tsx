@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { BlogD } from "@/components/blog/d/BlogD";
-import { BlogSwitch } from "@/components/blog/BlogSwitch";
 import { livePosts } from "@/components/blog/live";
 
 // The blog index, version D: "Lead card + type menu", from Figma 2026_10_Near_Web node 756:41 (components/blog/d). An exploration listed at /extra.
@@ -17,5 +16,5 @@ export const metadata: Metadata = {
 export default async function BlogIndexD() {
   await connection();
   const live = await livePosts();
-  return <><BlogShell home="/"><BlogD live={live} /></BlogShell><BlogSwitch on="d" /></>;
+  return <BlogShell home="/"><BlogD live={live} /></BlogShell>;
 }

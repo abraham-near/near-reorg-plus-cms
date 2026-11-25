@@ -13,7 +13,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
 import { FixVersion } from "@/components/shared/version";
-import { ExtraChip } from "@/components/ExtraChip";
 import { V3Header } from "@/components/v3/header/Header";
 import { V3Footer } from "@/components/v3/footer/Footer";
 import { Arrow, Ext } from "@/components/v3/blog/parts";
@@ -221,7 +220,6 @@ export function Contact({ home = "/" }: { home?: string }): ReactNode {
       <V3Header home={home} spread stay soft />
       <main id="main"><ContactBand /></main>
       <V3Footer />
-      <ExtraChip />{/* temporary way back to /extra: remove this line to drop it */}
     </>
   );
 }

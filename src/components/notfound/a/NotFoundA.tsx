@@ -1,10 +1,9 @@
 // 404, proposal A: "Lost in the mist". Home v5's hero (the misty forest, flipped, its paper veil on the left and the fade to paper at the foot) as a
 // full-screen 404: a huge "404" in the mist's grey that a slow fog drifts across, the headline in the hero's voice ("Lost in the mist." with the Kepler
 // accent and the green square of "world."), one line of sub, the hero's pill back home and two ways out as v3 text links with drawn arrows.
-// A slim footer line closes the screen (no big footer). Its own small shell (v3's values, v5's header, the Extra chip); styles: ./notfound-a.css.
+// A slim footer line closes the screen (no big footer). Its own small shell (v3's values, v5's header); styles: ./notfound-a.css.
 import type { CSSProperties } from "react";
 import { FixVersion } from "@/components/shared/version";
-import { ExtraChip } from "@/components/ExtraChip";
 import { V3Header } from "@/components/v3/header/Header";
 import "@/components/v1/world/world.css";
 import "@/components/v3/buttons.css";
@@ -71,14 +70,13 @@ export function NotFoundAHero() {
   );
 }
 
-/** the whole page: v3's values, home v5's header (spread at the top, never hiding, the soft tone switch), the 404, the Extra chip */
+/** the whole page: v3's values, home v5's header (spread at the top, never hiding, the soft tone switch), the 404 */
 export function NotFoundA() {
   return (
     <>
       <FixVersion v="v3" />
       <V3Header home={HOME} spread stay soft />
       <main id="main"><NotFoundAHero /></main>
-      <ExtraChip />{/* temporary way back to /extra: remove this line to drop it */}
     </>
   );
 }

@@ -41,8 +41,7 @@ try {
   await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: new URL(path, BASE).href });
   await sleep(Number(wait));
-  // the working aids are not part of the page: the Extra pages chip (bottom right) and the version switches (top left)
-  await send("Runtime.evaluate", { expression: "document.querySelectorAll('[data-extra-chip], .rv-sw, [aria-label=\"Page transition\"]').forEach((e) => e.remove()); scrollTo(0, 0)" });
+  await send("Runtime.evaluate", { expression: "scrollTo(0, 0)" });
   await sleep(600);
   const shot = await send("Page.captureScreenshot", { format: "png" });
   await sharp(Buffer.from(shot.result.data, "base64")).resize(1200, 750).webp({ quality: 82 }).toFile(out);

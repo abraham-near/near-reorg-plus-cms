@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { ResearchB } from "@/components/research/b/ResearchB";
-import { ResearchSwitch } from "@/components/research/ResearchSwitch";
 import { CLOSE, HERO } from "@/components/research/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -12,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function ResearchBPage() {
-  return <><BlogShell home="/"><ResearchB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><ResearchSwitch on="b" /></>;
+  return <BlogShell home="/"><ResearchB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell>;
 }

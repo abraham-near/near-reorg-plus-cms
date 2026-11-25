@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { BlogC } from "@/components/blog/c/BlogC";
-import { BlogSwitch } from "@/components/blog/BlogSwitch";
 import { livePosts } from "@/components/blog/live";
 
 // The blog index, version C: "Figma on the homepage grid" (components/blog/c), on v3's shell. An exploration (listed at /extra), so no canonical.
@@ -17,5 +16,5 @@ export const metadata: Metadata = {
 export default async function BlogIndexC() {
   await connection();
   const live = await livePosts();
-  return <><BlogShell home="/"><BlogC live={live} /></BlogShell><BlogSwitch on="c" /></>;
+  return <BlogShell home="/"><BlogC live={live} /></BlogShell>;
 }

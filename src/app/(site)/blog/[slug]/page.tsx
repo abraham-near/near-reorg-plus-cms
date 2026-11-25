@@ -6,20 +6,20 @@ import { PostB } from "@/components/v3/post/b/PostB";
 import { PostC } from "@/components/v3/post/c/PostC";
 import { PostD } from "@/components/v3/post/d/PostD";
 import { PostV } from "@/components/v3/post/v/PostV";
-import { PostSwitch, type PostLayout } from "@/components/v3/post/PostSwitch";
 import { DEFAULT_LAYOUT, postHref, shareOf, toArticle } from "@/lib/blog/article";
 import { getLivePost, getMorePosts } from "@/lib/blog/posts";
 import { siteOrigin } from "@/lib/site";
 import { videoMime } from "@/lib/blog/video";
 
-// A post published in the CMS, in one of the post layouts: the one chosen in the CMS (B, Cover, when none), or ?layout=a / b / c / d, with the same pill as
-// /post-a…d to switch. Rendered on request (the slug and the layout are only known then; the database is not reachable at build), its reads cached by
+// A post published in the CMS, in one of the post layouts: the one chosen in the CMS (B, Cover, when none), or ?layout=a / b / c / d.
+// Rendered on request (the slug and the layout are only known then; the database is not reachable at build), its reads cached by
 // the CMS's tags (lib/blog/posts.ts). A slug that is not live gets the not-found page: a 404 in dev; in production Next has already sent the route's
 // (empty) prerendered shell, so it is a 200 with noindex, as on the CMS's own [id] pages.
-// A video post (the CMS's Format: Video) always opens in PostV, the video layout: no ?layout= and no switch.
+// A video post (the CMS's Format: Video) always opens in PostV, the video layout: no ?layout=.
 export const instant = false;
 
 const LAYOUTS = { a: PostA, b: PostB, c: PostC, d: PostD } as const;
+type PostLayout = keyof typeof LAYOUTS;
 const layoutOf = (v: string | string[] | undefined): PostLayout => (v === "a" || v === "c" || v === "d" ? v : "b");   // B (Cover) unless asked
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -60,5 +60,5 @@ export default async function BlogPost({ params, searchParams }: Props) {
   const layout = query.layout ? layoutOf(query.layout) : own;
   const more = await getMorePosts(post.slug, post.category?.slug);
   const Post = LAYOUTS[layout];
-  return <><BlogShell home="/"><Post article={toArticle(post, more, layout)} /></BlogShell><PostSwitch on={layout} base={postHref(post.slug)} fallback={own} /></>;
+  return <BlogShell home="/"><Post article={toArticle(post, more, layout)} /></BlogShell>;
 }

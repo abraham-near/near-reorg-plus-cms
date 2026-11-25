@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { SolutionsX } from "@/components/solutions/x/SolutionsX";
-import { SolutionsSwitch } from "@/components/solutions/SolutionsSwitch";
 import { CLOSE, META } from "@/components/solutions/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -16,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function SolutionsPage() {
-  return <><BlogShell home="/"><SolutionsX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell><SolutionsSwitch on="x" /></>;
+  return <BlogShell home="/"><SolutionsX /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} secondary={CLOSE.secondary} ruled /></BlogShell>;
 }

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
 import { ProtocolD } from "@/components/protocol/d/ProtocolD";
-import { ProtocolSwitch } from "@/components/protocol/ProtocolSwitch";
 import { CLOSE, META } from "@/components/protocol/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
@@ -17,5 +16,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProtocolDPage() {
-  return <><BlogShell home="/"><ProtocolD /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} ruled /></BlogShell><ProtocolSwitch on="d" /></>;
+  return <BlogShell home="/"><ProtocolD /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} ruled /></BlogShell>;
 }

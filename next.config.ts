@@ -27,8 +27,6 @@ const nextConfig: NextConfig = {
       { source: "/:page(analytics|community|history|economics|solutions|research)-x", destination: "/:page", permanent: false },
       // the menu's Brand page isn't built yet: until it is, it shows exploration A (not permanent)
       { source: "/brand", destination: "/brand-a", permanent: false },
-      // Protocol B is the menu's page, at /protocol; its letter address still leads there (not permanent: still exploring)
-      { source: "/protocol-b", destination: "/protocol", permanent: false },
       { source: "/home-v:v([1-6])", destination: "/", permanent: true },
       { source: "/home-v:v([1-6])/:path*", destination: "/", permanent: true },
       // the previous CMS's post addresses (near.org/blog/<slug>.html), still linked from around the web

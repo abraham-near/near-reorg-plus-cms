@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { og } from "@/lib/site";
 import { BlogShell } from "@/components/v3/blog/BlogShell";
-import { ProtocolB } from "@/components/protocol/b/ProtocolB";
-import { ProtocolSwitch } from "@/components/protocol/ProtocolSwitch";
+import { ProtocolFinal } from "@/components/protocol/final/ProtocolFinal";
 import { CLOSE, META } from "@/components/protocol/content";
 import { CloseScene } from "@/components/shared/CloseScene";
 
-// near.org/protocol, version B: "The network lives" (components/protocol/b), the one in the menu (/protocol-b redirects here): the doc's page told through one live
-// picture of the network (shards as lanes, 600 ms chunks, 1.2 s finality), on v3's shell, closing with the homepage's scene. Copy: components/protocol/content.ts.
+// near.org/protocol, the final page (components/protocol/final, since Nov 25, 2026), the one in the menu: the Vercel page's hero, index, Private Shard,
+// dark run and Go deeper, with version B's chapter (Nightshade 3.0 and dynamic resharding on the live lanes), Speed and lower sections, after the team's
+// Figma collage; on v3's shell, closing with the homepage's scene. B stays at /protocol-b. Copy: components/protocol/content.ts.
 export const metadata: Metadata = {
   title: META.title,
   description: META.description,
@@ -16,5 +16,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProtocolPage() {
-  return <><BlogShell home="/"><ProtocolB /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} ruled /></BlogShell><ProtocolSwitch on="b" /></>;
+  return <BlogShell home="/"><ProtocolFinal /><CloseScene sub={CLOSE.sub} primary={CLOSE.primary} ruled /></BlogShell>;
 }
