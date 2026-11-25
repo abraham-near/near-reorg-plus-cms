@@ -20,7 +20,7 @@ The new near.org: the site's pages and the NEAR CMS (the blog's back office) in 
 | `/community` | **Community**: X (MVP), from the October 2026 doc. Sample figures and events. | `src/components/community/x` |
 | `/solutions` | **Solutions**: X (MVP), from the October 2026 doc's Solutions Hub. | `src/components/solutions/x` |
 | `/research` | **Research**: X (MVP), the technical papers. | `src/components/research/x` |
-| `/protocol` | **Protocol** (Stack in the menu): version B, "The network lives", from the October 2026 doc. Illustrative motion, not live data. | `src/components/protocol/b` |
+| `/protocol` | **Protocol** (Stack in the menu): the final page (since Nov 25, 2026), after the team's Figma collage: the Vercel page's (near-homepage-directions /protocol) isometric hero, index, Private Shard, dark run (quantum, Chain Signatures, developers) and Go deeper, with version B's pinned chapter (Nightshade 3.0, dynamic resharding), Speed and lower sections. Copy from the October 2026 doc. Illustrative motion, not live data. | `src/components/protocol/final` (+ `b/parts.tsx`) |
 | `/contact` | **Contact**: a short about, the form (no backend yet) and NEAR's social links. | `src/components/contact` |
 | any unknown address | **404**: A, "Lost in the mist". | `src/components/notfound/a` |
 | `/index`, `/extra` | The two lists of pages (see below). | `src/app/(site)/index`, `src/app/(site)/extra` |
@@ -32,7 +32,7 @@ Explorations that still have their own routes are listed at `/extra`:
 - the MVP versions X from the Nov 19 review (`src/components/<page>/x`) are the menu's Analytics, Community, History, Economics, Solutions and Research, at the plain addresses (`/analytics`…); `/analytics-x`, `/community-x`, `/history-x`, `/economics-x`, `/solutions-x` and `/research-x` still lead there (a temporary redirect). One version per page: mostly copy, no eyebrows or decorative numerals, no ruled grid by the header, the site's dot icons where they help, graphics as placeholders (`[[TBD: graphic by Ali]]`);
 - Analytics A–E at `/analytics-a`…`/analytics-e` (C was `/analytics` until Nov 19, 2026);
 - Economics A–C at `/economics-a…c`, History A–C at `/history-a…c` and Community A–C at `/community-a…c` (the menu's versions until Nov 19, 2026: Economics A, History C, Community B);
-- Protocol A, C and D at `/protocol-a`, `/protocol-c`, `/protocol-d` (B is the menu's `/protocol`). Copy verbatim from the October 2026 doc in `src/components/protocol/content.ts`.
+- Protocol A–D at `/protocol-a`…`/protocol-d` (B was the menu's `/protocol` Nov 20–25, 2026; its sections are shared with the final page through `src/components/protocol/b/parts.tsx`). Copy verbatim from the October 2026 doc in `src/components/protocol/content.ts`.
 - Solutions, Research and Brand A–C at `/solutions-a…c`, `/research-a…c`, `/brand-a…c` (the menu's `/brand` isn't built yet: it redirects to `/brand-a` for now). Copy in `src/components/<page>/content.ts`: Solutions verbatim from the October 2026 doc, Research from its Technical Papers note and near.org/papers, Brand adapted from its agency brief.
 
 ### What changed (November 2026)

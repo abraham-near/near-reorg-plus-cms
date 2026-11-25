@@ -1,0 +1,208 @@
+/* The final Protocol page (ProtocolFinal.tsx): the parts that come from the Vercel page (stack-kit r41: sections.css, motion.css §4 and §9,
+   surfaces.css), ported onto the homepage's ruled grid (proof-deeper.css: .l-row / .l-cell, the + crosshairs, the arrivals) in the site's tokens.
+   B's parts keep their own styles (../b/protocol-b.css: the page also runs under .pr-b). Motion only under .pr-f[data-motion]. Scoped under .pr-f. */
+.pr-f { --pf-dark: #262626; --pf-paper: #f5f4f1; }
+.pr-f .pf-h2 { max-width: 13em; text-wrap: balance; }
+.pr-f .pf-sub { font-family: var(--font-text, var(--sans)); font-weight: 400; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); color: var(--ink); max-width: 18em; text-wrap: balance; }
+.pr-f .pf-body { font-size: var(--t-small); line-height: 1.6; color: var(--graphite); max-width: 30em; text-wrap: pretty; }
+
+/* ---------------------------------------------------------------- drawings (V's .pg-art: the svg at its own proportion, centred in its cell) */
+.pr-f .pf-art { position: relative; display: block; margin: 0 auto; width: 100%; height: auto; }
+.pr-f .pf-art > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* the build (V's motion.css §4): the lines draw on (pathLength 1), the rest fades in after them; the mint marks are there from the first frame */
+:where(.pr-f[data-motion]) [data-art].m-arm .ln:not(.dsh) { stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0; }
+:where(.pr-f[data-motion]) [data-art].m-arm :is(.fl, .fc:not(.hi), .dt, .dsh) { opacity: 0; }
+:where(.pr-f[data-motion]) [data-art].m-arm .m-up { translate: 0 12px; }
+:where(.pr-f[data-motion]) [data-art].m-arm.m-in .ln:not(.dsh) { stroke-dashoffset: 0; opacity: 1;
+  transition: stroke-dashoffset var(--t, 0.7s) var(--ease-pf-draw) var(--d, 0s), opacity 0.12s linear var(--d, 0s); }
+:where(.pr-f[data-motion]) [data-art].m-arm.m-in :is(.fl, .fc:not(.hi), .dt, .dsh) { opacity: 1; transition: opacity var(--t, 0.5s) var(--ease-glide) var(--d, 0s); }
+:where(.pr-f[data-motion]) [data-art].m-arm.m-in .m-up { translate: none; transition: translate var(--t, 0.9s) var(--ease-settle) var(--d, 0s); }
+.pr-f { --ease-pf-draw: cubic-bezier(0.45, 0, 0.2, 1); }
+/* a part a link lights (V's §9): it rises 6 px, its small mark turns mint, the others step back by their strokes and dots only */
+.pr-f [data-art] [data-part] { transition: translate 0.45s var(--ease-settle); }
+.pr-f [data-art] [data-part] :is(.ln, .dt) { transition: stroke-opacity 0.35s var(--ease-glide), fill-opacity 0.35s var(--ease-glide); }
+.pr-f [data-art] [data-part] .lt { transition: fill 0.3s var(--ease-glide) 0.06s; }
+.pr-f [data-art='hero'] [data-part] { cursor: pointer; }
+.pr-f [data-art] [data-part]:is(.on, .is-on) { translate: 0 -6px; }
+.pr-f [data-art] [data-part].on .lt, .pr-f [data-art] [data-part].is-on .hi { fill: #00dc8d; }
+.pr-f [data-art].has-on [data-part]:not(.on, .is-on) .ln { stroke-opacity: 0.35; }
+/* the quantum ring: its dashes run round the dial while it is in view */
+.pr-f [data-art='quantum'].is-run .orbit { animation: pf-orbit 6s linear infinite; }
+@keyframes pf-orbit { to { stroke-dashoffset: -64; } }
+
+/* ---------------------------------------------------------------- 1 · hero (V): the copy | the overview drawing, on bare paper */
+.pr-f .pf-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 4vw, 64px); margin: 0 var(--margin);
+  padding: clamp(136px, 19vh, 184px) var(--l-pad) clamp(40px, 6vh, 64px); }
+.pr-f .pf-hero__text { display: flex; flex-direction: column; align-items: flex-start; }
+.pr-f .pf-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin-bottom: clamp(24px, 3.4vh, 36px); font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
+.pr-f .pf-eyebrow::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--emerald); }
+.pr-f .pf-h1 { max-width: 8.4em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 0.9rem + 4.9vw, 5.5rem); line-height: 0.98;
+  letter-spacing: var(--t-display-tr); text-wrap: balance; }
+.pr-f .pf-h1 .accent .pb-w { line-height: 0.92; }
+.pr-f .pf-hero__end { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; margin-top: auto; padding-top: clamp(36px, 5vh, 56px); }
+.pr-f .pf-hero__lede { max-width: 25em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
+.pr-f .pf-hero__art { display: grid; place-items: center; padding: clamp(8px, 2vh, 24px) 0 0; }
+.pr-f .pf-art--hero { max-width: 640px; }
+
+/* ---------------------------------------------------------------- 2 · the index (V's bar: an icon and the name; the hover dot) and the proof */
+.pr-f .pf-index__cell { padding-top: 6px; padding-bottom: 6px; }
+.pr-f .pf-index__list { display: flex; flex-wrap: wrap; gap: 2px 28px; }
+.pr-f .pf-index__list a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 0; font-size: var(--t-caption); line-height: 1.2; letter-spacing: var(--t-caption-tr);
+  color: var(--muted); transition: color 0.2s var(--ease-tick); }
+.pr-f .pf-index__ic { width: 18px; height: 18px; flex: none; color: var(--muted); transition: color 0.3s var(--ease-glide); }
+.pr-f .pf-index__ic .g { fill: var(--emerald); stroke: none; }
+.pr-f .pf-index__ic .f { fill: currentColor; stroke: none; }
+.pr-f .pf-index__list a:is(:hover, .is-lit, :focus-visible), .pr-f .pf-index__list a:is(:hover, .is-lit, :focus-visible) .pf-index__ic { color: var(--ink); }
+.pr-f .pf-proof { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.pr-f .pf-proof .l-fig__v { font-size: clamp(1.75rem, 0.25rem + 2.4vw, 2.5rem); }
+.pr-f .pf-proof .l-fig__u { font-size: var(--t-small); }
+.pr-f .pf-top .l-spacer .l-cell { height: clamp(40px, 6vh, 56px); }   /* the Figma's short stub between the figures and the dark band */
+
+/* ---------------------------------------------------------------- 5 · Private Shard (V): the drawing, then the heading and its text on one axis */
+.pr-f .pf-center__cell { display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(56px, 8vh, 80px) var(--l-pad) clamp(56px, 8vh, 72px); }
+.pr-f .pf-center__art { max-width: 440px; margin-bottom: clamp(36px, 5vh, 56px); }
+.pr-f .pf-center__cell .pf-h2 { margin-inline: auto; }
+.pr-f .pf-center__cell .pf-sub { max-width: 24em; margin: 20px auto 14px; }
+.pr-f .pf-center__cell .pf-body { max-width: 30em; margin-inline: auto; }
+.pr-f .pf-center__cell .pf-more { margin-top: 18px; }
+
+/* ---------------------------------------------------------------- 6 · the dark run (V's .sf-dark sections and the dev band): charcoal with a fine dot
+   grid and a light rising from the low right; paper type; the grid's rules at 18 %, its + at 70 % */
+.pr-f .pf-dark { --ink: #f5f4f1; --graphite: rgb(245 244 241 / 0.76); --muted: rgb(245 244 241 / 0.6); --line: rgb(245 244 241 / 0.12); --line-strong: rgb(245 244 241 / 0.18);
+  --l-line: var(--line-strong); --l-soft: var(--line); --l-x: rgb(245 244 241 / 0.7); --paper-1: rgb(245 244 241 / 0.05);
+  position: relative; color: var(--ink);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='1' height='1' fill='%23f5f4f1' fill-opacity='.09'/%3E%3C/svg%3E") var(--margin) 12px / 24px 24px repeat,
+              radial-gradient(70% 60% at 96% 104%, rgb(245 244 241 / 0.07), rgb(245 244 241 / 0) 70%),
+              linear-gradient(170deg, #1d1d1d 0%, #232323 30%, #2a2a29 70%, #2e2e2d 100%);
+  background-color: var(--pf-dark); }
+.pr-f .pf-dark :focus-visible { outline-color: var(--ink); }
+.pr-f .pf-dark .pb-btn { background: var(--pf-paper); color: var(--pf-dark); }
+@media (hover: hover) { .pr-f .pf-dark .pb-btn:hover { background: #fff; color: var(--pf-dark); } }
+.pr-f .pf-dark .l-spacer .l-cell { height: clamp(40px, 6vh, 56px); }
+/* a feature row: the copy | the drawing (quantum 7 | 5, Chain Signatures 5 | 7) */
+.pr-f .pf-feat__row--q { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.pr-f .pf-feat__row--sig { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.pr-f .pf-feat__text { display: flex; flex-direction: column; gap: 28px; padding-top: clamp(48px, 7vh, 64px); padding-bottom: clamp(40px, 6vh, 56px); }
+.pr-f .pf-feat__body { display: flex; flex-direction: column; align-items: flex-start; gap: 0; max-width: 27em; }
+.pr-f .pf-feat__body .pf-sub { margin-bottom: 14px; }
+.pr-f .pf-feat__body .pf-more { margin-top: 20px; }
+.pr-f .pf-feat__art { display: grid; place-items: center; padding: clamp(32px, 5vh, 48px) clamp(24px, 3vw, 48px); }
+.pr-f .pf-art--q { max-width: 340px; }
+.pr-f .pf-sig__art { gap: 28px; align-content: center; }
+.pr-f .pf-art--sig { max-width: 520px; }
+/* the big onward link (V's .l-link--cta): the head face at h4, a standing hairline under the words, the arrow in a ring that fills on hover */
+.pr-f .pf-cta { display: inline-flex; align-items: center; gap: 16px; font-family: var(--font-text, var(--sans)); font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr);
+  text-decoration: underline 1px rgb(245 244 241 / 0.36); text-underline-offset: 7px; transition: text-decoration-color 0.3s var(--ease-glide); }
+.pr-f .pf-cta .l-arr { box-sizing: content-box; width: 16px; height: 16px; padding: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor;
+  transition: background-color 0.3s var(--ease-glide), color 0.3s var(--ease-glide), translate 0.24s var(--ease-tick); }
+@media (hover: hover) {
+  .pr-f .pf-cta:hover { text-decoration-color: currentColor; }
+  .pr-f .pf-cta:hover .l-arr { background: var(--pf-paper); color: var(--pf-dark); }
+}
+/* developers (V's dev band): off the grid's rules (no frame, no +), the four diagonals in the corners; the heading | its line, the editor | the points */
+.pr-f .pf-dev { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 800' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23f5f4f1' stroke-opacity='.3' stroke-width='1' stroke-dasharray='1.5 4.5'%3E%3Cpath d='M-20 820 L280 734' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M1000 -20 L1460 150' stroke-opacity='.22' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M1010 830 L1460 560' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M-20 170 L330 -20' stroke-opacity='.18' vector-effect='non-scaling-stroke'/%3E%3C/g%3E%3C/svg%3E") 50% 50% / cover no-repeat;
+  padding-bottom: clamp(64px, 10vh, 112px); }
+.pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row)::before, .pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row)::after,
+.pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row) > .l-cell + .l-cell::before, .pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row) > .l-x { display: none; }
+.pr-f .pf-dev__head, .pr-f .pf-dev__row { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.pr-f .pf-dev__h { padding-top: clamp(40px, 6vh, 64px); padding-bottom: clamp(28px, 4vh, 40px); }
+.pr-f .pf-dev__lede { display: flex; align-items: flex-end; padding-bottom: clamp(32px, 4.4vh, 44px); }
+.pr-f .pf-dev__lede .pf-sub { max-width: 22em; color: var(--graphite); }
+.pr-f .pf-code__cell { display: flex; flex-direction: column; padding-top: 8px; }
+.pr-f .pf-code { flex: 1; display: flex; flex-direction: column; margin: 0; border-radius: 4px; background: rgb(22 22 22 / 0.62); box-shadow: inset 0 0 0 1px rgb(0 220 141 / 0.45); overflow: hidden; }
+.pr-f .pf-code__bar { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-bottom: 1px solid rgb(0 220 141 / 0.22); flex: none; }
+.pr-f .pf-code__bar > i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(245 244 241 / 0.34); }
+.pr-f .pf-code__bar > i:first-child { background: var(--emerald); box-shadow: none; }
+.pr-f .pf-code__pre { flex: 1; margin: 0; padding: 28px 32px 32px 0; overflow-x: auto; font-family: var(--font-mono, ui-monospace, monospace); font-size: 14px; line-height: 1.75;
+  color: rgb(245 244 241 / 0.86); tab-size: 2; }
+.pr-f .pf-code code { display: block; min-width: max-content; }
+.pr-f .pf-code__ln { display: grid; grid-template-columns: 56px auto; }
+.pr-f .pf-code__no { padding-right: 24px; text-align: right; color: rgb(245 244 241 / 0.26); user-select: none; }
+.pr-f .pf-code__t { white-space: pre; }
+.pr-f .pf-t-k, .pr-f .pf-t-y { color: #f5f4f1; }
+.pr-f .pf-t-s { color: #00dc8d; }
+.pr-f .pf-t-d { color: rgb(245 244 241 / 0.56); }
+.pr-f .pf-code__caret { display: inline-block; width: 0.6em; height: 1.15em; margin-left: 2px; vertical-align: -0.2em; background: var(--emerald); opacity: 0.85; }
+:where(.pr-f[data-motion]) .pf-code__caret { animation: pf-blink 1.1s steps(1) infinite; }
+@keyframes pf-blink { 50% { opacity: 0; } }
+/* the lines type in, one after another, as the row arrives */
+:where(.pr-f[data-motion]) .pf-code__ln { opacity: 0; translate: -6px 0; }
+:where(.pr-f[data-motion]) .l-row.is-in .pf-code__ln { opacity: 1; translate: none; transition: opacity 0.5s var(--ease-glide) calc(0.5s + var(--n) * 0.07s), translate 0.6s var(--ease-settle) calc(0.5s + var(--n) * 0.07s); }
+.pr-f .pf-dev__side { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 36px; padding-top: 8px; }
+/* the points (V's .pg-feats: rows between hairlines, a small dot with a short lead, the first row marked by a bar and a faint wash) */
+.pr-f .pf-feats { align-self: stretch; }
+.pr-f .pf-feats li { position: relative; display: block; padding: 22px 16px 24px 40px; border-top: var(--hair) solid rgb(245 244 241 / 0.14); font-size: var(--t-small); line-height: 1.55; }
+.pr-f .pf-feats li:last-child { border-bottom: var(--hair) solid rgb(245 244 241 / 0.14); }
+.pr-f .pf-feats li:first-child { background: linear-gradient(90deg, rgb(245 244 241 / 0.05), transparent 60%); }
+.pr-f .pf-feats li:first-child::before { content: ""; position: absolute; left: 0; top: -1px; bottom: 0; width: 2px; background: rgb(245 244 241 / 0.7); }
+.pr-f .pf-feats__t { position: relative; display: block; margin-bottom: 6px; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); font-weight: 500; color: var(--ink); }
+.pr-f .pf-feats__t::before { content: ""; position: absolute; left: -24px; top: calc(0.5lh - 2.5px); width: 5px; height: 5px; border-radius: 50%; background: rgb(245 244 241 / 0.55); }
+.pr-f .pf-feats__t::after { content: ""; position: absolute; left: -17px; top: calc(0.5lh - 0.5px); width: 9px; height: 1px; background: rgb(245 244 241 / 0.3); }
+.pr-f .pf-feats li:first-child .pf-feats__t::before { background: var(--ink); }
+.pr-f .pf-feats__b { display: block; max-width: 30em; color: var(--graphite); }
+
+/* ---------------------------------------------------------------- 8 · Go deeper (V): the gray ground; the heading over the shelf | the posts */
+.pr-f .pf-gray { background: #ebeae6; }
+.pr-f .pf-deeper__row { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.pr-f .pf-deeper__head { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding-top: clamp(48px, 7vh, 64px); padding-bottom: clamp(32px, 5vh, 48px); }
+.pr-f .pf-deeper__sub { margin-top: 18px; max-width: 22em; font-size: var(--t-body); color: var(--graphite); }
+.pr-f .pf-shelf { max-width: 240px; margin: clamp(32px, 5vh, 48px) 0 0 clamp(0px, 2vw, 32px); }
+.pr-f .pf-deeper__list { padding-top: clamp(24px, 4vh, 40px); padding-bottom: clamp(24px, 4vh, 40px); }
+.pr-f .pf-tile + .pf-tile { border-top: var(--hair) solid var(--l-soft); }
+.pr-f .pf-tile__a { position: relative; isolation: isolate; display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; column-gap: 14px; padding: 22px 0 24px; }
+.pr-f .pf-tile__a::before { content: ""; position: absolute; z-index: -1; inset: 0 calc(var(--l-pad) * -0.5); background: #e2e1dd; transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.45s var(--ease-settle); }
+.pr-f .pf-tile__g { grid-column: 1; grid-row: 1; width: 16px; height: 16px; color: var(--ink); }
+.pr-f .pf-tile__g .g { fill: var(--emerald); stroke: none; }
+.pr-f .pf-tile__t { grid-column: 2; grid-row: 1; font-size: var(--t-small); font-weight: 500; line-height: 1.3; text-wrap: balance; }
+/* the line under the title opens on hover or focus (it stays inside the link, so a screen reader reads it with the title) */
+.pr-f .pf-tile__s { grid-column: 2; grid-row: 2; display: block; max-height: 0; overflow: hidden; opacity: 0; font-size: var(--t-caption); line-height: var(--t-caption-lh); color: var(--muted);
+  transition: max-height 0.4s var(--ease-glide), opacity 0.4s var(--ease-glide), margin-top 0.4s var(--ease-glide); }
+.pr-f .pf-tile__a .l-arr { grid-column: 3; grid-row: 1 / span 2; opacity: 0; translate: -6px 0; transition: opacity 0.2s var(--ease-tick), translate 0.3s var(--ease-settle); }
+.pr-f .pf-tile__a:is(:hover, :focus-visible) .pf-tile__s { max-height: 3em; opacity: 1; margin-top: 6px; }
+@media (hover: hover) { .pr-f .pf-tile__a:hover::before { transform: none; } .pr-f .pf-tile__a:hover .l-arr { opacity: 1; translate: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-f *, .pr-f *::before, .pr-f *::after { transition: none !important; animation: none !important; }
+}
+
+/* ---------------------------------------------------------------- below 1280 / 1100 / 860 / 600 */
+@media (max-width: 1279px) {
+  .pr-f .pf-proof { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pr-f .pf-proof .pf-fig:nth-of-type(n + 4) { border-top: var(--hair) solid var(--l-line); }
+  .pr-f .pf-proof .pf-fig:nth-of-type(4)::before { display: none; }
+}
+@media (max-width: 1099px) {
+  .pr-f .pf-hero { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
+  .pr-f .pf-hero__art { padding: 0; }
+  .pr-f .pf-art--hero { max-width: 560px; }
+  .pr-f .pf-dev__head, .pr-f .pf-dev__row { grid-template-columns: minmax(0, 1fr); }
+  .pr-f .pf-dev__h { padding-bottom: 12px; }
+  .pr-f .pf-dev__lede { padding-top: 0; }
+  .pr-f .pf-dev__side { padding-top: 32px; }
+}
+@media (max-width: 859px) {
+  .pr-f { --l-pad: 20px; }
+  .pr-f .pf-hero { padding-top: 124px; padding-bottom: 32px; }
+  .pr-f .pf-index__list { gap: 0 20px; }
+  .pr-f .pf-proof { grid-template-columns: minmax(0, 1fr); }
+  .pr-f .pf-proof .pf-fig { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: baseline; column-gap: 16px; padding: 20px var(--l-pad); }
+  .pr-f .pf-proof .pf-fig + .pf-fig { border-top: var(--hair) solid var(--l-line); }
+  .pr-f .pf-proof .pf-fig::before { display: none; }
+  .pr-f .pf-proof .l-fig__v { font-size: 1.75rem; }
+  .pr-f .pf-proof .l-fig__c { margin-top: 0; }
+  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-deeper__row) { grid-template-columns: minmax(0, 1fr); }
+  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-deeper__row) > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-deeper__row) > .l-cell + .l-cell::before { display: none; }
+  .pr-f .pf-feat__text { padding-top: 40px; padding-bottom: 36px; }
+  .pr-f .pf-feat__art { padding: 32px var(--l-pad); }
+  .pr-f .pf-shelf { max-width: 200px; }
+  .pr-f .pf-tile__s { max-height: none; opacity: 1; margin-top: 6px; }   /* no hover on a phone: the line shows */
+  .pr-f .pf-tile__a .l-arr { opacity: 1; translate: none; }
+}
+@media (max-width: 599px) {
+  .pr-f .pf-h1 { font-size: clamp(2.6rem, 1.2rem + 7vw, 3.4rem); }
+  .pr-f .pf-code__pre { font-size: 12.5px; padding-right: 16px; }
+  .pr-f .pf-code__ln { grid-template-columns: 40px auto; }
+  .pr-f .pf-code__no { padding-right: 14px; }
+}

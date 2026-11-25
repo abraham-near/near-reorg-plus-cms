@@ -4,8 +4,8 @@
 //     [data-in] lines follow the h1; [data-up] (the band's lede, off the grid) rises as it arrives;
 //   - the hero's scene (net.ts) wipes in from the left over the first ~2 s, then runs (only while it is near the view and the tab is visible); a count
 //     of 600 ms blocks since the page opened ticks in its legend;
-//   - the chapter (desktop, motion on): the stage pins for about 3.6 screens; the scroll drives the lanes through four steps (Nightshade, resharding,
-//     the private shard, quantum), blended at each change; the step's copy and the index follow, a hairline shows how far along it is. Phones and
+//   - the chapter (desktop, motion on): the stage pins for about 0.9 screen per step; the scroll drives the lanes through the page's steps (B: all
+//     four, Nightshade, resharding, the private shard, quantum; the final page: the first two), blended at each change; the step's copy and the index follow, a hairline shows how far along it is. Phones and
 //     reduced motion: the steps stacked, each scene running its own step on a loop (reduced motion: its finished frame);
 //   - Speed's metronome and Chain Signatures' lanes run while near the view.
 // Reduced motion: no split, no wipe, no pin, no loop: every scene at a finished frame.
@@ -16,8 +16,7 @@ import { clamp01, faces, smooth, stage, type Stage } from "./stage";
 import { createNet, mix, PARAMS, type NetParams } from "./net";
 import { createChains } from "./chains";
 
-/** the chapter's four steps on the lanes, at their own progress u (0..1) */
-const OF = [0, 0, 1, 2];   // the property each step belongs to (the index)
+/** a step of the chapter (its kind: 0 Nightshade, 1 resharding, 2 the private shard, 3 quantum) on the lanes, at its own progress u (0..1) */
 function stepParams(i: number, u: number): NetParams {
   const b: NetParams = { ...PARAMS, priv: 0 };
   switch (i) {
@@ -27,11 +26,12 @@ function stepParams(i: number, u: number): NetParams {
     default: return { ...b, reshardU: 1, priv: 1, account: smooth(u / 0.22), rot: clamp01((u - 0.12) / 0.78), dim: 0.62 * smooth(u / 0.22) };
   }
 }
-/** a pinned progress (0..1) through the four steps: each holds, then blends into the next over the last 18 % of its share */
-function atProgress(p: number) {
-  const q = Math.min(3.9999, Math.max(0, p * 4)), i = Math.floor(q), u = q - i, HOLD = 0.82;
-  if (i < 3 && u > HOLD) { const f = smooth((u - HOLD) / (1 - HOLD)); return { params: mix(stepParams(i, 1), stepParams(i + 1, 0), f), on: f > 0.5 ? i + 1 : i }; }
-  return { params: stepParams(i, clamp01(u / HOLD)), on: i };
+/** a pinned progress (0..1) through the page's steps (their kinds, in order; B has all four, the final page two): each holds, then blends into the
+ *  next over the last 18 % of its share. `on` is the step's place on the page */
+function atProgress(p: number, kinds: number[]) {
+  const n = kinds.length, q = Math.min(n - 0.0001, Math.max(0, p * n)), i = Math.floor(q), u = q - i, HOLD = 0.82;
+  if (i < n - 1 && u > HOLD) { const f = smooth((u - HOLD) / (1 - HOLD)); return { params: mix(stepParams(kinds[i], 1), stepParams(kinds[i + 1], 0), f), on: f > 0.5 ? i + 1 : i }; }
+  return { params: stepParams(kinds[i], clamp01(u / HOLD)), on: i };
 }
 /** a step's scene on its own (phones): runs its step, holds the end, starts over */
 const loopU = (t: number) => { const tau = t % 10; return clamp01((tau - 0.8) / 6); };
@@ -102,23 +102,24 @@ export function mount(root: HTMLElement, ctx: MotionCtx) {
         }
         band.classList.add("is-pinned");
         const steps = $$(".pb-step", band), idx = $$(".pb-idx__i", band), bar = $("[data-bar]", band);
+        const kinds = steps.map((s) => Number(s.dataset.step) || 0), of = steps.map((s) => Number(s.dataset.of) || 0);
         const cv = $<HTMLCanvasElement>("canvas[data-scene='chapter']", band);
         let target = 0, cur = 0, on = -1;
         const show = (i: number) => {
           if (i === on) return; on = i;
           steps.forEach((s, j) => { s.classList.toggle("is-on", j === i); s.toggleAttribute("inert", j !== i); });
-          idx.forEach((el, j) => el.classList.toggle("is-on", j === OF[i]));
+          idx.forEach((el, j) => el.classList.toggle("is-on", j === of[i]));
         };
         show(0);
         const net = chapterNet();
         if (cv) local.push(stage(cv, (c, w, h, t, dt) => {
           cur += (target - cur) * Math.min(1, dt * 7 || 1);   // the scene eases after the scroll, never jumps
-          const a = atProgress(cur);
+          const a = atProgress(cur, kinds);
           net(c, w, h, t, a.params);
         }, { reduced: false, margin: "0px" }));
         ScrollTrigger.create({
-          trigger: stageEl, start: "top top", end: () => "+=" + Math.round(innerHeight * 3.6), pin: true, pinSpacing: true, anticipatePin: 1,
-          onUpdate: (s) => { target = s.progress; show(atProgress(s.progress).on); if (bar) bar.style.transform = `scaleX(${s.progress.toFixed(4)})`; },
+          trigger: stageEl, start: "top top", end: () => "+=" + Math.round(innerHeight * 0.9 * kinds.length), pin: true, pinSpacing: true, anticipatePin: 1,
+          onUpdate: (s) => { target = s.progress; show(atProgress(s.progress, kinds).on); if (bar) bar.style.transform = `scaleX(${s.progress.toFixed(4)})`; },
           onRefresh: (s) => { target = s.progress; },
         });
         return () => { local.forEach((s) => s.destroy()); band.classList.remove("is-pinned"); steps.forEach((s) => { s.classList.remove("is-on"); s.removeAttribute("inert"); }); idx.forEach((el) => el.classList.remove("is-on")); };

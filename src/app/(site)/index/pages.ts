@@ -63,8 +63,8 @@ export const FINALS: Final[] = [
   },
   {
     id: "protocol", href: "/protocol", name: "Protocol",
-    note: "Version B, \"The network lives\": the network at work on canvas in the hero (shard lanes, a block every 600 ms, the 1.2 s finality line, the private shard), a pinned dark chapter for Nightshade, resharding, the private shard and the key rotation, then the doc's sections on the ruled grid.",
-    tags: ["Canvas hero", "Pinned chapter", "Ruled grid"], img: "/index/protocol.webp",
+    note: "The final page (Nov 25, 2026), a mix of the Vercel page and version B after the team's Figma collage: the isometric hero and its index, the figures, B's pinned dark chapter for Nightshade 3.0 and dynamic resharding, Speed, Private Shard, a dark run for quantum security, Chain Signatures and developers, then the AI layer, NEAR One, Secure NEAR and Go deeper. B is at /protocol-b on /extra.",
+    tags: ["Iso hero", "Pinned chapter", "Dark run"], img: "/index/protocol.webp",
   },
   {
     id: "contact", href: "/contact", name: "Contact",
