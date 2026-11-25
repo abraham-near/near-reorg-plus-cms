@@ -66,14 +66,14 @@ const PANE_VS = /* glsl */ `
     gl_Position = projectionMatrix * mv;
   }`;
 const PANE_FS = /* glsl */ `
-  uniform sampler2D tex; uniform vec3 col, body; uniform float gain, frost, rim, alpha, a;
+  uniform sampler2D tex; uniform vec3 col, body; uniform float gain, frost, rim, alpha, base, a;
   varying vec2 vUv; varying vec3 vN; varying vec3 vV; varying float vCap;
   float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
   void main(){
     vec3 L = texture2D(tex, vUv).rgb * gain;
     float fr = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
     float grain = (h(floor(gl_FragCoord.xy)) - 0.5) * frost * 0.05;
-    vec3 c = col * L * (1.0 + frost * 0.35) + body * (frost * (0.05 + L.r * 0.25) + grain) + col * fr * rim * 0.5;
+    vec3 c = col * (L * (1.0 + frost * 0.35) + base) + body * (frost * (0.05 + L.r * 0.25) + grain) + col * fr * rim * 0.5;
     c = mix(col * (rim + L.r * 0.8), c, step(0.5, vCap));                        // the sides: lit by the light inside the glass
     gl_FragColor = vec4(c * a, alpha * a);
   }`;
@@ -230,12 +230,15 @@ export const mount: Mount = (canvas, section, track) => {
   addData(0);
 
   const paneGeo = nMark(SIZE, T, 0.006), edgeGeo = new THREE.EdgesGeometry(nMark(SIZE, T, 0), 25);
-  const FROST = [{ frost: 0, alpha: 0.12, rim: 0.4, edge: 0.6, gain: 0.95 }, { frost: 0.45, alpha: 0.6, rim: 0.32, edge: 0.25, gain: 0.95 }, { frost: 0.9, alpha: 0.8, rim: 0.25, edge: 0.1, gain: 3 }];
+  // the last pane is opaque (the private end: nothing behind it shows through), a solid frosted green lit from inside; it writes depth, so the haze,
+  // the dust and the data behind it are hidden too
+  const FROST = [{ frost: 0, alpha: 0.12, rim: 0.4, edge: 0.6, gain: 0.95, base: 0 }, { frost: 0.45, alpha: 0.6, rim: 0.32, edge: 0.25, gain: 0.95, base: 0 },
+    { frost: 0.9, alpha: 1, rim: 0.25, edge: 0.1, gain: 2.6, base: 0.13 }];
   const panes = FROST.map((fr, i) => {
     const u = { tex: { value: PIC[i] }, span: { value: W }, col: { value: new THREE.Color() }, body: { value: new THREE.Color(0xdff5ec) }, gain: { value: fr.gain },
-      frost: { value: fr.frost }, rim: { value: fr.rim }, alpha: { value: fr.alpha }, a: { value: 0 } };
+      frost: { value: fr.frost }, rim: { value: fr.rim }, alpha: { value: fr.alpha }, base: { value: fr.base }, a: { value: 0 } };
     const g = new THREE.Group(); stack.add(g);
-    const m = new THREE.Mesh(paneGeo, new THREE.ShaderMaterial({ vertexShader: PANE_VS, fragmentShader: PANE_FS, uniforms: u, ...premul }));
+    const m = new THREE.Mesh(paneGeo, new THREE.ShaderMaterial({ vertexShader: PANE_VS, fragmentShader: PANE_FS, uniforms: u, ...premul, depthWrite: fr.alpha >= 1 }));
     m.renderOrder = ro++; g.add(m);
     const e = new THREE.LineSegments(edgeGeo, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
     e.renderOrder = ro++; g.add(e);
@@ -347,7 +350,7 @@ export const mount: Mount = (canvas, section, track) => {
       pn.g.position.set(side(z) + (rm ? 0 : Math.sin(t * 0.21 + i * 1.7) * 0.03 * i * (1 - tip)), rm ? 0 : Math.sin(t * 0.33 + i) * 0.025 * (1 - tip), z - (1 - k) * 0.6);
       const fold = ease.inOutCubic((p - 0.4 - i * 0.07) / 0.24), sc = 1 - fold;
       pn.g.scale.set(Math.max(0.001, sc), Math.max(0.001, sc), 1); pn.g.visible = sc > 0.01;
-      pn.u.a.value = k * (0.35 + 0.65 * out); pn.u.gain.value = pn.gain * breathe * (1 + pulse(z)) * out;
+      pn.u.a.value = pn.alpha >= 1 ? k : k * (0.35 + 0.65 * out); pn.u.gain.value = pn.gain * breathe * (1 + pulse(z)) * out;
       pn.u.col.value.copy(i === 0 ? C_SHARP : i === 1 ? cSoft : cGlow);
       const em = pn.e.material as THREE.LineBasicMaterial;
       em.opacity = pn.edge * k * (1 + pulse(z)); em.color.copy(pn.u.col.value);
