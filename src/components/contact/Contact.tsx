@@ -116,7 +116,7 @@ export function ContactBand() {
         {/* ── the about ── */}
         <section className="ct-about" aria-labelledby="ct-t">
           <p className="t-label bj-lbl ct-eyebrow" data-in="" style={{ ["--d" as string]: "0.05s" }}>Contact</p>
-          <h1 id="ct-t" className="bj-h1 ct-h1">Get in <span className="accent">touch</span></h1>
+          <h1 id="ct-t" className="bj-h1 ct-h1">Get in touch</h1>
           <div className="ct-lede" data-in="" style={{ ["--d" as string]: "0.35s" }}>
             <p>NEAR is the open network where AI agents and people own their assets, data and intelligence.</p>
             <p>Questions, press or partnerships: write to us and the right team will reply.</p>
