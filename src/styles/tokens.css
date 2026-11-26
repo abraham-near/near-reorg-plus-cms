@@ -42,6 +42,8 @@
   /* §2 Fluid type scale: mobile 390 → tablet 768 → desktop 1440 */
   --text-display: clamp(3rem, 1.514rem + 6.095vw, 7rem);
   --text-h1: clamp(2.75rem, 1.914rem + 3.429vw, 5rem);
+  /* Every page hero's h1 (Nov 26, 2026): /research's size, 44px on phones up to 92px at 1920. */
+  --text-page-h1: clamp(2.75rem, 1.2rem + 4.2vw, 5.75rem);
   --text-h2: clamp(2.25rem, 0.9625rem + 5.291vw, 3.5rem); /* 36 on phones (D15) */
   --text-h3: clamp(1.5rem, 1.314rem + 0.762vw, 2rem); /* 24 on phones (D15) */
   --text-h4: clamp(1.125rem, 0.996rem + 0.529vw, 1.25rem);

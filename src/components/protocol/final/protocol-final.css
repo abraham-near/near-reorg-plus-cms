@@ -33,12 +33,12 @@
 .pr-f .pf-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 4vw, 64px); margin: 0 var(--margin);
   padding: clamp(136px, 19vh, 184px) var(--l-pad) clamp(40px, 6vh, 64px); }
 .pr-f .pf-hero__text { display: flex; flex-direction: column; align-items: flex-start; }
-.pr-f .pf-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 clamp(24px, 3.4vh, 36px); font-family: var(--font-mono, ui-monospace, monospace);
-  font-weight: 400; font-size: 12px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
-.pr-f .pf-eyebrow::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--emerald); }
-.pr-f .pf-h1 { margin: 0; max-width: 8.4em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 0.9rem + 4.9vw, 5.5rem); line-height: 0.98;
+.pr-f .pf-h1 { margin: 0; max-width: 8.4em; font-family: var(--sans-display); font-weight: 500; font-size: var(--text-page-h1); line-height: 0.98;
   letter-spacing: var(--t-display-tr); text-wrap: balance; }
 .pr-f .pf-h1 .accent .pb-w { line-height: 0.92; }
+/* The headline under "Protocol": an h2 at the site's h2 size (the home Stack's "Four layers. One system.", v1/stack/stack.css .stk-h2). */
+.pr-f .pf-sub { margin: clamp(16px, 2.4vh, 28px) 0 0; max-width: 13em; font-family: var(--sans-display); font-weight: 500;
+  font-size: var(--text-h2); line-height: 1.1; letter-spacing: var(--tracking-h2); text-wrap: balance; }
 .pr-f .pf-hero__end { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; margin-top: auto; padding-top: clamp(36px, 5vh, 56px); }
 .pr-f .pf-hero__lede { max-width: 25em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); text-wrap: pretty; }
 .pr-f .pf-hero__art { display: grid; place-items: center; padding: clamp(8px, 2vh, 24px) 0 0; }
@@ -193,7 +193,6 @@
   .pr-f .pf-feat__art { padding: 32px var(--l-pad); }
 }
 @media (max-width: 599px) {
-  .pr-f .pf-h1 { font-size: clamp(2.6rem, 1.2rem + 7vw, 3.4rem); }
   .pr-f .pf-code__pre { font-size: 12.5px; padding-right: 16px; }
   .pr-f .pf-code__ln { grid-template-columns: 40px auto; }
   .pr-f .pf-code__no { padding-right: 14px; }
