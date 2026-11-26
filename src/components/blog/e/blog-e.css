@@ -25,7 +25,7 @@
 /* the head: the heading, its line at the right, a hairline under both */
 .be-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 48px; flex-wrap: wrap;
   padding-bottom: clamp(24px, 3.5vh, 40px); }   /* no rule under it (Nov 20, 2026): the space stays */
-.be-h1 { font-weight: 500; font-size: var(--t-display); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
+.be-h1 { font-weight: 500; font-size: var(--text-page-h1); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
 .be-aside { max-width: 24em; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--graphite); padding-bottom: 0.6em; }
 
 /* the lead post: one wide cell, photo left, text right; always on screen (D242) */

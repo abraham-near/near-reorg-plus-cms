@@ -63,7 +63,7 @@
 .an-x .anx-hero__art { grid-column: 2; grid-row: 1; position: relative; z-index: 1; margin: 0 calc(-0.3 * var(--margin)) 0 0; pointer-events: none; }
 .an-x .anx-hero__art .anx-svg { max-height: min(70vh, 680px); }
 .an-x .anx-hero__cam { will-change: transform; }
-.an-x .anx-h1 { font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 1rem + 5.6vw, 7.25rem); line-height: 0.96; letter-spacing: var(--t-display-tr); max-width: 7em; }
+.an-x .anx-h1 { font-family: var(--sans-display); font-weight: 500; font-size: var(--text-page-h1); line-height: 0.96; letter-spacing: var(--t-display-tr); max-width: 7em; }
 .an-x .anx-w { display: inline-block; will-change: transform; }
 .an-x .anx-h1 .anx-w.accent { line-height: 0.9; }
 .an-x .anx-hero__sub { margin-top: clamp(24px, 3.6vh, 40px); max-width: 27em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }

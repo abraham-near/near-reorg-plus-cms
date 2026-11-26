@@ -45,7 +45,7 @@
 .fb-kick { display: flex; align-items: center; gap: 10px; color: var(--ink) !important; }
 .fb-kick i { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); }
 .fb-h1 { margin-top: clamp(20px, 3.4vh, 36px) !important; max-width: 11.8em; font-family: var(--sans-display); font-weight: 500;
-  font-size: clamp(2.6rem, 0.9rem + 5.1vw, 6.4rem); line-height: 0.98; letter-spacing: var(--t-display-tr); text-wrap: balance; }
+  font-size: var(--text-page-h1); line-height: 0.98; letter-spacing: var(--t-display-tr); text-wrap: balance; }
 .fb-w { display: inline-block; vertical-align: baseline; }   /* no mask: the words rise and fade in (hero-motion.ts), so nothing clips the italic accent */
 .fb-wi { display: inline-block; will-change: transform; }
 .fb-h1 .fb-wi.accent { line-height: 0.9; }

@@ -15,7 +15,7 @@
 /* ---------------------------------------------------------------- 1 · hero: copy | the header graphic, no grid */
 .rs-x .rx-hero { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: center; column-gap: clamp(24px, 4vw, 72px);
   min-height: min(86svh, 860px); padding: clamp(136px, 17vh, 184px) var(--margin) clamp(56px, 9vh, 104px); }
-.rs-x .rx-h1 { max-width: 10em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.75rem, 1.2rem + 4.2vw, 5.75rem); line-height: 0.98;
+.rs-x .rx-h1 { max-width: 10em; font-family: var(--sans-display); font-weight: 500; font-size: var(--text-page-h1); line-height: 0.98;
   letter-spacing: var(--t-display-tr); text-wrap: balance; }
 .rs-x .rx-h1 .accent .rx-w, .rs-x .rx-h1 .accent { line-height: 0.92; }
 .rs-x .rx-hero__sub { margin-top: clamp(24px, 3.6vh, 40px); max-width: 32em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr);

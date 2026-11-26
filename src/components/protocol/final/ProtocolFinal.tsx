@@ -65,8 +65,8 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
       <section className="pf-hero" aria-labelledby="pf-h1">
         <div className="pf-hero__text">
           {/* the page's h1 is its name, set as the small label; the headline under it is an h2 at display size (and keeps the h1's word rise) */}
-          <h1 id="pf-h1" className="pf-eyebrow" data-in="">Protocol</h1>
-          <h2 className="pf-h1" data-h1=""><Acc h={HERO.h1} a="agent" /></h2>
+          <h1 id="pf-h1" className="pf-h1" data-h1="">Protocol</h1>
+          <h2 className="pf-sub" data-in=""><Acc h={HERO.h1} a="agent" /></h2>
           <div className="pf-hero__end">
             <p className="pf-hero__lede" data-in="">{HERO.body}</p>
             <p data-in=""><Btn l={HERO.cta} /></p>

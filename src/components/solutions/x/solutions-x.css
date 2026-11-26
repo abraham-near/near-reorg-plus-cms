@@ -33,7 +33,7 @@
 .so-x .sx-hero { position: relative; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: center; column-gap: clamp(24px, 4vw, 72px);
   padding: var(--top) calc(var(--margin) + var(--l-pad)) clamp(56px, 9vh, 104px); }
 .so-x .sx-hero__copy { display: flex; flex-direction: column; gap: clamp(24px, 3.4vh, 36px); }
-.so-x .sx-h1 { max-width: 9em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 1.25rem + 5vw, 6.25rem); line-height: 0.97;
+.so-x .sx-h1 { max-width: 9em; font-family: var(--sans-display); font-weight: 500; font-size: var(--text-page-h1); line-height: 0.97;
   letter-spacing: var(--t-display-tr); text-wrap: balance; }
 .so-x .sx-hero__sub { max-width: 31em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; }
 .so-x .sx-acts { margin-top: 4px; }
