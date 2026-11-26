@@ -36,7 +36,11 @@ const COVERS: Record<string, string> = {
   "https://www.near.org/blog/agent-economy": "/images/home/deeper/home-deeper-who-owns-the-rails-v2.webp",
   "https://www.near.org/blog/making-near-protocol-post-quantum-safe": "/images/home/deeper/home-deeper-quantum-readiness-v2.webp",
 };
-const FEATURED = DEEPER.items.filter((it) => COVERS[it.href]), ROWS = DEEPER.items.filter((it) => !COVERS[it.href]);
+/** a Go deeper item: its link, title, one line, and a cover (null: none) */
+export type DeeperItem = { href: string; title: string; body: string; img: string | null };
+/** the doc's Go deeper items (near.org posts), their lines capitalised, the two with the homepage's photos carrying them */
+export const DEEPER_ITEMS: DeeperItem[] = DEEPER.items.map((it) => ({ href: it.href, title: it.title, body: it.body.charAt(0).toUpperCase() + it.body.slice(1), img: COVERS[it.href] ?? null }));
+const FALLBACK_COVERS = Object.values(COVERS);
 
 /** the code, coloured by a small hand-written pass (keywords, strings, decorators): no highlighter shipped for one block */
 export function codeLine(s: string) {
@@ -54,12 +58,15 @@ export function codeLine(s: string) {
 }
 
 /** 3 · the chapter: the dark band, the three properties, the pinned stage carrying `steps` (all four on B) */
-export function Band({ steps = ["nightshade", "resharding", "private", "quantum"], ids = false }: {
+export function Band({ steps = ["nightshade", "resharding", "private", "quantum"], ids = false, elsewhere = {} }: {
   steps?: readonly StepKey[];
   /** give each step its section's id (#nightshade …), for a page whose index links to them */
   ids?: boolean;
+  /** a property with no step here, by its key (AI_SCALE.items): where on the page it lives instead (the index links there; it never lights) */
+  elsewhere?: Partial<Record<string, string>>;
 }) {
   const on = STEPS.filter((s) => steps.includes(s.k));
+  const has = new Set<number>(on.map((s) => s.of));
   return (
     <section className="l-sec pb-band" aria-labelledby="pb-ai-t" data-nav-tone="dark">
       <div className="pb-band__intro">
@@ -68,12 +75,17 @@ export function Band({ steps = ["nightshade", "resharding", "private", "quantum"
       </div>
       <div className="pb-stage" data-stage="">
         <ol className="pb-idx" aria-label="The three properties">
-          {AI_SCALE.items.map((it, i) => (
-            <li key={it.k} className="pb-idx__i" data-of={i}>
-              <i className="pb-idx__dot" aria-hidden="true" />
-              <p><b>{it.name}</b> {it.body}</p>
-            </li>
-          ))}
+          {AI_SCALE.items.map((it, i) => {
+            const away = !has.has(i) ? elsewhere[it.k] : undefined;
+            return (
+              <li key={it.k} className={`pb-idx__i${away ? " pb-idx__i--away" : ""}`} data-of={i}>
+                <i className="pb-idx__dot" aria-hidden="true" />
+                {away
+                  ? <p><a className="pb-idx__go" href={away}><b>{it.name}</b> {it.body}<svg className="l-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.5M3.5 9 8 13.5 12.5 9" /></svg><span className="sr-only"> (further down the page)</span></a></p>
+                  : <p><b>{it.name}</b> {it.body}</p>}
+              </li>
+            );
+          })}
         </ol>
         <div className="pb-stage__main">
           <div className="pb-steps">
@@ -226,8 +238,11 @@ export function Secure() {
   );
 }
 
-/** 9 · Go deeper: the homepage's (two covers, the rest as rows) */
-export function Deeper() {
+/** 9 · Go deeper: the homepage's (two covers, the rest as rows). `items`: the page's own (the first two as covers, a missing cover taking one of the
+ *  homepage's photos); none: the doc's, the two with photos as covers */
+export function Deeper({ items }: { items?: readonly DeeperItem[] } = {}) {
+  const featured = items ? items.slice(0, 2).map((it, i) => ({ ...it, img: it.img ?? FALLBACK_COVERS[i % FALLBACK_COVERS.length] })) : DEEPER_ITEMS.filter((it) => it.img);
+  const rows = items ? items.slice(2) : DEEPER_ITEMS.filter((it) => !it.img);
   return (
     <section className="l-sec pb-deeper" aria-labelledby="pb-gd-t">
       <Spacer />
@@ -240,16 +255,16 @@ export function Deeper() {
         </div>
       </div>
       <div className="l-row pb-deeper__row" data-row="">
-        {FEATURED.map((it) => (
+        {featured.map((it) => (
           <div key={it.href} className="l-cell l-feat-cell">
             <article className="l-feat">
               <a className="l-feat__a" href={it.href} {...ext(it.href)}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- the homepage's Go deeper covers, as its own markup (lazy, decoded off the main thread) */}
-                <div className="l-ph l-feat__ph" data-ph=""><img className="l-img" src={COVERS[it.href]} alt="" loading="lazy" decoding="async" /></div>
+                <div className="l-ph l-feat__ph" data-ph=""><img className="l-img" src={it.img ?? ""} alt="" loading="lazy" decoding="async" /></div>
                 <span className="l-feat__body">
                   <span className="l-meta t-label">Read</span>
-                  <span className="l-feat__t">{it.title}<span className="sr-only"> (another site)</span></span>
-                  <span className="l-feat__src">{it.body.charAt(0).toUpperCase() + it.body.slice(1)}</span>
+                  <span className="l-feat__t">{it.title}{isExt(it.href) && <span className="sr-only"> (another site)</span>}</span>
+                  {it.body && <span className="l-feat__src">{it.body}</span>}
                 </span>
               </a>
             </article>
@@ -257,12 +272,12 @@ export function Deeper() {
         ))}
         <div className="l-cell l-list-cell">
           <ol className="l-tiles" aria-label="More deep dives">
-            {ROWS.map((it, j) => (
+            {rows.map((it, j) => (
               <li key={it.href} className="l-tile" style={{ ["--j" as string]: j }}>
                 <a className="l-tile__a" href={it.href} {...ext(it.href)}>
                   <i className="l-glyph" data-icon="deeper-read" aria-hidden="true" /><span className="l-tile__meta t-label">Read</span>
-                  <span className="l-tile__t">{it.title}<span className="sr-only"> (another site)</span></span>
-                  <span className="l-tile__src">{it.body.charAt(0).toUpperCase() + it.body.slice(1)}</span>
+                  <span className="l-tile__t">{it.title}{isExt(it.href) && <span className="sr-only"> (another site)</span>}</span>
+                  {it.body && <span className="l-tile__src">{it.body}</span>}
                   <span className="l-tile__go" aria-hidden="true"><Arrow /></span>
                 </a>
               </li>

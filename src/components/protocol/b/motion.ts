@@ -5,7 +5,7 @@
 //   - the hero's scene (net.ts) wipes in from the left over the first ~2 s, then runs (only while it is near the view and the tab is visible); a count
 //     of 600 ms blocks since the page opened ticks in its legend;
 //   - the chapter (desktop, motion on): the stage pins for about 0.9 screen per step; the scroll drives the lanes through the page's steps (B: all
-//     four, Nightshade, resharding, the private shard, quantum; the final page: the first two), blended at each change; the step's copy and the index follow, a hairline shows how far along it is. Phones and
+//     four, Nightshade, resharding, the private shard, quantum; the final page: the first three), blended at each change; the step's copy and the index follow, a hairline shows how far along it is. Phones and
 //     reduced motion: the steps stacked, each scene running its own step on a loop (reduced motion: its finished frame);
 //   - Speed's metronome and Chain Signatures' lanes run while near the view.
 // Reduced motion: no split, no wipe, no pin, no loop: every scene at a finished frame.
@@ -26,7 +26,7 @@ function stepParams(i: number, u: number): NetParams {
     default: return { ...b, reshardU: 1, priv: 1, account: smooth(u / 0.22), rot: clamp01((u - 0.12) / 0.78), dim: 0.62 * smooth(u / 0.22) };
   }
 }
-/** a pinned progress (0..1) through the page's steps (their kinds, in order; B has all four, the final page two): each holds, then blends into the
+/** a pinned progress (0..1) through the page's steps (their kinds, in order; B has all four, the final page three): each holds, then blends into the
  *  next over the last 18 % of its share. `on` is the step's place on the page */
 function atProgress(p: number, kinds: number[]) {
   const n = kinds.length, q = Math.min(n - 0.0001, Math.max(0, p * n)), i = Math.floor(q), u = q - i, HOLD = 0.82;

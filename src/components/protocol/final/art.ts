@@ -5,9 +5,9 @@
 //     A drawing already above the view (a reload mid-page) is simply finished;
 //   - the hero index: a link of the bar under the hero lights its part of the drawing (it lifts 6 px, its small mark turns mint, the others step
 //     back), on hover or focus; once the hero has drawn, the parts light in turn (2.8 s each) while it is in view and nobody points at the bar or the
-//     drawing (back 3.2 s after the pointer leaves). A click on a link (or on a part) scrolls to its section; Nightshade and resharding live in the
+//     drawing (back 3.2 s after the pointer leaves). A click on a link (or on a part) scrolls to its section; Nightshade, resharding and the private shard live in the
 //     pinned chapter, so a click there scrolls to their share of the pin. Reduced motion: no cycle, Private Shard rests lit;
-//   - Go deeper: a row under the pointer or focus lifts its sheet of the shelf;
+//   - Speed. Scale. Access.: the count of ten shards lands cell by cell as it comes in, the mint one last (its plate builds as any drawing);
 //   - the quantum ring's dashes run round the dial while it is in view (CSS, .is-run).
 import type { MotionCtx } from "@/lib/motion/scroll";
 
@@ -136,16 +136,19 @@ export function mountArt(root: HTMLElement, { reduced, ScrollTrigger }: MotionCt
     ac.signal.addEventListener("abort", () => { stopCycle(); clearTimeout(back); });
   }
 
-  /* ── Go deeper: a row lifts its sheet ── */
-  const shelf = root.querySelector<HTMLElement>("figure[data-art='shelf']");
-  if (shelf) {
-    const sheets = [...shelf.querySelectorAll<SVGGElement>("[data-part]")];
-    const lift = (k: string) => { shelf.classList.toggle("has-on", !!k); sheets.forEach((g) => g.classList.toggle("is-on", g.getAttribute("data-part") === k)); };
-    $$<HTMLElement>("[data-part-link]").forEach((a) => {
-      const k = a.dataset.partLink || "";
-      a.addEventListener("pointerenter", () => lift(k), on); a.addEventListener("focus", () => lift(k), on);
-      a.addEventListener("pointerleave", () => lift(""), on); a.addEventListener("blur", () => lift(""), on);
-    });
+  /* ── Speed. Scale. Access.: the count's cells land one by one as it comes in (≤ 0.6 s in all), the mint one last; above the view, or reduced
+     motion: all there ── */
+  const counts = $$<HTMLElement>(".pf-count");
+  if (counts.length && !reduced) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const g = e.target as HTMLElement; io.unobserve(g);
+      const cells = [...g.children] as HTMLElement[], k = per(cells.length, 0.6, 0.03);
+      cells.forEach((c, i) => c.style.setProperty("--d", fx(0.1 + (c.classList.contains("is-mark") ? cells.length : i) * k)));
+      requestAnimationFrame(() => g.classList.add("m-go"));
+    }), { rootMargin: "0px 0px -12% 0px" });
+    observers.push(io);
+    counts.forEach((g) => { if (g.getBoundingClientRect().bottom < 0) return; g.classList.add("m-set"); io.observe(g); });
   }
 
   /* ── the quantum ring runs while in view ── */
@@ -158,6 +161,7 @@ export function mountArt(root: HTMLElement, { reduced, ScrollTrigger }: MotionCt
   return () => {
     ac.abort(); timers.forEach((x) => clearTimeout(x)); observers.forEach((o) => o.disconnect());
     figs.forEach((f) => { finish(f); delete f.dataset.m; delete f.dataset.mEnd; });
+    counts.forEach((g) => { g.classList.remove("m-set", "m-go"); [...g.children].forEach((c) => (c as HTMLElement).style.removeProperty("--d")); });
     light("");
   };
 }
