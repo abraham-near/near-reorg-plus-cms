@@ -2,24 +2,25 @@
 //   V = the Vercel page (near-homepage-directions.vercel.app/protocol, stack-kit r41): isometric plates, the hero's index, a dark run of sections;
 //   B = our version B (../b, now at /protocol-b): the live lanes on canvas, the pinned chapter.
 // From the top:
-//   1 hero (V, bare paper): the eyebrow, the H1, the line and the button | the overview drawing (six plates, one per part of the page);
+//   1 hero (V, bare paper): the h1 "Protocol" (the small label), the headline (an h2 at display size), the line and the button | the overview drawing
+//     (six plates, one per part of the page);
 //   2 the index and the proof (V): the six parts as links with their icons (a link lights its plate; idle, the plates light in turn), the green
 //     rule, six figures: the ruled grid's first rows;
-//   3 the chapter (B): the dark band, "Built for AI scale from day one", the three properties, the pinned lanes through Nightshade 3.0 and dynamic
-//     resharding (B's private shard and quantum steps are V's sections below);
-//   4 Speed. Scale. Access. (B): the copy | the metronome;
-//   5 Private Shard (V): a centred statement under the sealed plate;
-//   6 the dark run (V): Quantum security (the dial) | Chain Signatures (one account, many chains) | A blockchain for developers (the editor | the
-//     three points and the button);
-//   7 the AI layer | NEAR One, then Secure NEAR. Evolve NEAR. (B);
-//   8 Go deeper (V, the gray ground): the heading over the shelf of five sheets | the five posts (a row lifts its sheet);
-//   9 the close: the homepage's scene (shared/CloseScene, in the route) and the footer.
+//   3 the chapter (B): the dark band, "Built for AI scale from day one", the three properties, the pinned lanes through Nightshade 3.0, dynamic
+//     resharding and the private shard (B's band without its quantum step: quantum is V's section below, and the index links to it);
+//   4 Speed. Scale. Access. (V's §6): a light-gray band of three columns, each word over its sentence: the two speeds as display figures, the ten
+//     shards as a count (one mint: deploy once, run on every shard), the in-memory plate;
+//   5 the light run (V's layout, on the page's paper): Quantum security (the dial) | Chain Signatures (one account, many chains) on the ruled grid,
+//     then A blockchain for developers (the editor | the three points and the button);
+//   6 the AI layer | NEAR One, then Secure NEAR. Evolve NEAR. (B);
+//   7 Go deeper (B's: two covers | the rows): the CMS's newest posts (./deeper.ts, read by the route), the doc's items filling any gap;
+//   8 the close: the homepage's scene (shared/CloseScene, in the route) and the footer.
 // Copy: ../content.ts (the doc, verbatim). Drawings: ./drawings.ts. Motion: ./motion.ts (B's, plus ./art.ts). Styles: B's (../b/protocol-b.css, the
 // page runs under .pr-b too) and ./protocol-final.css (.pr-f). A server component: only FinalRoot runs in the browser.
 import type { ReactNode } from "react";
-import { CHAIN_SIGNATURES, DEEPER, DEVELOPERS, HERO, NIGHTSHADE, PRIVATE_SHARD, QUANTUM, RESHARDING, SPEED } from "../content";
-import { Acc, AiAndNearOne, Arrow, Band, Btn, codeLine, ext, More, Secure, Spacer, Speed } from "../b/parts";
-import { HERO as HERO_ART, PRIVATE, QUANTUM as QUANTUM_ART, SHELF, SIGNATURES } from "./drawings";
+import { CHAIN_SIGNATURES, DEVELOPERS, HERO, NIGHTSHADE, PRIVATE_SHARD, QUANTUM, RESHARDING, SPEED } from "../content";
+import { Acc, AiAndNearOne, Arrow, Band, Btn, codeLine, Deeper, More, Secure, Spacer, type DeeperItem } from "../b/parts";
+import { ACCESS, HERO as HERO_ART, QUANTUM as QUANTUM_ART, SIGNATURES } from "./drawings";
 import { FinalRoot } from "./FinalRoot";
 import "../../v3/proof-deeper/proof-deeper.css";
 import "../b/protocol-b.css";
@@ -42,11 +43,6 @@ const ICONS: Record<string, ReactNode> = {
 const Icon = ({ k }: { k: string }) => (
   <svg className="pf-index__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{ICONS[k]}</svg>
 );
-const BlogIcon = () => (
-  <svg className="pf-tile__g" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-    <path d="M14.5 5.5l4 4L9 19H5v-4z" /><path d="M12.5 7.5l4 4" /><path d="M12.5 19h4" /><circle className="g" cx="19.25" cy="19" r="1.25" />
-  </svg>
-);
 
 /** the index: the six parts, by their own headings, in the page's order (the hero drawing's part names) */
 const PARTS = [
@@ -59,15 +55,18 @@ const FIGS = [
   { n: "1.2s", c: "Finality" }, { n: "10", u: "shards", c: "Plus a private shard" }, { n: "<$0.002", c: "Avg transaction fee" },
 ];
 
-export function ProtocolFinal() {
+/** `deeper`: Go deeper's items (the route reads them: ./deeper.ts) */
+export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
   const code = DEVELOPERS.code.split("\n");
+  const [, scaleLine, accessLine] = SPEED.body.split(/(?<=\.)\s+/);   // the doc's three sentences: the speeds (set as figures below), scale, access
   return (
     <FinalRoot>
       {/* ───────────── 1 · hero (V) */}
       <section className="pf-hero" aria-labelledby="pf-h1">
         <div className="pf-hero__text">
-          <p className="pf-eyebrow" data-in="">Protocol</p>
-          <h1 id="pf-h1" className="pf-h1" data-h1=""><Acc h={HERO.h1} a="agent" /></h1>
+          {/* the page's h1 is its name, set as the small label; the headline under it is an h2 at display size (and keeps the h1's word rise) */}
+          <h1 id="pf-h1" className="pf-eyebrow" data-in="">Protocol</h1>
+          <h2 className="pf-h1" data-h1=""><Acc h={HERO.h1} a="agent" /></h2>
           <div className="pf-hero__end">
             <p className="pf-hero__lede" data-in="">{HERO.body}</p>
             <p data-in=""><Btn l={HERO.cta} /></p>
@@ -97,27 +96,41 @@ export function ProtocolFinal() {
         <Spacer />
       </section>
 
-      {/* ───────────── 3 · the chapter (B): Nightshade 3.0 and dynamic resharding on the lanes */}
-      <Band steps={["nightshade", "resharding"]} ids />
+      {/* ───────────── 3 · the chapter (B): Nightshade 3.0, dynamic resharding and the private shard on the lanes; quantum is a section below */}
+      <Band steps={["nightshade", "resharding", "private"]} ids elsewhere={{ quantum: "#quantum" }} />
 
-      {/* ───────────── 4 · Speed. Scale. Access. (B) */}
-      <Speed id="speed" />
-
-      {/* ───────────── 5 · Private Shard (V) */}
-      <section id="private" className="l-sec pf-center" aria-labelledby="pf-pv-t">
-        <div className="l-row" data-row="">
-          <div className="l-cell pf-center__cell">
-            <Art id="private" d={PRIVATE} className="pf-center__art" />
-            <h2 id="pf-pv-t" className="l-h2 pf-h2" data-split=""><Acc h={PRIVATE_SHARD.h} a="Shard" /></h2>
-            <p className="pf-sub" data-rv="">{PRIVATE_SHARD.sub}</p>
-            <p className="pf-body" data-rv="">{PRIVATE_SHARD.body}</p>
-            <p className="pf-more" data-rv=""><More l={PRIVATE_SHARD.link} /></p>
+      {/* ───────────── 4 · Speed. Scale. Access. (V): one heading and one sentence per column. The h2 is read whole ("Speed. Scale. Access."); the
+          column words are its visible form (aria-hidden), each over its own sentence, so a phone stacks them in pairs */}
+      <section id="speed" className="l-sec pf-speed" aria-labelledby="pf-sp-t">
+        <Spacer after />
+        <div className="pf-speed__gray">
+          <h2 id="pf-sp-t" className="sr-only">{SPEED.h}</h2>
+          <div className="l-row pf-speed__row" data-row="">
+            <div className="l-cell pf-speed__col">
+              <p className="l-h2 pf-speed__w" data-split="" aria-hidden="true">Speed.</p>
+              <p className="pf-speed__s pf-nums" data-rv="">
+                <span className="pf-pair"><span className="pf-num">600<span className="pf-num__u">ms</span></span> <span className="pf-lab">blocks</span></span>{" "}
+                <span className="pf-and">and</span>{" "}
+                <span className="pf-pair"><span className="pf-num">1.2<span className="pf-num__u">s</span></span> <span className="pf-lab">finality.</span></span>
+              </p>
+            </div>
+            <div className="l-cell pf-speed__col">
+              <p className="l-h2 pf-speed__w" data-split="" aria-hidden="true">Scale.</p>
+              <p className="pf-speed__s" data-rv="">{scaleLine}</p>
+              {/* the ten shards, every one carrying the contract; the mint one is where it was deployed */}
+              <i className="pf-count" aria-hidden="true">{Array.from({ length: 10 }, (_, i) => <i key={i} className={i === 0 ? "is-mark" : undefined} style={{ ["--i" as string]: i }} />)}</i>
+            </div>
+            <div className="l-cell pf-speed__col">
+              <p className="l-h2 pf-speed__w" data-split="" aria-hidden="true"><span className="accent">Access</span>.</p>
+              <p className="pf-speed__s" data-rv="">{accessLine}</p>
+              <Art id="access" d={ACCESS} className="pf-speed__art" />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ───────────── 6 · the dark run (V): quantum, Chain Signatures, developers */}
-      <div className="pf-dark" data-nav-tone="dark">
+      {/* ───────────── 5 · the light run (V's layout): quantum, Chain Signatures, developers */}
+      <div className="pf-light">
         <section id="quantum" className="l-sec pf-feat" aria-labelledby="pf-q-t">
           <Spacer />
           <div className="l-row pf-feat__row pf-feat__row--q" data-row="">
@@ -178,37 +191,12 @@ export function ProtocolFinal() {
         </section>
       </div>
 
-      {/* ───────────── 7 · the AI layer | NEAR One; Secure NEAR. Evolve NEAR. (B) */}
+      {/* ───────────── 6 · the AI layer | NEAR One; Secure NEAR. Evolve NEAR. (B) */}
       <AiAndNearOne />
       <Secure />
 
-      {/* ───────────── 8 · Go deeper (V): the shelf | the posts */}
-      <section className="l-sec pf-deeper" aria-labelledby="pf-gd-t">
-        <Spacer />
-        <div className="pf-gray">
-          <div className="l-row pf-deeper__row" data-row="">
-            <div className="l-cell pf-deeper__head">
-              <h2 id="pf-gd-t" className="l-h2 pf-h2" data-split=""><Acc h={DEEPER.h} a="deeper" /></h2>
-              <p className="pf-sub pf-deeper__sub" data-rv="">{DEEPER.sub}</p>
-              <Art id="shelf" d={SHELF} className="pf-shelf" />
-            </div>
-            <div className="l-cell pf-deeper__list">
-              <ol className="pf-tiles">
-                {DEEPER.items.map((it, j) => (
-                  <li key={it.href} className="pf-tile">
-                    <a className="pf-tile__a" href={it.href} data-part-link={j + 1} {...ext(it.href)}>
-                      <BlogIcon />
-                      <span className="pf-tile__t">{it.title}</span>
-                      <span className="pf-tile__s">{it.body.charAt(0).toUpperCase() + it.body.slice(1)}<span className="sr-only"> (another site)</span></span>
-                      <Arrow />
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ───────────── 7 · Go deeper (B's): the CMS's newest posts */}
+      <Deeper items={deeper} />
     </FinalRoot>
   );
 }

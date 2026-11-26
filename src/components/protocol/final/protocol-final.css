@@ -1,7 +1,6 @@
 /* The final Protocol page (ProtocolFinal.tsx): the parts that come from the Vercel page (stack-kit r41: sections.css, motion.css §4 and §9,
    surfaces.css), ported onto the homepage's ruled grid (proof-deeper.css: .l-row / .l-cell, the + crosshairs, the arrivals) in the site's tokens.
    B's parts keep their own styles (../b/protocol-b.css: the page also runs under .pr-b). Motion only under .pr-f[data-motion]. Scoped under .pr-f. */
-.pr-f { --pf-dark: #262626; --pf-paper: #f5f4f1; }
 .pr-f .pf-h2 { max-width: 13em; text-wrap: balance; }
 .pr-f .pf-sub { font-family: var(--font-text, var(--sans)); font-weight: 400; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); color: var(--ink); max-width: 18em; text-wrap: balance; }
 .pr-f .pf-body { font-size: var(--t-small); line-height: 1.6; color: var(--graphite); max-width: 30em; text-wrap: pretty; }
@@ -34,10 +33,10 @@
 .pr-f .pf-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 4vw, 64px); margin: 0 var(--margin);
   padding: clamp(136px, 19vh, 184px) var(--l-pad) clamp(40px, 6vh, 64px); }
 .pr-f .pf-hero__text { display: flex; flex-direction: column; align-items: flex-start; }
-.pr-f .pf-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin-bottom: clamp(24px, 3.4vh, 36px); font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 12px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
+.pr-f .pf-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 clamp(24px, 3.4vh, 36px); font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 400; font-size: 12px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
 .pr-f .pf-eyebrow::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--emerald); }
-.pr-f .pf-h1 { max-width: 8.4em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 0.9rem + 4.9vw, 5.5rem); line-height: 0.98;
+.pr-f .pf-h1 { margin: 0; max-width: 8.4em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(3rem, 0.9rem + 4.9vw, 5.5rem); line-height: 0.98;
   letter-spacing: var(--t-display-tr); text-wrap: balance; }
 .pr-f .pf-h1 .accent .pb-w { line-height: 0.92; }
 .pr-f .pf-hero__end { display: flex; flex-direction: column; align-items: flex-start; gap: 32px; margin-top: auto; padding-top: clamp(36px, 5vh, 56px); }
@@ -59,27 +58,33 @@
 .pr-f .pf-proof .l-fig__u { font-size: var(--t-small); }
 .pr-f .pf-top .l-spacer .l-cell { height: clamp(40px, 6vh, 56px); }   /* the Figma's short stub between the figures and the dark band */
 
-/* ---------------------------------------------------------------- 5 · Private Shard (V): the drawing, then the heading and its text on one axis */
-.pr-f .pf-center__cell { display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(56px, 8vh, 80px) var(--l-pad) clamp(56px, 8vh, 72px); }
-.pr-f .pf-center__art { max-width: 440px; margin-bottom: clamp(36px, 5vh, 56px); }
-.pr-f .pf-center__cell .pf-h2 { margin-inline: auto; }
-.pr-f .pf-center__cell .pf-sub { max-width: 24em; margin: 20px auto 14px; }
-.pr-f .pf-center__cell .pf-body { max-width: 30em; margin-inline: auto; }
-.pr-f .pf-center__cell .pf-more { margin-top: 18px; }
+/* ---------------------------------------------------------------- 4 · Speed. Scale. Access. (V's §6, page.css: .pr-speed): the light-gray band (their
+   .sf-gray, --paper-2) on the ruled grid, three columns, each word over its sentence; the speeds as display figures (80, the unit at 0.4 × in gray),
+   "and" a small gray connector; under Scale the count of the ten shards (kd-count--l --fill: 28 px cells, a dot in each, the first mint); under
+   Access the in-memory plate, at the column's foot */
+.pr-f .pf-speed__gray { background: #ebeae6; }
+.pr-f .pf-speed__row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pr-f .pf-speed__col { display: flex; flex-direction: column; align-items: flex-start; gap: 28px; padding-top: clamp(48px, 7vh, 56px); padding-bottom: 36px; }
+.pr-f .pf-speed__w .accent .pb-w { line-height: 0.92; }
+.pr-f .pf-speed__s { display: block; max-width: 15em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--ink); text-wrap: pretty; }
+.pr-f .pf-nums { display: flex; flex-wrap: nowrap; align-items: flex-end; column-gap: 14px; row-gap: 12px; max-width: none; }
+.pr-f .pf-pair { display: inline-flex; flex-direction: column; flex: none; gap: 6px; }
+.pr-f .pf-num { font-family: var(--sans); font-size: clamp(48px, 4.3vw, 5.5rem); line-height: 0.95; letter-spacing: -0.04em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pr-f .pf-num__u { font-size: 0.4em; letter-spacing: 0; margin-left: 0.08em; color: var(--muted); }
+.pr-f .pf-lab { font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); }
+.pr-f .pf-and { padding-bottom: 1.9em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--muted); }
+.pr-f .pf-count { --c: 28px; display: grid; grid-template-columns: repeat(5, var(--c)); gap: calc(var(--c) / 3); width: max-content; }
+.pr-f .pf-count > i { position: relative; display: block; width: var(--c); height: var(--c); box-shadow: inset 0 0 0 var(--hair) rgb(38 38 38 / 0.55); }
+.pr-f .pf-count > i::after { content: ""; position: absolute; inset: 38%; border-radius: 50%; background: rgb(17 17 17 / 0.7); }
+.pr-f .pf-count > i.is-mark::after { inset: 28%; background: var(--emerald); }
+.pr-f .pf-speed__art { width: min(200px, 60%); margin: auto 0 0; }
+/* the cells land one by one as the count comes in (theirs: ≤ 0.6 s in all), the mint one last (art.ts sets .m-set, then .m-go) */
+:where(.pr-f[data-motion]) .pf-count.m-set > i { opacity: 0; scale: 0.4; }
+:where(.pr-f[data-motion]) .pf-count.m-set.m-go > i { opacity: 1; scale: 1; transition: opacity 0.3s var(--ease-glide) var(--d, 0s), scale 0.45s var(--ease-settle) var(--d, 0s); }
 
-/* ---------------------------------------------------------------- 6 · the dark run (V's .sf-dark sections and the dev band): charcoal with a fine dot
-   grid and a light rising from the low right; paper type; the grid's rules at 18 %, its + at 70 % */
-.pr-f .pf-dark { --ink: #f5f4f1; --graphite: rgb(245 244 241 / 0.76); --muted: rgb(245 244 241 / 0.6); --line: rgb(245 244 241 / 0.12); --line-strong: rgb(245 244 241 / 0.18);
-  --l-line: var(--line-strong); --l-soft: var(--line); --l-x: rgb(245 244 241 / 0.7); --paper-1: rgb(245 244 241 / 0.05);
-  position: relative; color: var(--ink);
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='1' height='1' fill='%23f5f4f1' fill-opacity='.09'/%3E%3C/svg%3E") var(--margin) 12px / 24px 24px repeat,
-              radial-gradient(70% 60% at 96% 104%, rgb(245 244 241 / 0.07), rgb(245 244 241 / 0) 70%),
-              linear-gradient(170deg, #1d1d1d 0%, #232323 30%, #2a2a29 70%, #2e2e2d 100%);
-  background-color: var(--pf-dark); }
-.pr-f .pf-dark :focus-visible { outline-color: var(--ink); }
-.pr-f .pf-dark .pb-btn { background: var(--pf-paper); color: var(--pf-dark); }
-@media (hover: hover) { .pr-f .pf-dark .pb-btn:hover { background: #fff; color: var(--pf-dark); } }
-.pr-f .pf-dark .l-spacer .l-cell { height: clamp(40px, 6vh, 56px); }
+/* ---------------------------------------------------------------- 5 · the light run (V's quantum, Chain Signatures and dev band, in the page's light
+   tokens): the ruled grid with its + for the two feature rows, the dev band off the grid; ink type on the page's paper */
+.pr-f .pf-light .l-spacer .l-cell { height: clamp(40px, 6vh, 56px); }
 /* a feature row: the copy | the drawing (quantum 7 | 5, Chain Signatures 5 | 7) */
 .pr-f .pf-feat__row--q { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
 .pr-f .pf-feat__row--sig { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
@@ -93,15 +98,15 @@
 .pr-f .pf-art--sig { max-width: 520px; }
 /* the big onward link (V's .l-link--cta): the head face at h4, a standing hairline under the words, the arrow in a ring that fills on hover */
 .pr-f .pf-cta { display: inline-flex; align-items: center; gap: 16px; font-family: var(--font-text, var(--sans)); font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr);
-  text-decoration: underline 1px rgb(245 244 241 / 0.36); text-underline-offset: 7px; transition: text-decoration-color 0.3s var(--ease-glide); }
+  text-decoration: underline 1px rgb(38 38 38 / 0.36); text-underline-offset: 7px; transition: text-decoration-color 0.3s var(--ease-glide); }
 .pr-f .pf-cta .l-arr { box-sizing: content-box; width: 16px; height: 16px; padding: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor;
   transition: background-color 0.3s var(--ease-glide), color 0.3s var(--ease-glide), translate 0.24s var(--ease-tick); }
 @media (hover: hover) {
   .pr-f .pf-cta:hover { text-decoration-color: currentColor; }
-  .pr-f .pf-cta:hover .l-arr { background: var(--pf-paper); color: var(--pf-dark); }
+  .pr-f .pf-cta:hover .l-arr { background: var(--ink); color: var(--paper-0); }
 }
-/* developers (V's dev band): off the grid's rules (no frame, no +), the four diagonals in the corners; the heading | its line, the editor | the points */
-.pr-f .pf-dev { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 800' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23f5f4f1' stroke-opacity='.3' stroke-width='1' stroke-dasharray='1.5 4.5'%3E%3Cpath d='M-20 820 L280 734' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M1000 -20 L1460 150' stroke-opacity='.22' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M1010 830 L1460 560' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M-20 170 L330 -20' stroke-opacity='.18' vector-effect='non-scaling-stroke'/%3E%3C/g%3E%3C/svg%3E") 50% 50% / cover no-repeat;
+/* developers (V's dev band): off the grid's rules (no frame, no +), the four dotted diagonals in the corners; the heading | its line, the editor | the points */
+.pr-f .pf-dev { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 800' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23262626' stroke-opacity='.3' stroke-width='1' stroke-dasharray='1.5 4.5'%3E%3Cpath d='M-20 820 L280 734' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M1000 -20 L1460 150' stroke-opacity='.22' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M1010 830 L1460 560' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M-20 170 L330 -20' stroke-opacity='.18' vector-effect='non-scaling-stroke'/%3E%3C/g%3E%3C/svg%3E") 50% 50% / cover no-repeat;
   padding-bottom: clamp(64px, 10vh, 112px); }
 .pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row)::before, .pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row)::after,
 .pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row) > .l-cell + .l-cell::before, .pr-f .pf-dev :is(.pf-dev__head, .pf-dev__row) > .l-x { display: none; }
@@ -109,20 +114,21 @@
 .pr-f .pf-dev__h { padding-top: clamp(40px, 6vh, 64px); padding-bottom: clamp(28px, 4vh, 40px); }
 .pr-f .pf-dev__lede { display: flex; align-items: flex-end; padding-bottom: clamp(32px, 4.4vh, 44px); }
 .pr-f .pf-dev__lede .pf-sub { max-width: 22em; color: var(--graphite); }
+/* the editor, light: a white sheet in a mint hairline; strings in the deep green (mint on paper is too faint to read) */
 .pr-f .pf-code__cell { display: flex; flex-direction: column; padding-top: 8px; }
-.pr-f .pf-code { flex: 1; display: flex; flex-direction: column; margin: 0; border-radius: 4px; background: rgb(22 22 22 / 0.62); box-shadow: inset 0 0 0 1px rgb(0 220 141 / 0.45); overflow: hidden; }
-.pr-f .pf-code__bar { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-bottom: 1px solid rgb(0 220 141 / 0.22); flex: none; }
-.pr-f .pf-code__bar > i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(245 244 241 / 0.34); }
+.pr-f .pf-code { flex: 1; display: flex; flex-direction: column; margin: 0; border-radius: 4px; background: #fbfbf9; box-shadow: inset 0 0 0 1px rgb(0 168 107 / 0.5); overflow: hidden; }
+.pr-f .pf-code__bar { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-bottom: 1px solid rgb(0 168 107 / 0.24); flex: none; }
+.pr-f .pf-code__bar > i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(38 38 38 / 0.3); }
 .pr-f .pf-code__bar > i:first-child { background: var(--emerald); box-shadow: none; }
 .pr-f .pf-code__pre { flex: 1; margin: 0; padding: 28px 32px 32px 0; overflow-x: auto; font-family: var(--font-mono, ui-monospace, monospace); font-size: 14px; line-height: 1.75;
-  color: rgb(245 244 241 / 0.86); tab-size: 2; }
+  color: rgb(38 38 38 / 0.86); tab-size: 2; }
 .pr-f .pf-code code { display: block; min-width: max-content; }
 .pr-f .pf-code__ln { display: grid; grid-template-columns: 56px auto; }
-.pr-f .pf-code__no { padding-right: 24px; text-align: right; color: rgb(245 244 241 / 0.26); user-select: none; }
+.pr-f .pf-code__no { padding-right: 24px; text-align: right; color: rgb(38 38 38 / 0.32); user-select: none; }
 .pr-f .pf-code__t { white-space: pre; }
-.pr-f .pf-t-k, .pr-f .pf-t-y { color: #f5f4f1; }
-.pr-f .pf-t-s { color: #00dc8d; }
-.pr-f .pf-t-d { color: rgb(245 244 241 / 0.56); }
+.pr-f .pf-t-k, .pr-f .pf-t-y { color: var(--ink); font-weight: 500; }
+.pr-f .pf-t-s { color: var(--green-text); }
+.pr-f .pf-t-d { color: var(--muted); }
 .pr-f .pf-code__caret { display: inline-block; width: 0.6em; height: 1.15em; margin-left: 2px; vertical-align: -0.2em; background: var(--emerald); opacity: 0.85; }
 :where(.pr-f[data-motion]) .pf-code__caret { animation: pf-blink 1.1s steps(1) infinite; }
 @keyframes pf-blink { 50% { opacity: 0; } }
@@ -132,35 +138,20 @@
 .pr-f .pf-dev__side { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 36px; padding-top: 8px; }
 /* the points (V's .pg-feats: rows between hairlines, a small dot with a short lead, the first row marked by a bar and a faint wash) */
 .pr-f .pf-feats { align-self: stretch; }
-.pr-f .pf-feats li { position: relative; display: block; padding: 22px 16px 24px 40px; border-top: var(--hair) solid rgb(245 244 241 / 0.14); font-size: var(--t-small); line-height: 1.55; }
-.pr-f .pf-feats li:last-child { border-bottom: var(--hair) solid rgb(245 244 241 / 0.14); }
-.pr-f .pf-feats li:first-child { background: linear-gradient(90deg, rgb(245 244 241 / 0.05), transparent 60%); }
-.pr-f .pf-feats li:first-child::before { content: ""; position: absolute; left: 0; top: -1px; bottom: 0; width: 2px; background: rgb(245 244 241 / 0.7); }
+.pr-f .pf-feats li { position: relative; display: block; padding: 22px 16px 24px 40px; border-top: var(--hair) solid var(--l-soft); font-size: var(--t-small); line-height: 1.55; }
+.pr-f .pf-feats li:last-child { border-bottom: var(--hair) solid var(--l-soft); }
+.pr-f .pf-feats li:first-child { background: linear-gradient(90deg, rgb(38 38 38 / 0.04), transparent 60%); }
+.pr-f .pf-feats li:first-child::before { content: ""; position: absolute; left: 0; top: -1px; bottom: 0; width: 2px; background: var(--ink); }
 .pr-f .pf-feats__t { position: relative; display: block; margin-bottom: 6px; font-size: var(--t-h4); line-height: var(--t-h4-lh); letter-spacing: var(--t-h4-tr); font-weight: 500; color: var(--ink); }
-.pr-f .pf-feats__t::before { content: ""; position: absolute; left: -24px; top: calc(0.5lh - 2.5px); width: 5px; height: 5px; border-radius: 50%; background: rgb(245 244 241 / 0.55); }
-.pr-f .pf-feats__t::after { content: ""; position: absolute; left: -17px; top: calc(0.5lh - 0.5px); width: 9px; height: 1px; background: rgb(245 244 241 / 0.3); }
-.pr-f .pf-feats li:first-child .pf-feats__t::before { background: var(--ink); }
+.pr-f .pf-feats__t::before { content: ""; position: absolute; left: -24px; top: calc(0.5lh - 2.5px); width: 5px; height: 5px; border-radius: 50%; background: rgb(38 38 38 / 0.45); }
+.pr-f .pf-feats__t::after { content: ""; position: absolute; left: -17px; top: calc(0.5lh - 0.5px); width: 9px; height: 1px; background: rgb(38 38 38 / 0.25); }
+.pr-f .pf-feats li:first-child .pf-feats__t::before { background: var(--emerald); }
 .pr-f .pf-feats__b { display: block; max-width: 30em; color: var(--graphite); }
 
-/* ---------------------------------------------------------------- 8 · Go deeper (V): the gray ground; the heading over the shelf | the posts */
-.pr-f .pf-gray { background: #ebeae6; }
-.pr-f .pf-deeper__row { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
-.pr-f .pf-deeper__head { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding-top: clamp(48px, 7vh, 64px); padding-bottom: clamp(32px, 5vh, 48px); }
-.pr-f .pf-deeper__sub { margin-top: 18px; max-width: 22em; font-size: var(--t-body); color: var(--graphite); }
-.pr-f .pf-shelf { max-width: 240px; margin: clamp(32px, 5vh, 48px) 0 0 clamp(0px, 2vw, 32px); }
-.pr-f .pf-deeper__list { padding-top: clamp(24px, 4vh, 40px); padding-bottom: clamp(24px, 4vh, 40px); }
-.pr-f .pf-tile + .pf-tile { border-top: var(--hair) solid var(--l-soft); }
-.pr-f .pf-tile__a { position: relative; isolation: isolate; display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; column-gap: 14px; padding: 22px 0 24px; }
-.pr-f .pf-tile__a::before { content: ""; position: absolute; z-index: -1; inset: 0 calc(var(--l-pad) * -0.5); background: #e2e1dd; transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.45s var(--ease-settle); }
-.pr-f .pf-tile__g { grid-column: 1; grid-row: 1; width: 16px; height: 16px; color: var(--ink); }
-.pr-f .pf-tile__g .g { fill: var(--emerald); stroke: none; }
-.pr-f .pf-tile__t { grid-column: 2; grid-row: 1; font-size: var(--t-small); font-weight: 500; line-height: 1.3; text-wrap: balance; }
-/* the line under the title opens on hover or focus (it stays inside the link, so a screen reader reads it with the title) */
-.pr-f .pf-tile__s { grid-column: 2; grid-row: 2; display: block; max-height: 0; overflow: hidden; opacity: 0; font-size: var(--t-caption); line-height: var(--t-caption-lh); color: var(--muted);
-  transition: max-height 0.4s var(--ease-glide), opacity 0.4s var(--ease-glide), margin-top 0.4s var(--ease-glide); }
-.pr-f .pf-tile__a .l-arr { grid-column: 3; grid-row: 1 / span 2; opacity: 0; translate: -6px 0; transition: opacity 0.2s var(--ease-tick), translate 0.3s var(--ease-settle); }
-.pr-f .pf-tile__a:is(:hover, :focus-visible) .pf-tile__s { max-height: 3em; opacity: 1; margin-top: 6px; }
-@media (hover: hover) { .pr-f .pf-tile__a:hover::before { transform: none; } .pr-f .pf-tile__a:hover .l-arr { opacity: 1; translate: none; } }
+/* ---------------------------------------------------------------- 7 · Go deeper (B's, ../b/protocol-b.css): a CMS excerpt can run long; one line
+   under a cover's title (two at most), one under a row's */
+.pr-f .pb-deeper .l-feat__src { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.pr-f .pb-deeper .l-tile__src { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .pr-f *, .pr-f *::before, .pr-f *::after { transition: none !important; animation: none !important; }
@@ -173,6 +164,7 @@
   .pr-f .pf-proof .pf-fig:nth-of-type(4)::before { display: none; }
 }
 @media (max-width: 1099px) {
+  .pr-f .pf-nums { flex-wrap: wrap; }
   .pr-f .pf-hero { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
   .pr-f .pf-hero__art { padding: 0; }
   .pr-f .pf-art--hero { max-width: 560px; }
@@ -191,14 +183,14 @@
   .pr-f .pf-proof .pf-fig::before { display: none; }
   .pr-f .pf-proof .l-fig__v { font-size: 1.75rem; }
   .pr-f .pf-proof .l-fig__c { margin-top: 0; }
-  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-deeper__row) { grid-template-columns: minmax(0, 1fr); }
-  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-deeper__row) > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
-  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-deeper__row) > .l-cell + .l-cell::before { display: none; }
+  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-speed__row) { grid-template-columns: minmax(0, 1fr); }
+  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-speed__row) > .l-cell + .l-cell { border-top: var(--hair) solid var(--l-line); }
+  .pr-f :is(.pf-feat__row--q, .pf-feat__row--sig, .pf-speed__row) > .l-cell + .l-cell::before { display: none; }
+  .pr-f .pf-speed__col { gap: 20px; padding-top: 36px; padding-bottom: 32px; }
+  .pr-f .pf-nums { flex-wrap: nowrap; }
+  .pr-f .pf-speed__art { width: min(180px, 50%); margin-top: 8px; }
   .pr-f .pf-feat__text { padding-top: 40px; padding-bottom: 36px; }
   .pr-f .pf-feat__art { padding: 32px var(--l-pad); }
-  .pr-f .pf-shelf { max-width: 200px; }
-  .pr-f .pf-tile__s { max-height: none; opacity: 1; margin-top: 6px; }   /* no hover on a phone: the line shows */
-  .pr-f .pf-tile__a .l-arr { opacity: 1; translate: none; }
 }
 @media (max-width: 599px) {
   .pr-f .pf-h1 { font-size: clamp(2.6rem, 1.2rem + 7vw, 3.4rem); }

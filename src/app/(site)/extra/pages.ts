@@ -8,10 +8,11 @@ export const GROUPS: Group[] = [
   {
     id: "home",
     title: "Homepage",
-    note: "Homepage versions that were not chosen. The homepage (/) is home v10, Stack second (since Nov 20, 2026; v9 before it); home v7, the film hero, is at /home-v7 on /index.",
+    note: "Homepage versions that were not chosen. The homepage (/) is v10's cycling hero in home v7's order: hero, rail, Stack (since Nov 25, 2026; the same page as v8); home v7, the film hero, is at /home-v7 on /index.",
     pages: [
+      { href: "/home-v10", n: "v10", name: "Home · Stack second", note: "Home v8 with the Stack and Real Usage moved up, straight after the hero, and the rail after them. The homepage Nov 20–25, 2026.", tags: ["Type-only hero", "Cycling word", "Stack second"], img: "/extra/home-v10.webp" },
       { href: "/home-v9", n: "v9", name: "Home · still headline", note: "The homepage until Nov 20, 2026: one type-only section, \"NEAR is privacy for onchain capital and the agent economy.\", and two sentences under it; then the rail, the Stack in lit matte and the same lower page.", tags: ["Type-only hero", "Still headline", "Branch NEAR-is-privacy-HEADLINE"], img: "/extra/home-v9.webp" },
-      { href: "/home-v8", n: "v8", name: "Home · cycling word", note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it, on the same lower page. The homepage Nov 19–20, until v9 was chosen again.", tags: ["Type-only hero", "Cycling word", "Not chosen"], img: "/extra/home-v8.webp" },
+      { href: "/home-v8", n: "v8", name: "Home · cycling word", note: "Home v9 with \"NEAR is private\" and a word that cycles (AI, money, markets… cross-chain) until it rests on \"by design\", and the intro's paragraph under it, on the same lower page. The homepage Nov 19–20, until v9 was chosen again; its order (hero, rail, Stack) is the homepage again since Nov 25 with this hero.", tags: ["Type-only hero", "Cycling word", "Not chosen"], img: "/extra/home-v8.webp" },
     ],
   },
   {
