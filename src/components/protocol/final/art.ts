@@ -103,7 +103,8 @@ export function mountArt(root: HTMLElement, { reduced, ScrollTrigger }: MotionCt
   parts.forEach((g) => g.addEventListener("click", () => go(g.getAttribute("data-part") || ""), on));
 
   if (hero && parts.length) {
-    const order = links.map((a) => a.dataset.part || "");
+    // the cycle's order: the index links' when the page has them, else the drawing's own parts
+    const order = links.length ? links.map((a) => a.dataset.part || "") : [...new Set(parts.map((g) => g.getAttribute("data-part") || ""))];
     const REST = order.includes("private") ? "private" : order[0];
     let held = false, seen = false, cyc = 0, k = 0, back = 0;
     const stopCycle = () => { clearInterval(cyc); cyc = 0; };
