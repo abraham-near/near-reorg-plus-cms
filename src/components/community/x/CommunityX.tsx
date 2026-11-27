@@ -117,7 +117,7 @@ export function CommunityX() {
       {/* ───────────── 5 · socials: the channels, each with its dot icon */}
       <section className="cmx-sec cmx-socials" id="socials" aria-labelledby="cmx-socials-t">
         <div className="cmx-socials__head">
-          <h2 id="cmx-socials-t" className="cmx-h2" data-rise=""><Acc t={SOCIALS_HEAD.h} a="conversation" /></h2>
+          <h2 id="cmx-socials-t" className="cmx-h2" data-rise="">{SOCIALS_HEAD.h}</h2>
           <p className="cmx-lede" data-rv="">{SOCIALS_HEAD.sub}</p>
         </div>
         <ul className="cmx-grid cmx-ch">
@@ -145,7 +145,7 @@ export function CommunityX() {
 
       {/* ───────────── 6 · ways to get involved: four short ways, each with its dot icon */}
       <section className="cmx-sec cmx-ways" id="get-involved" aria-labelledby="cmx-ways-t">
-        <h2 id="cmx-ways-t" className="cmx-h2 cmx-ways__h" data-rise=""><Acc t={WAYS_HEAD.h} a="life" /></h2>
+        <h2 id="cmx-ways-t" className="cmx-h2 cmx-ways__h" data-rise="">{WAYS_HEAD.h}</h2>
         <ul className="cmx-grid cmx-ways__list">
           {WAYS.map((w, i) => (
             <li key={w.key} className="cmx-cell">
@@ -169,7 +169,7 @@ export function CommunityX() {
       {/* ───────────── 7 · the FAQ: a quiet accordion */}
       <section className="cmx-sec cmx-faq" id="faq" aria-labelledby="cmx-faq-t">
         <div className="cmx-faq__head">
-          <h2 id="cmx-faq-t" className="cmx-h2" data-rise=""><Acc t="Frequently asked questions" a="questions" /></h2>
+          <h2 id="cmx-faq-t" className="cmx-h2" data-rise="">Frequently asked questions</h2>
           {FAQ.some((f) => f.sample) && <p className="cmx-faq__note" data-rv=""><Sample>Sample answers</Sample><span>The questions are final; the answers are placeholders until the community team writes them.</span></p>}
         </div>
         <div className="cmx-faq__list">

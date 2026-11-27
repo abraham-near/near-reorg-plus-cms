@@ -65,7 +65,7 @@ export function FoundationE() {
       <section className="fe-small" id="fb-mission" aria-labelledby="fe-small-t">
         <div className="fe-small__stage">
           <h2 id="fe-small-t" className="fe-small__h">
-            <span className="fe-small__l">Our goal is to make</span> <span className="fe-small__l">ourselves <span className="accent fe-small__acc">smaller.</span><span className="fe-small__sq" aria-hidden="true" /></span>
+            <span className="fe-small__l">Our goal is to make</span> <span className="fe-small__l">ourselves <span className="accent fe-small__acc">smaller</span><span className="fe-small__sq" aria-hidden="true" /></span>
           </h2>
           <div className="fe-small__body">
             <p className="fe-small__lead"><span className="fe-sn">Most organizations exist to grow.</span> <span className="fe-sn">The NEAR Foundation exists to devolve.</span></p>
@@ -83,7 +83,7 @@ export function FoundationE() {
             <b className="l-x fe-x" aria-hidden="true" /><b className="l-x fe-x fe-x--r fe-x--m" aria-hidden="true" />
           </div>
           <div className="l-cell fe-box__txt fb-tr__txt">
-            <h2 id="fb-tr-t" className="fb-h2" data-fb-rv="">Transparency is at the heart of <span className="accent">who we are</span></h2>
+            <h2 id="fb-tr-t" className="fb-h2" data-fb-rv="">Transparency is at the heart of who we are</h2>
             <p className="l-lede fb-tr__p" data-fb-rv="">The NEAR Foundation is a Swiss Stiftung. It is neither simple nor flexible to operate, by design: Swiss jurisdiction imposes strict regulatory oversight, and a Stiftung is legally bound to pursue its purpose. Funds given to it cannot be removed for any reason except the fulfillment of that purpose.</p>
             <p className="fb-tr__pull" data-fb-rv="">Transparency is not a value we chose. It is a condition of how we are built.</p>
             <b className="l-x fe-x" aria-hidden="true" /><b className="l-x fe-x fe-x--r" aria-hidden="true" />
@@ -96,7 +96,7 @@ export function FoundationE() {
         <div className="l-row f-council__row" data-row="">
           <div className="l-cell f-council__h">
             <i className="l-ic" data-icon="governance" data-icon-size="20" aria-hidden="true" />
-            <h2 id="fb-council-t" className="l-h2 l-h2--m" data-rv="">The NEAR Foundation <span className="accent">Council</span></h2>
+            <h2 id="fb-council-t" className="l-h2 l-h2--m" data-rv="">The NEAR Foundation Council</h2>
           </div>
           <div className="l-cell f-council__b">
             <p className="l-lede" data-rv="">The NEAR Foundation Council is the governing body of the Foundation, responsible for its ultimate oversight and its most significant decisions. The Council is separate from the executive team, which the Council empowers to manage day-to-day operations and which reports back to it.</p>
