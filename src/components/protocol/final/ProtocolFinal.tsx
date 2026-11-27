@@ -4,8 +4,8 @@
 // From the top:
 //   1 hero (V, bare paper): the h1 "Protocol" (the small label), the headline (an h2 at display size), the line and the button | the overview drawing
 //     (six plates, one per part of the page);
-//   2 the index and the proof (V): the six parts as links with their icons (a link lights its plate; idle, the plates light in turn), the green
-//     rule, six figures: the ruled grid's first rows;
+//   2 the proof (V): the green rule and six figures, the ruled grid's first row, sitting right on the dark band (idle, the hero's plates
+//     light in turn; a hover lights one);
 //   3 the chapter (B): the dark band, "Built for AI scale from day one", the three properties, the pinned lanes through Nightshade 3.0, dynamic
 //     resharding and the private shard (B's band without its quantum step: quantum is V's section below, and the index links to it);
 //   4 Speed. Scale. Access. (V's §6): a light-gray band of three columns, each word over its sentence: the two speeds as display figures, the ten
@@ -17,8 +17,7 @@
 //   8 the close: the homepage's scene (shared/CloseScene, in the route) and the footer.
 // Copy: ../content.ts (the doc, verbatim). Drawings: ./drawings.ts. Motion: ./motion.ts (B's, plus ./art.ts). Styles: B's (../b/protocol-b.css, the
 // page runs under .pr-b too) and ./protocol-final.css (.pr-f). A server component: only FinalRoot runs in the browser.
-import type { ReactNode } from "react";
-import { CHAIN_SIGNATURES, DEVELOPERS, HERO, NIGHTSHADE, PRIVATE_SHARD, QUANTUM, RESHARDING, SPEED } from "../content";
+import { CHAIN_SIGNATURES, DEVELOPERS, HERO, QUANTUM, SPEED } from "../content";
 import { Acc, AiAndNearOne, Arrow, Band, Btn, codeLine, Deeper, More, Secure, Spacer, type DeeperItem } from "../b/parts";
 import { ACCESS, HERO as HERO_ART, QUANTUM as QUANTUM_ART, SIGNATURES } from "./drawings";
 import { FinalRoot } from "./FinalRoot";
@@ -31,24 +30,6 @@ const Art = ({ id, d, className = "" }: { id: string; d: { w: number; h: number;
   <figure className={`pf-art ${className}`} data-art={id} style={{ aspectRatio: `${d.w} / ${d.h}` }} aria-hidden="true" dangerouslySetInnerHTML={{ __html: d.svg }} />
 );
 
-/** V's tab icons (stack-kit icons/tab-<part>.svg): the menu's line family, one mint dot each */
-const ICONS: Record<string, ReactNode> = {
-  nightshade: <><path d="M12 4.5l9 4.5-9 4.5-9-4.5z" /><path d="M9 6l9 4.5M6 7.5l9 4.5" strokeWidth="1" /><path d="M3 15l9 4.5 9-4.5" /><circle className="g" cx="9" cy="10.5" r="1.25" /></>,
-  resharding: <><path d="M12 4.5l3.24 1.62-9 4.5L3 9z" /><path d="M17.76 7.38L21 9l-9 4.5-3.24-1.62z" /><path d="M3 15l9 4.5 9-4.5" /><circle className="g" cx="14.88" cy="10.44" r="1.25" /></>,
-  speed: <><path d="M14 5l7 3.5-7 3.5-7-3.5z" /><path d="M2.5 7.5h3M3.5 10.5h3" /><path d="M3 15l9 4.5 9-4.5" /><circle className="g" cx="14" cy="8.5" r="1.25" /></>,
-  private: <><path d="M12 4.5l9 4.5-9 4.5-9-4.5z" /><path d="M12 10v2.25" /><path d="M3 15l9 4.5 9-4.5" /><circle className="g" cx="12" cy="8.75" r="1.5" /></>,
-  quantum: <><path d="M12 4.5l9 4.5-9 4.5-9-4.5z" /><ellipse cx="12" cy="9" rx="4.25" ry="2.1" /><path d="M3 15l9 4.5 9-4.5" /><circle className="g" cx="15.6" cy="10.2" r="1.25" /></>,
-  signatures: <><path d="M12 9l9 4.5-9 4.5-9-4.5z" /><circle className="g" cx="12" cy="4" r="1.6" /><path d="M12 7v1.25" strokeWidth="1" /><circle className="f" cx="7.5" cy="13.5" r=".85" /><circle className="f" cx="16.5" cy="13.5" r=".85" /><circle className="f" cx="12" cy="15.75" r=".85" /></>,
-};
-const Icon = ({ k }: { k: string }) => (
-  <svg className="pf-index__ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{ICONS[k]}</svg>
-);
-
-/** the index: the six parts, by their own headings, in the page's order (the hero drawing's part names) */
-const PARTS = [
-  { k: "nightshade", label: NIGHTSHADE.h }, { k: "resharding", label: RESHARDING.h }, { k: "speed", label: SPEED.h },
-  { k: "private", label: PRIVATE_SHARD.h }, { k: "quantum", label: QUANTUM.h }, { k: "signatures", label: CHAIN_SIGNATURES.h },
-];
 /** the proof: V's six figures (the doc's values and labels; "100% uptime" carries "5+ years on mainnet" as its line) */
 const FIGS = [
   { n: "100%", u: "uptime", c: "5+ years on mainnet" }, { n: "1M+", u: "TPS", c: "Publicly verifiable" }, { n: "600ms", c: "Block time" },
@@ -61,6 +42,8 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
   const [, scaleLine, accessLine] = SPEED.body.split(/(?<=\.)\s+/);   // the doc's three sentences: the speeds (set as figures below), scale, access
   return (
     <FinalRoot>
+      {/* the first screen: the hero and the proof fill at least the viewport, the figures on its bottom edge, so the dark band starts below the fold */}
+      <div className="pf-first">
       {/* ───────────── 1 · hero (V) */}
       <section className="pf-hero" aria-labelledby="pf-h1">
         <div className="pf-hero__text">
@@ -75,15 +58,8 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
         <div className="pf-hero__art"><Art id="hero" d={HERO_ART} className="pf-art--hero" /></div>
       </section>
 
-      {/* ───────────── 2 · the index and the proof (V) */}
+      {/* ───────────── 2 · the proof (V): the figures sit right on the dark band (no index row above, no stub below) */}
       <section className="l-sec pf-top" aria-label="NEAR Protocol at a glance">
-        <nav className="l-row pf-index" data-row="" aria-label="On this page">
-          <div className="l-cell pf-index__cell">
-            <ul className="pf-index__list">
-              {PARTS.map((p) => <li key={p.k}><a href={`#${p.k}`} data-part={p.k}><Icon k={p.k} /><span>{p.label}</span></a></li>)}
-            </ul>
-          </div>
-        </nav>
         <ul className="l-row l-proof__row pf-proof" data-row="" aria-label="NEAR Protocol in numbers">
           <li className="l-green" aria-hidden="true" role="presentation" />
           {FIGS.map((f, i) => (
@@ -93,8 +69,8 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
             </li>
           ))}
         </ul>
-        <Spacer />
       </section>
+      </div>
 
       {/* ───────────── 3 · the chapter (B): Nightshade 3.0, dynamic resharding and the private shard on the lanes; quantum is a section below */}
       <Band steps={["nightshade", "resharding", "private"]} ids elsewhere={{ quantum: "#quantum" }} />

@@ -30,6 +30,9 @@
 @keyframes pf-orbit { to { stroke-dashoffset: -64; } }
 
 /* ---------------------------------------------------------------- 1 · hero (V): the copy | the overview drawing, on bare paper */
+/* the first screen: hero + proof at least one viewport tall; the hero takes the extra height, so the figures sit on the screen's bottom edge */
+.pr-f .pf-first { display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; }
+.pr-f .pf-first > .pf-hero { flex: 1 0 auto; align-content: center; }   /* the extra height splits above and below, the text keeps its own rhythm */
 .pr-f .pf-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 4vw, 64px); margin: 0 var(--margin);
   padding: clamp(136px, 19vh, 184px) var(--l-pad) clamp(40px, 6vh, 64px); }
 .pr-f .pf-hero__text { display: flex; flex-direction: column; align-items: flex-start; }
@@ -44,19 +47,10 @@
 .pr-f .pf-hero__art { display: grid; place-items: center; padding: clamp(8px, 2vh, 24px) 0 0; }
 .pr-f .pf-art--hero { max-width: 640px; }
 
-/* ---------------------------------------------------------------- 2 · the index (V's bar: an icon and the name; the hover dot) and the proof */
-.pr-f .pf-index__cell { padding-top: 6px; padding-bottom: 6px; }
-.pr-f .pf-index__list { display: flex; flex-wrap: wrap; gap: 2px 28px; }
-.pr-f .pf-index__list a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 0; font-size: var(--t-caption); line-height: 1.2; letter-spacing: var(--t-caption-tr);
-  color: var(--muted); transition: color 0.2s var(--ease-tick); }
-.pr-f .pf-index__ic { width: 18px; height: 18px; flex: none; color: var(--muted); transition: color 0.3s var(--ease-glide); }
-.pr-f .pf-index__ic .g { fill: var(--emerald); stroke: none; }
-.pr-f .pf-index__ic .f { fill: currentColor; stroke: none; }
-.pr-f .pf-index__list a:is(:hover, .is-lit, :focus-visible), .pr-f .pf-index__list a:is(:hover, .is-lit, :focus-visible) .pf-index__ic { color: var(--ink); }
+/* ---------------------------------------------------------------- 2 · the proof (six figures, right on the dark band) */
 .pr-f .pf-proof { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .pr-f .pf-proof .l-fig__v { font-size: clamp(1.75rem, 0.25rem + 2.4vw, 2.5rem); }
 .pr-f .pf-proof .l-fig__u { font-size: var(--t-small); }
-.pr-f .pf-top .l-spacer .l-cell { height: clamp(40px, 6vh, 56px); }   /* the Figma's short stub between the figures and the dark band */
 
 /* ---------------------------------------------------------------- 4 · Speed. Scale. Access. (V's §6, page.css: .pr-speed): the light-gray band (their
    .sf-gray, --paper-2) on the ruled grid, three columns, each word over its sentence; the speeds as display figures (80, the unit at 0.4 × in gray),
@@ -176,7 +170,6 @@
 @media (max-width: 859px) {
   .pr-f { --l-pad: 20px; }
   .pr-f .pf-hero { padding-top: 124px; padding-bottom: 32px; }
-  .pr-f .pf-index__list { gap: 0 20px; }
   .pr-f .pf-proof { grid-template-columns: minmax(0, 1fr); }
   .pr-f .pf-proof .pf-fig { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: baseline; column-gap: 16px; padding: 20px var(--l-pad); }
   .pr-f .pf-proof .pf-fig + .pf-fig { border-top: var(--hair) solid var(--l-line); }
