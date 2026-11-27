@@ -325,7 +325,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
       )}
       <section className="l-sec l-paths" id="paths" aria-labelledby="l-paths-t">
         <div className="l-row l-head" data-row="">
-          <div className="l-cell l-head__cell"><h2 id="l-paths-t" className="l-h2" data-rv="">Get into <span className="accent">NEAR</span></h2></div>
+          <div className="l-cell l-head__cell"><h2 id="l-paths-t" className="l-h2" data-rv="">Get into NEAR</h2></div>
         </div>
         <div className="l-row l-gi__row" data-row="" data-act={act}>
           <div className="l-cell l-gi__list">

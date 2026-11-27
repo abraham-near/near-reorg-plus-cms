@@ -18,7 +18,7 @@
 // Copy: ../content.ts (the doc, verbatim). Drawings: ./drawings.ts. Motion: ./motion.ts (B's, plus ./art.ts). Styles: B's (../b/protocol-b.css, the
 // page runs under .pr-b too) and ./protocol-final.css (.pr-f). A server component: only FinalRoot runs in the browser.
 import { CHAIN_SIGNATURES, DEVELOPERS, HERO, QUANTUM, SPEED } from "../content";
-import { Acc, AiAndNearOne, Arrow, Band, Btn, codeLine, Deeper, More, Secure, Spacer, type DeeperItem } from "../b/parts";
+import { AiAndNearOne, Arrow, Band, Btn, codeLine, Deeper, More, Secure, Spacer, type DeeperItem } from "../b/parts";
 import { ACCESS, HERO as HERO_ART, QUANTUM as QUANTUM_ART, SIGNATURES } from "./drawings";
 import { FinalRoot } from "./FinalRoot";
 import "../../v3/proof-deeper/proof-deeper.css";
@@ -49,7 +49,7 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
         <div className="pf-hero__text">
           {/* the page's h1 is its name, set as the small label; the headline under it is an h2 at display size (and keeps the h1's word rise) */}
           <h1 id="pf-h1" className="pf-h1" data-h1="">Protocol</h1>
-          <h2 className="pf-sub" data-in=""><Acc h={HERO.h1} a="agent" /></h2>
+          <h2 className="pf-sub" data-in="">{HERO.h1}</h2>
           <div className="pf-hero__end">
             <p className="pf-hero__lede" data-in="">{HERO.body}</p>
             <p data-in=""><Btn l={HERO.cta} /></p>
@@ -97,7 +97,7 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
               <i className="pf-count" aria-hidden="true">{Array.from({ length: 10 }, (_, i) => <i key={i} className={i === 0 ? "is-mark" : undefined} style={{ ["--i" as string]: i }} />)}</i>
             </div>
             <div className="l-cell pf-speed__col">
-              <p className="l-h2 pf-speed__w" data-split="" aria-hidden="true"><span className="accent">Access</span>.</p>
+              <p className="l-h2 pf-speed__w" data-split="" aria-hidden="true">Access.</p>
               <p className="pf-speed__s" data-rv="">{accessLine}</p>
               <Art id="access" d={ACCESS} className="pf-speed__art" />
             </div>
@@ -111,7 +111,7 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
           <Spacer />
           <div className="l-row pf-feat__row pf-feat__row--q" data-row="">
             <div className="l-cell pf-feat__text">
-              <h2 id="pf-q-t" className="l-h2 pf-h2" data-split=""><Acc h={QUANTUM.h} a="Quantum" /></h2>
+              <h2 id="pf-q-t" className="l-h2 pf-h2" data-split="">{QUANTUM.h}</h2>
               <div className="pf-feat__body">
                 <p className="pf-sub" data-rv="">{QUANTUM.sub}</p>
                 <p className="pf-body" data-rv="">{QUANTUM.body}</p>
@@ -126,7 +126,7 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
           <Spacer />
           <div className="l-row pf-feat__row pf-feat__row--sig" data-row="">
             <div className="l-cell pf-feat__text">
-              <h2 id="pf-cs-t" className="l-h2 pf-h2" data-split=""><Acc h={CHAIN_SIGNATURES.h} a="Signatures" /></h2>
+              <h2 id="pf-cs-t" className="l-h2 pf-h2" data-split="">{CHAIN_SIGNATURES.h}</h2>
               <div className="pf-feat__body">
                 <p className="pf-sub" data-rv="">{CHAIN_SIGNATURES.sub}</p>
                 <p className="pf-body" data-rv="">{CHAIN_SIGNATURES.body}</p>
@@ -142,7 +142,7 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
         <section className="l-sec pf-dev" aria-labelledby="pf-dv-t">
           <Spacer />
           <div className="l-row pf-dev__head" data-row="">
-            <div className="l-cell pf-dev__h"><h2 id="pf-dv-t" className="l-h2 pf-h2" data-split=""><Acc h={DEVELOPERS.h} a="developers" /></h2></div>
+            <div className="l-cell pf-dev__h"><h2 id="pf-dv-t" className="l-h2 pf-h2" data-split="">{DEVELOPERS.h}</h2></div>
             <div className="l-cell pf-dev__lede"><p className="pf-sub" data-rv="">{DEVELOPERS.sub}</p></div>
           </div>
           <div className="l-row pf-dev__row" data-row="">

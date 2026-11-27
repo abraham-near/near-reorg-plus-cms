@@ -56,7 +56,7 @@ export function HistoryX() {
         <div className="hx-ms__pin">
           <div className="l-row hx-ms__head" data-row="">
             <div className="l-cell hx-ms__h">
-              <h2 id="hx-ms-t" className="l-h2" data-rv="">From 2017 to <span className="accent">now</span></h2>
+              <h2 id="hx-ms-t" className="l-h2" data-rv="">From 2017 to now</h2>
             </div>
           </div>
           <div className="l-row hx-ms__row" data-row="">
