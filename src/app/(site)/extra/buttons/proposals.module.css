@@ -1,0 +1,321 @@
+/* Button proposals (Proposals.tsx): every option on paper and on the dark band. Each stage sets the tone (--fg, --bg, --mute, --hl, --inv), so one rule
+   draws a button in both. Hovers are CSS only; focus mirrors hover and adds the 2 px ring; reduced motion keeps colour, drops movement (end of file). */
+
+.root {
+  --tick: cubic-bezier(0.2, 0, 0, 1);                       /* b10's tick: hovers, fills */
+  --settle: var(--ease-settle, cubic-bezier(0.16, 1, 0.3, 1)); /* the long ease to a stop: things that travel */
+  display: flex; flex-direction: column; gap: 56px;
+}
+
+/* ---------------------------------------------------------------- layout: groups, the ruled grid, cells, stages */
+.group { display: flex; flex-direction: column; gap: 10px; }
+.gh { margin: 0; font-family: var(--font-text); font-weight: 400; font-size: clamp(22px, 1.8vw, 28px); line-height: 1.1; letter-spacing: -0.025em; }
+.gi { margin: 0 0 18px; max-width: 70ch; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+
+.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.cell { position: relative; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 28px 28px 32px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.cell:last-child:nth-child(odd) { grid-column: 1 / -1; }
+/* the ruled grid's 9 px ink + where the rules meet at each cell's top corners */
+.cell::before, .cell::after { content: ""; position: absolute; z-index: 2; top: -5px; width: 9px; height: 9px; pointer-events: none;
+  background: linear-gradient(var(--ink), var(--ink)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--ink), var(--ink)) 0 50% / 100% 1px no-repeat; }
+.cell::before { left: -5px; }
+.cell::after { right: -5px; }
+
+.name { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-family: var(--font-text); font-weight: 400; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em; }
+.code { font-variant-numeric: tabular-nums; }
+.tag { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 4px 7px; font-family: var(--font-mono); font-size: 10.5px; line-height: 1.2; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
+.tagC { color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.tagC::before { content: ""; width: 5px; height: 5px; background: var(--green); }
+
+.stages { display: grid; gap: 8px; }
+.stage {
+  --fg: var(--ink); --bg: var(--paper); --mute: var(--ink-2); --hl: var(--line); --inv: var(--paper); --deep: #000; --tint: rgb(28 25 23 / 0.06); --gt: var(--green-text);
+  display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 22px; background: var(--bg); color: var(--fg); outline: 1px solid var(--line); outline-offset: -1px;
+}
+.dark { --fg: var(--on-dark); --bg: var(--dark); --mute: var(--on-dark-2); --hl: rgb(245 244 241 / 0.22); --inv: var(--dark); --deep: #fff; --tint: rgb(245 244 241 / 0.08); --gt: var(--green); outline-color: var(--dark); }
+.lab { font-family: var(--font-mono); font-size: 10.5px; line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.demo { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 20px; min-height: 60px; }
+.states { margin: 0; max-width: 72ch; font-size: 13.5px; line-height: 1.5; color: var(--ink); text-wrap: pretty; }
+.timing { margin: 0; font-family: var(--font-mono); font-size: 10.5px; line-height: 1.3; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------------------------------------------------------------- shared pieces: the drawn arrows, the dot */
+.arr { position: relative; z-index: 1; display: block; flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
+  transition: translate 0.24s var(--tick); }
+.ext { display: block; flex: none; width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.2; transition: translate 0.24s var(--tick); }
+.head { display: block; flex: none; width: 8px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.dot { position: relative; z-index: 1; flex: none; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  transition: box-shadow 0.24s var(--tick), transform 0.24s var(--tick); }
+
+/* the arrow relay (P4, L3): one runs out right, the next comes in from the left */
+.swap { position: relative; z-index: 1; display: block; flex: none; width: 16px; height: 16px; overflow: hidden; }
+.swap .arr { position: absolute; inset: 0; transition: translate 0.42s var(--settle); }
+.swap .a2 { translate: -20px 0; }
+:is(.p4, .l3):is(:hover, :focus-visible) .a1 { translate: 20px 0; }
+:is(.p4, .l3):is(:hover, :focus-visible) .a2 { translate: 0 0; transition-delay: 60ms; }
+
+/* ---------------------------------------------------------------- the button base: 48 px, Montreal 15, ink on paper / paper on the band */
+.btn {
+  position: relative; isolation: isolate; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; margin: 0; padding: 0 22px; border: 0; border-radius: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-text); font-weight: 400; font-size: 15px; line-height: 1.2; letter-spacing: -0.003em; white-space: nowrap; text-decoration: none;
+  color: var(--inv); background: var(--fg);
+  transition: background-color 0.24s var(--tick), color 0.24s var(--tick), box-shadow 0.24s var(--tick), transform 0.2s var(--tick), padding 0.32s var(--settle);
+}
+.btn > span { position: relative; z-index: 1; }
+.sec { color: var(--fg); background: transparent; box-shadow: inset 0 0 0 1px var(--fg); }
+.btn:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+.btn:active { transform: scale(0.97); }
+
+/* P1 · ink pill, the dot opens (the site's .l-btn + the homepage CTA, as one) */
+.p1 { border-radius: 999px; }
+.p1::before { content: ""; position: absolute; z-index: 1; left: 20px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--green);
+  transform: scale(0); transition: transform 0.32s var(--settle); }
+.p1:is(:hover, :focus-visible) { padding-left: 36px; background: var(--deep); }
+.p1.sec:is(:hover, :focus-visible) { color: var(--inv); background: var(--fg); }
+.p1:is(:hover, :focus-visible)::before { transform: scale(1); }
+.p1:is(:hover, :focus-visible) .arr { translate: 3px 0; }
+/* O6 · the scale: 40 and 32, the hit area kept at 44 */
+.md { min-height: 40px; padding: 0 18px; font-size: 14px; }
+.md::before { left: 16px; }
+.md:is(:hover, :focus-visible) { padding-left: 30px; }
+.sm { min-height: 32px; padding: 0 14px; font-size: 13px; gap: 8px; }
+.sm::before { left: 12px; }
+.sm:is(:hover, :focus-visible) { padding-left: 25px; }
+.md::after, .sm::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px; }
+
+/* P2 · dot-led (the header's Get started) */
+.p2 { border-radius: 999px; padding: 0 20px 0 18px; }
+.p2:is(:hover, :focus-visible) { background: var(--deep); }
+.p2:is(:hover, :focus-visible) .dot { box-shadow: 0 0 0 4px rgb(0 220 141 / 0.22); transform: scale(1.1); }
+.p2.sec { box-shadow: inset 0 0 0 1px var(--hl); }
+.p2.sec:is(:hover, :focus-visible) { background: transparent; box-shadow: inset 0 0 0 1px var(--fg); }
+
+/* P3 · square fill: the small square grows into the whole box */
+.p3 { --fill: var(--green); --on: #1c1917; padding: 0 22px 0 40px; color: var(--fg); background: transparent; box-shadow: inset 0 0 0 1px var(--fg); }
+.p3.sec { --fill: var(--fg); --on: var(--inv); box-shadow: inset 0 0 0 1px var(--hl); }
+.p3::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--fill);
+  clip-path: inset(calc(50% - 4px) calc(100% - 26px) calc(50% - 4px) 18px); transition: clip-path 0.48s var(--settle); }
+.p3:is(:hover, :focus-visible)::before { clip-path: inset(0); }
+.p3:is(:hover, :focus-visible) { color: var(--on); box-shadow: inset 0 0 0 1px var(--fill); }
+
+/* P4 · roll and swap: the label rolls to its text-shadow copy */
+.p4 { border-radius: 999px; }
+.p4.sec:is(:hover, :focus-visible) { color: var(--inv); background: var(--fg); }
+.p4:not(.sec):is(:hover, :focus-visible) { background: var(--deep); }
+.roll { display: block; height: 1.3em; overflow: hidden; line-height: 1.3em; }
+.roll > span { display: block; text-shadow: 0 1.3em currentColor; transition: translate 0.42s var(--settle); }
+.p4:is(:hover, :focus-visible) .roll > span { translate: 0 -1.3em; }
+
+/* P5 · crosshair box: the grid's + at the corners; they spread, or a hairline draws round */
+.p5 { margin: 6px; }
+.p5:focus-visible { outline-offset: 9px; }
+.p5:not(.sec):is(:hover, :focus-visible) { background: var(--deep); }
+.p5:is(:hover, :focus-visible) .arr { translate: 3px 0; }
+.p5.sec { box-shadow: inset 0 0 0 1px var(--hl); }
+.cross { position: absolute; inset: -4px; z-index: 2; pointer-events: none; --c: var(--fg);
+  background:
+    linear-gradient(var(--c), var(--c)) 0 4px / 9px 1px no-repeat, linear-gradient(var(--c), var(--c)) 4px 0 / 1px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 4px / 9px 1px no-repeat, linear-gradient(var(--c), var(--c)) calc(100% - 4px) 0 / 1px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 calc(100% - 4px) / 9px 1px no-repeat, linear-gradient(var(--c), var(--c)) 4px 100% / 1px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% calc(100% - 4px) / 9px 1px no-repeat, linear-gradient(var(--c), var(--c)) calc(100% - 4px) 100% / 1px 9px no-repeat;
+  transition: inset 0.36s var(--settle); }
+.p5:not(.sec):is(:hover, :focus-visible) .cross { inset: -8px; }
+.draw { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.draw::before, .draw::after { content: ""; position: absolute; inset: 0; }
+.draw::before { background: linear-gradient(var(--fg), var(--fg)) 0 0 / 0 1px no-repeat, linear-gradient(var(--fg), var(--fg)) 100% 100% / 0 1px no-repeat;
+  transition: background-size 0.26s var(--tick) 0.18s; }
+.draw::after { background: linear-gradient(var(--fg), var(--fg)) 100% 0 / 1px 0 no-repeat, linear-gradient(var(--fg), var(--fg)) 0 100% / 1px 0 no-repeat;
+  transition: background-size 0.26s var(--tick); }
+.p5:is(:hover, :focus-visible) .draw::before { background-size: 100% 1px, 100% 1px; transition-delay: 0s; }
+.p5:is(:hover, :focus-visible) .draw::after { background-size: 1px 100%, 1px 100%; transition-delay: 0.18s; }
+
+/* P6 · P1 + P4 as one choreography: room and dot first, the roll a beat later, the arrow relay last. Leave reverses (rest delays). */
+.p6 { border-radius: 999px; }
+.p6::before { content: ""; position: absolute; z-index: 1; left: 20px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--green);
+  transform: scale(0); transition: transform 0.32s var(--settle) 0.12s; }
+.p6 { transition: background-color 0.24s var(--tick), color 0.24s var(--tick), box-shadow 0.24s var(--tick), transform 0.2s var(--tick), padding 0.32s var(--settle) 0.12s; }
+.p6 .roll > span { transition: translate 0.42s var(--settle) 0.04s; }
+.p6 .swap .a1 { transition: translate 0.24s var(--tick) 0.1s; }
+.p6 .swap .a2 { transition: translate 0.3s var(--tick) 0s; }
+.p6:is(:hover, :focus-visible) { padding-left: 36px; background: var(--deep); transition-delay: 0s; }
+.p6.sec:is(:hover, :focus-visible) { color: var(--inv); background: var(--fg); }
+.p6:is(:hover, :focus-visible)::before { transform: scale(1); transition-delay: 0s; }
+.p6:is(:hover, :focus-visible) .roll > span { translate: 0 -1.3em; transition-delay: 0.08s; }
+.p6:is(:hover, :focus-visible) .swap .a1 { translate: 20px 0; transition: translate 0.24s var(--tick) 0s; }
+.p6:is(:hover, :focus-visible) .swap .a2 { translate: 0 0; transition: translate 0.42s var(--settle) 0.16s; }
+
+/* P7 · dot-led sweep: a copy of the content in the swept colours, clipped; the clip grows from the dot / left edge / arrow / centre */
+.p7 { --sw: var(--green); --swOn: #1c1917; --swDot: #1c1917; border-radius: 999px; padding: 0 20px 0 18px; overflow: hidden; }
+.p7.sec { --sw: var(--fg); --swOn: var(--inv); --swDot: var(--green); box-shadow: inset 0 0 0 1px var(--hl); }
+.p7:not(:has(.dot)) { padding: 0 22px; }
+.p7.ico { width: 48px; padding: 0; }
+.p7 > .p7f { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: inherit; padding: inherit; border-radius: inherit;
+  color: var(--swOn); background: var(--sw); pointer-events: none; transition: clip-path 0.42s var(--settle), opacity 0.2s var(--tick); }
+.p7f .dot { background: var(--swDot); }
+.p7:is(:hover, :focus-visible) > .p7f { clip-path: inset(0 0 0 0 round 999px); transition-duration: 0.52s; }
+/* hidden at rest (no 1 px ghost of the clip); shown at once on hover, hidden only once the clip has receded */
+.p7 > .p7f { visibility: hidden; transition: clip-path 0.42s var(--settle), opacity 0.2s var(--tick), visibility 0s 0.42s; }
+.p7:is(:hover, :focus-visible) > .p7f { visibility: visible; transition: clip-path 0.52s var(--settle), opacity 0.2s var(--tick), visibility 0s; }
+.fDot > .p7f { clip-path: inset(50% calc(100% - 21px) 50% 21px round 999px); }   /* a point at the dot's centre */
+.fLeft > .p7f { clip-path: inset(0 100% 0 0 round 999px); }
+.fArrow > .p7f { clip-path: inset(50% 30px 50% calc(100% - 30px) round 999px); }   /* a point at the arrow's centre */
+.fIcon > .p7f { clip-path: inset(50% 50% 50% 50% round 999px); }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; width: 100%; }
+
+/* ---------------------------------------------------------------- links: 44 px tall, no box */
+.lk {
+  position: relative; box-sizing: border-box; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 2px; -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-text); font-weight: 400; font-size: 15px; line-height: 1.2; letter-spacing: -0.003em; white-space: nowrap; text-decoration: none; color: var(--fg);
+  transition: color 0.24s var(--tick), opacity 0.12s var(--tick);
+}
+.lk:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.lk:active { opacity: 0.6; }
+.u { position: relative; padding-bottom: 2px; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.4s var(--settle); }
+
+/* L1 · the rule draws, the arrow steps */
+.l1:is(:hover, :focus-visible) .u { background-size: 100% 1px; }
+.l1:is(:hover, :focus-visible) .arr { translate: 4px 0; }
+
+/* L2 · quiet (muted, a faint rule) and mono */
+.l2 { color: var(--mute); }
+.l2 .u { background: none; text-decoration: underline 1px; text-underline-offset: 4px; text-decoration-color: var(--hl); transition: text-decoration-color 0.24s var(--tick); }
+.l2:is(:hover, :focus-visible) { color: var(--fg); }
+.l2:is(:hover, :focus-visible) .u { text-decoration-color: currentColor; }
+.l2:is(:hover, :focus-visible) .ext { translate: 2px -2px; }
+.mono { gap: 8px; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; }
+.mono .arr { width: 13px; height: 13px; }
+.l2:is(:hover, :focus-visible) .arr { translate: 3px 0; }
+
+/* L3 · arrow relay: the rule enters from the left and leaves to the right */
+.l3 .u { background: none; }
+.l3 .u::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: 100% 50%;
+  transition: transform 0.42s var(--settle); }
+.l3:is(:hover, :focus-visible) .u::after { transform: scaleX(1); transform-origin: 0 50%; }
+
+/* L4 · the dot lands in the gutter */
+.l4 .dot { position: absolute; left: 2px; top: 50%; margin-top: -3px; transform: scale(0); transition: transform 0.32s var(--settle); }
+.l4 > span, .l4 .arr { transition: translate 0.24s var(--tick), opacity 0.24s var(--tick); }
+.l4 .arr { opacity: 0; translate: -6px 0; }
+.l4:is(:hover, :focus-visible) .dot { transform: scale(1); }
+.l4:is(:hover, :focus-visible) > span { translate: 14px 0; }
+.l4:is(:hover, :focus-visible) .arr { opacity: 1; translate: 14px 0; }
+
+/* L5 · index line: the hairline stretches and carries the chevron */
+.l5 { gap: 12px; }
+.n { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mute); transition: color 0.24s var(--tick); }
+.ln { display: block; flex: none; width: 20px; height: 1px; background: var(--mute); transition: width 0.48s var(--settle), background-color 0.24s var(--tick); }
+.l5 .head { margin-left: -19px; color: var(--mute); transition: color 0.24s var(--tick); }
+.l5:is(:hover, :focus-visible) .ln { width: 56px; background: var(--fg); }
+.l5:is(:hover, :focus-visible) .head { color: var(--fg); }
+.l5:is(:hover, :focus-visible) .n { color: var(--gt); }
+
+/* ---------------------------------------------------------------- O1 · icon buttons: 48 px squares */
+.ib { position: relative; box-sizing: border-box; display: inline-grid; place-items: center; width: 48px; height: 48px; margin: 0; padding: 0; border: 0; cursor: pointer;
+  color: var(--fg); background: transparent; box-shadow: inset 0 0 0 1px var(--hl); -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.24s var(--tick), color 0.24s var(--tick), box-shadow 0.24s var(--tick), transform 0.2s var(--tick); }
+.ib:is(:hover, :focus-visible) { color: var(--inv); background: var(--fg); box-shadow: inset 0 0 0 1px var(--fg); }
+.ib:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+.ib:active { transform: scale(0.94); }
+.ib .arr { width: 18px; height: 18px; transition: translate 0.36s var(--settle); }
+.ibPrev .arr { scale: -1 1; }
+.ib:is(:hover, :focus-visible) .arr { translate: 3px 0; }
+.ibPrev:is(:hover, :focus-visible) .arr { translate: -3px 0; }
+.x { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; transition: rotate 0.36s var(--settle); }
+.ibX:is(:hover, :focus-visible) .x { rotate: 90deg; }
+.play { display: block; width: 16px; height: 16px; fill: currentColor; transition: fill 0.24s var(--tick); }
+.ibPlay:is(:hover, :focus-visible) .play { fill: var(--green); }
+
+/* ---------------------------------------------------------------- O2 · segmented control (real radios) */
+.seg { display: inline-flex; min-width: 0; max-width: 100%; margin: 0; padding: 0; border: 0; box-shadow: inset 0 0 0 1px var(--hl); }
+.seg label { position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; cursor: pointer; color: var(--fg);
+  font-family: var(--font-mono); font-size: 11.5px; line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase;
+  transition: background-color 0.2s var(--tick), color 0.2s var(--tick); }
+.seg label + label { box-shadow: inset 1px 0 0 var(--hl); }
+.seg input, .chips input, .tabs input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.seg .dot { width: 0; margin-right: 0; transition: width 0.2s var(--tick), margin 0.2s var(--tick); }
+.seg label:hover { background: var(--tint); }
+.seg label:has(:checked) { color: var(--inv); background: var(--fg); }
+.seg label:has(:checked) .dot { width: 6px; margin-right: 8px; }
+.seg label:has(:focus-visible) { z-index: 2; outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------- O3 · filter chips (real checkboxes) */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.chips label { position: relative; display: inline-flex; align-items: center; height: 36px; padding: 0 12px; cursor: pointer; color: var(--fg);
+  font-family: var(--font-mono); font-size: 11.5px; line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px var(--hl); transition: box-shadow 0.2s var(--tick), transform 0.2s var(--tick); }
+.chips label::after { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
+.sq { display: block; flex: none; width: 0; height: 6px; margin-right: 0; background: var(--green); transition: width 0.32s var(--settle), margin 0.32s var(--settle); }
+.chips label:hover, .chips label:has(:checked) { box-shadow: inset 0 0 0 1px var(--fg); }
+.chips label:has(:checked) .sq { width: 6px; margin-right: 8px; }
+.chips label:has(:focus-visible) { outline: 2px solid var(--fg); outline-offset: 2px; }
+.chips label:active { transform: scale(0.97); }
+
+/* ---------------------------------------------------------------- O4 · sliding tabs (real radios; the bar follows :has) */
+.tabs { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(100%, 360px); min-width: 0; margin: 0; padding: 0; border: 0;
+  box-shadow: inset 0 -1px 0 var(--hl); }
+.tabs label { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 8px; cursor: pointer; color: var(--mute);
+  font-family: var(--font-text); font-size: 15px; line-height: 1.2; transition: color 0.2s var(--tick); }
+.tabs label:hover, .tabs label:has(:checked) { color: var(--fg); }
+.tabs label:has(:focus-visible) { outline: 2px solid var(--fg); outline-offset: -2px; }
+.bar { position: absolute; left: 0; bottom: 0; width: calc(100% / 3); height: 2px; background: var(--fg); pointer-events: none; transition: translate 0.52s var(--settle); }
+.bar::before { content: ""; position: absolute; left: 0; top: -2px; width: 6px; height: 6px; background: var(--green); }
+.tabs:has(label:nth-of-type(2) :checked) .bar { translate: 100% 0; }
+.tabs:has(label:nth-of-type(3) :checked) .bar { translate: 200% 0; }
+
+/* ---------------------------------------------------------------- O5 · isometric press: a face on a hatched shadow */
+.iso { --face: var(--fg); margin: 0 6px 6px 0; color: var(--inv); background: transparent; transition: transform 0.28s var(--settle), color 0.24s var(--tick); }
+.iso.sec { --face: var(--bg); color: var(--fg); box-shadow: none; }
+.iso::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--face); box-shadow: inset 0 0 0 1px var(--fg); transition: background-color 0.24s var(--tick); }
+.iso::after { content: ""; position: absolute; inset: 0; z-index: -1; translate: 5px 5px; box-shadow: inset 0 0 0 1px var(--fg);
+  background: repeating-linear-gradient(135deg, var(--fg) 0 1px, transparent 1px 4px); transition: translate 0.28s var(--settle); }
+.iso:is(:hover, :focus-visible) { transform: translate(3px, 3px); }
+.iso:is(:hover, :focus-visible)::after { translate: 2px 2px; }
+.iso:active { transform: translate(5px, 5px); transition-duration: 0.12s; transition-timing-function: var(--tick); }
+.iso:active::after { translate: 0 0; transition-duration: 0.12s; transition-timing-function: var(--tick); }
+.iso:is(:hover, :focus-visible) .arr { translate: 3px 0; }
+.iso:focus-visible { outline-offset: 8px; }
+
+/* ---------------------------------------------------------------- small screens */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .cell { padding: 22px 16px 26px; }
+  .cell:last-child:nth-child(odd) { grid-column: auto; }
+}
+@media (max-width: 480px) {
+  .stage { padding: 12px 12px 18px; }
+  .demo { gap: 12px 14px; }
+  .btn, .lk { white-space: normal; }
+}
+
+/* ---------------------------------------------------------------- reduced motion: colour only, nothing travels or grows */
+@media (prefers-reduced-motion: reduce) {
+  .root *, .root *::before, .root *::after {
+    transition-property: color, background-color, box-shadow, opacity, fill, text-decoration-color !important; transition-duration: 0.2s !important; transition-delay: 0s !important;
+  }
+  .root svg { translate: none !important; rotate: none !important; }
+  .btn:active, .ib:active, .chips label:active { transform: none; }
+  .p1::before { display: none; }
+  .p1:is(:hover, :focus-visible) { padding-left: 22px; }
+  .md:is(:hover, :focus-visible) { padding-left: 18px; }
+  .sm:is(:hover, :focus-visible) { padding-left: 14px; }
+  .p2:is(:hover, :focus-visible) .dot { transform: none; }
+  .roll > span { translate: none !important; }
+  .p6::before { display: none; }
+  .p6:is(:hover, :focus-visible) { padding-left: 22px; }
+  .p7 > .p7f, .p7:is(:hover, :focus-visible) > .p7f { clip-path: none; }
+  .p7 > .p7f { opacity: 0; }
+  .p7:is(:hover, :focus-visible) > .p7f { opacity: 1; }
+  .p5:not(.sec):is(:hover, :focus-visible) .cross { inset: -4px; }
+  .l4 { padding-left: 16px; }
+  .l4 .dot { transform: none; opacity: 0; }
+  .l4:is(:hover, :focus-visible) .dot { transform: none; opacity: 1; }
+  .l4 > span, .l4 .arr { translate: none !important; }
+  .l5:is(:hover, :focus-visible) .ln { width: 20px; }
+  .iso, .iso:is(:hover, :focus-visible, :active) { transform: none; }
+  .iso::after, .iso:is(:hover, :focus-visible, :active)::after { translate: 5px 5px; }
+  .iso:not(.sec):is(:hover, :focus-visible)::before { background: var(--deep); }
+  .iso.sec:is(:hover, :focus-visible)::before { background: color-mix(in srgb, var(--fg) 8%, var(--bg)); }
+}

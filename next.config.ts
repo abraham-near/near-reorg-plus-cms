@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   async headers() {
     const noindex = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     if (process.env.SITE_INDEXABLE !== "true") return [{ source: "/:path*", headers: noindex }];
-    return ["/admin/:path*", "/api/:path*", "/cms/:path*", "/extra", "/index", "/home-v:n", "/post-:v(a|b|c|d|v)", "/blog-index-:v", "/analytics-:v", "/community-:v", "/history-:v", "/economics-:v", "/solutions-:v", "/research-:v", "/brand-:v", "/foundation-:v"]
+    return ["/admin/:path*", "/api/:path*", "/cms/:path*", "/extra", "/extra/:path*", "/index", "/home-v:n", "/post-:v(a|b|c|d|v)", "/blog-index-:v", "/analytics-:v", "/community-:v", "/history-:v", "/economics-:v", "/solutions-:v", "/research-:v", "/brand-:v", "/foundation-:v"]
       .map((source) => ({ source, headers: noindex }));
   },
   // Old addresses of pages that moved: Foundation E is the Foundation page now (/near-foundation; versions A–D and F were removed), the blog's directions A–L were removed (J is /blog), and so were homes v1–v6 (v7 is "/") and the first Analytics C; History was /about (A and B are /history-a, -b). Since Nov 19, 2026 the menu's Analytics, Economics, History, Community, Solutions and Research are the X versions at the plain addresses (/<page>-x leads there); the versions they replaced are back at their letters (Analytics C /analytics-c, Economics A /economics-a, History C /history-c, Community B /community-b)
