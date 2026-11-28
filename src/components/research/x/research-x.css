@@ -4,7 +4,7 @@
 .rs-x { --rx-ink: #111; --rx-g1: #5fe0ae; --rx-g2: #3cc994; --rx-g3: #22a374; --mono: var(--font-montreal-mono), ui-monospace, monospace;
   background: var(--paper-0); overflow-x: clip; }
 .rs-x .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
-.rs-x :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.rs-x :focus-visible:not(.ui-btn, .ui-link) { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
 .rs-x .rx-ln:focus-visible { outline-offset: 4px; }
 .rs-x [id] { scroll-margin-top: 96px; }
 .rs-x .rx-p[hidden] { display: none; }
@@ -21,8 +21,6 @@
 .rs-x .rx-hero__sub { margin-top: clamp(24px, 3.6vh, 40px); max-width: 32em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr);
   color: var(--graphite); text-wrap: pretty; }
 .rs-x .rx-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(28px, 4.4vh, 48px); }
-.rs-x .rx-btn--fill { color: var(--paper-0); background: var(--ink); }
-@media (hover: hover) { .rs-x .rx-btn--fill:hover { background: #000; } }
 .rs-x .rx-hero__art { pointer-events: none; }
 /* the hero drawing waits, hidden, until its motion has set every starting state (motion.ts adds .is-ready), so the finished frame never flashes before
    the build (a page reached through a page transition shows it first otherwise); if the script never runs, it shows after 3 s */
@@ -83,7 +81,6 @@
 .rs-x .rx-m__s { color: var(--graphite); overflow-wrap: anywhere; }
 .rs-x .rx-p__meta { display: flex; flex-direction: column; gap: 24px; }
 .rs-x .rx-go { white-space: nowrap; }
-@media (hover: hover) { .rs-x .rx-go:hover .l-ext { translate: 2px -2px; } }
 @keyframes rx-rise { from { opacity: 0; translate: 0 10px; } }
 :where(.rs-x[data-motion]) .rx-list.is-filtered .rx-p.is-in > .l-cell > * { animation: rx-rise 0.7s var(--ease-settle) both; }
 

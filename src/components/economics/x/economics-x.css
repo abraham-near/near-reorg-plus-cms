@@ -8,10 +8,9 @@
   background: var(--paper-0); overflow-x: clip; }
 .ec-x [id] { scroll-margin-top: 96px; }
 .ec-x .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
-.ec-x :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
-.ec-x .l-ext { width: 10px; height: 10px; }
-.ec-x .ex-down { rotate: 90deg; }
-@media (hover: hover) { .ec-x .l-link:hover .ex-down { translate: 0 3px; } .ec-x .l-btn:hover .l-ext { translate: 2px -2px; } }
+.ec-x :focus-visible:not(.ui-btn, .ui-link) { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+/* the hero's "How it works" (the site's TextLink) points down the page: its arrow turned, so the relay runs downward */
+.ec-x .ex-down .ui-swap { rotate: 90deg; }
 
 /* ---------------------------------------------------------------- shared bits */
 /* off the grid: a row keeps its cells and its arrival, not its lines */
@@ -24,7 +23,6 @@
 .ec-x .l-spacer .l-cell { height: var(--ex-gap); padding: 0; }
 .ec-x .ex-sec.ex-dark, .ec-x .ex-sec.ex-center { margin-top: 0; }
 .ec-x .ex-center { padding-top: 0; }
-.ec-x .ex-btn { gap: 10px; background: var(--ink); color: var(--paper-0); }
 .ec-x .ex-w { will-change: transform, opacity; }
 :where(.ec-x[data-motion]) [data-in]:not(.is-in) { opacity: 0; translate: 0 18px; }
 :where(.ec-x[data-motion]) [data-in].is-in { transition: opacity 0.8s var(--ease-glide) var(--d, 0s), translate 1s var(--ease-settle) var(--d, 0s); }

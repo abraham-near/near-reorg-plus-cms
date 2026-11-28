@@ -5,7 +5,7 @@
 .pr-b { --top: clamp(132px, 16vh, 176px); --pb-gap: clamp(72px, 10vh, 128px); --l-pad: clamp(24px, 2.6vw, 40px);
   background: var(--paper-0); overflow-x: clip; }
 .pr-b .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
-.pr-b :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.pr-b :focus-visible:not(.ui-btn, .ui-link) { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
 .pr-b [id] { scroll-margin-top: 96px; }
 .pr-b .l-ext { width: 10px; height: 10px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ease-tick); }
 .pr-b .pb-w { will-change: transform, opacity; }
@@ -13,12 +13,8 @@
 .pr-b .pb-cv { display: block; width: 100%; max-width: 100%; height: 100%; min-width: 0; }
 
 /* ---------------------------------------------------------------- shared bits */
-.pr-b .pb-btn { gap: 10px; background: var(--ink); color: var(--paper-0); }
-.pr-b .pb-btn--line { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-@media (hover: hover) { .pr-b .l-btn:hover .l-ext { translate: 2px -2px; } .pr-b .l-btn:hover .l-arr { translate: 3px 0; } }
-.pr-b .pb-go { display: inline; padding: 0; line-height: 1.45; }
-.pr-b .pb-go :is(.l-ext, .l-arr) { display: inline-block; margin-left: 10px; vertical-align: 0; }
-@media (hover: hover) { .pr-b .pb-go:hover .l-ext { translate: 2px -2px; } }
+/* the pill (Btn) and the onward link (More) are the site's Button and TextLink (components/ui); the onward link keeps the UI size, its lines at 1.45 */
+.pr-b .pb-go { font-size: var(--t-ui); line-height: 1.45; }
 :where(.pr-b[data-motion]) :is([data-in], [data-up]):not(.is-in) { opacity: 0; translate: 0 18px; }
 :where(.pr-b[data-motion]) :is([data-in], [data-up]).is-in { transition: opacity 0.9s var(--ease-glide) var(--d, 0s), translate 1.1s var(--ease-settle) var(--d, 0s); }
 .pr-b .pb-h2 { max-width: 13em; text-wrap: balance; }
@@ -67,7 +63,6 @@
 .pr-b .pb-band { --muted: rgb(245 244 241 / 0.58); --graphite: rgb(245 244 241 / 0.78); --l-soft: rgb(245 244 241 / 0.12);
   background: var(--ink); color: var(--paper-0); padding: clamp(88px, 13vh, 152px) 0 clamp(64px, 9vh, 104px); }
 .pr-b .pb-band :focus-visible { outline-color: var(--paper-0); }
-.pr-b .pb-band .l-link, .pr-b .pb-band .pb-go { color: var(--paper-0); }
 .pr-b .pb-band__intro { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: end; column-gap: clamp(32px, 5vw, 96px);
   margin: 0 var(--margin); padding: 0 var(--l-pad) clamp(48px, 7vh, 80px); }
 .pr-b .pb-band__intro .pb-h2 { max-width: 11em; }
@@ -83,11 +78,9 @@
 .pr-b .pb-idx__i.is-on { color: var(--graphite); }
 .pr-b .pb-idx__i.is-on .pb-idx__dot { background: var(--emerald); box-shadow: none; }
 /* a property this page's band has no step for (the final page: quantum, a section further down): a link there, never lit */
-.pr-b .pb-idx__go { color: inherit; transition: color 0.3s var(--ease-tick); }
-.pr-b .pb-idx__go .l-arr { display: inline-block; width: 12px; height: 12px; margin-left: 6px; vertical-align: -1px; transition: translate 0.3s var(--ease-settle); }
-.pr-b .pb-idx__go:is(:hover, :focus-visible) { color: var(--graphite); }
-.pr-b .pb-idx__go:is(:hover, :focus-visible) b { text-decoration: underline 1px; text-underline-offset: 4px; }
-.pr-b .pb-idx__go:is(:hover, :focus-visible) .l-arr { translate: 0 2px; }
+/* the site's TextLink, inline, in the index's own muted colour; its arrow turned to point down the page (the relay then runs downward) */
+.pr-b .pb-idx .pb-idx__go { color: inherit; }
+.pr-b .pb-idx__go .ui-swap { rotate: 90deg; }
 /* the steps, stacked (phones, reduced motion, no script): each with its scene */
 .pr-b .pb-steps { display: grid; gap: clamp(56px, 8vh, 96px); padding-top: clamp(48px, 7vh, 72px); }
 .pr-b .pb-step { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: repeat(5, auto) 1fr; column-gap: clamp(32px, 5vw, 96px); align-content: start; }

@@ -27,7 +27,7 @@
 :where(.cmx) :where(p, h1, h2, h3, figure, ol, ul) { margin: 0; padding: 0; }
 :where(.cmx) :where(ol, ul) { list-style: none; }
 :where(.cmx) a { color: inherit; text-decoration: none; }
-.cmx :focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.cmx :focus-visible:not(.ui-btn, .ui-link) { outline: 2px solid var(--ink); outline-offset: 4px; }
 .cmx [id] { scroll-margin-top: 96px; }
 
 /* ---------------------------------------------------------------- type: the headings' words, the Kepler word, the green square */
@@ -48,29 +48,8 @@
 /* ---------------------------------------------------------------- actions: b10's pill (48 px, the emerald dot on hover) and the text link */
 .cmx-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
 .cmx-actions--col { flex-direction: column; align-items: flex-start; gap: 18px; }
-.cmx-arr, .cmx-ext { flex: none; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.3s var(--ease-settle); }
-.cmx-ext { width: 13px; height: 13px; }
-.cmx-btn { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer;
-  font: 500 var(--t-small)/1.2 var(--sans); letter-spacing: -0.003em; color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1px var(--ink);
-  transition: background-color 0.24s var(--ease-tick), color 0.24s var(--ease-tick), box-shadow 0.24s var(--ease-tick), padding 0.3s var(--ease-settle); }
-.cmx-btn::before { content: ""; position: absolute; left: 19px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--emerald);
-  transform: scale(0); transition: transform 0.3s var(--ease-settle); }
-.cmx-btn--ink { color: var(--paper-0); background: var(--ink); }
-.cmx-btn--green { color: var(--ink); background: var(--emerald); box-shadow: none; }
-.cmx-btn--green::before { background: var(--ink); }
-.cmx-link { display: inline-flex; align-items: center; gap: 10px; padding: 6px 0; font: 500 var(--t-small)/1.2 var(--sans); letter-spacing: -0.003em;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--hair) no-repeat; transition: background-size 0.4s var(--ease-settle); }
-@media (hover: hover) {
-  .cmx-btn:hover { padding-left: 36px; color: var(--paper-0); background: var(--ink); box-shadow: none; }
-  .cmx-btn--green:hover { color: var(--ink); background: var(--paper-0); }
-  .cmx-btn:hover::before { transform: scale(1); }
-  .cmx-btn:hover :is(.cmx-arr, .cmx-ext) { translate: 3px 0; }
-  .cmx-link:hover { background-size: 100% var(--hair); }
-  .cmx-link:hover :is(.cmx-arr, .cmx-ext) { translate: 4px 0; }
-}
-.cmx-btn:focus-visible { padding-left: 36px; }
-.cmx-btn:focus-visible::before { transform: scale(1); }
-.cmx-link:focus-visible { background-size: 100% var(--hair); }
+.cmx-ext { flex: none; width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.3s var(--ease-settle); }
+/* the pills and the text links are the site's Button and TextLink (components/ui); the Legion's sits on the dark band (data-ui-tone="dark") */
 
 /* ================================================================ 1 · the hero: the text on the left, one drawing on the right; no rules up here */
 .cmx-hero { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px clamp(24px, 3vw, 56px); align-items: center;

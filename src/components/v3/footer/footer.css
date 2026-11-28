@@ -60,18 +60,8 @@ html[data-close-cover] .b10f { margin-top: -100vh; }
   font-family: var(--sans); font-weight: 500; font-size: var(--t-h2s); line-height: var(--t-h2s-lh); letter-spacing: var(--t-h2s-tr); color: var(--f-fg); text-wrap: balance; }   /* D208: no lone "assets." when it wraps */
 .b10f-w { display: inline-block; line-height: var(--t-h2s-lh); } /* one box per word, on the baseline; no mask: the words rise and fade in, so no letter is clipped */
 .b10f-wi { display: inline-block; }
-/* Get started (b10's .btn.btn-lg): a 48 px paper pill; hover: the green dot opens before the label, the label steps right, the arrow steps on */
-.b10f-cta { grid-column: 11 / span 2; justify-self: end; position: relative; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px; border-radius: 999px;
-  background: var(--f-cta-bg); color: var(--f-cta-fg); white-space: nowrap;
-  font: var(--t-ui-w) 15px/var(--t-ui-lh) var(--sans); letter-spacing: var(--t-ui-tr);
-  transition-property: background-color, color, padding; transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
-.b10f-cta-l { display: inline-block; transition: transform var(--dur-fade) var(--ease-settle); }
-.b10f-arr { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur-fade) var(--ease-settle); }
-.b10f-cta::before { content: ""; position: absolute; left: 11px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
-  background: var(--emerald); transform: scale(0); transition: transform var(--dur-fade) var(--ease-settle); }
-.b10f-cta:hover::before, .b10f-cta:focus-visible::before { transform: scale(1); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
-.b10f-cta:hover .b10f-cta-l, .b10f-cta:focus-visible .b10f-cta-l { transform: translateX(5px); transition-duration: var(--dur-tick); transition-timing-function: var(--ease-tick); }
-.b10f-cta:hover .b10f-arr { transform: translateX(3px); }
+/* Get started: the site's pill (components/ui, P1 in the dark tone); this wrapper only places it (and arrives with the head, below) */
+.b10f-cta { grid-column: 11 / span 2; justify-self: end; display: flex; }
 
 /* ---------------------------------------------------------------- labels */
 .b10f-h { font-family: var(--sans); font-weight: 500; font-size: var(--t-label); line-height: var(--t-label-lh); letter-spacing: var(--t-label-tr); text-transform: uppercase; white-space: nowrap; color: var(--f-3); }

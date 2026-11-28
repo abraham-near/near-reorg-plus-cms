@@ -11,6 +11,7 @@
 // Copy, links and figures: ../content.ts (SAMPLE figures until the feeds exist: [[TBD: live]]). No third-party logos: names are set as type.
 import { useRef, useState } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button } from "@/components/ui";
 import { HERO, STATS, REVENUE, STATUS, days, TOOLS_HEAD, TOOLS, PRODUCTS_HEAD, SVRN, ETPS_HEAD, ETPS, LEGAL, SAMPLE_NOTE } from "../content";
 import { HeroPlinth } from "./HeroPlinth";
 import { ToolsHub } from "./ToolsHub";
@@ -70,7 +71,7 @@ export function AnalyticsX() {
             <h1 id="anx-h1" className="anx-h1"><Words text={HERO.h1} accent={["numbers"]} /></h1>
             <p className="anx-hero__sub" data-hero-up="">{HERO.sub}</p>
             <p className="anx-hero__cta" data-hero-up="">
-              <a className="anx-btn anx-btn--fill" href={REVENUE.href}><span>{REVENUE.cta}</span><Ext /></a>
+              <Button href={REVENUE.href} icon="ext">{REVENUE.cta}</Button>
               <a className="anx-live" href="#status"><i className="anx-pulse" aria-hidden="true" /><span>{ok ? HERO.status : STATUS.h.issue}</span><Arrow /></a>
             </p>
             <p className="anx-hero__t" data-hero-up="">Updated {STATUS.updated}</p>
@@ -108,7 +109,7 @@ export function AnalyticsX() {
               <p className="anx-rev__lbl">{REVENUE.metric.label}</p>
             </div>
             <Bars />
-            <p className="anx-card__cta"><a className="anx-btn" href={REVENUE.href}><span>{REVENUE.cta}</span><Ext /></a></p>
+            <p className="anx-card__cta"><Button href={REVENUE.href} icon="ext" variant="secondary" size="md">{REVENUE.cta}</Button></p>
           </article>
 
           <article className="l-cell anx-card" id="status" aria-labelledby="anx-st-t">
@@ -117,7 +118,7 @@ export function AnalyticsX() {
             <p className="anx-card__b" data-rv="">Last updated {STATUS.updated}. Uptime over the last 60 days.</p>
             <ul className="anx-svcs">{SERVICES.map((s) => <Service key={s.name} name={s.name} uptime={s.uptime} d={s.d} />)}</ul>
             <p className="anx-st__legend" aria-hidden="true"><span><i className="is-up" />Operational</span><span><i className="is-deg" />Degraded</span><span><i className="is-down" />Outage</span></p>
-            <p className="anx-card__cta"><a className="anx-btn" href={STATUS.href}><span>{STATUS.cta}</span><Ext /></a></p>
+            <p className="anx-card__cta"><Button href={STATUS.href} icon="ext" variant="secondary" size="md">{STATUS.cta}</Button></p>
           </article>
         </div>
       </section>
@@ -162,7 +163,7 @@ export function AnalyticsX() {
           <div className="l-cell"><h3 className="anx-svrn__h" data-rv="">{SVRN.h}</h3></div>
           <div className="l-cell anx-svrn__txt">
             <p className="anx-svrn__sub" data-rv="">{SVRN.sub}</p>
-            <p className="anx-svrn__cta" data-rv=""><a className="anx-btn anx-btn--fill" href={SVRN.href} aria-label={`${SVRN.cta} about ${SVRN.h}`}><span>{SVRN.cta}</span><Ext /></a><span className="anx-svrn__d">{host(SVRN.href)}</span></p>
+            <p className="anx-svrn__cta" data-rv=""><Button href={SVRN.href} icon="ext" aria-label={`${SVRN.cta} about ${SVRN.h}`}>{SVRN.cta}</Button><span className="anx-svrn__d">{host(SVRN.href)}</span></p>
           </div>
         </div>
         <div className="l-row anx-etp-head" data-row="">

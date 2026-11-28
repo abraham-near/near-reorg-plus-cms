@@ -2,6 +2,7 @@
 // chapter (its steps chosen by the page), Speed. Scale. Access., Chain Signatures, developers, the AI layer | NEAR One, Secure NEAR. Evolve NEAR. and
 // Go deeper, plus the small pieces they share (buttons, links, the Kepler word, the ruled spacer). No hooks here: the parts render on the server or the
 // client alike; the motion is the page's (./motion.ts finds them by their markup). Styles: ./protocol-b.css, under .pr-b.
+import { Button, TextLink } from "@/components/ui";
 import { AI_LAYER, AI_SCALE, CHAIN_SIGNATURES, DEEPER, DEVELOPERS, NEAR_ONE, NIGHTSHADE, PRIVATE_SHARD, QUANTUM, RESHARDING, SECURE, SPEED, type Link } from "../content";
 
 export const isExt = (h: string) => /^https?:/.test(h);
@@ -9,10 +10,15 @@ export const ext = (h: string) => (isExt(h) ? { target: "_blank", rel: "noopener
 export const Arrow = () => <svg className="l-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>;
 export const Ext = () => <svg className="l-ext" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" /></svg>;
 export const Go = ({ href }: { href: string }) => (isExt(href) ? <><Ext /><span className="sr-only"> (opens another site)</span></> : <Arrow />);
+const ExtSr = ({ href }: { href: string }) => (isExt(href) ? <span className="sr-only"> (opens another site)</span> : null);
+/** the page's pill: the site's Button (P1, components/ui), primary or (line) secondary; ↗ and a new tab for another site */
 export const Btn = ({ l, line = false }: { l: Link; line?: boolean }) => (
-  <a className={`l-btn pb-btn${line ? " pb-btn--line" : ""}`} href={l.href} {...ext(l.href)}><span>{l.label}</span><Go href={l.href} /></a>
+  <Button href={l.href} external={isExt(l.href)} variant={line ? "secondary" : "primary"} className="pb-btn">{l.label}<ExtSr href={l.href} /></Button>
 );
-export const More = ({ l }: { l: Link }) => <a className="l-link pb-go" href={l.href} {...ext(l.href)}><span>{l.label}</span><Go href={l.href} /></a>;
+/** the onward link: the site's TextLink (L3), inline so a long label wraps; ↗ and a new tab for another site */
+export const More = ({ l }: { l: Link }) => (
+  <TextLink href={l.href} external={isExt(l.href)} inline className="pb-go">{l.label}<ExtSr href={l.href} /></TextLink>
+);
 /** a heading with its Kepler word marked (the last occurrence of `a`) */
 export const Acc = ({ h, a }: { h: string; a: string }) => {
   const i = h.lastIndexOf(a);
@@ -68,7 +74,7 @@ export function Band({ steps = ["nightshade", "resharding", "private", "quantum"
   const on = STEPS.filter((s) => steps.includes(s.k));
   const has = new Set<number>(on.map((s) => s.of));
   return (
-    <section className="l-sec pb-band" aria-labelledby="pb-ai-t" data-nav-tone="dark">
+    <section className="l-sec pb-band" aria-labelledby="pb-ai-t" data-nav-tone="dark" data-ui-tone="dark">
       <div className="pb-band__intro">
         <h2 id="pb-ai-t" className="l-h2 pb-h2" data-split=""><Acc h={AI_SCALE.h} a="day one" /></h2>
         <p className="l-lede" data-up="">{AI_SCALE.body}</p>
@@ -81,7 +87,7 @@ export function Band({ steps = ["nightshade", "resharding", "private", "quantum"
               <li key={it.k} className={`pb-idx__i${away ? " pb-idx__i--away" : ""}`} data-of={i}>
                 <i className="pb-idx__dot" aria-hidden="true" />
                 {away
-                  ? <p><a className="pb-idx__go" href={away}><b>{it.name}</b> {it.body}<svg className="l-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v10.5M3.5 9 8 13.5 12.5 9" /></svg><span className="sr-only"> (further down the page)</span></a></p>
+                  ? <p><TextLink href={away} inline className="pb-idx__go"><b>{it.name}</b> {it.body}<span className="sr-only"> (further down the page)</span></TextLink></p>
                   : <p><b>{it.name}</b> {it.body}</p>}
               </li>
             );

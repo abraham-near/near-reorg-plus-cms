@@ -74,27 +74,9 @@
   position: relative; z-index: 3; margin: calc(.9 * var(--u)) 0 0; max-width: 30em;
   font-size: var(--p); line-height: 1.2194; letter-spacing: -.0134em; color: var(--ink); text-wrap: pretty;
 }
-/* the actions: the hero's pill home, then two ways out as v3's text links (Montreal 500, a drawn arrow, the hairline that sweeps in) */
+/* the actions: the site's pill home, then two ways out as the site's text links (components/ui; only their layout here) */
 .nfa__go { position: relative; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px; margin-top: clamp(24px, calc(2.6 * var(--u)), 56px); }
 .nfa__ways { display: flex; flex-wrap: wrap; gap: 8px 30px; margin: 0; padding: 0; list-style: none; }
-.nfa__a {
-  display: inline-flex; align-items: center; gap: 8px; padding: 6px 0;
-  font-family: var(--b-sans); font-size: var(--b-ui); font-weight: 500; line-height: 1.2; letter-spacing: -.003em;
-  color: var(--b-ink); text-decoration: none;
-  background: linear-gradient(currentColor, currentColor) 0 100% / 0 var(--b-hair) no-repeat; transition: background-size .4s var(--b-ease-settle);
-}
-.nfa__a::after {
-  content: ""; flex: none; width: 16px; height: 16px; background: currentColor;
-  -webkit-mask: var(--b-arr) center / contain no-repeat; mask: var(--b-arr) center / contain no-repeat;
-  transition: translate .24s var(--b-ease-tick);
-}
-.nfa__a--ext::after { rotate: -45deg; width: 14px; height: 14px; }   /* another NEAR site: the arrow points out */
-.nfa__a:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 4px; border-radius: 2px; }
-@media (hover: hover) {
-  .nfa__a:hover { background-size: 100% var(--b-hair); }
-  .nfa__a:hover::after { translate: 4px 0; }
-  .nfa__a--ext:hover::after { translate: 2px -2px; }
-}
 
 /* ───────── the foot line: ©, two legal links, on the paper the photo fades to ───────── */
 .nfa__foot { position: relative; z-index: 3; width: 100%; }
@@ -136,5 +118,5 @@
   .nfa__bg img { animation: none; transform: scaleX(-1) scale(1.06); }
   .nfa__fog i { animation: none; }
   .nfa-in, .nfa__code.nfa-in { animation: none; opacity: 1; filter: none; transform: none; }
-  .nfa__a, .nfa__a::after, .nfa__legal a { transition: none; }
+  .nfa__legal a { transition: none; }
 }

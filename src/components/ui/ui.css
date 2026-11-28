@@ -1,0 +1,104 @@
+/* The site's two buttons, one system (chosen on /extra/buttons, Nov 27, 2026):
+   - .ui-btn  (Button.tsx)   P1 · ink pill, the dot opens: 48 px pill, ink on paper (outline for secondary); hover: the emerald dot opens before the
+     label, the pill makes room, the arrow relays (as the link's), the outline one fills. Sizes 48 / 40 / 32 (hit area kept at 44).
+   - .ui-link (TextLink.tsx) L3 · arrow relay: label + arrow, no box; hover: the arrow runs out right while a new one comes in from the left, the rule
+     enters from the left and leaves to the right (never rewinds). Takes the colour of its context (currentColor).
+   Tone: paper by default; .ui-dark on the element (tone="dark") or data-ui-tone="dark" on any ancestor turns it for the dark band.
+   Reduced motion: colour only. Focus mirrors hover plus a 2 px ring. */
+
+:root {
+  --ui-tick: cubic-bezier(0.2, 0, 0, 1);
+  --ui-settle: var(--ease-settle, cubic-bezier(0.16, 1, 0.3, 1));
+}
+.ui-btn, .ui-link { --ui-fg: var(--ink, #262626); --ui-inv: var(--paper, #f5f4f1); --ui-deep: #000; --ui-hl: var(--line); }
+[data-ui-tone="dark"] .ui-btn, .ui-btn.ui-dark,
+[data-ui-tone="dark"] .ui-link, .ui-link.ui-dark { --ui-fg: var(--on-dark, #f5f4f1); --ui-inv: var(--dark, #262626); --ui-deep: #fff; --ui-hl: rgb(245 244 241 / 0.22); }
+
+/* ── the drawn arrows (shared) ── */
+.ui-arr { position: relative; z-index: 1; display: block; flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4;
+  stroke-linecap: round; stroke-linejoin: round; transition: translate 0.24s var(--ui-tick); }
+.ui-ext { width: 12px; height: 12px; }
+
+/* ── Button · P1 ── */
+.ui-btn {
+  position: relative; isolation: isolate; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; margin: 0; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-text); font-weight: 400; font-size: 15px; line-height: 1.2; letter-spacing: -0.003em; white-space: nowrap; text-decoration: none;
+  color: var(--ui-inv); background: var(--ui-fg);
+  transition: background-color 0.24s var(--ui-tick), color 0.24s var(--ui-tick), box-shadow 0.24s var(--ui-tick), transform 0.2s var(--ui-tick), padding 0.32s var(--ui-settle);
+}
+.ui-btn > span { position: relative; z-index: 1; }
+.ui-btn::before { content: ""; position: absolute; z-index: 1; left: 20px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--green);
+  transform: scale(0); transition: transform 0.32s var(--ui-settle); }
+.ui-btn--sec { color: var(--ui-fg); background: transparent; box-shadow: inset 0 0 0 1px var(--ui-fg); }
+.ui-btn:focus-visible { outline: 2px solid var(--ui-fg); outline-offset: 3px; }
+.ui-btn:active { transform: scale(0.97); }
+.ui-btn:disabled, .ui-btn[aria-disabled="true"] { cursor: default; opacity: 0.45; }
+@media (hover: hover) { .ui-btn:not(:disabled):hover { padding-left: 36px; background: var(--ui-deep); } }
+.ui-btn:not(:disabled):focus-visible { padding-left: 36px; background: var(--ui-deep); }
+@media (hover: hover) { .ui-btn--sec:not(:disabled):hover { color: var(--ui-inv); background: var(--ui-fg); } }
+.ui-btn--sec:not(:disabled):focus-visible { color: var(--ui-inv); background: var(--ui-fg); }
+.ui-btn:not(:disabled):is(:hover, :focus-visible)::before { transform: scale(1); }
+/* a pill inside a bigger link (a card): put data-ui-host on the card and its hover/focus run the pill's (the pill is then a span: btnClass) */
+@media (hover: hover) {
+  [data-ui-host]:hover .ui-btn { padding-left: 36px; background: var(--ui-deep); }
+  [data-ui-host]:hover .ui-btn--sec { color: var(--ui-inv); background: var(--ui-fg); }
+  [data-ui-host]:hover .ui-btn::before { transform: scale(1); }
+  [data-ui-host]:hover .ui-btn--md { padding-left: 30px; }
+  [data-ui-host]:hover .ui-btn--sm { padding-left: 25px; }
+}
+[data-ui-host]:focus-visible .ui-btn { padding-left: 36px; background: var(--ui-deep); }
+[data-ui-host]:focus-visible .ui-btn--sec { color: var(--ui-inv); background: var(--ui-fg); }
+[data-ui-host]:focus-visible .ui-btn::before { transform: scale(1); }
+.ui-btn--md { min-height: 40px; padding: 0 18px; font-size: 14px; }
+.ui-btn--md::before { left: 16px; }
+.ui-btn--md:not(:disabled):is(:hover, :focus-visible) { padding-left: 30px; }
+.ui-btn--sm { min-height: 32px; padding: 0 14px; font-size: 13px; gap: 8px; }
+.ui-btn--sm::before { left: 12px; }
+.ui-btn--sm:not(:disabled):is(:hover, :focus-visible) { padding-left: 25px; }
+.ui-btn--md::after, .ui-btn--sm::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px; }   /* hit area 44 */
+.ui-btn--full { width: 100%; }
+
+/* ── TextLink · L3 ── */
+.ui-link {
+  position: relative; box-sizing: border-box; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; -webkit-tap-highlight-color: transparent;
+  font: inherit; font-family: var(--font-text); font-size: 15px; line-height: 1.2; letter-spacing: -0.003em; text-decoration: none; color: inherit; cursor: pointer;
+  background: none; border: 0; transition: opacity 0.12s var(--ui-tick);
+}
+.ui-link--dark, [data-ui-tone="dark"] .ui-link { color: var(--ui-fg); }
+.ui-link--size-inherit { font-size: inherit; line-height: inherit; letter-spacing: inherit; }
+.ui-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.ui-link:active { opacity: 0.6; }
+/* the rule: a background that grows from the left and shrinks to the right (it wraps with the text when the link is inline) */
+.ui-link__t { padding-bottom: 2px; background: linear-gradient(currentColor, currentColor) 100% 100% / 0 1px no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background-size 0.42s var(--ui-settle); }
+.ui-link:is(:hover, :focus-visible) .ui-link__t { background-position: 0 100%; background-size: 100% 1px; }
+/* the relay: two arrows in a 16 px window */
+.ui-swap { position: relative; z-index: 1; display: block; flex: none; width: 16px; height: 16px; overflow: hidden; }
+.ui-swap .ui-arr { position: absolute; inset: 0; transition: translate 0.42s var(--ui-settle); }
+.ui-swap .ui-a2 { translate: -20px 0; }
+.ui-swap--ext .ui-a2 { translate: -14px 14px; }
+.ui-btn .ui-swap--ext { width: 12px; height: 12px; }
+.ui-link:is(:hover, :focus-visible) .ui-a1, .ui-btn:not(:disabled):is(:hover, :focus-visible) .ui-a1,
+  [data-ui-host]:is(:hover, :focus-visible) .ui-btn .ui-a1 { translate: 20px 0; }
+.ui-link:is(:hover, :focus-visible) .ui-swap--ext .ui-a1, .ui-btn:not(:disabled):is(:hover, :focus-visible) .ui-swap--ext .ui-a1,
+  [data-ui-host]:is(:hover, :focus-visible) .ui-btn .ui-swap--ext .ui-a1 { translate: 14px -14px; }
+.ui-link:is(:hover, :focus-visible) .ui-a2, .ui-btn:not(:disabled):is(:hover, :focus-visible) .ui-a2,
+  [data-ui-host]:is(:hover, :focus-visible) .ui-btn .ui-a2 { translate: 0 0; transition-delay: 60ms; }
+/* inline: sits in running text and wraps; the arrow rides the last line */
+.ui-link--inline { display: inline; min-height: 0; font-size: inherit; line-height: inherit; letter-spacing: inherit; }
+.ui-link--inline .ui-swap { display: inline-block; vertical-align: -0.15em; margin-left: 0.35em; width: 0.95em; height: 0.95em; }
+.ui-link--inline .ui-swap .ui-arr { width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-btn, .ui-btn::before, .ui-link, .ui-link__t, .ui-arr { transition-property: color, background-color, box-shadow, opacity !important; transition-duration: 0.2s !important; }
+  .ui-btn::before { display: none; }
+  .ui-btn:is(:hover, :focus-visible), [data-ui-host]:is(:hover, :focus-visible) .ui-btn { padding-left: 22px !important; }
+  .ui-btn--md:is(:hover, :focus-visible) { padding-left: 18px !important; }
+  .ui-btn--sm:is(:hover, :focus-visible) { padding-left: 14px !important; }
+  .ui-btn:active { transform: none; }
+  .ui-arr { translate: none !important; }
+  .ui-swap .ui-a2 { display: none; }
+  .ui-link .ui-link__t { background-size: 100% 1px; background-color: transparent; background-image: linear-gradient(transparent, transparent); }
+  .ui-link:is(:hover, :focus-visible) .ui-link__t { background-image: linear-gradient(currentColor, currentColor); }
+}

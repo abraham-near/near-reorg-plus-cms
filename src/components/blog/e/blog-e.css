@@ -25,7 +25,7 @@
 /* the head: the heading, its line at the right, a hairline under both */
 .be-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 48px; flex-wrap: wrap;
   padding-bottom: clamp(24px, 3.5vh, 40px); }   /* no rule under it (Nov 20, 2026): the space stays */
-.be-h1 { font-weight: 500; font-size: var(--text-page-h1); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
+.be-h1 { font-family: var(--font-montreal-book), ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: var(--text-page-h1); line-height: var(--t-display-lh); letter-spacing: var(--t-display-tr); }
 .be-aside { max-width: 24em; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--graphite); padding-bottom: 0.6em; }
 
 /* the lead post: one wide cell, photo left, text right; always on screen (D242) */
@@ -44,14 +44,14 @@
 .be-lead__text { display: flex; flex-direction: column; gap: 16px; padding-right: 24px; }
 .be-lead .be-meta { justify-content: flex-start; gap: 16px; }
 .be-lead__title, .be-card__title { margin: 0; }
-.be-lead__title { font-size: var(--t-h3); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-tr); font-weight: 500; max-width: 16em; text-wrap: balance; }
+.be-lead__title { font-family: var(--font-montreal-book), ui-sans-serif, system-ui, sans-serif; font-size: var(--text-h2); line-height: 1.04; letter-spacing: -0.025em; font-weight: 500; max-width: 16em; text-wrap: balance; }
 .be-lead__x { max-width: 30em; font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--graphite); }
 
 /* the filters: the types as large words (the chosen one in ink, the green dot hanging in the margin before it), then the tag pills */
 .be-filters { margin-bottom: clamp(28px, 3.5vh, 40px); }
 .be-types { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 24px; padding-top: 8px; }
 .be-types__row { position: relative; display: flex; gap: clamp(34px, 2.8vw, 44px); }   /* room for the dot (10 px, 12 px before the word) */
-.be-tb { font-size: clamp(2rem, 1.3rem + 1.9vw, 3rem); line-height: 1; letter-spacing: -0.03em; font-weight: 500; color: rgb(38 38 38 / 0.5); padding: 4px 0 6px;   /* about 3.2:1 on paper, large text */
+.be-tb { font-family: var(--font-montreal-book), ui-sans-serif, system-ui, sans-serif; font-size: clamp(2rem, 1.3rem + 1.9vw, 3rem); line-height: 1; letter-spacing: -0.03em; font-weight: 400; color: rgb(38 38 38 / 0.5); padding: 4px 0 6px;   /* about 3.2:1 on paper, large text */
   transition: color 0.2s var(--ease-tick); }
 .be-tb[aria-pressed="true"] { color: var(--ink); }
 .be-types__dot { position: absolute; left: 0; top: 50%; width: 10px; height: 10px; margin-top: -4px; border-radius: 50%; background: var(--emerald);
@@ -98,7 +98,6 @@
 .be-card .be-ctags { margin-top: auto; padding-top: 18px; }
 
 .be-more { display: flex; justify-content: center; padding-top: clamp(40px, 6vh, 64px); }
-.be-more__b { padding: 12px 20px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-strong); font-size: var(--t-ui); font-weight: 500; }
 
 @media (hover: hover) {
   .be-lead:hover::before, .be-card:hover::before { opacity: 1; }
@@ -108,7 +107,6 @@
   .be-pill:not([aria-pressed="true"]):hover { box-shadow: inset 0 0 0 1px var(--ink); color: var(--ink); }
   .be-search:hover { box-shadow: inset 0 0 0 1px var(--ink); }
   .be-search__x:hover { background: var(--paper-1, rgb(38 38 38 / 0.06)); color: var(--ink); }
-  .be-more__b:hover { box-shadow: inset 0 0 0 1px var(--ink); }
 }
 @media (prefers-reduced-motion: reduce) {
   .be-pic img, .be-type::before, .be-lead::before, .be-card::before, .be-tb, .be-types__dot, .be-pill, .be-search { transition: none; }

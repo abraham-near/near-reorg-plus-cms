@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { SplitText } from "gsap/SplitText";
 import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
 import type { Video } from "@/lib/blog/video";
+import { TextLink } from "@/components/ui";
 import { mountGrid } from "../../blog/grid";
 import type { Article } from "../article";
 import { Body, Footnotes, MoreCard, Share, Tags, htmlNotes } from "../Body";
@@ -102,7 +103,7 @@ export function PostV({ article: A }: { article: Article }) {
         <div className="bl-row pa-more-h" data-row="">
           <div className="bl-cell pa-more-h__cell">
             <h2 id="pa-more-t" className="pa-more-t" data-rv="">Keep watching and reading</h2>
-            <a className="bl-link" href={A.blogHref} data-rv=""><span>All posts</span><svg className="bl-arr" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg></a>
+            <TextLink href={A.blogHref} data-rv="">All posts</TextLink>
           </div>
         </div>
         <div className="bl-row bl-row--end pa-more" data-row="">

@@ -5,6 +5,7 @@
 // page's own CTA inside. Its own `.l-page` root and motion, so it sits after a page's component, whatever that page is built on.
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button } from "@/components/ui";
 import { mount } from "../v3/proof-deeper/motion";
 import { LOCKUP_LETTERS, LOCKUP_TILE, LOCKUP_VIEWBOX } from "../v3/proof-deeper/lockup";
 import "../v3/proof-deeper/proof-deeper.css";
@@ -19,7 +20,6 @@ const MAIL = "/images/home/bw/close-mail-light.webp";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isExt = (h: string) => /^https?:\/\//.test(h);
-const ext = (h: string) => (isExt(h) ? { target: "_blank", rel: "noopener noreferrer" } : {});
 const Arrow = () => <svg className="l-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>;
 
 export function CloseScene({ sub, primary, secondary, newsletter, photo = MAIL, ruled = false }: {
@@ -45,10 +45,11 @@ export function CloseScene({ sub, primary, secondary, newsletter, photo = MAIL, 
     // [[TBD: newsletter provider]]: send `v` here. Nothing is sent.
     setDone(true);
   };
+  // the site's pills (components/ui, P1 lg): the page's primary filled, its secondary the outline; another site opens in a new tab with ↗
   const btn = (l: CloseLink, fill: boolean) => (
-    <a className={`l-btn${fill ? " cs-btn--fill" : ""}`} href={l.href} {...ext(l.href)}>
-      <span>{l.label}</span>{isExt(l.href) && <span className="sr-only"> (opens in a new tab)</span>}
-    </a>
+    <Button href={l.href} variant={fill ? "primary" : "secondary"} external={isExt(l.href)}>
+      {l.label}{isExt(l.href) && <span className="sr-only"> (opens in a new tab)</span>}
+    </Button>
   );
   return (
     <div ref={ref} className={`l-page cs-page${ruled ? " cs-page--ruled" : ""}${newsletter ? " cs-page--nl" : ""}`}>

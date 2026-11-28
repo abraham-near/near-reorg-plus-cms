@@ -87,8 +87,7 @@
 .pbv-next__l { font: 500 var(--t-label)/1 var(--sans); letter-spacing: var(--t-label-tr); text-transform: uppercase; color: rgb(245 244 241 / 0.75); }
 .pbv-next__t { margin-top: 18px; max-width: 16em; font-family: var(--sans-display); font-weight: 500; font-size: clamp(2.25rem, 1.2rem + 3.6vw, 5rem); line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
 .pbv-next__go { margin-top: 32px; }
-.pbv-next__a:hover .pbv-next__go { padding-left: 38px; color: var(--paper-0); background: var(--ink); }
-.pbv-next__a:hover .pbv-next__go::before { transform: scale(1); }
+/* the pill is components/ui's Button as a span (the card is the link); data-ui-host on the card runs the pill's hover */
 .pbv-rest { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
 .pbv-rest li + li { border-left: var(--hair) solid var(--l-line); }
 .pbv-rest__a { display: block; padding: 32px var(--margin) 56px; transition: background-color 0.25s var(--ease-tick); }

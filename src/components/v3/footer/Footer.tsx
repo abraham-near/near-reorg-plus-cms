@@ -5,6 +5,7 @@
 // Copy: the client's, verbatim (nav-data.ts FOOTER, SiteFooter.tsx), except the line: "Privacy for agents and assets." in one face, no accent word (D208, Lawrence); socials from the brief.
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button } from "@/components/ui";
 import { mount } from "./motion";
 import { WORD_PATHS, WORD_VIEWBOX } from "./wordmark-paths";
 import "./footer.css";
@@ -71,11 +72,10 @@ export function V3Footer() {
       <div className="b10f-in">
         <div className="b10f-head b10f-rv">
           <p className="b10f-line">{words(UI.line, 0)}</p>
-          <a className="b10f-cta" href={UI.ctaU} target="_blank" rel="noopener" style={ms(420)}>
-            <span className="b10f-cta-l">{UI.cta}</span>
-            <svg className="b10f-arr" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>
-            <Sr h={UI.ctaU} />
-          </a>
+          {/* the site's pill (P1) in the dark band's tone; the wrapper carries the grid place and the arrival (footer.css), the pill its own motion */}
+          <span className="b10f-cta" style={ms(420)}>
+            <Button href={UI.ctaU} external tone="dark">{UI.cta}<Sr h={UI.ctaU} /></Button>
+          </span>
         </div>
         <nav className="b10f-map" aria-label="Footer">
           <div className="b10f-prod b10f-rv"><Index g={PRODUCTS} k={0} /><Index g={STACK} k={1} /></div>

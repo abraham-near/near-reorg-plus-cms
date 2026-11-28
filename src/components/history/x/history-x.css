@@ -4,9 +4,8 @@
 .hs-x { --top: clamp(152px, 20vh, 208px); --sec: clamp(64px, 9vh, 112px);
   padding-bottom: 0;   /* the grid runs on into the close (CloseScene ruled, set in the route) */ background: var(--paper-0); overflow-x: clip; }
 .hs-x .accent { font-family: var(--font-acc, var(--font-accent-display)); font-style: italic; font-weight: 300; }
-.hs-x :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
+.hs-x :focus-visible:not(.ui-btn, .ui-link) { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
 .hs-x [id] { scroll-margin-top: 96px; }
-.hs-x .hx-btn { background: var(--ink); color: var(--paper-0); }
 .hs-x .hx-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 28px; }
 .hs-x .hx-h2 { max-width: 11em; text-wrap: balance; }
 /* the off-grid sections: on the page's margins, two columns */

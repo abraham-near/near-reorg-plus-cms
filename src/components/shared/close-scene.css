@@ -3,8 +3,6 @@
 .cs-nl { text-align: center; }
 .cs-nl .l-lede { margin-inline: auto; }
 .cs-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0; }
-.cs-btn--fill { color: var(--paper-0); background: var(--ink); }
-@media (hover: hover) { .cs-btn--fill:hover { background: #000; } }
 .cs-form { margin-top: clamp(32px, 5vh, 56px); text-align: left; }
 .cs-form__h { margin: 0 0 4px; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink); }
 .cs-form__sub { color: var(--graphite); }
