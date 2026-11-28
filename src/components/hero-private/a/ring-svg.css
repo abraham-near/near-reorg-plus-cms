@@ -1,0 +1,96 @@
+/* Hero study A (RingSvg.tsx): the stage of layers and the loop. The stage is drawn in the vector's units (2016 × 1249 px), scaled to the box and never
+   clipped; each layer is .hpa__l (the intro) > .hpa__m (the exit) > .hpa__v (the loop, here). The loop runs only with [data-loop] (set once, after the
+   intro, never with reduced motion) and only while [data-play] (on screen). It is one 8 s master cycle: every animation below with an 8 s period
+   starts at the same moment and pauses together, so they stay in step; their delays place them in the story:
+     0–2 s inflow · 2–4.5 s circulation · 4.5–5.5 s charge · 5.5–8 s release.
+   Every move is a layer's own translate / scale / opacity / filter (composited), except the orbits' and the guides' small layers. */
+.hpa { opacity: 0; }
+.hpa[data-ready] { opacity: 1; }
+.hpa__stage { position: absolute; left: 0; top: 0; width: 2016px; height: 1249px; transform-origin: 0 0; }
+.hpa__l { position: absolute; }
+.hpa__m, .hpa__v { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hpa__v { display: block; overflow: visible; }
+
+/* the core's glow, under the bubble's glass */
+.hpa__l[data-k="glow"] .hpa__v { opacity: 0.7; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 220 141 / 0.42), rgb(0 220 141 / 0.16) 55%, rgb(0 220 141 / 0) 100%); }
+/* the packets: a short streak of green light on a guide line (offset-path set per packet); hidden until the loop runs */
+.hpa__pk { position: absolute; left: 0; top: 0; width: 46px; height: 7px; border-radius: 4px; offset-rotate: auto; offset-distance: 0%; opacity: 0;
+  background: linear-gradient(90deg, rgb(0 220 141 / 0), #00dc8d 70%, #4ce6af); box-shadow: 0 0 14px rgb(0 220 141 / 0.55); }
+/* the release's ripple: a green dashed orbit (transform-origin on the centre, set per layer) */
+.hpa__rip { fill: none; stroke: #00dc8d; stroke-width: 2.4; stroke-dasharray: 5.2 7.3; opacity: 0; transform-box: view-box; scale: 0.2; }
+
+.hpa[data-loop]:not([data-play]) * { animation-play-state: paused !important; }
+
+/* under it all: the orbits' dashes flow (the near three one way, the far three the other: 12.5 units a dash, a whole number of them per lap);
+   release: each orbit flashes green in turn, inner to outer */
+.hpa[data-loop] [data-orbit] {
+  animation: hpa-dash 9s linear infinite, hpa-pulse 8s ease-in-out infinite; animation-delay: 0s, calc(var(--o, 0) * 0.12s);
+}
+.hpa[data-loop] :is([data-orbit="1"], [data-orbit="4"]) { animation-duration: 13s, 8s; animation-direction: reverse, normal; }
+.hpa[data-loop] :is([data-orbit="2"], [data-orbit="5"]) { animation-duration: 17s, 8s; }
+@keyframes hpa-dash { to { stroke-dashoffset: -125; } }
+@keyframes hpa-pulse {
+  0%, 69% { stroke: #111111; stroke-opacity: 0.85; stroke-width: 1.3; }
+  72.5% { stroke: #00dc8d; stroke-opacity: 1; stroke-width: 2.6; }
+  82%, 100% { stroke: #111111; stroke-opacity: 0.85; stroke-width: 1.3; }
+}
+.hpa[data-loop] .hpa__rip { animation: hpa-rip 8s cubic-bezier(0.25, 0.6, 0.35, 1) infinite; }
+@keyframes hpa-rip {
+  0%, 68% { scale: 0.2; opacity: 0; }
+  71% { opacity: 1; }
+  95%, 100% { scale: 1.04; opacity: 0; }
+}
+
+/* inflow: the packets run down the guide lines from the satellites into the ring, setting off in sequence */
+.hpa[data-loop] .hpa__pk { animation: hpa-pk 8s cubic-bezier(0.35, 0, 0.65, 1) infinite; animation-delay: var(--dl, 0s); }
+@keyframes hpa-pk {
+  0% { offset-distance: 0%; opacity: 0; }
+  2.5% { opacity: 1; }
+  19% { opacity: 1; }
+  23%, 100% { offset-distance: 100%; opacity: 0; }
+}
+/* the satellites: they light as they send (inflow), then rise and settle in turn round the ring (release) */
+.hpa[data-loop] .hpa__l[data-k="sat"] .hpa__v {
+  animation: hpa-sat 8s ease-in-out infinite; animation-delay: calc(var(--k, 0) * 0.08s);
+}
+@keyframes hpa-sat {
+  0% { translate: 0 0; filter: saturate(1) brightness(1); }
+  4% { filter: saturate(1.7) brightness(1.06); }
+  12% { filter: saturate(1) brightness(1); }
+  70% { translate: 0 0; }
+  80% { translate: 0 -24px; }
+  94%, 100% { translate: 0 0; filter: saturate(1) brightness(1); }
+}
+
+/* circulation: one light front round the ring, piece after piece, clockwise from the back corner (from 2 s) */
+.hpa[data-loop] .hpa__l:is([data-k="corner"], [data-k="side"]) .hpa__v {
+  animation: hpa-circ 8s cubic-bezier(0.45, 0, 0.55, 1) infinite; animation-delay: calc(2s + var(--i, 0) * 0.3s);
+}
+@keyframes hpa-circ {
+  0%, 10%, 100% { filter: saturate(1) brightness(1) drop-shadow(0 0 0 rgb(0 220 141 / 0)); }
+  4% { filter: saturate(1.75) brightness(1.04) drop-shadow(0 0 16px rgb(0 220 141 / 0.3)); }
+}
+/* the settle at the end of the intro: one quick lap of the same light (before the loop) */
+.hpa[data-settle] .hpa__l:is([data-k="corner"], [data-k="side"]) .hpa__v {
+  animation: hpa-flash 0.8s cubic-bezier(0.45, 0, 0.55, 1) both; animation-delay: calc(var(--i, 0) * 0.06s);
+}
+@keyframes hpa-flash {
+  0%, 100% { filter: saturate(1) brightness(1) drop-shadow(0 0 0 rgb(0 220 141 / 0)); }
+  40% { filter: saturate(1.8) brightness(1.05) drop-shadow(0 0 18px rgb(0 220 141 / 0.34)); }
+}
+
+/* charge (4.5–5.5 s): the bubble brightens, the cube lifts, the glow swells; all back to rest by 6.2 s */
+.hpa[data-loop] .hpa__l[data-k="bub"] .hpa__v { animation: hpa-charge 8s ease-in-out infinite; }
+@keyframes hpa-charge {
+  0%, 56% { filter: saturate(1) brightness(1); }
+  64% { filter: saturate(2.1) brightness(1.06); }
+  77%, 100% { filter: saturate(1) brightness(1); }
+}
+.hpa[data-loop] .hpa__l[data-k="cube"] .hpa__v { animation: hpa-lift 8s ease-in-out infinite; }
+@keyframes hpa-lift { 0%, 56% { translate: 0 0; } 65% { translate: 0 -16px; } 79%, 100% { translate: 0 0; } }
+.hpa[data-loop] .hpa__l[data-k="glow"] .hpa__v { animation: hpa-glow 8s ease-in-out infinite; }
+@keyframes hpa-glow { 0%, 55% { opacity: 0.7; scale: 1; } 66% { opacity: 1; scale: 1.2; } 82%, 100% { opacity: 0.7; scale: 1; } }
+
+/* the exit moves the cube to the h1's square: it holds still (at rest) meanwhile */
+.hpa[data-exit] .hpa__l[data-k="cube"] .hpa__v { animation: none; }

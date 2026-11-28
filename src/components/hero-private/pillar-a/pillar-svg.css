@@ -1,0 +1,8 @@
+/* Hero study "Pillar A"'s styles (PillarSvg.tsx). The drawing shows once inlined (its intro then builds it). Nothing is clipped but the column (by a
+   clip path in the SVG, to the box): the exit's cube travels out of the box to the h1's square. The loop is Web Animations (PillarSvg.tsx); the
+   loop's light lines fade out as the exit starts (--po). */
+.hpp { opacity: 0; }
+.hpp[data-ready] { opacity: 1; }
+.hpp svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hpp [data-part], .hpp g { transform-box: view-box; }
+.hpp [data-pulse] { stroke-opacity: var(--po, 1); }
