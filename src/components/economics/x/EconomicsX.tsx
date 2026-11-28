@@ -14,6 +14,7 @@
 // Copy and links: ../content.ts (the doc, verbatim). Motion: ./motion.ts.
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button, TextLink } from "@/components/ui";
 import { CENTER, HERO, LOOP, MATURE, SOURCES } from "../content";
 import { mount } from "./motion";
 import { HeroIso } from "./HeroIso";
@@ -28,14 +29,7 @@ const Acc = ({ h, a }: { h: string; a: string }) => {
 };
 const isExt = (h: string) => /^https?:/.test(h);
 const host = (u: string) => (isExt(u) ? new URL(u).hostname.replace(/^www\./, "") : "near.org");
-const ext = (h: string) => (isExt(h) ? { target: "_blank", rel: "noopener noreferrer" } : {});
 
-const Arrow = ({ down }: { down?: boolean }) => (
-  <svg className={`l-arr${down ? " ex-down" : ""}`} viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 8h10.5M9 3.5 13.5 8 9 12.5" /></svg>
-);
-const Ext = () => (
-  <svg className="l-ext" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" /></svg>
-);
 const ExtSr = ({ h }: { h: string }) => (isExt(h) ? <span className="sr-only"> (opens another site)</span> : null);
 
 /** the site's dot icons (v3/header/icons.ts, mounted by the grid's motion): the products by their own icons, the jobs by theirs */
@@ -55,8 +49,8 @@ export function EconomicsX() {
             <h1 id="ex-h1" className="ex-h1" data-h1=""><Acc h={HERO.h1} a={HERO.accent} /></h1>
             <p className="ex-sub" data-in="">{HERO.sub}</p>
             <p className="ex-acts" data-in="">
-              <a className="l-btn ex-btn" href={HERO.primary.href} {...ext(HERO.primary.href)}><span>{HERO.primary.label}</span><Ext /><ExtSr h={HERO.primary.href} /></a>
-              <a className="l-link" href={HERO.secondary.href}><span>{HERO.secondary.label}</span><Arrow down /></a>
+              <Button href={HERO.primary.href} external={isExt(HERO.primary.href)} icon="ext">{HERO.primary.label}<ExtSr h={HERO.primary.href} /></Button>
+              <TextLink href={HERO.secondary.href} className="ex-down">{HERO.secondary.label}</TextLink>
             </p>
           </div>
           {/* [[TBD: graphic by Ali]] the hero's drawing: NEAR's economy on a plinth (a placeholder in the site's isometric hand) */}
@@ -78,7 +72,7 @@ export function EconomicsX() {
               <h3 className="ex-fact__t">{f.title}</h3>
               <p className="ex-fact__b">{f.body}</p>
               {"href" in f && f.href && (
-                <p className="ex-fact__a"><a className="l-link" href={f.href} {...ext(f.href)}><span>{host(f.href)}</span><Ext /><ExtSr h={f.href} /></a></p>
+                <p className="ex-fact__a"><TextLink href={f.href} external={isExt(f.href)} icon="ext">{host(f.href)}<ExtSr h={f.href} /></TextLink></p>
               )}
             </li>
           ))}
@@ -122,7 +116,7 @@ export function EconomicsX() {
               <p className="ex-so__k"><i className="ex-ic" data-icon={SOURCE_ICON[s.k]} aria-hidden="true" />{s.name}</p>
               <h3 className="ex-so__t">{s.title}</h3>
               <p className="ex-so__b">{s.body}</p>
-              <p className="ex-so__a"><a className="l-link" href={s.link.href} {...ext(s.link.href)}><span>{s.link.label}</span><Ext /><ExtSr h={s.link.href} /></a></p>
+              <p className="ex-so__a"><TextLink href={s.link.href} external={isExt(s.link.href)} icon="ext">{s.link.label}<ExtSr h={s.link.href} /></TextLink></p>
             </li>
           ))}
         </ul>

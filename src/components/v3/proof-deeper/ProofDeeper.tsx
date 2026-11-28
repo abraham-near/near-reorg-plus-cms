@@ -10,6 +10,7 @@
 // Every filter's panel is in the markup (they share one grid cell, so the section never changes height); motion.ts switches them.
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button, TextLink } from "@/components/ui";
 import { mount } from "./motion";
 import { LOCKUP_LETTERS, LOCKUP_TILE, LOCKUP_VIEWBOX } from "./lockup";
 import "./proof-deeper.css";
@@ -61,9 +62,6 @@ const idx = (i: number) => String(i + 1).padStart(2, "0");
 // the voices' pins (v4 C): their places on the ridges photo, % of the stage (left, top), clear of the words at the top left
 const PINS: [number, number][] = [[47, 66], [60, 55], [72, 44], [86, 31], [64, 79], [83, 63]];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const Ext = () => (
-  <svg className="l-ext" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M3 1.5h5.5V7M8.5 1.5 1.5 8.5" /></svg>
-);
 
 // testimonials/Testimonials.tsx (order and wording as in their code)
 export type Voice = { text: ReactNode; name: string; role?: string };
@@ -210,7 +208,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           <h2 id="l-origin-t" className="l-h2 l-h2--m" data-rv="">{c.origin.title}</h2>
           <div className="l-origin__text" data-rv="">
             <p className="l-lede">{c.origin.text}</p>
-            <p className="l-cta"><a className="l-btn" href="https://www.near.org/about"><span>Our story</span></a></p>
+            <p className="l-cta"><Button href="https://www.near.org/about" variant="secondary">Our story</Button></p>
           </div>
           <p id="l-origin-src" className="l-src" data-rv=""><span className="l-src__n">1</span><span>Source: <a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></span></p>
         </div>
@@ -252,7 +250,7 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
           {FILTERS.map((f) => <Panel key={f.key} f={f} photos={c.photos?.deeper} />)}
         </div>
         <div className="l-row l-deeper__foot" data-row="">
-          <div className="l-cell"><a className="l-link" href={BLOG}><span>View everything</span><Arrow /></a></div>
+          <div className="l-cell"><TextLink href={BLOG}>View everything</TextLink></div>
         </div>
       </section>
       {!c.originFirst && origin}
@@ -340,10 +338,9 @@ export function ProofDeeper({ content: c = V3_CONTENT }: { content?: DeeperConte
                   </div>
                   <p className={p.links ? "l-gi__act l-gi__act--links" : "l-gi__act"} data-rv="">
                     {(p.links ?? [{ label: p.label, href: p.href }]).map((l) => (
-                      <a key={l.href} className="l-gi__a" href={l.href}>
-                        <span className="l-gi__go"><span className="l-gi__label">{l.label}</span><Ext /></span>
-                        <span className="sr-only"> (another NEAR site)</span>
-                      </a>
+                      <TextLink key={l.href} className="l-gi__a" href={l.href} icon="ext">
+                        {l.label}<span className="sr-only"> (another NEAR site)</span>
+                      </TextLink>
                     ))}
                   </p>
                 </li>

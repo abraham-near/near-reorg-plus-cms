@@ -11,9 +11,10 @@
 // Copy: the October 2026 doc, verbatim (the pillars' labels and the Council's chain are the Figma page's, via F).
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button, TextLink } from "@/components/ui";
 import { LOCKUP_LETTERS, LOCKUP_TILE, LOCKUP_VIEWBOX } from "../../v3/proof-deeper/lockup";
 import { ArtGlass } from "../b/Art";
-import { Arrow, CAREERS, COMMUNITY, ECOSYSTEM, Words } from "./parts";
+import { CAREERS, COMMUNITY, ECOSYSTEM, Words } from "./parts";
 import { HeroColumns } from "./HeroColumns";
 import { OperateSection } from "./Operate";
 import { mountAll } from "./motion";
@@ -117,7 +118,7 @@ export function FoundationE() {
           <div className="l-cell fb-eco__h"><h2 id="fb-eco-t" className="fb-h2" data-rv="">Built by an <span className="accent">ecosystem</span>, not a company</h2></div>
           <div className="l-cell fb-eco__end">
             <p className="l-lede" data-rv="">Hundreds of applications, wallets, and protocols build on NEAR. The Foundation supports the ecosystem that builds them. The builders own what they make.</p>
-            <p className="fb-eco__link" data-rv=""><a className="l-link" href={ECOSYSTEM}><span>Explore the ecosystem</span><Arrow /></a></p>
+            <p className="fb-eco__link" data-rv=""><TextLink href={ECOSYSTEM}>Explore the ecosystem</TextLink></p>
           </div>
         </div>
         <div className="l-row fb-eco__logos" data-row="">
@@ -148,8 +149,8 @@ export function FoundationE() {
                 <div className="l-close__nl fb-close__nl">
                   <p className="l-lede">Join the community, or build a career at the Foundation.</p>
                   <p className="fb-close__btns">
-                    <a className="l-btn fb-btn--fill" href={COMMUNITY}><span>Join the community</span></a>
-                    <a className="l-btn" href={CAREERS}><span>Careers</span></a>
+                    <Button href={COMMUNITY}>Join the community</Button>
+                    <Button href={CAREERS} variant="secondary">Careers</Button>
                   </p>
                 </div>
               </div>

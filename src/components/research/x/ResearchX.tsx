@@ -12,6 +12,7 @@
 // Copy and links: ../content.ts (verbatim). Local labels only: the CTAs' "Browse the papers", "Papers" (a hidden h2), the count line.
 import { useEffect, useRef, useState } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button, TextLink } from "@/components/ui";
 import { HERO, MORE, PAPERS, TOPICS, type Paper, type Topic } from "../content";
 import { mount } from "./motion";
 import { PaperStack } from "./Stack";
@@ -72,9 +73,9 @@ function PaperRow({ p, show }: { p: Paper; show: boolean }) {
           </div>
         </dl>
         <p className="rx-p__go" data-rv="">
-          <a className="l-link rx-go" href={p.href} {...ext(p.href)}>
-            <span>Read the paper</span><Ext /><span className="sr-only">: {p.title}</span>{isExt(p.href) && <NewTab />}
-          </a>
+          <TextLink href={p.href} external={isExt(p.href)} icon="ext" className="rx-go">
+            Read the paper<span className="sr-only">: {p.title}</span>{isExt(p.href) && <NewTab />}
+          </TextLink>
         </p>
       </div>
     </li>
@@ -104,8 +105,8 @@ export function ResearchX() {
           <h1 id="rx-h1" className="rx-h1" data-h1=""><Acc h={HERO.h1} a={HERO.accent} /></h1>
           <p className="rx-hero__sub" data-in="">{HERO.sub}</p>
           <p className="rx-ctas" data-in="">
-            <a className="l-btn rx-btn--fill" href="#rx-papers">Browse the papers</a>
-            <a className="l-btn" href={WHITE.href} {...ext(WHITE.href)}>Read the {WHITE.short}<NewTab /></a>
+            <Button href="#rx-papers">Browse the papers</Button>
+            <Button href={WHITE.href} external={isExt(WHITE.href)} variant="secondary">Read the {WHITE.short}{isExt(WHITE.href) && <NewTab />}</Button>
           </p>
         </div>
         {/* [[TBD: graphic by Ali]] placeholder: Research B's stack of papers */}

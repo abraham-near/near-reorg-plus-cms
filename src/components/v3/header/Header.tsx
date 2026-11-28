@@ -5,6 +5,7 @@
 import { useRef } from "react";
 import { InlineScript } from "@/components/InlineScript";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button } from "@/components/ui";
 import { GROUPS, isExt, type Item } from "./links";
 import { mount } from "./motion";
 import { montrealNav } from "./font";
@@ -46,7 +47,6 @@ const Icon = ({ id, size }: { id: string; size: number }) => (
   <svg className="icon" width={size} height={size} aria-hidden="true" focusable="false"><use href={`${SPRITE}#i-${id}`} /></svg>
 );
 const MenuIco = () => <span className="nv-menu-ico" aria-hidden="true"><i /><i /><i /></span>;
-const Dot = () => <i className="nv-dot" aria-hidden="true" />;
 
 /* the map: importance = size (Products > Stack > Resources > About). One rule for every block: the icon top-left (one size per tier),
    the group label once per group (its first block), so titles share one baseline per row */
@@ -154,7 +154,8 @@ export function V3Header({ home = "/", spread = false, stay = false, soft = fals
             </ul>
           </nav>
           <div className="nv-actions">
-            <a className="nv-btn nv-cta" href={START} data-nv-start=""><span className="mag-l"><Dot />Get started</span></a>
+            {/* the site's pill (P1, size md): ink; over dark grounds .is-dark turns its tone (header.css); ghost (secondary) while the hero's own CTA shows (V1Boot) */}
+            <Button className="nv-cta" href={START} size="md" data-nv-start="">Get started</Button>
             <button className="nv-menu" type="button" aria-expanded="false" aria-controls="nv-map" aria-haspopup="dialog">
               <span className="nv-menu-l">{UI.menu}</span><MenuIco />
             </button>
@@ -164,7 +165,7 @@ export function V3Header({ home = "/", spread = false, stay = false, soft = fals
           <div className="nv-map-top">
             <a className="nv-logo nv-map-logo" href={home} data-nv-home="" aria-label={UI.home}><span className="nv-mark">{MARK}</span></a>
             <div className="nv-map-act">
-              <a className="nv-btn nv-map-cta" href={START} data-nv-start=""><Dot />Get started</a>
+              <Button className="nv-map-cta" href={START} size="md" data-nv-start="">Get started</Button>
               <button className="nv-menu nv-close" type="button" aria-expanded="true" aria-controls="nv-map">
                 <span className="nv-menu-l">{UI.close}</span><MenuIco />
               </button>

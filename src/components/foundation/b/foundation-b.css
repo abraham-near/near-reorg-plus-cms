@@ -178,8 +178,6 @@
 .fb-close__nl { text-align: center; }
 .fb-close__nl .l-lede { margin-inline: auto; }
 .fb-close__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-.fb-btn--fill { color: var(--paper-0); background: var(--ink); }
-@media (hover: hover) { .fb-btn--fill:hover { background: #000; } }
 
 /* ================================================================ phones */
 @media (max-width: 859px) {

@@ -6,7 +6,7 @@
 //   - hides on the way down past 96 px (8 px of scroll), back on any 6 px up; never while a menu or the map is open or focus is inside.
 //   - the ground under the pill: dark over the dark bands (two frames of agreement, one clean switch).
 //   - the footer (#footer): as it arrives (its top from 92 % to 57 % of the screen) the pill slides out, scrubbed; back on the way up.
-//   - Get started: magnet (pointer: fine), and quiet (ghost) while the hero's own CTA is on screen (html[data-hero-in-view], CSS).
+//   - Get started: quiet (ghost: the pill's outline, .ui-btn--sec, set by V1Boot) while the hero's own CTA is on screen (html[data-hero-in-view]).
 //   - phones (< 860 px): the N + Menu; Menu opens the map, modal: the page behind is inert, Tab stays inside, Escape closes.
 //   - spread (header[data-spread], home v5; home v1's effect): at the very top the N sits at the left margin, the menus in the middle and Get started at the right
 //     margin, with no pill; the first real scroll (64 px) gathers them into the pill, which spreads again only near the top (24 px). Opening a menu does not.
@@ -39,7 +39,6 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
   const $$ = <T extends HTMLElement = HTMLElement>(s: string, r: ParentNode = header) => [...r.querySelectorAll<T>(s)];
   const bar = $(".nv-bar"), pop = $(".nv-pop"), list = $(".nv-list"), nav = $(".nv-nav");
   const menuBtn = $<HTMLButtonElement>(".nv-bar .nv-menu"), map = $(".nv-map"), closeBtn = $<HTMLButtonElement>(".nv-close", map);
-  const cta = $<HTMLAnchorElement>(".nv-bar .nv-cta");
   const trigs = $$<HTMLButtonElement>(".nv-trig"), panels = $$(".nv-panel");
   const ac = new AbortController(), on = { signal: ac.signal }, onP = { signal: ac.signal, passive: true };
   let dead = false, raf = 0;
@@ -333,31 +332,6 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
   }
   const raf2 = (fn: () => void) => requestAnimationFrame(() => requestAnimationFrame(() => { if (!dead) fn(); }));
 
-  /* ── magnet: Get started (pointer: fine). Pull ≤ 6 px, label ≤ 3 px, zone = box + 24 px; in tick 240, back settle 400 (CSS transitions on translate).
-     A pill the page carries out from under a resting pointer lets go: on every scroll it re-checks against the last pointer position. ── */
-  let ptr: { x: number; y: number } | null = null, magOn = false;
-  const lab = cta.querySelector<HTMLElement>(".mag-l");
-  const magWhen = () => !isMob() && !doc.hasAttribute("data-hero-in-view") && !st.away && !hd.on && !st.openId;
-  const put = (x: number, y: number) => {
-    cta.style.translate = x ? x.toFixed(2) + "px " + y.toFixed(2) + "px" : "";
-    if (lab) lab.style.translate = x ? (x / 2).toFixed(2) + "px " + (y / 2).toFixed(2) + "px" : "";
-  };
-  const magOff = () => { if (magOn) { magOn = false; cta.classList.remove("is-mag"); put(0, 0); } };
-  function magnet(px: number, py: number, scrolled?: boolean) {
-    if (scrolled && !magOn) return; // a scroll only releases; it never starts a pull under a still pointer
-    const r = cta.getBoundingClientRect(); if (!r.width) { magOff(); return; }
-    const Z = 24, inside = magWhen() && px > r.left - Z && px < r.right + Z && py > r.top - Z && py < r.bottom + Z;
-    if (!inside) { magOff(); return; }
-    const nx = Math.max(-1, Math.min(1, (px - (r.left + r.width / 2)) / (r.width / 2 + Z))), ny = Math.max(-1, Math.min(1, (py - (r.top + r.height / 2)) / (r.height / 2 + Z)));
-    if (!magOn) { magOn = true; cta.classList.add("is-mag"); }
-    put(nx * 6, ny * 6);
-  }
-  if (mqHover.matches && !reduced) {
-    cta.setAttribute("data-mag", "");
-    document.addEventListener("pointermove", (e) => { if (e.pointerType !== "mouse") return; ptr = { x: e.clientX, y: e.clientY }; magnet(ptr.x, ptr.y); }, onP);
-    addEventListener("scroll", () => { if (ptr) magnet(ptr.x, ptr.y, true); }, { signal: ac.signal, passive: true, capture: true });
-  }
-
   /* ── go ── */
   fixStarts();
   placePop(true); frame();
@@ -389,7 +363,6 @@ export function mount(header: HTMLElement, { reduced }: MotionCtx) {
     trigs.forEach((t) => t.setAttribute("aria-expanded", "false"));
     pop.classList.remove("is-open"); pop.removeAttribute("style");
     map.classList.remove("is-open"); map.hidden = true; menuBtn.setAttribute("aria-expanded", "false"); bar.inert = false;
-    cta.removeAttribute("data-mag"); cta.classList.remove("is-mag"); put(0, 0);
     header.classList.remove("nv-popped", "nv-switch", "nv-mapped", "nv-hide", "nv-flip", "is-dark", "nv-fading", "nv-away");
     header.style.removeProperty("--nv-fade");
   };

@@ -14,8 +14,9 @@
 // Copy and links: ../content.ts (the doc, verbatim; [[TBD]] there).
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button, TextLink } from "@/components/ui";
 import { EVENTS, EVENTS_HEAD, FAQ, HERO, LEGION, SOCIALS, SOCIALS_HEAD, STATS, WAYS, WAYS_HEAD } from "../content";
-import { Acc, Arrow, Count, Ext, NewTab, Sample, WipeWords } from "./parts";
+import { Acc, Count, Ext, NewTab, Sample, WipeWords } from "./parts";
 import { mount } from "./motion";
 import { HeroWeb } from "./HeroWeb";
 import "./community-x.css";
@@ -42,8 +43,8 @@ export function CommunityX() {
           <h1 id="cmx-h1" className="cmx-h1" data-rise="now"><Acc t={HERO.h1} a="web" sq /></h1>
           <p className="cmx-hero__sub" data-rv="" style={{ ["--rv" as string]: 2 }}>{HERO.sub}</p>
           <p className="cmx-actions" data-rv="" style={{ ["--rv" as string]: 3 }}>
-            <a className="cmx-btn cmx-btn--ink" href={HERO.primary.href}><span>{HERO.primary.label}</span><Arrow /></a>
-            <a className="cmx-link" href={HERO.secondary.href}><span>{HERO.secondary.label}</span><Arrow /></a>
+            <Button href={HERO.primary.href}>{HERO.primary.label}</Button>
+            <TextLink href={HERO.secondary.href}>{HERO.secondary.label}</TextLink>
           </p>
         </div>
         {/* [[TBD: graphic by Ali]] */}
@@ -75,8 +76,8 @@ export function CommunityX() {
             <h2 id="cmx-events-t" className="cmx-h2" data-rise=""><Acc t={EVENTS_HEAD.h} a="meets" /></h2>
             <p className="cmx-lede" data-rv="">{EVENTS_HEAD.sub}</p>
             <p className="cmx-actions cmx-actions--col" data-rv="">
-              <a className="cmx-btn" href={EVENTS_HEAD.cta.href} {...ext}><span>{EVENTS_HEAD.cta.label}</span><Ext /><NewTab /></a>
-              <a className="cmx-link" href={EVENTS_HEAD.host.href} {...ext}><span>{EVENTS_HEAD.host.label}</span><Ext /><NewTab /></a>
+              <Button href={EVENTS_HEAD.cta.href} external variant="secondary">{EVENTS_HEAD.cta.label}<NewTab /></Button>
+              <TextLink href={EVENTS_HEAD.host.href} external>{EVENTS_HEAD.host.label}<NewTab /></TextLink>
             </p>
           </div>
         </div>
@@ -103,13 +104,13 @@ export function CommunityX() {
       </section>
 
       {/* ───────────── 4 · the Legion: the dark band, its statement wiped from faint to paper */}
-      <section className="cmx-legion" id="legion" aria-labelledby="cmx-legion-t" data-nav-tone="dark">
+      <section className="cmx-legion" id="legion" aria-labelledby="cmx-legion-t" data-nav-tone="dark" data-ui-tone="dark">
         <div className="cmx-legion__in">
           <h2 id="cmx-legion-t" className="cmx-legion__h" data-rise=""><Acc t={LEGION.h} a="Legion" sq /></h2>
           <p className="cmx-legion__body" data-wipe=""><WipeWords text={LEGION.body} /></p>
           <div className="cmx-legion__foot" data-rv="">
             <p className="cmx-legion__stat">{LEGION.stat.line}{LEGION.stat.sample && <Sample />}</p>
-            <a className="cmx-btn cmx-btn--green" href={LEGION.cta.href}><span>{LEGION.cta.label}</span><Arrow /></a>
+            <Button href={LEGION.cta.href}>{LEGION.cta.label}</Button>
           </div>
         </div>
       </section>
@@ -137,7 +138,7 @@ export function CommunityX() {
           <p className="cmx-also" data-rv="">
             <span>Also on</span>
             {ALSO.map((s) => (
-              <a key={s.key} className="cmx-link" href={s.href} {...ext}><span>{s.name}</span><Ext /><NewTab /></a>
+              <TextLink key={s.key} href={s.href} external>{s.name}<NewTab /></TextLink>
             ))}
           </p>
         )}
@@ -154,9 +155,7 @@ export function CommunityX() {
                 <h3 className="cmx-way__t">{w.t}</h3>
                 <p className="cmx-way__b">{w.b}</p>
                 <p className="cmx-way__cta">
-                  <a className="cmx-link" href={w.href} {...(isExt(w.href) ? ext : {})}>
-                    <span>{w.cta}</span>{isExt(w.href) ? <><Ext /><NewTab /></> : <Arrow />}
-                  </a>
+                  <TextLink href={w.href} external={isExt(w.href)}>{w.cta}{isExt(w.href) && <NewTab />}</TextLink>
                 </p>
               </div>
             </li>

@@ -15,7 +15,8 @@ import { useScrollMotion } from "@/lib/motion/scroll";
 import { FixVersion } from "@/components/shared/version";
 import { V3Header } from "@/components/v3/header/Header";
 import { V3Footer } from "@/components/v3/footer/Footer";
-import { Arrow, Ext } from "@/components/v3/blog/parts";
+import { Ext } from "@/components/v3/blog/parts";
+import { Button, TextLink } from "@/components/ui";
 import { mount } from "@/components/v3/blog/j/motion";
 import "@/components/v3/buttons.css";
 import "@/components/v3/blog/blog.css";
@@ -171,7 +172,7 @@ export function ContactBand() {
                   <Err id="ct-msg-err" msg={errors.message} />
                 </div>
                 <div className="ct-send">
-                  <button type="submit" className="bl-btn bl-btn--ink"><span>Send message</span><Arrow /></button>
+                  <Button type="submit">Send message</Button>
                   <p className="bj-fine ct-fine">We use these details only to reply. See our <a href="https://www.near.org/privacy-policy">Privacy Policy</a>.</p>
                 </div>
               </div>
@@ -182,7 +183,7 @@ export function ContactBand() {
                     <h3 ref={doneRef} tabIndex={-1} className="ct-done__t">Thanks, {sent.name.split(/\s+/)[0]}.</h3>
                     <p className="ct-done__p">We’d reply to <b>{sent.email}</b> about <b>{sent.topic}</b>.</p>
                     <p className="bj-pre ct-pre">Preview only: nothing was sent.</p>
-                    <button type="button" className="bl-link ct-again" onClick={again}><span>Write another message</span><Arrow /></button>
+                    <TextLink className="ct-again" onClick={again}>Write another message</TextLink>
                   </div>
                 )}
               </div>

@@ -1,10 +1,11 @@
 // 404, proposal A: "Lost in the mist". Home v5's hero (the misty forest, flipped, its paper veil on the left and the fade to paper at the foot) as a
 // full-screen 404: a huge "404" in the mist's grey that a slow fog drifts across, the headline in the hero's voice ("Lost in the mist." with the Kepler
-// accent and the green square of "world."), one line of sub, the hero's pill back home and two ways out as v3 text links with drawn arrows.
+// accent and the green square of "world."), one line of sub, the site's pill back home and two ways out as the site's text links (components/ui).
 // A slim footer line closes the screen (no big footer). Its own small shell (v3's values, v5's header); styles: ./notfound-a.css.
 import type { CSSProperties } from "react";
 import { FixVersion } from "@/components/shared/version";
 import { V3Header } from "@/components/v3/header/Header";
+import { Button, TextLink } from "@/components/ui";
 import "@/components/v1/world/world.css";
 import "@/components/v3/buttons.css";
 import "./notfound-a.css";
@@ -47,13 +48,14 @@ export function NotFoundAHero() {
           </h1>
           <p className="nfa__sub nfa-in" style={i(2)}>{COPY.sub.map((l) => <span className="bl" key={l}>{l} </span>)}</p>
           <div className="nfa__go nfa-in" style={i(3)}>
-            <a className="cta" href={HOME}>{COPY.cta} <span className="arr" aria-hidden="true" /></a>
+            <Button href={HOME}>{COPY.cta}</Button>
             <ul className="nfa__ways" aria-label="Other ways out">
               {WAYS.map((w) => (
                 <li key={w.href}>
-                  <a className={`nfa__a${ext(w.href) ? " nfa__a--ext" : ""}`} href={w.href}>
+                  {/* same tab as before (no external): only the ↗ says it's another NEAR site */}
+                  <TextLink href={w.href} icon={ext(w.href) ? "ext" : "arrow"}>
                     {w.name}{ext(w.href) && <span className="sr-only">{COPY.ext}</span>}
-                  </a>
+                  </TextLink>
                 </li>
               ))}
             </ul>

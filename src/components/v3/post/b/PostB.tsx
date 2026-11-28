@@ -8,7 +8,7 @@
 import { useRef } from "react";
 import { SplitText } from "gsap/SplitText";
 import { useScrollMotion, type MotionCtx } from "@/lib/motion/scroll";
-import { Arrow } from "../../blog/parts";
+import { Relay, btnClass } from "@/components/ui";
 import type { Article } from "../article";
 import { Body, Footnotes, Share, Tags } from "../Body";
 import { useReadProgress, useReveal } from "../hooks";
@@ -90,12 +90,13 @@ export function PostB({ article: A }: { article: Article }) {
 
       {next && (
         <section className="pbv-next" aria-labelledby="pbv-next-t">
-          <a className="pbv-next__a" href={next.href}>
+          <a className="pbv-next__a" href={next.href} data-ui-host="">
             <div className="pbv-next__ph">{next.img && <img src={next.img} alt="" loading="lazy" />}</div>
             <div className="pbv-next__in">
               <p className="pbv-next__l">Up next · {next.label}</p>
               <h2 id="pbv-next-t" className="pbv-next__t">{next.title}</h2>
-              <span className="bl-btn bl-btn--paper pbv-next__go"><span>Read next</span><Arrow /></span>
+              {/* the whole card is the link, so the pill is a span with the Button's classes (an <a> can't hold one); post-b.css runs its hover off the card */}
+              <span className={btnClass({ tone: "dark", className: "pbv-next__go" })}><span>Read next</span><Relay /></span>
             </div>
           </a>
         </section>

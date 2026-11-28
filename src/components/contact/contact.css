@@ -75,7 +75,7 @@
 .ct-done__p { margin-top: 12px; max-width: 30em; font-size: var(--t-body-l); line-height: var(--t-body-l-lh); letter-spacing: var(--t-body-l-tr); color: var(--graphite); text-wrap: pretty; overflow-wrap: anywhere; }
 .ct-done__p b { font-weight: 500; color: var(--ink); }
 .ct .ct-pre { display: block; margin-top: 10px; }
-.ct-again { margin-top: 28px; border: 0; cursor: pointer; }
+.ct-again { margin-top: 28px; }
 
 /* ---------------------------------------------------------------- the social links: a quiet grid of rows, one hairline under each; it inks up on hover */
 .ct-soc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: clamp(20px, 2.2vw, 32px); margin-top: 6px; }

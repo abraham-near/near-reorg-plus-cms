@@ -346,6 +346,13 @@
   .l-gi__act--links .l-gi__a:hover .l-gi__label { background-size: 100% var(--hair); }
   .l-gi__act--links .l-gi__a:hover .l-ext { transform: translate(2px, -2px); }
 }
+/* the paths' links are the shared TextLink now (components/ui): only their place here. The single link stays static so its ::after (above) covers the whole
+   row (hovering the row hovers the link, so its relay runs); a row with its own links keeps each one positioned. The .l-gi__go / .l-gi__label rules above stay
+   for /community and /analytics, which still use them. */
+.l-gi__a.ui-link { position: static; }
+.l-gi__act--links .l-gi__a.ui-link { position: relative; }
+.l-gi__a.ui-link:focus-visible { outline: none; }
+.l-gi__act--links .l-gi__a.ui-link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 /* the preview: the photo fills its cell, the caption sits on a strip under it */
 .l-gi__pv { display: flex; flex-direction: column; }
 .l-gi__frame { position: relative; flex: none; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-2); }   /* ~4:3 (was the row's height) */

@@ -5,6 +5,7 @@
 // When the stage lets go, its last line is the figures' first rule. Phones, short screens and reduced motion: the finished bento, no hold. Motion: ./motion.ts.
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button } from "@/components/ui";
 import { REV, fmtK } from "../data";
 import { mount } from "./motion";
 import { ISO } from "./iso";
@@ -90,7 +91,7 @@ export function RevenueD({ flat = false }: { flat?: boolean }) {
                 <span className="rvd-fin" aria-hidden="true"><i className="tl" /><i className="tr" /><i className="bl" /><i className="br" /></span>
               </div>
             </figure>
-            <p className="rvd-cta"><a className="l-btn" href={REV.href}><span>Explore NEAR’s revenue dashboard</span></a></p>
+            <p className="rvd-cta"><Button href={REV.href} variant="secondary">Explore NEAR’s revenue dashboard</Button></p>
           </div>
 
           <div className="rvd-cell rvd-g8">

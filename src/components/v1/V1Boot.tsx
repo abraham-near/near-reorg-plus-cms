@@ -36,7 +36,8 @@ function start(): Live {
     offs.push(ctx.dispose);
     if (ac.signal.aborted) return;
     // the header's action goes quiet while the hero shows: the pinned hero leaves by the transition's playhead, not by scrolling away
-    const quiet = (on: boolean) => html.toggleAttribute("data-hero-in-view", on);
+    // (the header's Get started turns the site pill's outline, .ui-btn--sec; header.css)
+    const quiet = (on: boolean) => { html.toggleAttribute("data-hero-in-view", on); document.querySelector(".nvh .nv-bar .nv-cta")?.classList.toggle("ui-btn--sec", on); };
     if (ctx.pinned && !ctx.reduced) offs.push(ctx.progress((p) => quiet(p < 0.15)));
     else {
       const hero = document.querySelector(".hero");
@@ -56,6 +57,6 @@ function start(): Live {
   })().catch((e) => { console.error("[v1] boot", e); markReady(); });
   return {
     refs: 1, kill: 0,
-    dispose: () => { ac.abort(); for (const f of offs.reverse()) { try { f(); } catch (e) { console.warn("[v1] dispose", e); } } html.removeAttribute("data-hero-in-view"); },
+    dispose: () => { ac.abort(); for (const f of offs.reverse()) { try { f(); } catch (e) { console.warn("[v1] dispose", e); } } html.removeAttribute("data-hero-in-view"); document.querySelector(".nvh .nv-bar .nv-cta")?.classList.remove("ui-btn--sec"); },
   };
 }

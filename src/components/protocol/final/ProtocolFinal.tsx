@@ -18,7 +18,8 @@
 // Copy: ../content.ts (the doc, verbatim). Drawings: ./drawings.ts. Motion: ./motion.ts (B's, plus ./art.ts). Styles: B's (../b/protocol-b.css, the
 // page runs under .pr-b too) and ./protocol-final.css (.pr-f). A server component: only FinalRoot runs in the browser.
 import { CHAIN_SIGNATURES, DEVELOPERS, HERO, QUANTUM, SPEED } from "../content";
-import { AiAndNearOne, Arrow, Band, Btn, codeLine, Deeper, More, Secure, Spacer, type DeeperItem } from "../b/parts";
+import { TextLink } from "@/components/ui";
+import { AiAndNearOne, Band, Btn, codeLine, Deeper, More, Secure, Spacer, type DeeperItem } from "../b/parts";
 import { ACCESS, HERO as HERO_ART, QUANTUM as QUANTUM_ART, SIGNATURES } from "./drawings";
 import { FinalRoot } from "./FinalRoot";
 import "../../v3/proof-deeper/proof-deeper.css";
@@ -134,7 +135,7 @@ export function ProtocolFinal({ deeper }: { deeper: readonly DeeperItem[] }) {
             </div>
             <div className="l-cell pf-feat__art pf-sig__art">
               <Art id="signatures" d={SIGNATURES} className="pf-art--sig" />
-              <a className="pf-cta" href={CHAIN_SIGNATURES.link.href} data-rv=""><span>{CHAIN_SIGNATURES.link.label}</span><Arrow /></a>
+              <TextLink href={CHAIN_SIGNATURES.link.href} size="inherit" className="pf-cta" data-rv="">{CHAIN_SIGNATURES.link.label}</TextLink>
             </div>
           </div>
         </section>

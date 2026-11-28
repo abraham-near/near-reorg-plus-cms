@@ -12,6 +12,7 @@
 // and white (/images/blog/<id>.webp), with no dates of their own. Labels are /blog's (J's KIND): Blog, Press, Watch.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { BlogItem } from "@/components/blog/live";
+import { Button } from "@/components/ui";
 import { POSTS, href, isExt, type FilterKey, type Type } from "@/components/v3/blog/data";
 import { DEEPER_TAGS, tagKey, tagList } from "./tags";
 import "./blog-e.css";
@@ -194,7 +195,7 @@ export function BlogE({ live = NONE }: { live?: BlogItem[] }) {
         </p>
       )}
       {list.length > shown && (
-        <div className="be-more"><button type="button" className="be-more__b" onClick={() => setShown((n) => n + STEP)}>Show more <span aria-hidden="true">+</span></button></div>
+        <div className="be-more"><Button variant="secondary" icon="none" onClick={() => setShown((n) => n + STEP)}>Show more <span aria-hidden="true">+</span></Button></div>
       )}
     </div>
   );

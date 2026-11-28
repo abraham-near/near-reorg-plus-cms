@@ -33,15 +33,8 @@
 .an-x .anx-d__k { color: var(--muted); }
 .an-x .anx-d__t { width: 8px; height: 8px; fill: currentColor; }
 .an-x .anx-d--up .anx-d__t { color: #00a86b; } .an-x .anx-d--down .anx-d__t { color: #b4441f; }
-.an-x .anx-btn { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 22px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--ink);
-  font: var(--t-ui-w) var(--t-ui)/var(--t-ui-lh) var(--sans); color: var(--ink); transition: background-color 0.2s var(--ease-tick), color 0.2s var(--ease-tick); white-space: nowrap; }
-.an-x .anx-btn--fill { background: var(--ink); color: var(--paper-0); }
-@media (hover: hover) {
-  .an-x .anx-btn:hover { background: var(--ink); color: var(--paper-0); }
-  .an-x .anx-btn:hover .anx-ext { translate: 2px -2px; }
-  .an-x .anx-btn--fill:hover { background: #000; }
-}
-.an-x :is(a, button):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+/* the pills are the site's Button (components/ui) */
+.an-x :is(a, button):not(.ui-btn, .ui-link):focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
 .an-x .anx-pulse { position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); flex: none; }
 .an-x .anx-pulse::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--emerald); animation: anx-ping 2.4s var(--ease-glide) infinite; }
 .an-x[data-health="issue"] .anx-pulse { background: #e0a100; }

@@ -13,15 +13,15 @@
 // Copy and links: ../content.ts (verbatim).
 import { useRef } from "react";
 import { useScrollMotion } from "@/lib/motion/scroll";
+import { Button, TextLink } from "@/components/ui";
 import { HERO, MILESTONES, ORIGIN, TODAY } from "../content";
-import { Acc, Arrow } from "./parts";
+import { Acc } from "./parts";
 import { HeroIso } from "./HeroIso";
 import { mount } from "./motion";
 import "../../v3/proof-deeper/proof-deeper.css";
 import "./history-x.css";
 
 const isExt = (h: string) => /^https?:/.test(h);
-const ext = (h: string) => (isExt(h) ? { target: "_blank", rel: "noopener noreferrer" } : {});
 const ExtSr = ({ h }: { h: string }) => (isExt(h) ? <span className="sr-only"> (opens another site)</span> : null);
 
 export function HistoryX() {
@@ -36,8 +36,8 @@ export function HistoryX() {
           <h1 id="hx-h1" className="hx-h1" data-h1=""><Acc h={HERO.h1} a={HERO.accent} /></h1>
           <p className="hx-hero__sub" data-in="">{HERO.sub}</p>
           <p className="hx-acts" data-in="">
-            <a className="l-btn hx-btn" href={HERO.primary.href} {...ext(HERO.primary.href)}><span>{HERO.primary.label}</span><ExtSr h={HERO.primary.href} /></a>
-            <a className="l-link" href={HERO.secondary.href} {...ext(HERO.secondary.href)}><span>{HERO.secondary.label}</span><Arrow /></a>
+            <Button href={HERO.primary.href} external={isExt(HERO.primary.href)}>{HERO.primary.label}<ExtSr h={HERO.primary.href} /></Button>
+            <TextLink href={HERO.secondary.href} external={isExt(HERO.secondary.href)}>{HERO.secondary.label}<ExtSr h={HERO.secondary.href} /></TextLink>
           </p>
         </div>
         <div className="hx-hero__art"><HeroIso /></div>
@@ -85,7 +85,7 @@ export function HistoryX() {
           <div className="l-cell"><h2 id="hx-td-t" className="l-h2 hx-h2" data-rv=""><Acc h={TODAY.h} a="blockchain" /></h2></div>
           <div className="l-cell hx-td__copy">
             <p className="l-lede" data-rv="">{TODAY.body}</p>
-            <p data-rv=""><a className="l-link" href={TODAY.link.href}><span>{TODAY.link.label}</span><Arrow /></a></p>
+            <p data-rv=""><TextLink href={TODAY.link.href}>{TODAY.link.label}</TextLink></p>
           </div>
         </div>
       </section>
